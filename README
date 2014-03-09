@@ -1,51 +1,12 @@
  	Organon – Beschreibung
+
 Extension für LibreOffice (LO) und OpenOffice (OO)
 getestet für Win7 (LO 4.2.0.4 und OO 4.0.1) und Ubuntu 13.10 (LO 4.2.0.4), ungetestet für Mac 
 
 WARNUNG:	Dies ist eine Alpha-Version und sollte nicht zum ernsthaften Arbeiten genutzt werden. Wer von OO oder LO in irgendeiner Weise abhängig ist und dem  Computer ansonsten fremdes Land sind, sollte auf den Einsatz vorläufig noch verzichten. Irgendwas geht ja immer schief.
- 	Installation:
+ 	
+	Installation:
 Unter Extras/Extension Manager auf hinzufügen klicken und die organon.oxt Datei auswählen. Lizenzvertrag akzeptieren und Office schließen und neu starten.
 
  	Bedienung
-unter dem Menüreiter Organon auf 'auf/zu' klicken. Evtl. wiederholen, sollte noch nichts zu sehen sein. Das Fenster, das erscheint, kann entweder frei auf dem Desktop herumschweben oder innerhalb von OO/LO angedockt werden.
-In OO gibt es unter Ansicht/Symbolleisten den Eintrag Organon. Damit kann man sich ein dockbares Fenster auf den Desktop holen. Fehlt in LO
-beim ersten Starten neues Projekt erzeugen: ORGANON/Datei/Neues Projekt. Es wird der Ordner 'Organon' im Benutzer-Dokumente Ordner angelegt. 
-Win: C:\Users\<Benutzer>\Documents\Organon
-Ubuntu: /home/<user>/Dokumente/Organon
-In dem Ordner befindet sich das neue Projekt
-Projekt laden: ORGANON/Datei/Projekt laden ? Projektordner aussuchen. Im Projektordner ist eine Projektdatei: <projektname>.organon. Die auswählen und das Projekt wird geladen.
-Neue Dateien oder Ordner werden mit den Symbolen in der ORGANON-Menüleiste oder unter dem Reiter Datei erzeugt. Die neuen Einträge entstehen unter der ausgewählten Zeile und auf dem gleichen Einrücklevel. Bei ausgewählten Ordnern, die Inhalte besitzen, wird der neue Eintrag daher erst nach dem Inhalt der Ordner eingefügt.
-Mit Doppelklick auf den Dateinamen/Ordnernamen können diese bearbeitet werden. Macht optisch bisher noch keinen Unterschied – wird geändert.
-
- 	Drag 'n' Drop
-einfach ziehen und loslassen und gucken, was passiert.
- 	Speichern
-Das Programm speichert von allein. ES MUSS ALSO NIE GESPEICHERT WERDEN. Nach Textänderungen wird nach Wechsel der Ansicht oder beim Schließen automatisch gespeichert. Wenn OO oder LO beim Beenden fragen, ob gespeichert werden soll, kann man das getrost wegklicken. Frei nach Duchamp, der ja auch nie ne Schraube anzog, wenn er nicht musste – laut Paul Matisse. Aber naja ...
- 	Tags
-es können Tags vergeben werden. Bis jetzt sinds nur farbige Punkte, Symbole folgen. Unter ORGANON/Optionen bei 'zeige Tag1' ein Häkchen setzen. Mit einem Doppelklick auf den Zwischenraum von Datei/Ordnersymbol und Text können die Tags gesetzt werden
-
- 	Sonstiges
-Ist was im Papierkorb, kann der Klick auf den durchgeixten Papierkorb den Eigentümer vom Schrott befreien. Die Dateien sind unwiederbringlich verloren. Aber Vorsicht war noch nie die Mother of Invention.
-Es sollte beliebig per Drag 'n' Drop oder Copy 'n' Paste aus anderen Dateien eingefügt werden können. Etwaige Bilder aus dem Internet werden in die Datei übernommen und mit ihr gespeichert. Wenn die Internetverbindung sehr lahm sein sollte, kann OO/LO dabei abstürzen.
-
- 	Issues
-Es ist nur eine Instanz von OO/LO mit Organon nutzbar. (½ Issue)
-Wenn Organon bereits ein Projekt enthält, können keine anderen Projekte geladen oder erzeugt werden ?  wahrscheinlich Absturz. Es muss zumindest das Dokumentenfenster geschlossen werden (kleines Kreuz in der oberen rechten Ecke).
-Nach dem Umschalten auf die Ansicht 'Gesamter Bildschirm'  und zurück ist Organon unbenutzbar, erzeugt Fehler oder bringt OO/LO zum Absturz.
-Der Projektordner kann umbenannt und gelöscht werden. Danach funktioniert 'Projektordner ausklappen' nicht mehr.
-Die Scrollleiste ist auf einen festen Wert eingestellt und immer sichtbar. Sie ist auch nicht durch das Mausrad zu bewegen (was aber nach meinem jetzigen Kenntnisstand auch nicht behoben werden kann.)
-offene/geschlossene Ansicht des Papierkorbs ist fehlerhaft.
-
-ToDos / Geplantes
-als weitere Tagmöglichkeit sind geplant: 
-a) Symbole, evtl. frei vom User wählbar 
-b) Anzeige einer klassischen Nummerierung
-Übersetzung ins Englische
-Export der Dateien:
-in eine Gesamtdatei (wobei die ohnehin schon sehr einfach vom User selbst zu erstellen ist. Trotzdem, der Vollständigkeit und Einfachheit halber...)
-in Einzeldateien mit einem ihrem Ordner- oder Dateieintrag entsprechenden Namen
-man sollte aus allen Dateien die zu exportierenden wählen können
-Formatierung von ausgewählten Bereichen nach einem Modellbereich (zur Zeit kann nicht der gesamte Text gleichzeitig formatiert werden – etwa Schrift für das ges. Dokument umstellen)
-langfristig: eine Verknüpfung mit einem neuen Reiter in der Sidebar, in der dann Anmerkungen zu den Ordnern und Dateien eingetragen werden können.
-Eine andere Ansicht für geschlossene Ordner, wenn sie Dateien enthalten.     v 
-Den Speicherort für Organon Projekte frei wählbar gestalten und speichern
+Lesen Sie für eine ausfühlichere Beschreibung die 'Anleitung.oxt' oder 'Anleitung.rtf'
