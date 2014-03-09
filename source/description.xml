@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<description xmlns="http://openoffice.org/extensions/description/2006"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+							xmlns:d="http://openoffice.org/extensions/description/2006">
+							
+		<identifier value="xaver.roemers.organon" />
+		<version value="0.1.a" />
+
+		<dependencies>
+				<d:OpenOffice.org-minimal-version value="3.4" d:name="OpenOffice.org 3.4" />
+		</dependencies>
+		
+		<display-name>
+				<name lang="de">Organon</name>
+		</display-name>
+		
+		<icon>
+			<default xlink:href="img/organon_icon_gedreht_36.png" />
+		</icon>
+		
+		<registration>
+			<simple-license accept-by="admin" suppress-on-update="true" >
+				<license-text xlink:href="registration/license_de-DE.txt" lang="de-DE" />
+				<license-text xlink:href="registration/license_en-US.txt" lang="en-US" />
+			</simple-license>
+		</registration>
+		
+		<extension-description>
+			<src xlink:href="description/desc_de.txt" lang="de" />
+			<!-- <src xlink:href="description/desc_en.txt" lang="en" /> -->
+		</extension-description>
+	
+</description>

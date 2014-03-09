@@ -1,0 +1,1 @@
+Organon legt Textdateien in einem Verzeichnisbaum an. Bei Auswahl eines Ordners oder einer Datei springt Organon an die entsprechende Textstelle. Dateien und Ordner koennen gekennzeichnet ('getaggt') werden.

@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Addons" oor:package="org.openoffice.Office">
+
+  <node oor:name="AddonUI">
+	
+    <node oor:name="OfficeMenuBar">
+		
+      <node oor:name="com.open.office.roemers.schalter" oor:op="replace">
+        <prop oor:name="Title" oor:type="xs:string">
+          <value/>
+          <value xml:lang="en">Organon</value>
+        </prop>
+        <prop oor:name="Target" oor:type="xs:string">
+          <value>_self</value>
+        </prop>
+				
+        <node oor:name="Submenu">
+          <node oor:name="com.open.office.roemers.schalter" oor:op="replace">
+            <prop oor:name="URL" oor:type="xs:string">
+              <value>service:com.open.office.roemers.schalter</value>
+            </prop>
+            <prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value/>
+						</prop>
+            <prop oor:name="Target" oor:type="xs:string">
+              <value>_self</value>
+            </prop>
+            <prop oor:name="Context" oor:type="xs:string">
+              <value/>
+            </prop>
+            <prop oor:name="Title" oor:type="xs:string">
+              <value/>
+              <value xml:lang="en">auf/zu</value>
+            </prop>
+          </node>
+        </node>
+      </node>
+			
+    </node>
+		
+    <node oor:name="OfficeToolBar">
+		
+      <node oor:name="com.org.office.roemers.schalter" oor:op="replace">
+        <prop oor:name="Title" oor:type="xs:string">
+          <value>Organon</value>
+        </prop>
+        <node oor:name="ToolBarItems">
+          <node oor:name="button_1" oor:op="replace">
+            <prop oor:name="Title" oor:type="xs:string">
+              <value xml:lang="en-US">auf/zu</value>
+            </prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value/>
+						</prop>
+            <prop oor:name="URL" oor:type="xs:string">
+              <value>service:com.open.office.roemers.schalter</value>
+            </prop>
+            <prop oor:name="Target" oor:type="xs:string">
+              <value>_self</value>
+            </prop>
+            <prop oor:name="Context" oor:type="xs:string">
+              <value>com.sun.star.text.TextDocument </value>
+            </prop>
+          </node>
+        </node>
+      </node>
+			
+    </node>
+		
+    <node oor:name="Images">
+      <node oor:name="com.open.office.roemers.schalter.image1" oor:op="replace">
+        <prop oor:name="URL" oor:type="xs:string">
+          <value>service:com.open.office.roemers.schalter</value>
+        </prop>
+        <node oor:name="UserDefinedImages">
+          <prop oor:name="ImageSmallURL">
+            <value>%origin%/img/organon_icon_gedreht_16.png</value>
+          </prop>
+          <prop oor:name="ImageBigURL">
+            <value>%origin%/img/organon_icon_gedreht_24.png</value>
+          </prop>
+          <!-- <prop oor:name="ImageSmallHCURL">
+            </value>
+          </prop>
+          <prop oor:name="ImageBigHCURL">
+            </value>
+          </prop> -->
+        </node>
+      </node>
+      </node>
+
+  </node>
+</oor:component-data>
