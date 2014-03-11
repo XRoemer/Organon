@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 
 #print('Projekte')
 import traceback
@@ -35,11 +35,11 @@ class Projekt():
                 n1 = 'Das Projekt soll den gleichen Namen wie das zur Zeit geoeffnete Dokument erhalten. Das funktioniert nicht.'
                 self.mb.Mitteilungen.nachricht(n1,"warningbox")
                 return
-                # Wenn das Projekt schon existiert, Abfrage, ob Projekt überschrieben werden soll
+                # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
                 # funktioniert das unter Linux?? ############
             elif os.path.exists(self.mb.pfade['projekt']):
                 n2 = r'Das Projekt existiert schon. Soll es geloescht und ueberschrieben werden?'
-                # 16777216 Flag für YES_NO
+                # 16777216 Flag fuer YES_NO
                 entscheidung = self.mb.Mitteilungen.nachricht(n2,"warningbox",16777216)
                 # 3 = Nein oder Cancel, 2 = Ja
                 if entscheidung == 3:
@@ -53,7 +53,6 @@ class Projekt():
                         # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
                         pass
                     
-            #pd()
         
         if geglueckt:
             try:
@@ -68,7 +67,7 @@ class Projekt():
                 Path = self.mb.pfade['settings']  
                 self.mb.xml_tree.write(Path + '/ElementTree.xml')
                 self.mb.xml_tree_settings.write(Path +'/settings.xml' )
-                # nach dem Path für andere Betriebssysteme schauen !!!!!!!!
+                # nach dem Path fuer andere Betriebssysteme schauen !!!!!!!!
             except:
                 tb()
 
@@ -122,7 +121,7 @@ class Projekt():
             with open(pfade['projekt']+"/%s.organon" % self.mb.projekt_name, "w") as file:
                 file.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
                  
-            # Setzen einer UserDefinedProperty um Projekt identifizieren zu können
+            # Setzen einer UserDefinedProperty um Projekt identifizieren zu koennen
             UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
             has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
             if has_prop:
@@ -133,10 +132,8 @@ class Projekt():
             # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
             Path = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % self.mb.projekt_name
             self.mb.doc.storeAsURL(Path,())   
-            #pd() 
         except:
             tb()
-        #pd()
                        
     def dialog_neues_projekt_anlegen(self):
         
@@ -151,7 +148,7 @@ class Projekt():
         
         listener = neues_Projekt_Dialog_Listener(model1) 
         control1.addKeyListener(listener) 
-        #pd()
+
         Attr = (50,100,80,30,'btn')    
         PosX,PosY,Width,Height,Name = Attr   
         control2, model2 = createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
@@ -206,7 +203,7 @@ class Projekt():
     def lade_Projekt(self,filepicker = True):
         if self.mb.debug: print(self.mb.debug_time(),'lade_Projekt')
        
-        # fehlt: wenn bereits ein Projekt geladen wurde, stürzt oOO ab
+        # fehlt: wenn bereits ein Projekt geladen wurde, stuerzt oOO ab
         # daher: alles entfernen !!
         #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)                  
         
@@ -219,13 +216,13 @@ class Projekt():
                 return
             
             filepath = Filepicker.Files[0]
-            # Wenn keine .organon Datei gewählt wurde
+            # Wenn keine .organon Datei gewaehlt wurde
             if filepath.split('/')[-1].split('.')[1]  != 'organon':
                 return
             
             self.mb.projekt_name = filepath.split('/')[-1].split('.')[0]       
-#         pd()
-#         # prüft, ob eine Organon Datei geladen ist
+
+#         # prueft, ob eine Organon Datei geladen ist
 #         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
 #         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
 # 
@@ -233,8 +230,8 @@ class Projekt():
 #             dialog_contr = self.mb.dialog.Controls
 #             for contr in dialog_contr:
 #                 contr.dispose()
-#             pd()
-        #pd()
+
+
         
         self.setze_pfade()
         self.mb.class_Bereiche.leere_Dokument() 
@@ -290,7 +287,6 @@ class Projekt():
         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
         SFLink.FileURL = Path
         
-        #pd()
         zaehler = 1
 
        
@@ -320,8 +316,8 @@ class Projekt():
                                
                 cur.gotoStart(False)
                 cur.gotoEnd(True)
-                # insert und remove bewirken Einfügen und Entfernen der Section
-                # der eingefügte Inhalt aber bleibt
+                # insert und remove bewirken Einfuegen und Entfernen der Section
+                # der eingefuegte Inhalt aber bleibt
                 newDoc.Text.insertTextContent(cur, newSection, True)
                 newDoc.Text.removeTextContent(newSection)
                 
@@ -389,7 +385,7 @@ class Projekt():
             self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)  
 
             if sicht == 'ja':
-                # index wird in erzeuge_Verzeichniseintrag bereits erhöht, daher hier 1 abziehen
+                # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
                 self.mb.dict_zeilen_posY.update({(index-1)*ZEILENHOEHE:eintrag})
                 self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
@@ -438,7 +434,7 @@ class Projekt():
             index = self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener,index)
             
             if sicht == 'ja':
-                # index wird in erzeuge_Verzeichniseintrag bereits erhöht, daher hier 1 abziehen
+                # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
                 self.mb.dict_zeilen_posY.update({(index-1)*ZEILENHOEHE:eintrag})
                 self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
@@ -482,7 +478,7 @@ class Projekt():
         alle_eintraege = root.findall('.//')
         
         
-        ### Vielleicht gibt es eine Möglichkeit, den Baum nur einmal zu durchlaufen?
+        ### Vielleicht gibt es eine Moeglichkeit, den Baum nur einmal zu durchlaufen?
         ### Statt 1) Baum komplett durchlaufen 2) jeden Eintrag nochmals rekursiv durchlaufen
         ### Ziel: einmal durchlaufen und jedes Kind bei allen Elternelementen eintragen
         
@@ -501,7 +497,7 @@ class Projekt():
                     get_tree_info(child, dict,tag,helfer)
         
         
-        # Für alle Ordner eine Liste ihrer Kinder erstellen -> self.mb.dict_ordner       
+        # Fuer alle Ordner eine Liste ihrer Kinder erstellen -> self.mb.dict_ordner       
         for tag in ordner:
             dir = root.find('.//'+tag)
             helfer = []

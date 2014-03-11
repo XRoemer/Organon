@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 
 import traceback
 import uno
@@ -255,8 +255,8 @@ class Bereiche():
             bild = bilder.getByIndex(i)
             if 'vnd.sun.star.GraphicObject' not in bild.GraphicURL:
                 # Wenn die Grafik nicht gespeichert werden kann,
-                # (weil noch nicht geladen oder User hat zu früh weitergeklickt)
-                # müsste sie eigentlich bei der nächsten Änderung
+                # (weil noch nicht geladen oder User hat zu frueh weitergeklickt)
+                # muesste sie eigentlich bei der naechsten Änderung
                 # im Bereich gespeichert werden
                 try:
                     bitmap.insertByName( "TempI"+str(i), bild.GraphicURL )
@@ -297,7 +297,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         s_name = selected_text_section.Name
         
         # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
-        # und der Trenner übersprungen wird
+        # und der Trenner uebersprungen wird
         if 'trenner'  in s_name:
             if self.mb.zuletzt_gedrueckte_taste == None:
                 try:
@@ -316,7 +316,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                     self.mb.viewcursor.goUp(1,False)
             return False 
         
-        # test ob ausgewählter Bereich ein Kind-Bereich ist -> Selektion wird auf Parent gesetzt
+        # test ob ausgewaehlter Bereich ein Kind-Bereich ist -> Selektion wird auf Parent gesetzt
         elif 'trenner' not in s_name and 'OrganonSec' not in s_name:
             sec = []
             self.test_for_parent_section(selected_text_section,sec)
@@ -373,7 +373,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         
         self.mb.selektierte_zeile = zeile.AccessibleContext
         
-        # selektierte Zeile einfärben, ehem. sel. Zeile zurücksetzen
+        # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
         textfeld.Model.BackgroundColor = FARBE_AUSGEWAEHLTE_ZEILE 
         if self.mb.selektierte_Zeile_alt != None:                
             self.mb.selektierte_Zeile_alt.Model.BackgroundColor = FARBE_ZEILE_STANDARD
@@ -400,7 +400,6 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
         #print('windowShown')
         return False
     def windowHidden(self,ev):
-        #pd()
         if self.mb.bereich_wurde_bearbeitet:
             ordinal = self.mb.selektierte_zeile.AccessibleName
             bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]

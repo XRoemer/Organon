@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 
 #print('neues Projekt')
 import traceback
@@ -57,7 +57,7 @@ class Main_Container():
         
     def erzeuge_Navigations_Hauptfeld(self):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Navigations_Hauptfeld')
-        # Das äussere Hauptfeld wird fürs Scrollen benötigt. Das innere und eigentliche
+        # Das aeussere Hauptfeld wird fuers Scrollen benoetigt. Das innere und eigentliche
         # Hauptfeld scrollt dann in diesem Hauptfeld_aussen
         
         # Hauptfeld_Aussen
@@ -119,7 +119,7 @@ class Main_Container():
         model1.Border = False
         model1.BackgroundColor = FARBE_ZEILE_STANDARD
         model1.ReadOnly = True
-        #pd()
+
         control1.addMouseListener(class_Zeilen_Listener) 
         control1.addMouseMotionListener(class_Zeilen_Listener)
         control1.addFocusListener(class_Zeilen_Listener)
@@ -168,7 +168,7 @@ class Main_Container():
         model2.Border = 0
 
         control.addControl('icon',control2)                       
-        # return ist nur für neu angelegte Dokumente nutzbar 
+        # return ist nur fuer neu angelegte Dokumente nutzbar 
         
         
         if self.mb.tag1_visible:
@@ -184,7 +184,6 @@ class Main_Container():
             control_tag1.addMouseListener(self.tag1_listener)
             
             control.addControl('tag1',control_tag1)
-            #pd()
             
         
         if sicht == 'nein':
@@ -275,7 +274,7 @@ class Main_Container():
             self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
                         
             # neue Datei / neuen Bereich anlegen           
-            # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhöht
+            # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
             nr = int(root.attrib['kommender_Eintrag']) - 1          
             inhalt = ordinal
  
@@ -326,7 +325,7 @@ class Main_Container():
         C_XML.get_tree_info(papierkorb_xml,papierkorb_inhalt1)        
         selektierter_ist_im_papierkorb = False
 
-        # Zeilen im Hauptfeld löschen
+        # Zeilen im Hauptfeld loeschen
         for eintrag in papierkorb_inhalt1:        
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
 
@@ -338,7 +337,7 @@ class Main_Container():
                 contr = self.mb.Hauptfeld.getControl(ordinal)               
                 contr.dispose()
 
-        # Einträge in XML Tree löschen
+        # Eintraege in XML Tree loeschen
         papierkorb_inhalt = list(papierkorb_xml)
         for verworfene in papierkorb_inhalt:
             papierkorb_xml.remove(verworfene)
@@ -348,12 +347,12 @@ class Main_Container():
 
         self.erneuere_selektierungen(selektierter_ist_im_papierkorb) 
 
-        # lösche Bereich(e) und Datei(en)
+        # loesche Bereich(e) und Datei(en)
         self.loesche_Bereiche_und_Dateien(papierkorb_inhalt1,papierkorb_inhalt)
        
         # XML,Ansicht und Dicts neu ordnen
-        # vielleicht gibt es noch eine andere Möglichkeit?
-        # hier wird der gesamte Baum für jede Neuordnung nochmals durchlaufen
+        # vielleicht gibt es noch eine andere Moeglichkeit?
+        # hier wird der gesamte Baum fuer jede Neuordnung nochmals durchlaufen
         # -> Performance?
         # Insgesamt wird der Baum 4x durchlaufen
         self.mb.class_Projekt.erzeuge_dict_ordner()
@@ -408,7 +407,7 @@ class Main_Container():
                 trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
                 sec.dispose()
                 
-                # Trenner löschen
+                # Trenner loeschen
                 if trenner_name in self.mb.doc.TextSections.ElementNames:
                     trenner = self.mb.doc.TextSections.getByName(trenner_name)
                     textSectionCursor.gotoRange(trenner.Anchor,True)
@@ -432,7 +431,7 @@ class Main_Container():
         root = tree.getroot() 
         alle_Zeilen = root.findall('.//')
                 
-        # Für die Neuordnung des dict_bereiche
+        # Fuer die Neuordnung des dict_bereiche
         Bereichsname_dict = {}
         ordinal_dict = {}
         Bereichsname_ord_dict = {}
@@ -465,11 +464,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.pfeil = False
         self.ctx = ctx
         self.mb = mb
-        # für den erzeugten Pfeil
+        # fuer den erzeugten Pfeil
         self.first_time = True
         # beschreibt die Art der Aktion
         self.einfuegen = None
-        # für das gezogene Textfeld
+        # fuer das gezogene Textfeld
         self.colored = False        
         self.edit_text = False
         self.mb.selektierte_Zeile_alt = None
@@ -489,7 +488,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.selektierte_zeile = ev.Source.Context.AccessibleContext  
         # control 'textfeld'   
         zeile = ev.Source
-        # selektierte Zeile einfärben, ehem. sel. Zeile zurücksetzen
+        # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
         zeile.Model.BackgroundColor = FARBE_AUSGEWAEHLTE_ZEILE 
         if self.mb.selektierte_Zeile_alt != None:
             if zeile != self.mb.selektierte_Zeile_alt:
@@ -557,7 +556,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.viewcursor.gotoStart(False)
             
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
-        #pd()     
+
                            
     def focusGained(self,ev):
         return False  
@@ -584,7 +583,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             self.erzeuge_pfeil(X,Y,ev)
             
-            # Textfeld während des Ziehens einfärben
+            # Textfeld waehrend des Ziehens einfaerben
             if not self.colored:
                 self.colored = True
                 self.old_color = ev.Source.Model.BackgroundColor
@@ -738,7 +737,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         zeile_papierkorb = self.mb.Hauptfeld.getControl(ord_papierkorb)
         pos_papierkorb = zeile_papierkorb.PosSize.Y/ZEILENHOEHE
 
-        # abfangen: wenn Mauspos über Hauptfeld oder unter Papierkorb hinausgeht
+        # abfangen: wenn Mauspos ueber Hauptfeld oder unter Papierkorb hinausgeht
         if y < 0:
             y = 0
         elif y > pos_papierkorb:
@@ -758,7 +757,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             ord_nf = nf[0]
             nachfolger = (lvl_nf,art_nf,ord_nf)
         except:
-            # Papierkorb: Nachfolger ist immer auf höherem lvl
+            # Papierkorb: Nachfolger ist immer auf hoeherem lvl
             nachfolger = (100,'keiner','sdfsf')
         
         zeileY = Y - posY
@@ -817,10 +816,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             ordinal,parent,text,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
             if sicht == 'ja':
                 
-                # Y_Wert sichtbarer Einträge setzen
+                # Y_Wert sichtbarer Eintraege setzen
                 cont = self.mb.Hauptfeld.getControl(ordinal)
-                # der X-Wert ALLER Einträge wird in xml_m neu gesetzt
-                cont.Peer.setPosSize(0,ZEILENHOEHE*index,0,0,2)# 2: Flag für: nur Y Wert ändern
+                # der X-Wert ALLER Eintraege wird in xml_m neu gesetzt
+                cont.Peer.setPosSize(0,ZEILENHOEHE*index,0,0,2)# 2: Flag fuer: nur Y Wert aendern
                 
                 iconArt = cont.getControl('icon')
                 iconArt.Peer.setPosSize(16+int(lvl)*16,0,0,0,1)   
@@ -891,7 +890,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
         
         eintraege = []
-        # selbstaufruf nur für den debug
+        # selbstaufruf nur fuer den debug
         C_XML.selbstaufruf = False
         C_XML.get_tree_info(root,eintraege)
         
@@ -952,10 +951,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     def verlinke_Bereiche_neu2(self,sections):
         if self.mb.debug: print(self.mb.debug_time(),'verlinke_Bereiche_neu2')
         
-        # langsame und sichere Lösung: es werden alle Bereiche neu verlinkt, 
+        # langsame und sichere Loesung: es werden alle Bereiche neu verlinkt, 
         # nicht nur die verschobenen
 
-        # Der VC Listener wird von IsVisible ausgelöst,
+        # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
                 
@@ -963,13 +962,13 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         root = tree.getroot() 
         alle_Zeilen = root.findall('.//')
         
-        # Für die Neuordnung des dict_bereiche
+        # Fuer die Neuordnung des dict_bereiche
         Bereichsname_dict = {}
         ordinal_dict = {}
         Bereichsname_ord_dict = {}
 
         try:
-            # Hack: !!! Blendet den Papierkorb aus, wenn neuer Bereich eingefügt wurde
+            # Hack: !!! Blendet den Papierkorb aus, wenn neuer Bereich eingefuegt wurde
             letzte_zeile = sections.getByIndex(sections.Count - 1)
             letzte_zeile.IsVisible = False   
             self.mb.sichtbare_bereiche = [selekt_bereich_name]
@@ -1014,7 +1013,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
         sections,i,ordinal = args
         #print(i,ordinal)
-        Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal    ############## rausnehmen/ändern
+        Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal    ############## rausnehmen/aendern
          
         sec = sections.getByName('OrganonSec'+str(i))
         #print('hier',i)
@@ -1033,7 +1032,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     def schalte_sichtbarkeit_der_Bereiche(self):
         if self.mb.debug: print(self.mb.debug_time(),'schalte_sichtbarkeit_der_Bereiche')
    
-        # Der VC Listener wird von IsVisible ausgelöst,
+        # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
 
@@ -1055,7 +1054,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 if len(zeilen_in_ordner_ordinal) > 1:
                     self.zeige_Trenner(z_in_ordner)
 
-            # übrige noch sichtbare ausblenden
+            # uebrige noch sichtbare ausblenden
             for bereich in self.mb.sichtbare_bereiche:                        
                 bereich_ord = self.mb.dict_bereiche['Bereichsname-ordinal'][bereich]                     
                 if bereich_ord not in zeilen_in_ordner_ordinal:                            
@@ -1186,7 +1185,6 @@ class Dir_Listener (unohelper.Base, XMouseListener):
         return False
 
     def mousePressed(self, ev):
-        #pd()
         self.mb.selektierte_zeile = ev.Source.Context.AccessibleContext
         
         if ev.Buttons == MB_LEFT:    
@@ -1200,7 +1198,6 @@ class Dir_Listener (unohelper.Base, XMouseListener):
                     selbst_xml = root.find('.//'+selbst)
                     zustand = selbst_xml.attrib['Zustand']
                     
-                    #pd()
                     if zustand == 'zu':
                         selbst_xml.attrib['Zustand'] = 'auf'
                         if selbst_xml.attrib['Art'] == 'dir':

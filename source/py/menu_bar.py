@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 import uno
 import unohelper
 import traceback
@@ -11,11 +11,13 @@ global oxt
 oxt = False
 
 tb = traceback.print_exc
-pyPath = 'C:\\Users\\Homer\\Desktop\\oxt\\organon\\py'
 platform = sys.platform
-if platform == 'linux':
-    pyPath = '/home/xgr/Arbeitsordner/organon/py'
-    sys.path.append(pyPath)
+
+if oxt:
+    pyPath = 'C:\\Users\\Homer\\Desktop\\oxt\\organon\\py'
+    if platform == 'linux':
+        pyPath = '/home/xgr/Arbeitsordner/organon/py'
+        sys.path.append(pyPath)
     
 Color_MenuBar_Container = 13027014 #16777215 #weiss
 Color_MenuBar_MenuEintraege = 6279861
@@ -48,7 +50,7 @@ class Menu_Bar():
         elif 'OpenOffice' in sys.executable:
             self.programm = 'OpenOffice'
         else:
-            # Für Linux / OSX fehlt
+            # Fuer Linux / OSX fehlt
             self.programm = 'LibreOffice'
         
         # Konstanten
@@ -66,7 +68,7 @@ class Menu_Bar():
         self.projekt_name = None
         self.Hauptfeld = None               # alle Zeilen, Controls
         self.dict_zeilen_posY = {}
-        self.dict_ordner = {}               # enthält alle Ordner und alle ihnen untergeordneten Zeilen
+        self.dict_ordner = {}               # enthaelt alle Ordner und alle ihnen untergeordneten Zeilen
         self.dict_bereiche = {}             # besitzt drei Unterdicts: Bereichsname,ordinal,Bereichsname-ordinal
         self.sichtbare_bereiche = []        # Bereichsname ('OrganonSec'+ nr)
         self.xml_tree = None
@@ -101,11 +103,11 @@ class Menu_Bar():
         self.Mitteilungen = Mitteilungen(self.dialog,self.ctx,self)
          
         
-        # noch einzufügende ???
+        # noch einzufuegende ???
         self.hf_controls = None
         
 
-        # fürs debugging
+        # fuers debugging
         self.debug = False
         if self.debug: print('Debug = True ; Menu_Bar')
         self.time = time
@@ -113,7 +115,7 @@ class Menu_Bar():
         
         self.dialog.addWindowListener(self.w_listener)
         
-        # prüft, ob eine Organon Datei geladen wurde
+        # prueft, ob eine Organon Datei geladen wurde
         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
         
@@ -380,7 +382,6 @@ class Menu_Bar():
         control.addItems(item, 0)
        # model.BackgroundColor = 305099
         #model.FontCharWidth = 20
-        #pd()
         
         cont.addControl('Eintraege_Datei', control)
         
@@ -417,9 +418,7 @@ class Menu_Bar():
         
         listener = DropDown_Item_Listener(self)  
         listener.window = window    
-        control.addItemListener(listener)
-        #pd()
-    
+        control.addItemListener(listener)   
     
     
 
@@ -577,7 +576,6 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
     def mouseReleased(self,ev):
         return False
     def disposing(self,ev):
-        #pd()
         return False
 
 class DropDown_Container_Listener (unohelper.Base, XMouseListener):
@@ -831,7 +829,6 @@ def load_reload_modul(modul,pyPath,mb):
             sys.path.append(pyPath)
 
         #print('lade:',modul)
-#         pd()
         exec('import '+ modul)
         del(sys.modules[modul])
         try:

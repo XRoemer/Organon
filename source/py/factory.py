@@ -1,18 +1,20 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import sys
 import traceback
 import uno
 import unohelper
-import codecs
-
-pyPath = 'C:\\Users\\Homer\\Desktop\\oxt\\organon\\py'
-platform = sys.platform
-if platform == 'linux':
-    pyPath = '/home/xgr/Arbeitsordner/organon/py'
-    sys.path.append(pyPath)
 
 global oxt
 oxt = False
+
+tb = traceback.print_exc
+platform = sys.platform
+
+if oxt:
+    pyPath = 'C:\\Users\\Homer\\Desktop\\oxt\\organon\\py'
+    if platform == 'linux':
+        pyPath = '/home/xgr/Arbeitsordner/organon/py'
+        sys.path.append(pyPath)
 
 
 from com.sun.star.lang import (XSingleComponentFactory, 
@@ -28,7 +30,7 @@ def pydevBrk():
         sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
-#pydevBrk()
+pydevBrk()
 # 234
 class Factory(unohelper.Base, XSingleComponentFactory):
     """ This factory instantiate new window content. 

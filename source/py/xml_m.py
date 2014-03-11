@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 
 #print('xml')
 import traceback
 tb = traceback.print_exc
 import uno
 import unohelper
-
-
+  
+  
 class XML_Methoden():
     
     def __init__(self,mb,pydevBrk):
@@ -18,7 +18,7 @@ class XML_Methoden():
         self.mb = mb  
              
         self.selbstaufruf = False  
-              
+               
     def get_tree_info(self,elem,eintr,index=0,parent = 'root'):
         
         
@@ -37,7 +37,7 @@ class XML_Methoden():
     def erzeuge_XML_Eintrag(self,eintrag):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_XML_Eintrag')
         
-        # erzeugt den XML Eintrag für ein neues Standard Dokument
+        # erzeugt den XML Eintrag fuer ein neues Standard Dokument
         tree = self.mb.xml_tree 
         root = tree.getroot()
         et = self.mb.ET             
@@ -76,9 +76,9 @@ class XML_Methoden():
         # Parent Source/Target
         par_source = root.find('.//'+source.tag+'/..')
         par_target = root.find('.//'+target.tag+'/..')
-        # Source im Parent löschen
+        # Source im Parent loeschen
         par_source.remove(source)
-        #Source als Subelement einfügen
+        #Source als Subelement einfuegen
         target.insert(0,source)
         
         self.xmlLevel_und_hfPosition_anpassen(root,source)
@@ -89,15 +89,15 @@ class XML_Methoden():
         
         tree = self.mb.xml_tree
         root = tree.getroot()        
-        # nur für das allererste Element
+        # nur fuer das allererste Element
         source = root.find('.//'+source)
         target = root.find('.//'+target)
         # Parent Source/Target
         par_source = root.find('.//'+source.tag+'/..')
         par_target = root
-        # Source im Parent löschen
+        # Source im Parent loeschen
         par_source.remove(source)
-        # Source hinter Target einfügen
+        # Source hinter Target einfuegen
         par_target.insert(0,source)
         
         self.xmlLevel_und_hfPosition_anpassen(root,source)
@@ -113,11 +113,11 @@ class XML_Methoden():
         # Parent Source/Target
         par_source = root.find('.//'+source.tag+'/..')
         par_target = root.find('.//'+nachfolger.tag+'/..')
-        # Source im Parent löschen
+        # Source im Parent loeschen
         par_source.remove(source)
         # Index des Target im Parent
         index_target = list(par_target).index(nachfolger)
-        # Source hinter Target einfügen
+        # Source hinter Target einfuegen
         par_target.insert(index_target,source)
 
         self.xmlLevel_und_hfPosition_anpassen(root,source)
@@ -134,11 +134,11 @@ class XML_Methoden():
         # Parent Source/Target
         par_source = root.find('.//'+source.tag+'/..')
         par_target = root.find('.//'+target.tag+'/..')
-        # Source im Parent löschen
+        # Source im Parent loeschen
         par_source.remove(source)
         # Index des Target im Parent
         index_target = list(par_target).index(target)
-        # Source hinter Target einfügen
+        # Source hinter Target einfuegen
         par_target.insert(index_target+1,source)   
 
         self.xmlLevel_und_hfPosition_anpassen(root,source)
@@ -157,9 +157,9 @@ class XML_Methoden():
         # Parent Source/Target
         par_source = root.find('.//'+source.tag+'/..')
         par_target = root.find('.//'+target.tag+'/..')
-        # Source im Parent löschen
+        # Source im Parent loeschen
         par_source.remove(source)
-        #Source als Subelement einfügen
+        #Source als Subelement einfuegen
         target.append(source)
         
         self.xmlLevel_und_hfPosition_anpassen(root,source)
