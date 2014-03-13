@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import uno
 import unohelper
 import traceback
@@ -14,7 +14,7 @@ tb = traceback.print_exc
 platform = sys.platform
 
 if oxt:
-    pyPath = 'C:\\Users\\Homer\\Desktop\\oxt\\organon\\py'
+    pyPath = 'E:\\Eclipse_Workspace\\orga\\organon\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
         sys.path.append(pyPath)
@@ -52,7 +52,7 @@ class Menu_Bar():
         else:
             # Fuer Linux / OSX fehlt
             self.programm = 'LibreOffice'
-        
+
         # Konstanten
         self.dialog = dialog
         self.ctx = ctx
@@ -63,7 +63,8 @@ class Menu_Bar():
         self.viewcursor = self.current_Contr.ViewCursor
         self.tabs = tabs
         self.platform = sys.platform
-         
+        self.lang = self.lade_Modul_Language()
+
         # Properties
         self.projekt_name = None
         self.Hauptfeld = None               # alle Zeilen, Controls
@@ -88,7 +89,7 @@ class Menu_Bar():
         self.tag3_visible = None
         # Pfade
         self.pfade = {}
-        
+
         # Klassen    
         self.class_Hauptfeld,self.class_Zeilen_Listener = self.get_Klasse_Hauptfeld()
         self.class_Projekt = None # wird durch die folgende Zeile geladen
@@ -102,7 +103,7 @@ class Menu_Bar():
         self.class_Bereiche = self.get_Klasse_Bereiche()  
         self.Mitteilungen = Mitteilungen(self.dialog,self.ctx,self)
          
-        
+
         # noch einzufuegende ???
         self.hf_controls = None
         
@@ -112,7 +113,7 @@ class Menu_Bar():
         if self.debug: print('Debug = True ; Menu_Bar')
         self.time = time
         self.timer_start = self.time.clock()
-        
+
         self.dialog.addWindowListener(self.w_listener)
         
         # prueft, ob eine Organon Datei geladen wurde
@@ -131,7 +132,7 @@ class Menu_Bar():
             self.erzeuge_Menu()
             #self.class_Projekt.lade_Projekt(False)
             
-            
+        #pd()    
         
     
    
@@ -180,7 +181,7 @@ class Menu_Bar():
          
         control, model = createControl3(self.ctx, "FixedText", PosX, PosY, Width, Height, (), ())           
         #model.BackgroundColor = Color
-        model.Label = 'Datei'                 
+        model.Label = self.lang.FILE             
         control.addMouseListener(listener)
            
         MenuBarCont.addControl('Datei', control)
@@ -195,25 +196,25 @@ class Menu_Bar():
          
         control, model = createControl3(self.ctx, "FixedText", PosX, PosY, Width, Height, (), ())           
         #model.BackgroundColor = Color
-        model.Label = 'Optionen'               
+        model.Label = self.lang.OPTIONS           
         control.addMouseListener(listener)
                
         MenuBarCont.addControl('Optionen', control)
         
         
-    def erzeuge_Menu_Kopf_Bereiche(self,listener):
-        
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
-        
-        Attr = (121, 0, 50, 20, 'bereiche', Color_MenuBar_MenuEintraege)    
-        PosX, PosY, Width, Height, Name, Color = Attr
-         
-        control, model = createControl3(self.ctx, "FixedText", PosX, PosY, Width, Height, (), ())           
-        model.BackgroundColor = Color
-        model.Label = 'Bereiche'                     
-        control.addMouseListener(listener)  
-             
-        MenuBarCont.addControl('Bereiche', control)
+#     def erzeuge_Menu_Kopf_Bereiche(self,listener):
+#         
+#         MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
+#         
+#         Attr = (121, 0, 50, 20, 'bereiche', Color_MenuBar_MenuEintraege)    
+#         PosX, PosY, Width, Height, Name, Color = Attr
+#          
+#         control, model = createControl3(self.ctx, "FixedText", PosX, PosY, Width, Height, (), ())           
+#         model.BackgroundColor = Color
+#         model.Label = 'Bereiche'                     
+#         control.addMouseListener(listener)  
+#              
+#         MenuBarCont.addControl('Bereiche', control)
         
         
     def erzeuge_Menu_Kopf_Test(self,listener):
@@ -242,32 +243,32 @@ class Menu_Bar():
         model.ImageURL = IMG_ORDNER_NEU_24
         
             
-        model.HelpText = 'Neuen Ordner einfuegen' 
+        model.HelpText = self.lang.INSERT_DIR
         model.Border = 0                    
         control.addMouseListener(listener2) 
               
         MenuBarCont.addControl('Ordner', control)
         
         
-    def erzeuge_Menu_speicher_Projekt(self,listener2):
-        
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
-        Color = 102
-        Attr = (323, 0, 20, 20, 'probe', Color)    
-        PosX, PosY, Width, Height, Name, Color = Attr
-         
-        control, model = createControl3(self.ctx, "ImageControl", PosX, PosY, Width, Height, (), ())  
-        if self.programm == 'LibreOffice':            
-            model.ImageURL = 'private:graphicrepository/cmd/lc_save.png'
-        # cmd/lc_insertannotation.png     lc_insertdoc.png  lc_insertdoc.png
-        if self.programm == 'OpenOffice':   
-            model.ImageURL = 'private:graphicrepository/res/commandimagelist/lc_save.png'
-            
-        model.HelpText = 'Projekt speichern' 
-        model.Border = 0                    
-        control.addMouseListener(listener2) 
-              
-        MenuBarCont.addControl('Ordner', control)
+#     def erzeuge_Menu_speicher_Projekt(self,listener2):
+#         
+#         MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
+#         Color = 102
+#         Attr = (323, 0, 20, 20, 'probe', Color)    
+#         PosX, PosY, Width, Height, Name, Color = Attr
+#          
+#         control, model = createControl3(self.ctx, "ImageControl", PosX, PosY, Width, Height, (), ())  
+#         if self.programm == 'LibreOffice':            
+#             model.ImageURL = 'private:graphicrepository/cmd/lc_save.png'
+#         # cmd/lc_insertannotation.png     lc_insertdoc.png  lc_insertdoc.png
+#         if self.programm == 'OpenOffice':   
+#             model.ImageURL = 'private:graphicrepository/res/commandimagelist/lc_save.png'
+#             
+#         model.HelpText = 'Projekt speichern' 
+#         model.Border = 0                    
+#         control.addMouseListener(listener2) 
+#               
+#         MenuBarCont.addControl('Ordner', control)
         
     def erzeuge_Menu_Kopf_neues_Dokument(self,listener2):
         
@@ -279,7 +280,7 @@ class Menu_Bar():
         control, model = createControl3(self.ctx, "ImageControl", PosX, PosY, Width, Height, (), ())           
         model.ImageURL = IMG_DATEI_NEU_24
                     
-        model.HelpText = 'Neues Dokument einfuegen' 
+        model.HelpText = self.lang.INSERT_DOC
         model.Border = 0                    
         control.addMouseListener(listener2) 
             
@@ -294,7 +295,7 @@ class Menu_Bar():
          
         control, model = createControl3(self.ctx, "ImageControl", PosX, PosY, Width, Height, (), ())           
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png'
-        model.HelpText = 'Papierkorb leeren' 
+        model.HelpText = self.lang.CLEAR_RECYCLE_BIN
         model.Border = 0                       
         control.addMouseListener(listener2) 
              
@@ -368,17 +369,17 @@ class Menu_Bar():
 
         self.menu_fenster = oWindow
         
-        if Name == 'Datei':
+        if Name == self.lang.FILE:
             self.erzeuge_Menu_DropDown_Eintraege_Datei(oWindow, cont)
-        if Name == 'Optionen':
+        if Name == self.lang.OPTIONS:
             self.erzeuge_Menu_DropDown_Eintraege_Optionen(oWindow, cont)
         return Name
     
     def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont):
-    
+        lang = self.lang
         control, model = createControl3(self.ctx, "ListBox", 4 ,  4 , Breite_Menu_DropDown_Eintraege, Hoehe_Menu_DropDown_Eintraege, (), ())   
         control.setMultipleMode(False)
-        item = ('Neues Projekt', 'Projekt oeffnen','---------', 'Neues Dokument', 'Neuer Ordner')
+        item = (lang.NEW_PROJECT, lang.OPEN_PROJECT ,'---------', lang.NEW_DOC, lang.NEW_DIR)
         control.addItems(item, 0)
        # model.BackgroundColor = 305099
         #model.FontCharWidth = 20
@@ -394,7 +395,7 @@ class Menu_Bar():
         
         # Tag1
         control_tag1, model_tag1 = createControl3(self.ctx, "CheckBox", 4, 4, Breite_Menu_DropDown_Eintraege, 30, (), ())   
-        model_tag1.Label = 'zeige Tag1'
+        model_tag1.Label = self.lang.SHOW_TAG1
         
         if self.tag1_visible == True:
             model_tag1.State = 1
@@ -410,7 +411,7 @@ class Menu_Bar():
         control, model = createControl3(self.ctx, "ListBox", 4, 34, Breite_Menu_DropDown_Eintraege, 
                                         Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
         control.setMultipleMode(False)
-        item = ('#Einstellungen', '#Speicherordner', 'Projektordner ausklappen', '#Homepage', '#Updates', '#Sonstiges')
+        item = ('#Einstellungen', '#Speicherordner', self.lang.UNFOLD_PROJ_DIR, '#Homepage', '#Updates', '#Sonstiges')
         control.addItems(item, 0)
        # model.BackgroundColor = 305099
         
@@ -472,8 +473,22 @@ class Menu_Bar():
             
         ff = funktionen.Funktionen(self, pd)
         return ff
+    
+    def lade_Modul_Language(self):
+        language = self.doc.CharLocale.Language
+        import lang_en 
+        try:
+            exec('import lang_' + language)
+        except:
+            pass
 
-           
+        if 'lang_' + language in vars():
+            lang = vars()['lang_' + language]
+        else:
+            lang = vars()[lang_en]   
+
+        return lang
+
     def erzeuge_neue_Projekte(self):
         try:
             self.class_Projekt.test()
@@ -521,20 +536,20 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
     def mousePressed(self, ev):
         if ev.Buttons == MB_LEFT:
             #print('maus gepresst')
-            if self.menu_Kopf_Eintrag == 'Datei':
+            if self.menu_Kopf_Eintrag == self.mb.lang.FILE:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)            
-            if self.menu_Kopf_Eintrag == 'Optionen':
+            if self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
 #             if self.menu_Kopf_Eintrag == 'Neu':
 #                 self.mb.erzeuge_Hauptfeld()
-            if self.menu_Kopf_Eintrag == 'Bereiche':
-                self.mb.erzeuge_neue_Bereiche()
+#             if self.menu_Kopf_Eintrag == 'Bereiche':
+#                 self.mb.erzeuge_neue_Bereiche()
             if self.menu_Kopf_Eintrag == 'Test':
                 self.mb.erzeuge_neue_Projekte()
             return False
 
     def mouseEntered(self, ev):
-        print('maus kommt')
+        #print('maus kommt')
         ev.value.Source.Model.FontUnderline = 1     
         if self.menu_Kopf_Eintrag != ev.value.Source.Text:
             self.menu_Kopf_Eintrag = ev.value.Source.Text  
@@ -558,16 +573,16 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
         self.geklickterMenupunkt = None
         
     def mousePressed(self, ev):
-        print('mousePressed, Menu_Kopf_Listener2')
+        #print('mousePressed, Menu_Kopf_Listener2')
         if ev.Buttons == 1:
-            if ev.Source.Model.HelpText == 'Neues Dokument einfuegen':            
+            if ev.Source.Model.HelpText == self.mb.lang.INSERT_DOC:            
                 self.mb.erzeuge_Zeile('dokument')
-            if ev.Source.Model.HelpText == 'Neuen Ordner einfuegen':            
+            if ev.Source.Model.HelpText == self.mb.lang.INSERT_DIR:            
                 self.mb.erzeuge_Zeile('Ordner')
-            if ev.Source.Model.HelpText == 'Papierkorb leeren':            
+            if ev.Source.Model.HelpText == self.mb.lang.CLEAR_RECYCLE_BIN:            
                 self.mb.leere_Papierkorb()
-            if ev.Source.Model.HelpText == 'Projekt speichern':            
-                self.mb.speicher_Projekt()
+#             if ev.Source.Model.HelpText == 'Projekt speichern':            
+#                 self.mb.speicher_Projekt()
             return False
     def mouseExited(self,ev):
         return False
@@ -622,24 +637,24 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
     def itemStateChanged(self, ev):        
         sel = ev.value.Source.Items[ev.value.Selected]
         print(sel)
-        if sel == 'Neues Projekt':
+        if sel == self.mb.lang.NEW_PROJECT:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.class_Projekt.erzeuge_neues_Projekt()
-        if sel == 'Projekt oeffnen':
+        if sel == self.mb.lang.OPEN_PROJECT:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.class_Projekt.lade_Projekt()
-        if sel == 'Neues Dokument':
+        if sel == self.mb.lang.NEW_DOC:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.erzeuge_Zeile('dokument')
-        if sel == 'Neuer Ordner':
+        if sel == self.mb.lang.NEW_DIR:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.erzeuge_Zeile('Ordner')
         
-        if sel == 'Projektordner ausklappen':
+        if sel == self.mb.lang.UNFOLD_PROJ_DIR:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.class_Funktionen.projektordner_ausklappen()
@@ -731,7 +746,7 @@ from com.sun.star.awt import XKeyHandler
 class Key_Handler(unohelper.Base, XKeyHandler):
     
     def __init__(self,mb):
-        print('init Keyhandler')
+        if oxt:print('init Keyhandler')
         self.mb = mb
         self.mb.keyhandler = self
         mb.current_Contr.addKeyHandler(self)

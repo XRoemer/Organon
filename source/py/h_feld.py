@@ -1,4 +1,4 @@
-ï»¿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 #print('neues Projekt')
 import traceback
@@ -86,7 +86,7 @@ class Main_Container():
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
 
-        ##### Äusserer Container #######
+        ##### ?usserer Container #######
         
         Farbe__Container = 11581166     
         Attr = (2,ZEILENHOEHE*index,600,20,Farbe__Container)    
@@ -229,11 +229,11 @@ class Main_Container():
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Zeile')
         
         if self.mb.selektierte_zeile == None:       
-            self.mb.Mitteilungen.nachricht('Waehlen Sie bitte erst eine Zeile aus, unter der eingefuegt werden soll    ','infobox')
+            self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
             return
         else:
             StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
-            StatusIndicator.start('                    erzeuge neue Zeile, bitte warten!                   ',2)
+            StatusIndicator.start(self.mb.lang.ERZEUGE_NEUE_ZEILE,2)
             StatusIndicator.setValue(2)
             
             

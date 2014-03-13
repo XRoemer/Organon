@@ -1,4 +1,4 @@
-ï»¿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import traceback
 import uno
@@ -256,7 +256,7 @@ class Bereiche():
             if 'vnd.sun.star.GraphicObject' not in bild.GraphicURL:
                 # Wenn die Grafik nicht gespeichert werden kann,
                 # (weil noch nicht geladen oder User hat zu frueh weitergeklickt)
-                # muesste sie eigentlich bei der naechsten Änderung
+                # muesste sie eigentlich bei der naechsten ï¿½nderung
                 # im Bereich gespeichert werden
                 try:
                     bitmap.insertByName( "TempI"+str(i), bild.GraphicURL )
@@ -406,7 +406,7 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
             path = self.mb.dict_bereiche['Bereichsname'][bereichsname]
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
         self.mb.entferne_alle_listener() 
-        #print('windowHidden')
+        print('windowHidden')
         return False
     
     def korrigiere_hoehe_des_scrollbalkens(self):

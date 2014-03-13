@@ -1,4 +1,5 @@
-﻿# -*- coding: utf-8 -*-
+
+# -*- coding: utf-8 -*-
 import sys
 import traceback
 import uno
@@ -11,7 +12,7 @@ tb = traceback.print_exc
 platform = sys.platform
 
 if oxt:
-    pyPath = 'C:\\Users\\Homer\\Desktop\\oxt\\organon\\py'
+    pyPath = 'E:\\Eclipse_Workspace\\orga\\organon\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
         sys.path.append(pyPath)
@@ -30,7 +31,7 @@ def pydevBrk():
         sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
-pydevBrk()
+#pydevBrk()
 # 234
 class Factory(unohelper.Base, XSingleComponentFactory):
     """ This factory instantiate new window content. 
@@ -50,13 +51,13 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     
     def __init__(self, ctx, *args):
         self.ctx = ctx
-        print("factory init 234")
+        if oxt:print("factory init")
         #pydevBrk()
     def do(self):
         print('do')    
     
     def createInstanceWithArgumentsAndContext(self, args, ctx):
-        print('createInstanceWithArgumentsAndContext in Factory')
+        if oxt:print('createInstanceWithArgumentsAndContext in Factory')
         try:
             
             CWHandler = ContainerWindowHandler(ctx)
@@ -78,7 +79,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
 
 g_ImplementationHelper = unohelper.ImplementationHelper()
 g_ImplementationHelper.addImplementation(*Factory.get_imple())
-#pydevBrk()
+
 
 
 
@@ -116,14 +117,14 @@ from com.sun.star.awt import XWindowListener,XActionListener,XContainerWindowEve
 class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
     
     def __init__(self, ctx):
-        print('init ContainerWindowHandler')
+        if oxt:print('init ContainerWindowHandler')
         self.ctx = ctx
         self.window2 = None
         #pydevBrk()
     
     # XContainerWindowEventHandler
     def callHandlerMethod(self, window, obj, name):
-        print('callHandlerMethod')
+        if oxt:print('callHandlerMethod')
         #pydevBrk()
         if name == "external_event":
             if obj == "initialize":
@@ -134,12 +135,14 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         return "external_event",
     
     def _initialize(self, window):
-        print('_initialize in ContainerWindowHandler')
+        if oxt:print('_initialize in ContainerWindowHandler')
 
         path_to_current = __file__.decode("utf-8")
-        pyPath = path_to_current.split('factory.py')
-        sys.path.append(pyPath[0])
+        pyPath = path_to_current.split('factory.py')[0]
+        sys.path.append(pyPath)
         
+        pyPath_lang = pyPath.replace('py','languages')
+        sys.path.append(pyPath_lang)
 
     def disposing(self, ev):
         pass
@@ -180,7 +183,7 @@ def load_reload_modul(modul,pyPath):
             elif 'OpenOffice' in sys.executable:
                 pass
         except:
-            traceback.print_exc()
+            pass#traceback.print_exc()
                             
         exec('import '+ modul)
         

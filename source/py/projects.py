@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 #print('Projekte')
 import traceback
@@ -32,15 +32,14 @@ class Projekt():
             self.setze_pfade()
             
             if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
-                n1 = 'Das Projekt soll den gleichen Namen wie das zur Zeit geoeffnete Dokument erhalten. Das funktioniert nicht.'
-                self.mb.Mitteilungen.nachricht(n1,"warningbox")
+                
+                self.mb.Mitteilungen.nachricht(self.mb.lang.DOUBLE_PROJ_NAME,"warningbox")
                 return
                 # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
                 # funktioniert das unter Linux?? ############
             elif os.path.exists(self.mb.pfade['projekt']):
-                n2 = r'Das Projekt existiert schon. Soll es geloescht und ueberschrieben werden?'
                 # 16777216 Flag fuer YES_NO
-                entscheidung = self.mb.Mitteilungen.nachricht(n2,"warningbox",16777216)
+                entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.PROJ_EXISTS,"warningbox",16777216)
                 # 3 = Nein oder Cancel, 2 = Ja
                 if entscheidung == 3:
                     return
@@ -140,28 +139,28 @@ class Projekt():
         Attr = (25,22,300,20,'zweiter_cont')    
         PosX,PosY,Width,Height,Name = Attr
         control, model = createControl(self.ctx,"FixedText",PosX,PosY,Width,Height,(),() )  
-        model.Label = "Geben Sie einen Namen fuer das neue Projekt ein:"
+        model.Label = self.mb.lang.ENTER_PROJ_NAME
             
         Attr = (25,50,250,20,'zweiter_cont')    
         PosX,PosY,Width,Height,Name = Attr   
         control1, model1 = createControl(self.ctx,"Edit",PosX,PosY,Width,Height,(),() ) 
         
-        listener = neues_Projekt_Dialog_Listener(model1) 
+        listener = neues_Projekt_Dialog_Listener(self.mb) 
         control1.addKeyListener(listener) 
 
         Attr = (50,100,80,30,'btn')    
         PosX,PosY,Width,Height,Name = Attr   
         control2, model2 = createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
-        model2.Label = 'OK'
+        model2.Label = self.mb.lang.OK
         control2.addActionListener(listener) 
-        control2.setActionCommand("OK")
+        control2.setActionCommand(self.mb.lang.OK)
         
         Attr = (150,100,80,30,'btn2')    
         PosX,PosY,Width,Height,Name = Attr   
         control3, model3 = createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
-        model3.Label = 'Abbrechen'
+        model3.Label = self.mb.lang.CANCEL
         control3.addActionListener(listener) 
-        control3.setActionCommand("Abbruch")
+        control3.setActionCommand(self.mb.lang.CANCEL)
         
             
         smgr = self.ctx.getServiceManager()
@@ -173,7 +172,7 @@ class Projekt():
         dialogModel.PositionY = 65
         dialogModel.Width = 165
         dialogModel.Height = 100
-        dialogModel.Title = "neues Projekt anlegen"
+        dialogModel.Title = self.mb.lang.CREATE_NEW_PROJECT
            
                   
         # create the dialog control and set the model
@@ -258,84 +257,84 @@ class Projekt():
         self.mb.doc.storeAsURL(Path,()) 
         
 
-    def speicher_Projekt(self):
- 
-        TS = self.mb.doc.TextSections
-        total = len(TS.ElementNames)
-        
-        print('speichere ...')
-        CB = self.mb.class_Bereiche
-
-        # entferne Listener
-        self.mb.dialog.removeWindowListener(self.mb.w_listener)
-        self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)  
-        
-        StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
-        StatusIndicator.start('speichere Dokument, bitte warten!',total)
-
-        # speichere gesamtes Dokument 
-        Path = 'file:///'+self.mb.pfade['odts']+'/gesamtes_Dokument.odt'
-        self.mb.doc.storeToURL(Path,())                
-               
-        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop.Name = 'Hidden'
-        prop.Value = True      
-
-        newDoc = self.mb.doc.CurrentController.Frame.loadComponentFromURL("private:factory/swriter","_blank",0,(prop,))
-        cur = newDoc.Text.createTextCursor()
-        
-        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        SFLink.FileURL = Path
-        
-        zaehler = 1
-
-       
-        for i in range(TS.Count):
-            
-            sec = TS.getByIndex(i)
-            
-            # alle anderen Textsections ausschliessen
-            # todo: auch in allen anderen Bereichen ausschliessen
-            if 'OrganonSec' in sec.Name:
-                
-                try:
-                    # alle 5 Dateien den Status Indicator erneuern
-                    if zaehler%5 == 0:
-                        newDoc.close(False)
-                        StatusIndicator.setValue(zaehler)
-                        StatusIndicator.setText(' Dateien gespeichert: %s von %s ' % (zaehler,total))
-                        newDoc = self.mb.doc.CurrentController.Frame.loadComponentFromURL("private:factory/swriter","_blank",0,(prop,))
-                        cur = newDoc.Text.createTextCursor()
-                except:
-                    pass
-                       
-                newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-                newSection.setPropertyValue('FileLink',SFLink)
-                newSection.setName(sec.Name)
-                newSection.setPropertyValue("LinkRegion",sec.Name)
-                               
-                cur.gotoStart(False)
-                cur.gotoEnd(True)
-                # insert und remove bewirken Einfuegen und Entfernen der Section
-                # der eingefuegte Inhalt aber bleibt
-                newDoc.Text.insertTextContent(cur, newSection, True)
-                newDoc.Text.removeTextContent(newSection)
-                
-                dateiname = self.mb.dict_bereiche['Bereichsname-ordinal'][sec.Name]
-                Path2 = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % dateiname
-                newDoc.storeToURL(Path2,())
-
-                zaehler += 1
-        
-        
-        newDoc.close(False)
-        StatusIndicator.end()
-        # xml speichern
-        Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
-        self.mb.xml_tree.write(Path)
-        # Listener wieder aktivieren
-        self.mb.dialog.addWindowListener(self.mb.w_listener)
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)                  
+#     def speicher_Projekt(self):
+#  
+#         TS = self.mb.doc.TextSections
+#         total = len(TS.ElementNames)
+#         
+#         #print('speichere ...')
+#         CB = self.mb.class_Bereiche
+# 
+#         # entferne Listener
+#         self.mb.dialog.removeWindowListener(self.mb.w_listener)
+#         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)  
+#         
+#         StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
+#         StatusIndicator.start('speichere Dokument, bitte warten!',total)
+# 
+#         # speichere gesamtes Dokument 
+#         Path = 'file:///'+self.mb.pfade['odts']+'/gesamtes_Dokument.odt'
+#         self.mb.doc.storeToURL(Path,())                
+#                
+#         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+#         prop.Name = 'Hidden'
+#         prop.Value = True      
+# 
+#         newDoc = self.mb.doc.CurrentController.Frame.loadComponentFromURL("private:factory/swriter","_blank",0,(prop,))
+#         cur = newDoc.Text.createTextCursor()
+#         
+#         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+#         SFLink.FileURL = Path
+#         
+#         zaehler = 1
+# 
+#        
+#         for i in range(TS.Count):
+#             
+#             sec = TS.getByIndex(i)
+#             
+#             # alle anderen Textsections ausschliessen
+#             # todo: auch in allen anderen Bereichen ausschliessen
+#             if 'OrganonSec' in sec.Name:
+#                 
+#                 try:
+#                     # alle 5 Dateien den Status Indicator erneuern
+#                     if zaehler%5 == 0:
+#                         newDoc.close(False)
+#                         StatusIndicator.setValue(zaehler)
+#                         StatusIndicator.setText(' Dateien gespeichert: %s von %s ' % (zaehler,total))
+#                         newDoc = self.mb.doc.CurrentController.Frame.loadComponentFromURL("private:factory/swriter","_blank",0,(prop,))
+#                         cur = newDoc.Text.createTextCursor()
+#                 except:
+#                     pass
+#                        
+#                 newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+#                 newSection.setPropertyValue('FileLink',SFLink)
+#                 newSection.setName(sec.Name)
+#                 newSection.setPropertyValue("LinkRegion",sec.Name)
+#                                
+#                 cur.gotoStart(False)
+#                 cur.gotoEnd(True)
+#                 # insert und remove bewirken Einfuegen und Entfernen der Section
+#                 # der eingefuegte Inhalt aber bleibt
+#                 newDoc.Text.insertTextContent(cur, newSection, True)
+#                 newDoc.Text.removeTextContent(newSection)
+#                 
+#                 dateiname = self.mb.dict_bereiche['Bereichsname-ordinal'][sec.Name]
+#                 Path2 = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % dateiname
+#                 newDoc.storeToURL(Path2,())
+# 
+#                 zaehler += 1
+#         
+#         
+#         newDoc.close(False)
+#         StatusIndicator.end()
+#         # xml speichern
+#         Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
+#         self.mb.xml_tree.write(Path)
+#         # Listener wieder aktivieren
+#         self.mb.dialog.addWindowListener(self.mb.w_listener)
+#         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)                  
             
       
     def erzeuge_Projekt_xml_tree(self):
@@ -605,7 +604,16 @@ class Projekt():
         print('test')
         try:
             
-            pydevBrk()
+#             ctx = uno.getComponentContext()
+#             smgr = ctx.ServiceManager
+#             desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+#             doc = desktop.getCurrentComponent() 
+#             
+#             loc = doc.CharLocale
+#             
+#             lang = self.mb.lang
+            
+            pd()
         except:
             tb()
 
@@ -627,17 +635,17 @@ class VC_TextSection_Listener(unohelper.Base,XPropertyChangeListener):
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener
 from com.sun.star.awt.Key import RETURN
 class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowListener,XKeyListener): 
-    def __init__(self,model):
-        self.model = model
+    def __init__(self,mb):
+        self.mb = mb
 
     def actionPerformed(self,ev):
         parent = ev.Source.AccessibleContext.AccessibleParent 
         cmd = ev.ActionCommand        
-        if cmd == 'OK':
+        if cmd == self.mb.lang.OK:
             parent.endDialog(1)
-        if cmd == 'Abbruch':
+        if cmd == self.mb.lang.CANCEL:
             parent.endDialog(0)
-               
+             
     def windowClosed(self,ev):
         pass
             
