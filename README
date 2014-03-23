@@ -24,7 +24,7 @@ Ein Navigations- und Organisationswerkzeug für Writer.
 Extension für LibreOffice (LO) und OpenOffice (OO)
 getestet für Win7 (LO 4.2.0.4 und OO 4.0.1) und Ubuntu 13.10 (LO 4.2.0.4), ungetestet für Mac 
 
-WARNUNG:	Dies ist eine Alpha-Version und sollte nicht zum ernsthaften Arbeiten genutzt werden. Wer von OO oder LO in irgendeiner Weise abhängig ist und dem  Computer ansonsten fremdes Land sind, sollte auf den Einsatz vorläufig noch verzichten. Irgendwas geht ja immer schief.
+WARNUNG:	Dies ist eine Beta-Version und sollte nicht zum ernsthaften Arbeiten genutzt werden. Die mit dieser Version erstellten Dateien sind eventuell mit zukünftigen Versionen nicht mehr kompatibel.
  	
 	Installation:
 Unter Extras/Extension Manager auf hinzufügen klicken und die organon.oxt Datei auswählen. Lizenzvertrag akzeptieren und Office schließen und neu starten.
