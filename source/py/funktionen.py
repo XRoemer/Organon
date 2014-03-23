@@ -157,9 +157,10 @@ class Funktionen():
         
         cont.addControl('Eintraege_Tag1', control)
 
-        
 
-        
+                
+
+       
 from com.sun.star.awt import XMouseListener,XItemListener
 class Tag1_Container_Listener (unohelper.Base, XMouseListener):
         def __init__(self):
@@ -203,7 +204,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         #print(sel)
         # image tag1 aendern
         self.source.Model.ImageURL = URL_IMGS+'punkt_%s.png' %sel
-         # tag1 in xml datei einfügen und speichern
+         # tag1 in xml datei einfï¿½gen und speichern
         ord_source = self.source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
         tree = self.mb.xml_tree
         root = tree.getroot()        
@@ -216,9 +217,6 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         self.window.dispose()
        
          
-        
-        
-        
 
              
 ################ TOOLS ################################################################
@@ -231,4 +229,8 @@ def createControl(ctx,type,x,y,width,height,names,values):
    ctrl_model.setPropertyValues(names,values)
    ctrl.setModel(ctrl_model)
    ctrl.setPosSize(x,y,width,height,15)
-   return (ctrl, ctrl_model)
+   return (ctrl, ctrl_model)
+def createUnoService(serviceName):
+  sm = uno.getComponentContext().ServiceManager
+  return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
+

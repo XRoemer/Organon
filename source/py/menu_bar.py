@@ -38,12 +38,12 @@ from com.sun.star.awt.MouseButton import LEFT as MB_LEFT
 
 class Menu_Bar():
     
-    def __init__(self,pdk,dialog,ctx,tabs):
+    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension):
         
         self.pd = pdk
         global pd
         pd = pdk
-        
+        #pd()
 
         if 'LibreOffice' in sys.executable:
             self.programm = 'LibreOffice'
@@ -52,7 +52,7 @@ class Menu_Bar():
         else:
             # Fuer Linux / OSX fehlt
             self.programm = 'LibreOffice'
-
+        
         # Konstanten
         self.dialog = dialog
         self.ctx = ctx
@@ -64,6 +64,7 @@ class Menu_Bar():
         self.tabs = tabs
         self.platform = sys.platform
         self.lang = self.lade_Modul_Language()
+        self.path_to_extension = path_to_extension
 
         # Properties
         self.projekt_name = None
@@ -82,6 +83,7 @@ class Menu_Bar():
         self.bereich_wurde_bearbeitet = False
         self.tastatureingabe = False
         self.zuletzt_gedrueckte_taste = None
+        self.exp_settings = None
         
         #Settings
         self.tag1_visible = None
@@ -101,6 +103,7 @@ class Menu_Bar():
         self.VC_selection_listener = None # wird in get_Klasse_Bereiche gesetzt
         self.w_listener = None # wird in get_Klasse_Bereiche gesetzt
         self.class_Bereiche = self.get_Klasse_Bereiche()  
+        self.class_Export = self.lade_Modul_Export()
         self.Mitteilungen = Mitteilungen(self.dialog,self.ctx,self)
          
 
@@ -131,9 +134,8 @@ class Menu_Bar():
             self.erzeuge_MenuBar_Container()
             self.erzeuge_Menu()
             #self.class_Projekt.lade_Projekt(False)
-            
-        #pd()    
-        
+           
+       
     
    
     def erzeuge_Menu(self):
@@ -379,7 +381,7 @@ class Menu_Bar():
         lang = self.lang
         control, model = createControl3(self.ctx, "ListBox", 4 ,  4 , Breite_Menu_DropDown_Eintraege, Hoehe_Menu_DropDown_Eintraege, (), ())   
         control.setMultipleMode(False)
-        item = (lang.NEW_PROJECT, lang.OPEN_PROJECT ,'---------', lang.NEW_DOC, lang.NEW_DIR)
+        item = (lang.NEW_PROJECT, lang.OPEN_PROJECT ,'---------', lang.NEW_DOC, lang.NEW_DIR,'---------',lang.EXPORT_2)
         control.addItems(item, 0)
        # model.BackgroundColor = 305099
         #model.FontCharWidth = 20
@@ -488,7 +490,19 @@ class Menu_Bar():
             lang = vars()[lang_en]   
 
         return lang
-
+    
+    
+    def lade_Modul_Export(self):
+        if oxt:
+            modul = 'export'
+            export = load_reload_modul(modul,pyPath,self)
+        else:
+            import export
+          
+        Export = export.Export(self,pd)  
+        
+        return Export
+    
     def erzeuge_neue_Projekte(self):
         try:
             self.class_Projekt.test()
@@ -540,8 +554,8 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)            
             if self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
-#             if self.menu_Kopf_Eintrag == 'Neu':
-#                 self.mb.erzeuge_Hauptfeld()
+#             if self.menu_Kopf_Eintrag == self.mb.lang.EXPORT_2:
+#                 self.mb.class_Export.export()
 #             if self.menu_Kopf_Eintrag == 'Bereiche':
 #                 self.mb.erzeuge_neue_Bereiche()
             if self.menu_Kopf_Eintrag == 'Test':
@@ -653,6 +667,12 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.erzeuge_Zeile('Ordner')
+        if sel == self.mb.lang.EXPORT_2:
+            self.window.dispose()
+            self.mb.geoeffnetesMenu = None
+            self.mb.class_Export.export()
+            
+            
         
         if sel == self.mb.lang.UNFOLD_PROJ_DIR:
             self.window.dispose()

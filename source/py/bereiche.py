@@ -3,7 +3,6 @@
 import traceback
 import uno
 import unohelper
-from threading import Thread
 import time
 
 tb = traceback.print_exc

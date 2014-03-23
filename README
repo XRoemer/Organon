@@ -5,7 +5,8 @@ Organon is a navigation and organisation tool for writer.
 Extension for LibreOffice (LO) and OpenOffice (OO)
 tested for Win7 (LO 4.2.0.4, OO 4.0.1) and Ubuntu 13.10 (LO 4.2.0.4), untested for OSX
 
-WARNING: This is an alpha version which shouldn't be used for serious work. If your daily work depends on OO or LO, you should wait until a more tested version is available.
+WARNING: This is a beta version which shouldn't be used for serious work. The files produced by this version might not be compatible with future versions. 
+
 
 	Installation:
 Click 'Add' in Tools/Extension Manager and choose the saved 'organon.oxt'. Accept the licence and restart LO/OO.

@@ -32,7 +32,7 @@ def pydevBrk():
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
 #pydevBrk()
-# 234
+
 class Factory(unohelper.Base, XSingleComponentFactory):
     """ This factory instantiate new window content. 
     Registration of this class have to be there under 
@@ -66,10 +66,10 @@ class Factory(unohelper.Base, XSingleComponentFactory):
             win,tabs = create_window(ctx,self)
             
             window = self.CWHandler.window2
+
+            path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
             
-            #pydevBrk()
-            
-            start_main(pydevBrk,window,ctx,tabs)  
+            start_main(pydevBrk,window,ctx,tabs,path_to_extension)  
             
             return win 
         except Exception as e:
@@ -148,7 +148,7 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         pass
     
 
-def start_main(pd,window,ctx,tabs):
+def start_main(pd,window,ctx,tabs,path_to_extension):
 
     dialog = window
     
@@ -158,7 +158,7 @@ def start_main(pd,window,ctx,tabs):
     else:
         import menu_bar
         
-    Menu_Bar = menu_bar.Menu_Bar(pd,dialog,ctx,tabs)
+    Menu_Bar = menu_bar.Menu_Bar(pd,dialog,ctx,tabs,path_to_extension)
     Menu_Bar.erzeuge_Menu()
 
         

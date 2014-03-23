@@ -56,7 +56,9 @@ class Projekt():
         if geglueckt:
             try:
                 self.erzeuge_Settings_Datei()
-                self.erzeuge_Ordner_Struktur()             
+                
+                self.erzeuge_Ordner_Struktur() 
+                self.erzeuge_exp_Settings_Datei()            
                 self.mb.class_Bereiche.leere_Dokument()        
                 self.mb.class_Hauptfeld.start()             
                 Eintraege = self.beispieleintraege2()
@@ -96,6 +98,51 @@ class Projekt():
         self.mb.pfade.update({'odts':pOdts})
         self.mb.pfade.update({'settings':pSettings})  
                
+    
+    def lade_exp_settings(self):
+        try:
+            pyPath = self.mb.pfade['settings']
+            sys.path.append(pyPath)
+            import export_settings
+            self.mb.exp_settings = export_settings.exp_settings
+            
+        except:
+            tb()
+#         exp_settings = {
+#             # Export Dialog
+#             'alles' : 0,
+#             'sichtbar' : 0,
+#             'eigene_ausw' : 1,
+#             
+#             'einz_dok' : 1,
+#             'trenner' : 1,
+#             'einz_dat' : 0,
+#             'ordner_strukt' : 0,
+#             'typ' : '.odt',
+#             
+#             # Trenner
+#             'ordnertitel': 1,
+#             'format_ord': 1,
+#             'style_ord': 'Heading',
+#             'dateititel': 1,
+#             'format_dat': 1,
+#             'style_dat': 'Heading',
+#             'dok_einfuegen': 1,
+#             'url': 'file:///C:/Users/Homer/Documents/Organon/werter.organon/test.odt',
+#             'leerzeilen_drunter': 1,
+#             'anz_drunter' : 2,
+#             'seitenumbruch_ord' : 1,
+#             'seitenumbruch_dat' : 0,
+#             
+#             # Auswahl
+#             'auswahl' : 1,
+#             'ausgewaehlte' : {},
+#             'hoehe_auswahlfenster' : 200,
+#             }
+#         self.exp_settings = exp_settings
+        
+        
+        
     def erzeuge_Ordner_Struktur(self):
         try:
             
@@ -234,7 +281,8 @@ class Projekt():
         
         self.setze_pfade()
         self.mb.class_Bereiche.leere_Dokument() 
-        self.lese_xml_settings_datei()       
+        self.lese_xml_settings_datei() 
+        self.lade_exp_settings()      
         self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
         self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)       
         Eintraege = self.lese_xml_datei()
@@ -254,87 +302,7 @@ class Projekt():
         
         # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
         Path = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % self.mb.projekt_name
-        self.mb.doc.storeAsURL(Path,()) 
-        
-
-#     def speicher_Projekt(self):
-#  
-#         TS = self.mb.doc.TextSections
-#         total = len(TS.ElementNames)
-#         
-#         #print('speichere ...')
-#         CB = self.mb.class_Bereiche
-# 
-#         # entferne Listener
-#         self.mb.dialog.removeWindowListener(self.mb.w_listener)
-#         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)  
-#         
-#         StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
-#         StatusIndicator.start('speichere Dokument, bitte warten!',total)
-# 
-#         # speichere gesamtes Dokument 
-#         Path = 'file:///'+self.mb.pfade['odts']+'/gesamtes_Dokument.odt'
-#         self.mb.doc.storeToURL(Path,())                
-#                
-#         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-#         prop.Name = 'Hidden'
-#         prop.Value = True      
-# 
-#         newDoc = self.mb.doc.CurrentController.Frame.loadComponentFromURL("private:factory/swriter","_blank",0,(prop,))
-#         cur = newDoc.Text.createTextCursor()
-#         
-#         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-#         SFLink.FileURL = Path
-#         
-#         zaehler = 1
-# 
-#        
-#         for i in range(TS.Count):
-#             
-#             sec = TS.getByIndex(i)
-#             
-#             # alle anderen Textsections ausschliessen
-#             # todo: auch in allen anderen Bereichen ausschliessen
-#             if 'OrganonSec' in sec.Name:
-#                 
-#                 try:
-#                     # alle 5 Dateien den Status Indicator erneuern
-#                     if zaehler%5 == 0:
-#                         newDoc.close(False)
-#                         StatusIndicator.setValue(zaehler)
-#                         StatusIndicator.setText(' Dateien gespeichert: %s von %s ' % (zaehler,total))
-#                         newDoc = self.mb.doc.CurrentController.Frame.loadComponentFromURL("private:factory/swriter","_blank",0,(prop,))
-#                         cur = newDoc.Text.createTextCursor()
-#                 except:
-#                     pass
-#                        
-#                 newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-#                 newSection.setPropertyValue('FileLink',SFLink)
-#                 newSection.setName(sec.Name)
-#                 newSection.setPropertyValue("LinkRegion",sec.Name)
-#                                
-#                 cur.gotoStart(False)
-#                 cur.gotoEnd(True)
-#                 # insert und remove bewirken Einfuegen und Entfernen der Section
-#                 # der eingefuegte Inhalt aber bleibt
-#                 newDoc.Text.insertTextContent(cur, newSection, True)
-#                 newDoc.Text.removeTextContent(newSection)
-#                 
-#                 dateiname = self.mb.dict_bereiche['Bereichsname-ordinal'][sec.Name]
-#                 Path2 = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % dateiname
-#                 newDoc.storeToURL(Path2,())
-# 
-#                 zaehler += 1
-#         
-#         
-#         newDoc.close(False)
-#         StatusIndicator.end()
-#         # xml speichern
-#         Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
-#         self.mb.xml_tree.write(Path)
-#         # Listener wieder aktivieren
-#         self.mb.dialog.addWindowListener(self.mb.w_listener)
-#         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)                  
+        self.mb.doc.storeAsURL(Path,())                
             
       
     def erzeuge_Projekt_xml_tree(self):
@@ -363,7 +331,49 @@ class Projekt():
         
         self.mb.xml_tree_settings = tree
         
+    def erzeuge_exp_Settings_Datei(self):
+        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Settings_Datei')
         
+        exp_settings = {
+            # Export Dialog
+            'alles' : 0, 
+            'sichtbar' : 0,
+            'eigene_ausw' : 1,
+            
+            'einz_dok' : 1,
+            'trenner' : 1,
+            'einz_dat' : 0,
+            'ordner_strukt' : 0,
+            'typ' : '.odt',
+            'speicherort' : self.mb.pfade['projekt'].encode("utf-8"),
+            
+            # Trenner
+            'ordnertitel': 1,
+            'format_ord': 1,
+            'style_ord': 'Heading',
+            'dateititel': 1,
+            'format_dat': 1,
+            'style_dat': 'Heading',
+            'dok_einfuegen': 1,
+            'url': '',
+            'leerzeilen_drunter': 1,
+            'anz_drunter' : 2,
+            'seitenumbruch_ord' : 1,
+            'seitenumbruch_dat' : 0,
+            
+            # Auswahl
+            'auswahl' : 1,
+            'ausgewaehlte' : {},
+            'hoehe_auswahlfenster' : 200,
+            }  
+        
+        string = ''
+        for set in exp_settings:
+            string += '%s : %s \n' %(set,exp_settings[set])
+        with open(self.mb.pfade['settings']+"/export_settings.py" , "w") as file:
+            file.write('# -*- coding: utf-8 -*- \r\nexp_settings = '+ str(exp_settings)) 
+        
+        self.mb.exp_settings = exp_settings
                        
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Eintraege_und_Bereiche')
@@ -603,20 +613,25 @@ class Projekt():
     def test(self):
         print('test')
         try:
+            #pd()
+#             import time
+#             st_ind = self.mb.current_Contr.Frame.createStatusIndicator()
+#             st_ind.start('exportiere ... Bitte Warten',10)
+#             for i in range(5):
+#                 time.sleep(.5)
+#                 st_ind.setValue(i*2)
+#             st_ind.end()
             
-#             ctx = uno.getComponentContext()
-#             smgr = ctx.ServiceManager
-#             desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-#             doc = desktop.getCurrentComponent() 
-#             
-#             loc = doc.CharLocale
-#             
-#             lang = self.mb.lang
             
-            pd()
+            #pd()
+            #import werter
+            #pd()
+            #self.erzeuge_exp_Settings_Datei()
+            self.mb.class_Export.export()
+            
         except:
             tb()
-
+        #pd()
 
 
 
@@ -690,21 +705,5 @@ def createControl(ctx,type,x,y,width,height,names,values):
 def createUnoService(serviceName):
   sm = uno.getComponentContext().ServiceManager
   return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
-
-
-
-
-
-### get user data
-
-# 
-# def getOOoSetupNode(sNodePath):
-#     prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-#     aConfigProvider = createUnoService("com.sun.star.configuration.ConfigurationProvider")
-#     prop.Name = "nodepath"
-#     prop.Value = sNodePath
-#     return aConfigProvider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationAccess", (prop,))
-#     
-#     setup = getOOoSetupNode("org.openoffice.UserProfile/Data")
                    
 
