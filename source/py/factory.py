@@ -54,7 +54,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
         if oxt:print("factory init")
         #pydevBrk()
     def do(self):
-        print('do')    
+        return
     
     def createInstanceWithArgumentsAndContext(self, args, ctx):
         if oxt:print('createInstanceWithArgumentsAndContext in Factory')
@@ -92,7 +92,7 @@ RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
 
 def create_window(ctx,factory):
-    #print('create_window')
+    if oxt: print('create_window')
 
     dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
 
@@ -109,7 +109,6 @@ def create_window(ctx,factory):
     tabs.Window.setProperty('Name','ProjektFenster')
     window = tabs.Window # real window
     
-    #pydevBrk()
     return window,tabs
 
 
@@ -183,7 +182,7 @@ def load_reload_modul(modul,pyPath):
             elif 'OpenOffice' in sys.executable:
                 pass
         except:
-            pass#traceback.print_exc()
+            pass
                             
         exec('import '+ modul)
         

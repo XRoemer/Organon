@@ -4,6 +4,7 @@ import traceback
 import uno
 import unohelper
 import time
+import os
 
 tb = traceback.print_exc
 
@@ -59,10 +60,11 @@ class Bereiche():
         cursor.gotoEnd(True)
 
         text.insertString( cursor, inhalt, True )
-        Path = 'file:///' + self.mb.pfade['odts'] + '/nr%s.odt' %nr         
-        self.oOO.storeToURL(Path,())
+        Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
+        Path2 = uno.systemPathToFileUrl(Path1)        
+        self.oOO.storeToURL(Path2,())
         
-        return Path
+        return Path2
     
     def erzeuge_neue_Datei2(self,i,inhalt):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Datei2')
@@ -85,18 +87,12 @@ class Bereiche():
 
         text.insertString( cursor, inhalt, True )
         
-        Path = 'file:///' + self.mb.pfade['odts'] + '/nr%s.odt' %nr  
+        Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
+        Path2 = uno.systemPathToFileUrl(Path1)    
 
-        self.oOO.storeToURL(Path,())
+        self.oOO.storeToURL(Path2,())
         self.oOO.close(False)
     
-    
-    def speichern(self,args):
-        Path,oOO2 = args
-        if self.mb.debug: print(self.mb.debug_time(),'vorm speichern')
-        oOO2.storeToURL(Path,())
-        #self.oOO2.close(False)
-        if self.mb.debug: print(self.mb.debug_time(),'nachm speichern')
         
     def leere_Dokument(self):
         if self.mb.debug: print(self.mb.debug_time(),'leere_Dokument')
@@ -114,7 +110,7 @@ class Bereiche():
             cursor.gotoEnd(True)
             text.insertString( cursor, inhalt, True )
         except:
-            print('Dokument ist schon leer')
+            if self.mb.debug: print('Dokument ist schon leer')
                      
     def erzeuge_bereich(self,i,path,sicht):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich')
@@ -202,7 +198,6 @@ class Bereiche():
         
         for nr in range(sections.Count):            
             sec = sections.getByIndex(nr)
-            print(sec.FileLink.FileURL)
                 
         link_quelle = self.mb.dict_bereiche['Bereichsname'][quellbereich_name]# <- der Link
         zielbereich = sections.getByName(zielbereich_name)
@@ -259,7 +254,7 @@ class Bereiche():
                 # im Bereich gespeichert werden
                 try:
                     bitmap.insertByName( "TempI"+str(i), bild.GraphicURL )
-                    print(bild.GraphicURL)
+                    if self.mb.debug: print(bild.GraphicURL)
                     try:
                         internalUrl = bitmap.getByName( "TempI"+str(i) ) 
                         bild.GraphicURL = internalUrl 
@@ -267,7 +262,7 @@ class Bereiche():
                         pass
                     bitmap.removeByName( "TempI"+str(i) ) 
                 except:
-                    print('insert unverlinkte bilder gescheitert')
+                    if self.mb.debug: print('insert unverlinkte bilder gescheitert')
                 
         self.mb.selbstruf = False      
 
@@ -285,9 +280,8 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
     def selectionChanged(self,ev):
         
         if self.mb.selbstruf:
-            print('selection selbstruf')
+            if self.mb.debug: print('selection selbstruf')
             return
-        print('selection')
 
         selected_text_section = self.mb.current_Contr.ViewCursor.TextSection
         if selected_text_section == None:
@@ -386,18 +380,16 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
     
     def __init__(self,mb):
         self.mb = mb
-        #print('window listener init')
+        
     def windowResized(self,ev):
         self.korrigiere_hoehe_des_scrollbalkens()
-        #print('windowResized')
         return False
     def windowMoved(self,ev):
-        #print('windowMoved')
         return False
     def windowShown(self,ev):
         self.korrigiere_hoehe_des_scrollbalkens()
-        #print('windowShown')
         return False
+    
     def windowHidden(self,ev):
         if self.mb.bereich_wurde_bearbeitet:
             ordinal = self.mb.selektierte_zeile.AccessibleName
@@ -405,7 +397,8 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
             path = self.mb.dict_bereiche['Bereichsname'][bereichsname]
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
         self.mb.entferne_alle_listener() 
-        print('windowHidden')
+        
+        if self.mb.debug:print('windowHidden')
         return False
     
     def korrigiere_hoehe_des_scrollbalkens(self):

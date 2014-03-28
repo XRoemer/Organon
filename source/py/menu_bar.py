@@ -6,6 +6,7 @@ import sys
 import os
 import xml.etree.ElementTree as ElementTree
 import time
+import codecs
 
 global oxt
 oxt = False
@@ -22,6 +23,7 @@ if oxt:
 Color_MenuBar_Container = 13027014 #16777215 #weiss
 Color_MenuBar_MenuEintraege = 6279861
 Color_Menu_Container = 16771990
+MENU_DIALOG_FARBE = 14804725#13884141 #305099 # blau
 
 Breite_Menu_DropDown_Eintraege = 150
 Hoehe_Menu_DropDown_Eintraege = 180
@@ -68,6 +70,7 @@ class Menu_Bar():
 
         # Properties
         self.projekt_name = None
+        self.speicherort_last_proj = self.get_speicherort()
         self.Hauptfeld = None               # alle Zeilen, Controls
         self.dict_zeilen_posY = {}
         self.dict_ordner = {}               # enthaelt alle Ordner und alle ihnen untergeordneten Zeilen
@@ -84,6 +87,8 @@ class Menu_Bar():
         self.tastatureingabe = False
         self.zuletzt_gedrueckte_taste = None
         self.exp_settings = None
+        self.imp_settings_xml = None
+        self.settings_org_xml = None
         
         #Settings
         self.tag1_visible = None
@@ -104,6 +109,7 @@ class Menu_Bar():
         self.w_listener = None # wird in get_Klasse_Bereiche gesetzt
         self.class_Bereiche = self.get_Klasse_Bereiche()  
         self.class_Export = self.lade_Modul_Export()
+        self.class_Import = self.lade_Modul_Import()
         self.Mitteilungen = Mitteilungen(self.dialog,self.ctx,self)
          
 
@@ -112,7 +118,7 @@ class Menu_Bar():
         
 
         # fuers debugging
-        self.debug = False
+        self.debug = True
         if self.debug: print('Debug = True ; Menu_Bar')
         self.time = time
         self.timer_start = self.time.clock()
@@ -147,18 +153,16 @@ class Menu_Bar():
             self.erzeuge_Menu_Kopf_Datei(listener)
             self.erzeuge_Menu_Kopf_Optionen(listener)
             
-            #self.erzeuge_Menu_Kopf_Neu(listener)
-            #self.erzeuge_Menu_Kopf_Bereiche(listener)
-            
             if oxt:
                 self.erzeuge_Menu_Kopf_Test(listener)
             
-            #self.erzeuge_Menu_speicher_Projekt(listener2)
             self.erzeuge_Menu_neuer_Ordner(listener2)
             self.erzeuge_Menu_Kopf_neues_Dokument(listener2)
             self.erzeuge_Menu_Kopf_Papierkorb_leeren(listener2)
-        except:
-            tb()
+            
+        except Exception as e:
+                self.Mitteilungen.nachricht(str(e),"warningbox")
+                tb()
 
     
     def erzeuge_MenuBar_Container(self):
@@ -204,21 +208,6 @@ class Menu_Bar():
         MenuBarCont.addControl('Optionen', control)
         
         
-#     def erzeuge_Menu_Kopf_Bereiche(self,listener):
-#         
-#         MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
-#         
-#         Attr = (121, 0, 50, 20, 'bereiche', Color_MenuBar_MenuEintraege)    
-#         PosX, PosY, Width, Height, Name, Color = Attr
-#          
-#         control, model = createControl3(self.ctx, "FixedText", PosX, PosY, Width, Height, (), ())           
-#         model.BackgroundColor = Color
-#         model.Label = 'Bereiche'                     
-#         control.addMouseListener(listener)  
-#              
-#         MenuBarCont.addControl('Bereiche', control)
-        
-        
     def erzeuge_Menu_Kopf_Test(self,listener):
         
         MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
@@ -251,26 +240,6 @@ class Menu_Bar():
               
         MenuBarCont.addControl('Ordner', control)
         
-        
-#     def erzeuge_Menu_speicher_Projekt(self,listener2):
-#         
-#         MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
-#         Color = 102
-#         Attr = (323, 0, 20, 20, 'probe', Color)    
-#         PosX, PosY, Width, Height, Name, Color = Attr
-#          
-#         control, model = createControl3(self.ctx, "ImageControl", PosX, PosY, Width, Height, (), ())  
-#         if self.programm == 'LibreOffice':            
-#             model.ImageURL = 'private:graphicrepository/cmd/lc_save.png'
-#         # cmd/lc_insertannotation.png     lc_insertdoc.png  lc_insertdoc.png
-#         if self.programm == 'OpenOffice':   
-#             model.ImageURL = 'private:graphicrepository/res/commandimagelist/lc_save.png'
-#             
-#         model.HelpText = 'Projekt speichern' 
-#         model.Border = 0                    
-#         control.addMouseListener(listener2) 
-#               
-#         MenuBarCont.addControl('Ordner', control)
         
     def erzeuge_Menu_Kopf_neues_Dokument(self,listener2):
         
@@ -355,7 +324,7 @@ class Menu_Bar():
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", self.ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", self.ctx)
-        cont_model.BackgroundColor = 305099  # 9225984
+        cont_model.BackgroundColor = MENU_DIALOG_FARBE  # 9225984
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
@@ -379,11 +348,12 @@ class Menu_Bar():
     
     def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont):
         lang = self.lang
-        control, model = createControl3(self.ctx, "ListBox", 4 ,  4 , Breite_Menu_DropDown_Eintraege, Hoehe_Menu_DropDown_Eintraege, (), ())   
+        control, model = createControl3(self.ctx, "ListBox", 10 ,  10 , Breite_Menu_DropDown_Eintraege-6, Hoehe_Menu_DropDown_Eintraege-6, (), ())   
         control.setMultipleMode(False)
-        item = (lang.NEW_PROJECT, lang.OPEN_PROJECT ,'---------', lang.NEW_DOC, lang.NEW_DIR,'---------',lang.EXPORT_2)
+        item = (lang.NEW_PROJECT, lang.OPEN_PROJECT ,'---------', lang.NEW_DOC, lang.NEW_DIR,'---------',lang.EXPORT_2, lang.IMPORT_2)
         control.addItems(item, 0)
-       # model.BackgroundColor = 305099
+        model.BackgroundColor = MENU_DIALOG_FARBE
+        model.Border = False
         #model.FontCharWidth = 20
         
         cont.addControl('Eintraege_Datei', control)
@@ -396,7 +366,7 @@ class Menu_Bar():
     def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
         
         # Tag1
-        control_tag1, model_tag1 = createControl3(self.ctx, "CheckBox", 4, 4, Breite_Menu_DropDown_Eintraege, 30, (), ())   
+        control_tag1, model_tag1 = createControl3(self.ctx, "CheckBox", 10, 10, Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
         model_tag1.Label = self.lang.SHOW_TAG1
         
         if self.tag1_visible == True:
@@ -410,12 +380,13 @@ class Menu_Bar():
         
 
         # ListBox
-        control, model = createControl3(self.ctx, "ListBox", 4, 34, Breite_Menu_DropDown_Eintraege, 
+        control, model = createControl3(self.ctx, "ListBox", 10, 34, Breite_Menu_DropDown_Eintraege-6, 
                                         Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
         control.setMultipleMode(False)
-        item = ('#Einstellungen', '#Speicherordner', self.lang.UNFOLD_PROJ_DIR, '#Homepage', '#Updates', '#Sonstiges')
+        item = ( self.lang.UNFOLD_PROJ_DIR, '-------', '#Homepage', '#Updates', '#Etc.')
         control.addItems(item, 0)
-       # model.BackgroundColor = 305099
+        model.BackgroundColor = MENU_DIALOG_FARBE
+        model.Border = False
         
         cont.addControl('Eintraege_Optionen', control)
         
@@ -424,7 +395,15 @@ class Menu_Bar():
         control.addItemListener(listener)   
     
     
-
+    def get_speicherort(self):
+        pfad = os.path.join(self.path_to_extension,'pfade.txt')
+        
+        if os.path.exists(pfad):            
+            with codecs.open( pfad, "r","utf-8") as file:
+                filepath = file.read() 
+            return filepath
+        else:
+            return None
             
     def get_Klasse_Hauptfeld(self):
 
@@ -503,6 +482,17 @@ class Menu_Bar():
         
         return Export
     
+    def lade_Modul_Import(self):
+        if oxt:
+            modul = 'importX'
+            importX = load_reload_modul(modul,pyPath,self)
+        else:
+            import importX
+          
+        ImportX = importX.ImportX(self,pd)  
+        
+        return ImportX
+    
     def erzeuge_neue_Projekte(self):
         try:
             self.class_Projekt.test()
@@ -554,10 +544,6 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)            
             if self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
-#             if self.menu_Kopf_Eintrag == self.mb.lang.EXPORT_2:
-#                 self.mb.class_Export.export()
-#             if self.menu_Kopf_Eintrag == 'Bereiche':
-#                 self.mb.erzeuge_neue_Bereiche()
             if self.menu_Kopf_Eintrag == 'Test':
                 self.mb.erzeuge_neue_Projekte()
             return False
@@ -650,7 +636,7 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
     # XItemListener    
     def itemStateChanged(self, ev):        
         sel = ev.value.Source.Items[ev.value.Selected]
-        print(sel)
+
         if sel == self.mb.lang.NEW_PROJECT:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
@@ -671,9 +657,10 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
             self.mb.class_Export.export()
-            
-            
-        
+        if sel == self.mb.lang.IMPORT_2:
+            self.window.dispose()
+            self.mb.geoeffnetesMenu = None
+            self.mb.class_Import.importX()
         if sel == self.mb.lang.UNFOLD_PROJ_DIR:
             self.window.dispose()
             self.mb.geoeffnetesMenu = None
@@ -688,7 +675,6 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         
     # XItemListener    
     def itemStateChanged(self, ev):        
-        print('state',self.model.State)
 
         if self.model.State == 1:
             self.mb.tag1_visible = True
@@ -706,12 +692,11 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
             xml_tag1.attrib['sichtbar'] = 'ja'
             self.mache_tag1_sichtbar(True)
 
-        Path = self.mb.pfade['settings'] + '/settings.xml' 
+        Path = os.path.join(self.mb.pfade['settings'] , 'settings.xml' )
         self.mb.xml_tree_settings.write(Path)  
     
     def mache_tag1_sichtbar(self,sichtbar):
     
-        #print('sichtbar',sichtbar)
         # alle Zeilen
         controls_zeilen = self.mb.Hauptfeld.Controls
         tree = self.mb.xml_tree
@@ -720,14 +705,11 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         if not sichtbar:
             for contr_zeile in controls_zeilen:
                 tag1_contr = contr_zeile.getControl('tag1')
-                #tag1_breite = tag1_contr.PosSize.Width
-                print('1')
                 text_contr = contr_zeile.getControl('textfeld')
                 posSizeX = text_contr.PosSize.X
                 
-                print('2')
                 text_contr.setPosSize(posSizeX-16,0,0,0,1)
-                print('3')
+
                 if self.mb.tag2_visible:
                     tag2_contr = contr_zeile.getControl('tag2')
                 if self.mb.tag3_visible:
@@ -793,17 +775,14 @@ from com.sun.star.awt import Rectangle
 from com.sun.star.awt import WindowDescriptor         
 from com.sun.star.awt.WindowClass import MODALTOP
 from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
+
 class Mitteilungen():
     def __init__(self,dialog,ctx,mb):
         self.dialog = dialog  
         self.ctx = ctx
-        self.mb = mb
-        #print('init Mitteilungen')
-     
+        self.mb = mb     
     
-    def nachricht(self, MsgText, MsgType="errorbox", MsgButtons=OK):
-        print('nachricht')
-        #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)                  
+    def nachricht(self, MsgText, MsgType="errorbox", MsgButtons=OK):                 
 
         smgr = self.ctx.ServiceManager
         desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
@@ -834,8 +813,6 @@ class Mitteilungen():
         x = msgbox.execute()
         msgbox.dispose()
         return x
-
-        #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)                  
 
         
    

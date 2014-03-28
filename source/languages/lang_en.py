@@ -16,6 +16,8 @@ CREATE_NEW_PROJECT = 'Create New Project'
 CANCEL = 'Cancel'
 OK = 'OK'
 ENTER_PROJ_NAME = "Enter name for new project:"
+KEIN_NAME = "You didn't enter a name"
+KEIN_SPEICHERORT = "You didn't select a folder."
 DOUBLE_PROJ_NAME = "The name you entered is the same as the one of the current document. That doesn't work."
 PROJ_EXISTS = "The project already exists. Should it be overwritten?"
 
@@ -34,7 +36,7 @@ EIN_DOKUMENT = 'one Document'
 TRENNER = 'Separator'
 BEARBEITEN = 'Edit'
 EINZ_DATEIEN = 'Single Files'
-ORDNERSTRUKTUR = 'keep Folder Structure'
+ORDNERSTRUKTUR = 'Keep Folder Structure'
 DATEITYP = 'Type'
 SPEICHERORT = 'Save to Folder'
 EXPORTIEREN = 'Export'
@@ -51,3 +53,15 @@ WAEHLEN = 'Select'
 SEITENUMBRUCH_ORD = 'Pagebreak before Folder' 
 SEITENUMBRUCH_DAT = 'Pagebreak before File'
 ORDNER_CLICK = 'Click on Folder selects Folder Entry'      
+
+## IMPORT SETTINGS
+IMPORT_2 = 'Import'
+IMPORT = 'IMPORT'
+DATEIFILTER = 'File Filter'
+IMPORT_DATEI = 'Import File'
+IMPORT_ORDNER ='Import Folder'
+DATEIAUSWAHL = 'Select File'
+ORDNERAUSWAHL = 'Select Folder'
+IMPORTIEREN = 'Import'
+
+

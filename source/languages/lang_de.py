@@ -16,6 +16,8 @@ CREATE_NEW_PROJECT = 'Neues Projekt anlegen'
 CANCEL = 'Abbrechen'
 OK = 'OK'
 ENTER_PROJ_NAME = "Geben Sie einen Namen fuer das neue Projekt ein:"
+KEIN_NAME = 'Sie haben noch keinen Namen eingegeben.'
+KEIN_SPEICHERORT = 'Sie haben noch keinen Speicherort ausgesucht.'
 DOUBLE_PROJ_NAME = 'Das Projekt soll den gleichen Namen wie das zur Zeit geoeffnete Dokument erhalten. Das funktioniert nicht.'
 PROJ_EXISTS = 'Das Projekt existiert schon. Soll es geloescht und ueberschrieben werden?'
 
@@ -52,3 +54,13 @@ WAEHLEN = 'waehlen'
 SEITENUMBRUCH_ORD = 'Seitenumbruch vor Ordner' 
 SEITENUMBRUCH_DAT = 'Seitenumbruch vor Datei'
 ORDNER_CLICK = 'Klick auf Ordner waehlt Untereintraege aus'
+
+## IMPORT SETTINGS
+IMPORT_2 = 'Import'
+IMPORT = 'IMPORT'
+DATEIFILTER = 'Dateifilter'
+IMPORT_DATEI = 'Datei importieren'
+IMPORT_ORDNER ='Ordner importieren'
+DATEIAUSWAHL = 'Datei auswaehlen'
+ORDNERAUSWAHL = 'Ordner auswaehlen'
+IMPORTIEREN = 'Importieren'

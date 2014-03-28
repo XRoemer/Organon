@@ -50,7 +50,7 @@ class Funktionen():
         self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(xml_projekt.tag,xml_projekt,'zu',True)
         self.mb.class_Projekt.erzeuge_dict_ordner() 
          
-        Path = self.mb.pfade['settings'] + '\ElementTree.xml' 
+        Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
         self.mb.xml_tree.write(Path)
     
     
@@ -211,7 +211,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         source_xml = root.find('.//'+ord_source)
         source_xml.attrib['Tag1'] = sel
         
-        Path = self.mb.pfade['settings'] + '\ElementTree.xml' 
+        Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
         tree.write(Path)
         
         self.window.dispose()

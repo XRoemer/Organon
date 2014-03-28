@@ -6,10 +6,12 @@ import uno
 import unohelper
 import math
 import time
+import os
 from os import remove
 from threading import Thread
 import sys
 
+tb = traceback.print_exc
 
 IMAGE_PFEIL_HOCH = 'vnd.sun.star.extension://xaver.roemers.organon/img/icon-set-colorarrows-slightly-up.png'
 IMAGE_PFEIL_RUNTER = 'vnd.sun.star.extension://xaver.roemers.organon/img/icon-set-colorarrows-slightly-down.png'
@@ -26,6 +28,7 @@ IMG_DATEI_NEU_24 =      'vnd.sun.star.extension://xaver.roemers.organon/img/neue
 Color_Hauptfeld = 16761459
 FARBE_ZEILE_STANDARD = 15790320 #LOO grau 16777215 # weiss
 FARBE_AUSGEWAEHLTE_ZEILE = 14866636 #creme 16777075 # hellgelb
+FARBE_EDITIERTE_ZEILE = 16771014 #16777075 # hellgelb
 FARBE_GEZOGENE_ZEILE  = 16741376 # orange
 
 ZEILENHOEHE = 22
@@ -223,81 +226,85 @@ class Main_Container():
         control.addAdjustmentListener(listener) 
         
   
-    def erzeuge_neue_Zeile(self,ordner_oder_datei):
+    def erzeuge_neue_Zeile(self,ordner_oder_datei,erzeuge_File = True):
         
         self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Zeile')
         
         if self.mb.selektierte_zeile == None:       
             self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
-            return
+            return None
         else:
             StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
             StatusIndicator.start(self.mb.lang.ERZEUGE_NEUE_ZEILE,2)
             StatusIndicator.setValue(2)
             
-            
-            self.mb.doc.lockControllers()
-            
-            ord_sel_zeile = self.mb.selektierte_zeile.AccessibleName
-            
-            # XML TREE
-            tree = self.mb.xml_tree
-            root = tree.getroot()
-            xml_sel_zeile = root.find('.//'+ord_sel_zeile)
-            
-            # Props ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3
-            ordinal = 'nr'+root.attrib['kommender_Eintrag']
-            parent = xml_sel_zeile.attrib['Parent']
-            name = ordinal
-            lvl = xml_sel_zeile.attrib['Lvl']
-            tag1 = 'leer' #xml_sel_zeile.attrib['Tag1']
-            tag2 = xml_sel_zeile.attrib['Tag2']
-            tag3 = xml_sel_zeile.attrib['Tag3']
-            sicht = 'ja' 
-            if ordner_oder_datei == 'Ordner':
-                art = 'dir'
-                zustand = 'zu'
-            else:
-                art = 'pg'
-                zustand = '-'            
-            eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
-            
-#             argu1 = eintrag
-#             argu2 = self.mb.class_Zeilen_Listener
-#             argu3 = len(root.findall('.//'))
-#             t = Thread(target=self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag, args=(argu1,argu2,argu3))
-#             t.start()
-            
-            # neue Zeile / neuer XML Eintrag
-            self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
-            self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
-                        
-            # neue Datei / neuen Bereich anlegen           
-            # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
-            nr = int(root.attrib['kommender_Eintrag']) - 1          
-            inhalt = ordinal
- 
-            self.mb.class_Bereiche.erzeuge_neue_Datei2(nr,inhalt)
-              
-            path = 'file:///' + self.mb.pfade['odts'] + '/nr%s.odt' %nr
-               
-            #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)   
-            self.mb.class_Bereiche.erzeuge_bereich2(nr,path,sicht)
-            if self.mb.debug: print(self.mb.debug_time(),'nach erzeuge_bereich')   
-            #self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
-               
-            # Zeilen anordnen
-            source = ordinal
-            target = xml_sel_zeile.tag
-            action = 'drunter'  
-            # in zeilen_neu_ordnen wird auch die xml datei geschrieben
-            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(source,target,action)
-              
-            if self.mb.doc.hasControllersLocked(): 
-                self.mb.doc.unlockControllers()
-
+            try:
+                try:
+                    self.mb.doc.lockControllers()
+                    
+                    ord_sel_zeile = self.mb.selektierte_zeile.AccessibleName
+                    
+                    # XML TREE
+                    tree = self.mb.xml_tree
+                    root = tree.getroot()
+                    xml_sel_zeile = root.find('.//'+ord_sel_zeile)
+                    
+                    # Props ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3
+                    ordinal = 'nr'+root.attrib['kommender_Eintrag']
+                    parent = xml_sel_zeile.attrib['Parent']
+                    name = ordinal
+                    lvl = xml_sel_zeile.attrib['Lvl']
+                    tag1 = 'leer' #xml_sel_zeile.attrib['Tag1']
+                    tag2 = xml_sel_zeile.attrib['Tag2']
+                    tag3 = xml_sel_zeile.attrib['Tag3']
+                    sicht = 'ja' 
+                    if ordner_oder_datei == 'Ordner':
+                        art = 'dir'
+                        zustand = 'zu'
+                    else:
+                        art = 'pg'
+                        zustand = '-'            
+                    eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
+                    
+                    # neue Zeile / neuer XML Eintrag
+                    self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
+                    self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
+                                
+                    # neue Datei / neuen Bereich anlegen           
+                    # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
+                    nr = int(root.attrib['kommender_Eintrag']) - 1          
+                    inhalt = ordinal
+                
+                    if erzeuge_File:
+                        self.mb.class_Bereiche.erzeuge_neue_Datei2(nr,inhalt)
+    
+                    #path = 'file:///' + self.mb.pfade['odts'] + '/nr%s.odt' %nr
+                    path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
+    
+                    #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)   
+                    self.mb.class_Bereiche.erzeuge_bereich2(nr,path,sicht)
+                    if self.mb.debug: print(self.mb.debug_time(),'nach erzeuge_bereich')   
+                    #self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
+                       
+                    # Zeilen anordnen
+                    source = ordinal
+                    target = xml_sel_zeile.tag
+                    action = 'drunter'  
+    
+                    # in zeilen_neu_ordnen wird auch die xml datei geschrieben
+                    self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(source,target,action)
+    
+                    if self.mb.doc.hasControllersLocked(): 
+                        self.mb.doc.unlockControllers()
+                except:
+                    pass
+                
+                #pd()
+            except:
+                tb()
             StatusIndicator.end()
+            return nr,path
             
             
     def kontrolle(self):
@@ -342,7 +349,7 @@ class Main_Container():
         for verworfene in papierkorb_inhalt:
             papierkorb_xml.remove(verworfene)
                             
-        Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
+        Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
         tree.write(Path)
 
         self.erneuere_selektierungen(selektierter_ist_im_papierkorb) 
@@ -440,7 +447,8 @@ class Main_Container():
             sec = sections.getByName('OrganonSec'+str(i))
             ordinal = alle_Zeilen[i].tag
             
-            Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal   
+            #Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal   
+            Path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)  
             
             Bereichsname_dict.update({'OrganonSec'+str(i):Path})
             ordinal_dict.update({ordinal:'OrganonSec'+str(i)})
@@ -511,6 +519,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         if ev.Buttons == MB_LEFT:   
             if ev.ClickCount == 2: 
                 zeile.Model.ReadOnly = False 
+                zeile.Model.BackgroundColor = FARBE_EDITIERTE_ZEILE
                 self.edit_text = True   
                 return False
         
@@ -563,6 +572,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     def focusLost(self, ev):
         # Bearbeitung des Zeileneintrags wieder ausschalten
         if self.edit_text == True:
+
             ev.Source.Model.ReadOnly = True 
             self.edit_text = False
             # neuen Text in die xml Datei eintragen
@@ -571,6 +581,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             zeile_ord = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
             xml_elem = root.find('.//'+zeile_ord)
             xml_elem.attrib['Name'] = ev.Source.Text
+            
+            Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
+            tree.write(Path1)
         return False
 
     def mouseDragged(self,ev):
@@ -786,7 +799,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 self.hf_neu_ordnen(eintraege)
                 if self.mb.debug: print(self.mb.debug_time(),'nach hf')
                 
-            Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
+            Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
             if self.mb.debug: print(self.mb.debug_time(),'xml_tree.write')
             self.mb.xml_tree.write(Path)
             
@@ -906,9 +919,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
          
         def durchlaufe_baum(dir):  
             for child in dir:
-                print(child.tag,child.attrib['Name'])
+                #print(child.tag,child.attrib['Name'])
                 if child.attrib['Art'] in ('dir','waste'):  
-                    print('wird sichtbar 1', child.attrib['Name'],child.attrib['Zustand'],child.attrib['Parent'])  
+                    #print('wird sichtbar 1', child.attrib['Name'],child.attrib['Zustand'],child.attrib['Parent'])  
                     tar = self.mb.Hauptfeld.getControl(child.tag)
                     tar.Visible = True   
                     
@@ -919,7 +932,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                         durchlaufe_baum(child)
                 else:
                     if dir.attrib['Zustand'] == 'auf':
-                        print('wird sichtbar 2', child.attrib['Name'],'pg')
+                        #print('wird sichtbar 2', child.attrib['Name'],'pg')
                         tar = self.mb.Hauptfeld.getControl(child.tag)
                         tar.Visible = True           
                         
@@ -939,7 +952,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     tar.Visible = False
                     elem = root.find('.//'+ child)
                     elem.attrib['Sicht'] = 'nein'
-                    print('wird unsichtbar',elem.attrib['Name'],elem.attrib['Sicht'])
+                    #print('wird unsichtbar',elem.attrib['Name'],elem.attrib['Sicht'])
         else:   
             durchlaufe_baum(selbst_xml)
             
@@ -980,7 +993,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             ordinal = alle_Zeilen[i].tag
 
-            Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal    
+            #Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal    
+            Path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)  
             
             SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
             SFLink.FilterName = 'nr'+str(i)
@@ -1002,30 +1016,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.dict_bereiche.update({'ordinal':ordinal_dict})
         self.mb.dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
         
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)  
-        
-        
-        
-            
-    def file_linker(self,args): 
-        
-        
-        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        sections,i,ordinal = args
-        #print(i,ordinal)
-        Path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal    ############## rausnehmen/aendern
-         
-        sec = sections.getByName('OrganonSec'+str(i))
-        #print('hier',i)
-#         sec,SFLink = args 
-        SFLink.FilterName = 'nr'+str(i)
-        SFLink.FileURL = Path
-        #print(Path,sec.Name)
-        try:
-            sec.setPropertyValue('FileLink',SFLink)
-        except:
-            pass
-        
+        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)         
         
 
         
@@ -1126,7 +1117,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             return
         
         trenner = self.mb.doc.TextSections.getByName(trenner_name)
-        #print('entferne',trenner_name)   
 
         cur = self.mb.doc.Text.createTextCursor()
         cur.gotoRange(trenner.Anchor,False)
@@ -1186,7 +1176,7 @@ class Dir_Listener (unohelper.Base, XMouseListener):
 
     def mousePressed(self, ev):
         self.mb.selektierte_zeile = ev.Source.Context.AccessibleContext
-        
+        #pd()
         if ev.Buttons == MB_LEFT:    
             if ev.ClickCount == 2: 
                 
@@ -1217,7 +1207,8 @@ class Dir_Listener (unohelper.Base, XMouseListener):
                             ev.Source.Model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png'
                         self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(selbst,selbst_xml,zustand)
                        
-                    Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
+                    #Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
+                    Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
                     tree.write(Path)
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
                 except:

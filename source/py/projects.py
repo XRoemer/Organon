@@ -6,6 +6,7 @@ import uno
 import unohelper
 import os
 import sys
+import codecs
 tb = traceback.print_exc
 
 ZEILENHOEHE = 22
@@ -24,187 +25,189 @@ class Projekt():
         self.mb = mb
         self.pd = pydevBrk
    
+   
+   ##########   ausgesuchten Pfad neu setzen
+   
+   
     def erzeuge_neues_Projekt(self):
-        
-        geglueckt,self.mb.projekt_name = self.dialog_neues_projekt_anlegen()  
-
-        if geglueckt:
-            self.setze_pfade()
+        try:
+            geglueckt,self.mb.projekt_name = self.dialog_neues_projekt_anlegen()  
             
-            if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
-                
-                self.mb.Mitteilungen.nachricht(self.mb.lang.DOUBLE_PROJ_NAME,"warningbox")
-                return
-                # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
-                # funktioniert das unter Linux?? ############
-            elif os.path.exists(self.mb.pfade['projekt']):
-                # 16777216 Flag fuer YES_NO
-                entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.PROJ_EXISTS,"warningbox",16777216)
-                # 3 = Nein oder Cancel, 2 = Ja
-                if entscheidung == 3:
-                    return
-                elif entscheidung == 2:
-                    try:
-                        import shutil
-                        # entfernt das vorhandene Projekt
-                        shutil.rmtree(self.mb.pfade['projekt'])
-                    except:
-                        # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
-                        pass
+            if geglueckt:
+                self.setze_pfade()
+                #return
+                if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
                     
+                    self.mb.Mitteilungen.nachricht(self.mb.lang.DOUBLE_PROJ_NAME,"warningbox")
+                    return
+                    # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
+                    # funktioniert das unter Linux?? ############
+                elif os.path.exists(self.mb.pfade['projekt']):
+                    # 16777216 Flag fuer YES_NO
+                    entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.PROJ_EXISTS,"warningbox",16777216)
+                    # 3 = Nein oder Cancel, 2 = Ja
+                    if entscheidung == 3:
+                        return
+                    elif entscheidung == 2:
+                        try:
+                            import shutil
+                            # entfernt das vorhandene Projekt
+                            shutil.rmtree(self.mb.pfade['projekt'])
+                        except:
+                            # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
+                            pass
+                        
+        except Exception as e:
+            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            tb()
         
         if geglueckt:
             try:
-                self.erzeuge_Settings_Datei()
-                
+                self.erzeuge_Settings()
                 self.erzeuge_Ordner_Struktur() 
-                self.erzeuge_exp_Settings_Datei()            
+                self.erzeuge_import_Settings()
+                self.erzeuge_export_Settings()  
+                          
                 self.mb.class_Bereiche.leere_Dokument()        
                 self.mb.class_Hauptfeld.start()             
                 Eintraege = self.beispieleintraege2()
                 self.erzeuge_Projekt_xml_tree()
                 self.erzeuge_Eintraege_und_Bereiche(Eintraege)
                   
-                Path = self.mb.pfade['settings']  
-                self.mb.xml_tree.write(Path + '/ElementTree.xml')
-                self.mb.xml_tree_settings.write(Path +'/settings.xml' )
-                # nach dem Path fuer andere Betriebssysteme schauen !!!!!!!!
-            except:
+                Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
+                self.mb.xml_tree.write(Path1)
+                Path2 = os.path.join(self.mb.pfade['settings'],'settings.xml')
+                self.mb.xml_tree_settings.write(Path2)
+                
+            except Exception as e:
+                self.mb.Mitteilungen.nachricht(str(e),"warningbox")
                 tb()
 
                         
     def setze_pfade(self): 
-          
+  
         paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
         pHome = paths.Work_writable
         if sys.platform == 'linux':
-            os.chdir( '//')# + pHome.split('///')[1] ) 
-        # und Windows ??????????
-        retval = os.getcwd()
-        print ("Current working directory %s" % retval)   
-        
-        pNavi = pHome+'/Organon'
-        pOrganon = pNavi.split('///')[1] 
-        
-        pProjekt = pOrganon + '/%s.organon' % self.mb.projekt_name
-        pFiles = pProjekt + '/Files'
-        pOdts = pProjekt + '/Files/odt'
-        pSettings = pProjekt + '/Settings'
+            os.chdir( '//')
+
+#         retval = os.getcwd()
+#         print ("Current working directory %s" % retval)          
+
+        pNavi = self.mb.projekt_path
+        pOrganon = uno.fileUrlToSystemPath(pNavi)
+
+        pProjekt =  os.path.join(pOrganon , '%s.organon' % self.mb.projekt_name)
+        pFiles =    os.path.join(pProjekt , 'Files')
+        pOdts =     os.path.join(pFiles , 'odt')
+        pSettings = os.path.join(pProjekt , 'Settings')
         
         self.mb.pfade.update({'home':pHome}) 
         self.mb.pfade.update({'projekt':pProjekt})      
         self.mb.pfade.update({'organon':pOrganon})
         self.mb.pfade.update({'files':pFiles})
         self.mb.pfade.update({'odts':pOdts})
-        self.mb.pfade.update({'settings':pSettings})  
-               
+        self.mb.pfade.update({'settings':pSettings}) 
+
     
-    def lade_exp_settings(self):
-        try:
-            pyPath = self.mb.pfade['settings']
-            sys.path.append(pyPath)
-            import export_settings
-            self.mb.exp_settings = export_settings.exp_settings
-            
-        except:
-            tb()
-#         exp_settings = {
-#             # Export Dialog
-#             'alles' : 0,
-#             'sichtbar' : 0,
-#             'eigene_ausw' : 1,
-#             
-#             'einz_dok' : 1,
-#             'trenner' : 1,
-#             'einz_dat' : 0,
-#             'ordner_strukt' : 0,
-#             'typ' : '.odt',
-#             
-#             # Trenner
-#             'ordnertitel': 1,
-#             'format_ord': 1,
-#             'style_ord': 'Heading',
-#             'dateititel': 1,
-#             'format_dat': 1,
-#             'style_dat': 'Heading',
-#             'dok_einfuegen': 1,
-#             'url': 'file:///C:/Users/Homer/Documents/Organon/werter.organon/test.odt',
-#             'leerzeilen_drunter': 1,
-#             'anz_drunter' : 2,
-#             'seitenumbruch_ord' : 1,
-#             'seitenumbruch_dat' : 0,
-#             
-#             # Auswahl
-#             'auswahl' : 1,
-#             'ausgewaehlte' : {},
-#             'hoehe_auswahlfenster' : 200,
-#             }
-#         self.exp_settings = exp_settings
-        
-        
+    def lade_imp_exp_settings(self):
+
+        pyPath = self.mb.pfade['settings']
+        sys.path.append(pyPath)
+
+        import export_settings
+        self.mb.exp_settings = export_settings.exp_settings[0]
+
+        pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
+        self.mb.imp_settings_xml = self.mb.ET.parse((pfad))
+
         
     def erzeuge_Ordner_Struktur(self):
-        try:
-            
-            pfade = self.mb.pfade
-            # Organon
-            if not os.path.exists(pfade['organon']):
-                os.makedirs(pfade['organon'])
-            # Organon/<Projekt Name>
-            if not os.path.exists(pfade['projekt']):
-                os.makedirs(pfade['projekt'])
-            # Organon/<Projekt Name>/Files
-            if not os.path.exists(pfade['files']):
-                os.makedirs(pfade['files'])
-            # Organon/<Projekt Name>/Files
-            if not os.path.exists(pfade['odts']):
-                os.makedirs(pfade['odts'])   
-            # Organon/<Projekt Name>/Settings
-            if not os.path.exists(pfade['settings']):
-                os.makedirs(pfade['settings'])
+        
+        
+        pfade = self.mb.pfade
+        # Organon
+        if not os.path.exists(pfade['organon']):
+            os.makedirs(pfade['organon'])
+        # Organon/<Projekt Name>
+        if not os.path.exists(pfade['projekt']):
+            os.makedirs(pfade['projekt'])
+        # Organon/<Projekt Name>/Files
+        if not os.path.exists(pfade['files']):
+            os.makedirs(pfade['files'])
+        # Organon/<Projekt Name>/Files
+        if not os.path.exists(pfade['odts']):
+            os.makedirs(pfade['odts'])   
+        # Organon/<Projekt Name>/Settings
+        if not os.path.exists(pfade['settings']):
+            os.makedirs(pfade['settings'])
+
+        # Datei anlegen, die bei lade_Projekt angesprochen werden soll
+        path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
+        with open(path, "w") as file:
+            file.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
+             
+        # Setzen einer UserDefinedProperty um Projekt identifizieren zu koennen
+        UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
+        has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
+        if has_prop:
+            UD_properties.setPropertyValue('ProjektName',self.mb.projekt_name) 
+        else:
+            UD_properties.addProperty('ProjektName',1,self.mb.projekt_name) 
                  
-            # Datei anlegen, die bei lade_Projekt angesprochen werden soll
-            with open(pfade['projekt']+"/%s.organon" % self.mb.projekt_name, "w") as file:
-                file.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
-                 
-            # Setzen einer UserDefinedProperty um Projekt identifizieren zu koennen
-            UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
-            has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
-            if has_prop:
-                UD_properties.setPropertyValue('ProjektName',self.mb.projekt_name) 
-            else:
-                UD_properties.addProperty('ProjektName',1,self.mb.projekt_name) 
-                     
-            # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
-            Path = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % self.mb.projekt_name
-            self.mb.doc.storeAsURL(Path,())   
-        except:
-            tb()
+        # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
+        Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
+        Path2 = uno.systemPathToFileUrl(Path1)
+
+        self.mb.doc.storeAsURL(Path2,())   
+
                        
     def dialog_neues_projekt_anlegen(self):
         
-        Attr = (25,22,300,20,'zweiter_cont')    
-        PosX,PosY,Width,Height,Name = Attr
-        control, model = createControl(self.ctx,"FixedText",PosX,PosY,Width,Height,(),() )  
+        y = 20
+        # Projektname eingeben
+        control, model = createControl(self.ctx,"FixedText",25,y,300,20,(),() )  
         model.Label = self.mb.lang.ENTER_PROJ_NAME
-            
-        Attr = (25,50,250,20,'zweiter_cont')    
-        PosX,PosY,Width,Height,Name = Attr   
-        control1, model1 = createControl(self.ctx,"Edit",PosX,PosY,Width,Height,(),() ) 
         
-        listener = neues_Projekt_Dialog_Listener(self.mb) 
+        y += 30
+        # Eingabefeld
+        control1, model1 = createControl(self.ctx,"Edit",25,y,250,20,(),() ) 
+        
+        listener = neues_Projekt_Dialog_Listener(self.mb,model1) 
         control1.addKeyListener(listener) 
-
-        Attr = (50,100,80,30,'btn')    
-        PosX,PosY,Width,Height,Name = Attr   
-        control2, model2 = createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
+        
+        y += 30
+        # speicherort
+        controlP, modelP = createControl(self.ctx,"FixedText",25,y+5,80,20,(),() )  
+        modelP.Label = 'Speicherort' #self.mb.lang.ENTER_PROJ_NAME
+        
+        # waehlen 
+        controlW, modelW = createControl(self.ctx,"Button",195,y,80,25,(),() )  
+        modelW.Label = self.mb.lang.WAEHLEN 
+        controlW.addActionListener(listener) 
+        controlW.setActionCommand(self.mb.lang.WAEHLEN)
+        
+        y += 30
+        # url
+        controlU, modelU = createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
+        if self.mb.speicherort_last_proj != None:
+            modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
+        else:
+            modelU.Label = '-' 
+        
+        listenerS = Speicherordner_Button_Listener(self.mb,modelU)
+        controlW.addActionListener(listenerS)
+        
+        y += 60
+        x = 70
+        # ok button
+        control2, model2 = createControl(self.ctx,"Button",x,y,80,30,(),() )  
         model2.Label = self.mb.lang.OK
         control2.addActionListener(listener) 
         control2.setActionCommand(self.mb.lang.OK)
         
-        Attr = (150,100,80,30,'btn2')    
-        PosX,PosY,Width,Height,Name = Attr   
-        control3, model3 = createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
+        # cancel button  
+        control3, model3 = createControl(self.ctx,"Button",x + 100,y,80,30,(),() )  
         model3.Label = self.mb.lang.CANCEL
         control3.addActionListener(listener) 
         control3.setActionCommand(self.mb.lang.CANCEL)
@@ -218,7 +221,7 @@ class Projekt():
         dialogModel.PositionX = 65
         dialogModel.PositionY = 65
         dialogModel.Width = 165
-        dialogModel.Height = 100
+        dialogModel.Height = 120
         dialogModel.Title = self.mb.lang.CREATE_NEW_PROJECT
            
                   
@@ -233,6 +236,9 @@ class Projekt():
         
         controlContainer.addControl('text',control)
         controlContainer.addControl('name',control1)
+        controlContainer.addControl('projektordner',controlP)
+        controlContainer.addControl('waehlen',controlW)
+        controlContainer.addControl('url',controlU)
         controlContainer.addControl('button',control2)
         controlContainer.addControl('button2',control3)
         
@@ -251,10 +257,11 @@ class Projekt():
        
         # fehlt: wenn bereits ein Projekt geladen wurde, stuerzt oOO ab
         # daher: alles entfernen !!
-        #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)                  
         
         if filepicker:
             Filepicker = createUnoService("com.sun.star.ui.dialogs.FilePicker")
+            Filepicker.appendFilter('Organon Project','*.organon')
+            filter = Filepicker.getCurrentFilter()
             Filepicker.execute()
             # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
 
@@ -266,7 +273,10 @@ class Projekt():
             if filepath.split('/')[-1].split('.')[1]  != 'organon':
                 return
             
-            self.mb.projekt_name = filepath.split('/')[-1].split('.')[0]       
+            self.mb.projekt_name = filepath.split('/')[-1].split('.')[0] 
+            proj = os.path.dirname(filepath) 
+            self.mb.projekt_path = os.path.dirname(proj)   
+            
 
 #         # prueft, ob eine Organon Datei geladen ist
 #         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
@@ -278,32 +288,35 @@ class Projekt():
 #                 contr.dispose()
 
 
-        
-        self.setze_pfade()
-        self.mb.class_Bereiche.leere_Dokument() 
-        self.lese_xml_settings_datei() 
-        self.lade_exp_settings()      
-        self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
-        self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)       
-        Eintraege = self.lese_xml_datei()
-        self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
-        
-        # setzt die selektierte Zeile auf die erste Zeile
-        self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
-        self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
-        
-        
-
-        # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
-        UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
-        has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
-        if not has_prop:
-            UD_properties.addProperty('ProjektName',1,self.mb.projekt_name) 
-        
-        # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
-        Path = 'file:///'+self.mb.pfade['odts']+'/%s.odt' % self.mb.projekt_name
-        self.mb.doc.storeAsURL(Path,())                
+        try:
+            self.setze_pfade()
+            self.mb.class_Bereiche.leere_Dokument() 
+            self.lese_xml_settings_datei() 
+            self.lade_imp_exp_settings()      
+            self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
+            self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)       
+            Eintraege = self.lese_xml_datei()
+            self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
+            # setzt die selektierte Zeile auf die erste Zeile
+            self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
+            
+    
+            # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
+            UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
+            has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
+            if not has_prop:
+                UD_properties.addProperty('ProjektName',1,self.mb.projekt_name) 
+            
+            # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
+            Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
+            Path2 = uno.systemPathToFileUrl(Path1)
+            self.mb.doc.storeAsURL(Path2,()) 
+            
+        except Exception as e:
+            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            tb()
       
     def erzeuge_Projekt_xml_tree(self):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Projekt_xml_tree')
@@ -313,67 +326,7 @@ class Projekt():
         tree = et.ElementTree(root)
         self.mb.xml_tree = tree
         root.attrib['Name'] = 'root'
-        
-    def erzeuge_Settings_Datei(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Settings_Datei')
-        
-        et = self.mb.ET       
-        root = et.Element('Settings')
-        tree = et.ElementTree(root)
-         
-        et.SubElement(root,'tag1',sichtbar='ja')
-        et.SubElement(root,'tag2',sichtbar='nein')
-        et.SubElement(root,'tag3',sichtbar='nein')
-        
-        self.mb.tag1_visible = True
-        self.mb.tag2_visible = False
-        self.mb.tag3_visible = False
-        
-        self.mb.xml_tree_settings = tree
-        
-    def erzeuge_exp_Settings_Datei(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Settings_Datei')
-        
-        exp_settings = {
-            # Export Dialog
-            'alles' : 0, 
-            'sichtbar' : 0,
-            'eigene_ausw' : 1,
-            
-            'einz_dok' : 1,
-            'trenner' : 1,
-            'einz_dat' : 0,
-            'ordner_strukt' : 0,
-            'typ' : '.odt',
-            'speicherort' : self.mb.pfade['projekt'].encode("utf-8"),
-            
-            # Trenner
-            'ordnertitel': 1,
-            'format_ord': 1,
-            'style_ord': 'Heading',
-            'dateititel': 1,
-            'format_dat': 1,
-            'style_dat': 'Heading',
-            'dok_einfuegen': 1,
-            'url': '',
-            'leerzeilen_drunter': 1,
-            'anz_drunter' : 2,
-            'seitenumbruch_ord' : 1,
-            'seitenumbruch_dat' : 0,
-            
-            # Auswahl
-            'auswahl' : 1,
-            'ausgewaehlte' : {},
-            'hoehe_auswahlfenster' : 200,
-            }  
-        
-        string = ''
-        for set in exp_settings:
-            string += '%s : %s \n' %(set,exp_settings[set])
-        with open(self.mb.pfade['settings']+"/export_settings.py" , "w") as file:
-            file.write('# -*- coding: utf-8 -*- \r\nexp_settings = '+ str(exp_settings)) 
-        
-        self.mb.exp_settings = exp_settings
+           
                        
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Eintraege_und_Bereiche')
@@ -424,7 +377,6 @@ class Projekt():
 
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
-        #CB.starte_oOO()
         
         self.erzeuge_dict_ordner()
         
@@ -448,9 +400,10 @@ class Projekt():
                 self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
             # Bereiche   
-            path = 'file:///' + self.mb.pfade['odts'] + '/%s.odt' % ordinal
-            CB.erzeuge_bereich(index2,path,sicht) 
-            
+            path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)
+            path2 = uno.systemPathToFileUrl(path)
+            CB.erzeuge_bereich(index2,path2,sicht) 
+
             if first_time:       
                 # Viewcursor an den Anfang setzen, damit 
                 # der Eindruck eines schnell geladenen Dokuments entsteht   
@@ -470,9 +423,7 @@ class Projekt():
          
         CB.loesche_leeren_Textbereich_am_Ende() 
        
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
-        #CB.schliesse_oOO()
-        
+        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)         
     
                    
     def erzeuge_dict_ordner(self):
@@ -546,16 +497,113 @@ class Projekt():
     def lese_xml_settings_datei(self):
         if self.mb.debug: print(self.mb.debug_time(),'lese_xml_settings_datei')
         
-        pfad = self.mb.pfade['settings'] + '/settings.xml'        
+        pfad = os.path.join(self.mb.pfade['settings'], 'settings.xml')      
         self.mb.xml_tree_settings = self.mb.ET.parse(pfad)
         root = self.mb.xml_tree_settings.getroot()
       
         self.mb.tag1_visible = (root.find(".//tag1").attrib['sichtbar'] == 'ja')
         self.mb.tag2_visible = (root.find(".//tag2").attrib['sichtbar'] == 'ja')
         self.mb.tag3_visible = (root.find(".//tag3").attrib['sichtbar'] == 'ja')
+        
     
+    def erzeuge_Settings(self):
+        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Settings')
+        
+        et = self.mb.ET       
+        root = et.Element('Settings')
+        tree = et.ElementTree(root)
+         
+        et.SubElement(root,'tag1',sichtbar='ja')
+        et.SubElement(root,'tag2',sichtbar='nein')
+        et.SubElement(root,'tag3',sichtbar='nein')
+        
+        self.mb.tag1_visible = True
+        self.mb.tag2_visible = False
+        self.mb.tag3_visible = False
+        
+        self.mb.xml_tree_settings = tree
+    
+    
+    def erzeuge_export_Settings(self):
+        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_export_Settings')
+        
+        exp_settings = {
+            # Export Dialog
+            'alles' : 0, 
+            'sichtbar' : 0,
+            'eigene_ausw' : 1,
+            
+            'einz_dok' : 1,
+            'trenner' : 1,
+            'einz_dat' : 0,
+            'ordner_strukt' : 0,
+            'typ' : '.odt',
+            'speicherort' : self.mb.pfade['projekt'].encode("utf-8"),
+            
+            # Trenner
+            'ordnertitel': 1,
+            'format_ord': 1,
+            'style_ord': 'Heading',
+            'dateititel': 1,
+            'format_dat': 1,
+            'style_dat': 'Heading',
+            'dok_einfuegen': 0,
+            'url': '',
+            'leerzeilen_drunter': 1,
+            'anz_drunter' : 2,
+            'seitenumbruch_ord' : 1,
+            'seitenumbruch_dat' : 0,
+            
+            # Auswahl
+            'auswahl' : 1,
+            'ausgewaehlte' : {},
+            'hoehe_auswahlfenster' : 200,
+            }  
         
         
+            
+        path = os.path.join(self.mb.pfade['settings'],"export_settings.py")
+        
+        with codecs.open(path , "w", 'utf-8') as file:
+            file.writelines('# -*- coding: utf-8 -*- \r\nexp_settings = ')          
+            for line in str(exp_settings).split(','):
+                file.writelines(line+(',\n'))
+        
+        self.mb.exp_settings = exp_settings
+        
+        
+    def erzeuge_import_Settings(self):
+        
+        Settings = [('imp_dat','1'),
+                ('ord_strukt','1'),
+                
+                ('url_dat',''),
+                ('url_ord',''),
+                
+                #Filter
+                ('odt','1'),
+                ('doc','0'),
+                ('docx','0'),
+                ('rtf','0'),
+                ('txt','0'),]
+        
+        
+        
+        et = self.mb.ET       
+        root = et.Element('Import_Settings')
+
+        for set in Settings:
+            el = et.SubElement(root, set[0])
+            el.text = set[1]
+        
+        tree = et.ElementTree(root)
+        self.mb.imp_settings_xml = tree
+        
+        pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
+        tree.write(pfad)
+        
+
+          
        
         
     def beispieleintraege(self):
@@ -612,54 +660,74 @@ class Projekt():
         
     def test(self):
         print('test')
-        try:
-            #pd()
-#             import time
-#             st_ind = self.mb.current_Contr.Frame.createStatusIndicator()
-#             st_ind.start('exportiere ... Bitte Warten',10)
-#             for i in range(5):
-#                 time.sleep(.5)
-#                 st_ind.setValue(i*2)
-#             st_ind.end()
+        try:       
             
             
-            #pd()
-            #import werter
-            #pd()
-            #self.erzeuge_exp_Settings_Datei()
-            self.mb.class_Export.export()
+            pd()
+
             
         except:
             tb()
-        #pd()
-
-
-
-from com.sun.star.beans import XPropertyChangeListener
-class VC_TextSection_Listener(unohelper.Base,XPropertyChangeListener): 
-    def __init__(self,mb):
-        self.mb = mb
-        print('init vc')
-
-    def propertyChange(self,ev):
-        print(ev)
-
-
-
-
+        
+        
+        
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener
+class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
+    
+    def __init__(self,mb,model):
+        self.mb = mb
+        self.model = model
+        
+    def actionPerformed(self,ev):
+        
+        filepath = None
+        pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
+        
+        if os.path.exists(pfad):            
+            with codecs.open( pfad, "r","utf-8") as file:
+                filepath = file.read() 
+
+        Filepicker = createUnoService("com.sun.star.ui.dialogs.FolderPicker")
+        if filepath != None:
+            Filepicker.setDisplayDirectory(filepath)
+        Filepicker.execute()
+        
+        if Filepicker.Directory == '':
+            return
+        
+        filepath = Filepicker.getDirectory()
+        
+        with open( pfad, "w") as file:
+            file.write(filepath)  
+        
+        self.mb.speicherort_last_proj = filepath
+        self.model.Label = uno.fileUrlToSystemPath(filepath)
+
+
+
+
 from com.sun.star.awt.Key import RETURN
 class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowListener,XKeyListener): 
-    def __init__(self,mb):
+    def __init__(self,mb,model):
         self.mb = mb
-
+        self.model = model
+        
     def actionPerformed(self,ev):
         parent = ev.Source.AccessibleContext.AccessibleParent 
-        cmd = ev.ActionCommand        
-        if cmd == self.mb.lang.OK:
-            parent.endDialog(1)
-        if cmd == self.mb.lang.CANCEL:
+        cmd = ev.ActionCommand  
+
+        if cmd == self.mb.lang.WAEHLEN:
+            return
+        elif cmd == self.mb.lang.CANCEL:
             parent.endDialog(0)
+        elif self.model.Text == '':
+            self.mb.Mitteilungen.nachricht(self.mb.lang.KEIN_NAME,"warningbox")
+        elif self.mb.speicherort_last_proj == None:
+            self.mb.Mitteilungen.nachricht(self.mb.lang.KEIN_SPEICHERORT,"warningbox")
+        elif cmd == self.mb.lang.OK:
+            self.get_path()
+            parent.endDialog(1)
+        
              
     def windowClosed(self,ev):
         pass
@@ -670,9 +738,22 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
             if self.model.Text == '':
                 parent.endDialog(0)
             else:
+                self.get_path()
                 parent.endDialog(1)
 
-
+    def get_path(self):
+        
+        filepath = None
+        pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
+        
+        if os.path.exists(pfad):            
+            with codecs.open( pfad, "r","utf-8") as file:
+                filepath = file.read() 
+            self.mb.projekt_path = filepath
+            
+           
+       
+        
 
 
 from com.sun.star.task import XStatusIndicatorFactory

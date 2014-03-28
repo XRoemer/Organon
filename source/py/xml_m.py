@@ -80,7 +80,7 @@ class XML_Methoden():
         par_source.remove(source)
         #Source als Subelement einfuegen
         target.insert(0,source)
-        
+
         self.xmlLevel_und_hfPosition_anpassen(root,source)
         
      
@@ -172,7 +172,6 @@ class XML_Methoden():
         eintr = []
         self.get_tree_info(root,eintr)
         
-        #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
         
         tag1X,tag2X,tag3X = 0,0,0
         if self.mb.tag1_visible:
@@ -206,7 +205,4 @@ class XML_Methoden():
                 tag3_cont = zeile.getControl('tag3')
                 tag3_cont.setPosSize(32+lvl2*16+tag1X+tag2X,0,0,0,1)
             
-            
-            
-        #self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
-        
+                    
