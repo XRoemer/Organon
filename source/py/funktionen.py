@@ -13,6 +13,7 @@ URL_IMGS = 'vnd.sun.star.extension://xaver.roemers.organon/img/'
 
 IMG_ORDNER_GEOEFFNET_16 = 'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerGeoeffnet_16.png'
 
+EXPORT_DIALOG_FARBE = 305099
 
 
 class Funktionen():
@@ -159,6 +160,7 @@ class Funktionen():
 
 
                 
+
 
        
 from com.sun.star.awt import XMouseListener,XItemListener

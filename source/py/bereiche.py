@@ -29,15 +29,29 @@ class Bereiche():
         self.oOO = None
     
     
-    def starte_oOO(self,URL="private:factory/swriter"):
+    def starte_oOO(self,URL=None):
         if self.mb.debug: print(self.mb.debug_time(),'starte_oOO') 
          
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = 'Hidden'
         prop.Value = True
+        
+        prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop2.Name = 'AsTemplate'
+        prop2.Value = True
+        
+        
         if self.mb.debug: print(self.mb.debug_time(),'inside oOO')
         
-        self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
+        
+        
+        if URL == None:
+            URL="private:factory/swriter"
+
+            if self.mb.use_template[0] == True:
+                URL = uno.systemPathToFileUrl(self.mb.use_template[1])
+        print(URL)
+        self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
         
         if self.mb.debug: print(self.mb.debug_time(),'oOO geladen')
         
@@ -74,6 +88,9 @@ class Bereiche():
         prop.Value = True
         
         URL="private:factory/swriter"
+
+        if self.mb.use_template[0] == True:
+            URL = uno.systemPathToFileUrl(self.mb.use_template[1])
         self.oOO = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
         
         nr = str(i) 

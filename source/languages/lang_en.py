@@ -8,6 +8,20 @@ OPEN_PROJECT = 'Open Project'
 CLEAR_RECYCLE_BIN = 'Clear Recycle Bin'
 INSERT_DOC = 'Insert New Document'
 INSERT_DIR = 'Insert New Folder'
+
+SPEICHERORT = 'Storage Location'
+FORMATIERUNG = 'Format'
+TEMPLATE_WRITER = 'Writer Standard Template'
+TEMPLATE_USER = 'User Template'
+NO_TEMPLATES = 'No Templates'
+EIGENES_TEMPL_ERSTELLEN = 'Create Template from Selection'
+NAME = 'Name'
+ERSTELLEN = 'Create'
+TEMPLATE = 'Template'
+WARNUNG_NAME_TEMPLATE  = u'Enter a Name for the Template   '
+WARNUNG_TEMPLATE_EXISTS = u'The Template already exists   '
+NEUES_TEMPLATE = u'New Template created in:'
+
 NEW_DOC = 'New Document'
 NEW_DIR = 'New Folder'
 UNFOLD_PROJ_DIR = 'Unfold Project Folder'
@@ -15,9 +29,9 @@ SHOW_TAG1 = 'Show Tag 1'
 CREATE_NEW_PROJECT = 'Create New Project'
 CANCEL = 'Cancel'
 OK = 'OK'
-ENTER_PROJ_NAME = "Enter name for new project:"
-KEIN_NAME = "You didn't enter a name"
-KEIN_SPEICHERORT = "You didn't select a folder."
+ENTER_PROJ_NAME = "Project Name:"
+KEIN_NAME = "Enter a Project Name   "
+KEIN_SPEICHERORT = "Select a Folder   "
 DOUBLE_PROJ_NAME = "The name you entered is the same as the one of the current document. That doesn't work."
 PROJ_EXISTS = "The project already exists. Should it be overwritten?"
 

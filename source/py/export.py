@@ -551,7 +551,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         
         if len(sections) < 1:
             print('nichts zu speichern')
-            # Nachricht: 'Es gibt nichts zu speichern'
+            # Nachricht: 'Es gibt nichts zu speichern'   #########  einfuegen!
 
         
         # pruefen, ob speicherordner existiert; Namen aendern

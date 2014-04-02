@@ -13,7 +13,6 @@ class XML_Methoden():
         global pd
         pd = pydevBrk
                 
-        self.dialog = mb.dialog
         self.ctx = mb.ctx
         self.mb = mb  
              
