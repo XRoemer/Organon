@@ -8,6 +8,7 @@ OPEN_PROJECT = 'Open Project'
 CLEAR_RECYCLE_BIN = 'Clear Recycle Bin'
 INSERT_DOC = 'Insert New Document'
 INSERT_DIR = 'Insert New Folder'
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. Close the file, before you start or load another project. Menubar: File/Close'
 
 SPEICHERORT = 'Storage Location'
 FORMATIERUNG = 'Format'
@@ -78,4 +79,5 @@ DATEIAUSWAHL = 'Select File'
 ORDNERAUSWAHL = 'Select Folder'
 IMPORTIEREN = 'Import'
 
-
+## DIVERSES
+NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

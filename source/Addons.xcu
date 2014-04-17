@@ -31,7 +31,7 @@
             </prop>
             <prop oor:name="Title" oor:type="xs:string">
               <value/>
-              <value xml:lang="en">auf/zu</value>
+              <value xml:lang="en">open/close</value>
             </prop>
           </node>
         </node>
@@ -48,7 +48,7 @@
         <node oor:name="ToolBarItems">
           <node oor:name="button_1" oor:op="replace">
             <prop oor:name="Title" oor:type="xs:string">
-              <value xml:lang="en-US">auf/zu</value>
+              <value xml:lang="en-US">open/close</value>
             </prop>
 						<prop oor:name="ImageIdentifier" oor:type="xs:string">
 							<value/>

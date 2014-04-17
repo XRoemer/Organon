@@ -1,16 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import traceback
-import uno
 import unohelper
-import time
-import os
-
-tb = traceback.print_exc
-
-FARBE_AUSGEWAEHLTE_ZEILE = 14866636 #creme 16777075 # hellgelb
-FARBE_ZEILE_STANDARD = 15790320 #LOO grau 16777215 # weiss  
-
 
 
 class Bereiche():
@@ -19,11 +9,11 @@ class Bereiche():
 
         global pd
         pd = mb.pd
-             
+
         # Konstanten
         self.mb = mb
         self.doc = mb.doc       
-        self.viewcursor = mb.viewcursor
+        #self.viewcursor = mb.viewcursor
         
         # Klassen
         self.oOO = None
@@ -39,18 +29,12 @@ class Bereiche():
         prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop2.Name = 'AsTemplate'
         prop2.Value = True
-        
-        
-        if self.mb.debug: print(self.mb.debug_time(),'inside oOO')
-        
-        
-        
+                
         if URL == None:
             URL="private:factory/swriter"
+            if self.mb.settings_proj['use_template'][0] == True:
+                URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
 
-            if self.mb.use_template[0] == True:
-                URL = uno.systemPathToFileUrl(self.mb.use_template[1])
-        print(URL)
         self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
         
         if self.mb.debug: print(self.mb.debug_time(),'oOO geladen')
@@ -73,7 +57,9 @@ class Bereiche():
         cursor.gotoStart(False)
         cursor.gotoEnd(True)
 
+        #if self.mb.debug:
         text.insertString( cursor, inhalt, True )
+                
         Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
         Path2 = uno.systemPathToFileUrl(Path1)        
         self.oOO.storeToURL(Path2,())
@@ -82,33 +68,36 @@ class Bereiche():
     
     def erzeuge_neue_Datei2(self,i,inhalt):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Datei2')
- 
-        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop.Name = 'Hidden'
-        prop.Value = True
-        
-        URL="private:factory/swriter"
-
-        if self.mb.use_template[0] == True:
-            URL = uno.systemPathToFileUrl(self.mb.use_template[1])
-        self.oOO = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
-        
-        nr = str(i) 
-        
-        text = self.oOO.Text
-        inhalt = 'nr. ' + nr + '\t' + inhalt
-        
-        cursor = text.createTextCursor()
-        cursor.gotoStart(False)
-        cursor.gotoEnd(True)
-
-        text.insertString( cursor, inhalt, True )
-        
-        Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
-        Path2 = uno.systemPathToFileUrl(Path1)    
-
-        self.oOO.storeToURL(Path2,())
-        self.oOO.close(False)
+        try:
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+            
+            URL="private:factory/swriter"
+    
+            if self.mb.settings_proj['use_template'][0] == True:
+                URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
+            self.oOO = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
+            
+            nr = str(i) 
+            
+            text = self.oOO.Text
+            inhalt = 'nr. ' + nr + '\t' + inhalt
+            
+            cursor = text.createTextCursor()
+            cursor.gotoStart(False)
+            cursor.gotoEnd(True)
+            
+            if self.mb.debug:
+                text.insertString( cursor, inhalt, True )
+            
+            Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
+            Path2 = uno.systemPathToFileUrl(Path1)    
+    
+            self.oOO.storeToURL(Path2,())
+            self.oOO.close(False)
+        except:
+            tb()
     
         
     def leere_Dokument(self):
@@ -295,77 +284,78 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         return False
     
     def selectionChanged(self,ev):
-        
-        if self.mb.selbstruf:
-            if self.mb.debug: print('selection selbstruf')
-            return
-
-        selected_text_section = self.mb.current_Contr.ViewCursor.TextSection
-        if selected_text_section == None:
-            return False
-        
-        s_name = selected_text_section.Name
-        
-        # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
-        # und der Trenner uebersprungen wird
-        if 'trenner'  in s_name:
-            if self.mb.zuletzt_gedrueckte_taste == None:
-                try:
-                    self.mb.viewcursor.goDown(1,False)
-                except:
-                    self.mb.viewcursor.goUp(1,False)
-                return False
-            # 1024,1027 Pfeil runter,rechts
-            elif self.mb.zuletzt_gedrueckte_taste.KeyCode in (1024,1027):  
-                self.mb.viewcursor.goDown(1,False)       
-            else:
-                self.mb.viewcursor.goUp(1,False)
-            # sollte der viewcursor immer noch auf einem Trenner stehen,
-            # befindet er sich im letzten Bereich -> goUp    
-            if 'trenner' in self.mb.viewcursor.TextSection.Name:
-                    self.mb.viewcursor.goUp(1,False)
-            return False 
-        
-        # test ob ausgewaehlter Bereich ein Kind-Bereich ist -> Selektion wird auf Parent gesetzt
-        elif 'trenner' not in s_name and 'OrganonSec' not in s_name:
-            sec = []
-            self.test_for_parent_section(selected_text_section,sec)
-            selected_text_section = sec[0]
-            
-        self.so_name =  None   
-             
-        if self.mb.selektierte_Zeile_alt != None:
-            text_section_old_ordinal = self.mb.selektierte_Zeile_alt.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
-            text_section_old_bereichsname = self.mb.dict_bereiche['ordinal'][text_section_old_ordinal]
-            self.text_section_old = self.mb.doc.TextSections.getByName(text_section_old_bereichsname)            
-            self.so_name = self.mb.dict_bereiche['ordinal'][text_section_old_ordinal]
+        try:
+            if self.mb.selbstruf:
+                if self.mb.debug: print('selection selbstruf')
+                return
     
-        if self.text_section_old == 'nicht vorhanden':
-            #print('selek gewechs, old nicht vorhanden')
-            self.mb.bereich_wurde_bearbeitet = True
-            self.text_section_old = selected_text_section 
-            return False 
-        elif self.mb.Papierkorb_geleert == True:
-            #print('selek gewechs, Papierkorb_geleert')
-            # fehlt: nur speichern, wenn die Datei nicht im Papierkorb gelandet ist
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.text_section_old.FileLink.FileURL,self.so_name)
-            self.mb.bereich_wurde_bearbeitet = True
-            self.text_section_old = selected_text_section 
-            self.mb.Papierkorb_geleert = False 
-            return False       
-        else:
-            if self.text_section_old == selected_text_section:
-                #print('selek nix gewechs',self.so_name , s_name)
+            selected_text_section = self.mb.current_Contr.ViewCursor.TextSection
+            if selected_text_section == None:
+                return False
+            
+            s_name = selected_text_section.Name
+            
+            # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
+            # und der Trenner uebersprungen wird
+            if 'trenner'  in s_name:
+                if self.mb.zuletzt_gedrueckte_taste == None:
+                    try:
+                        self.mb.viewcursor.goDown(1,False)
+                    except:
+                        self.mb.viewcursor.goUp(1,False)
+                    return False
+                # 1024,1027 Pfeil runter,rechts
+                elif self.mb.zuletzt_gedrueckte_taste.KeyCode in (1024,1027):  
+                    self.mb.viewcursor.goDown(1,False)       
+                else:
+                    self.mb.viewcursor.goUp(1,False)
+                # sollte der viewcursor immer noch auf einem Trenner stehen,
+                # befindet er sich im letzten Bereich -> goUp    
+                if 'trenner' in self.mb.viewcursor.TextSection.Name:
+                        self.mb.viewcursor.goUp(1,False)
+                return False 
+            
+            # test ob ausgewaehlter Bereich ein Kind-Bereich ist -> Selektion wird auf Parent gesetzt
+            elif 'trenner' not in s_name and 'OrganonSec' not in s_name:
+                sec = []
+                self.test_for_parent_section(selected_text_section,sec)
+                selected_text_section = sec[0]
+                
+            self.so_name =  None   
+                 
+            if self.mb.selektierte_Zeile_alt != None:
+                text_section_old_ordinal = self.mb.selektierte_Zeile_alt.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
+                text_section_old_bereichsname = self.mb.dict_bereiche['ordinal'][text_section_old_ordinal]
+                self.text_section_old = self.mb.doc.TextSections.getByName(text_section_old_bereichsname)            
+                self.so_name = self.mb.dict_bereiche['ordinal'][text_section_old_ordinal]
+        
+            if self.text_section_old == 'nicht vorhanden':
+                #print('selek gewechs, old nicht vorhanden')
                 self.mb.bereich_wurde_bearbeitet = True
-                return False                
-            else:
-                #print('selek gewechs',self.so_name , s_name)
+                self.text_section_old = selected_text_section 
+                return False 
+            elif self.mb.Papierkorb_geleert == True:
+                #print('selek gewechs, Papierkorb_geleert')
+                # fehlt: nur speichern, wenn die Datei nicht im Papierkorb gelandet ist
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.text_section_old.FileLink.FileURL,self.so_name)
                 self.mb.bereich_wurde_bearbeitet = True
                 self.text_section_old = selected_text_section 
-                self.farbe_der_selektion_aendern(selected_text_section.Name)
-                return False 
-                
+                self.mb.Papierkorb_geleert = False 
+                return False       
+            else:
+                if self.text_section_old == selected_text_section:
+                    #print('selek nix gewechs',self.so_name , s_name)
+                    self.mb.bereich_wurde_bearbeitet = True
+                    return False                
+                else:
+                    #print('selek gewechs',self.so_name , s_name)
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.text_section_old.FileLink.FileURL,self.so_name)
+                    self.mb.bereich_wurde_bearbeitet = True
+                    self.text_section_old = selected_text_section 
+                    self.farbe_der_selektion_aendern(selected_text_section.Name)
+                    return False 
+        except:
+            tb()
    
     def test_for_parent_section(self,selected_text_sectionX,sec):
         if selected_text_sectionX.ParentSection != None:
@@ -384,9 +374,9 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         self.mb.selektierte_zeile = zeile.AccessibleContext
         
         # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
-        textfeld.Model.BackgroundColor = FARBE_AUSGEWAEHLTE_ZEILE 
+        textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
         if self.mb.selektierte_Zeile_alt != None:                
-            self.mb.selektierte_Zeile_alt.Model.BackgroundColor = FARBE_ZEILE_STANDARD
+            self.mb.selektierte_Zeile_alt.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
 
         self.mb.selektierte_Zeile_alt = textfeld
   
@@ -399,38 +389,50 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
         self.mb = mb
         
     def windowResized(self,ev):
+        print('windowResized')
         self.korrigiere_hoehe_des_scrollbalkens()
+        self.mb.class_Hauptfeld.korrigiere_scrollbar()
         return False
     def windowMoved(self,ev):
+        print('windowMoved')
         return False
     def windowShown(self,ev):
         self.korrigiere_hoehe_des_scrollbalkens()
+        print('windowShown')
         return False
     
     def windowHidden(self,ev):
         if self.mb.bereich_wurde_bearbeitet:
-            ordinal = self.mb.selektierte_zeile.AccessibleName
-            bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
-            path = self.mb.dict_bereiche['Bereichsname'][bereichsname]
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+            try:
+                ordinal = self.mb.selektierte_zeile.AccessibleName
+                bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
+                path = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][bereichsname])
+                self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+            except:
+                tb()
         self.mb.entferne_alle_listener() 
         
         if self.mb.debug:print('windowHidden')
         return False
     
     def korrigiere_hoehe_des_scrollbalkens(self):
-       
-        nav_cont_aussen = self.mb.dialog.getControl('Hauptfeld_aussen')
-        nav_cont = nav_cont_aussen.getControl('Hauptfeld')
-          
-        MenuBar = self.mb.dialog.getControl('Organon_Menu_Bar')
-        MBHoehe = MenuBar.PosSize.value.Height + MenuBar.PosSize.value.Y
-        NCHoehe = 0 #nav_cont.PosSize.value.Height
-        NCPosY  = nav_cont.PosSize.value.Y
-        Y =  NCHoehe + NCPosY + MBHoehe
-        Height = self.mb.dialog.PosSize.value.Height - Y -25
-        
-        scrll = self.mb.dialog.getControl('ScrollBar')
-        scrll.setPosSize(0,0,0,Height,8)
+        try:
+            nav_cont_aussen = self.mb.dialog.getControl('Hauptfeld_aussen')
+            # nav_cont_aussen ist None, wenn noch kein Projekt geoeffnet wurde
+            if nav_cont_aussen != None:
+                nav_cont = nav_cont_aussen.getControl('Hauptfeld')
+                  
+                MenuBar = self.mb.dialog.getControl('Organon_Menu_Bar')
+                MBHoehe = MenuBar.PosSize.value.Height + MenuBar.PosSize.value.Y
+                NCHoehe = 0 #nav_cont.PosSize.value.Height
+                NCPosY  = nav_cont.PosSize.value.Y
+                Y =  NCHoehe + NCPosY + MBHoehe
+                Height = self.mb.dialog.PosSize.value.Height - Y -25
+                
+                scrll = self.mb.dialog.getControl('ScrollBar')
+                scrll.setPosSize(0,0,0,Height,8)
+        except:
+            tb()
+
 
         

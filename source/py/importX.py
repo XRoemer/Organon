@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 #print('Export')
-import traceback
-import uno
+# import traceback
+# import uno
 import unohelper
-import os
+# import os
 
-tb = traceback.print_exc
+# tb = traceback.print_exc
 
 EXPORT_DIALOG_FARBE = 305099
 
@@ -26,10 +26,9 @@ class ImportX():
         self.erzeuge_importfenster()
  
     def erzeuge_importfenster(self): 
-
-        tree = self.mb.imp_settings_xml
-        root = tree.getroot()
         
+        imp_set = self.mb.settings_imp
+
         posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
         X = posSize_main.X +20
         Y = posSize_main.Y +20
@@ -52,7 +51,7 @@ class ImportX():
         
         control1, model1 = createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
         model1.Label = lang.IMPORT_DATEI
-        model1.State = int(root.find('.//imp_dat').text)
+        model1.State = int(imp_set['imp_dat'])
         control1.ActionCommand = 'model1'
         fenster_cont.addControl('ImportD', control1)
         
@@ -60,15 +59,16 @@ class ImportX():
         
         control2, model2 = createControl(self.mb.ctx,"CheckBox",160,y,120,22,(),() )  
         model2.Label = lang.IMPORT_ORDNER
-        model2.State = not int(root.find('.//imp_dat').text)
+        model2.State = not int(imp_set['imp_dat'])
         control2.ActionCommand = 'model2'
         fenster_cont.addControl('ImportO', control2)
-        
+
         y += 20
         
         control3, model3 = createControl(self.mb.ctx,"CheckBox",180,y,180,22,(),() )  
         model3.Label = lang.ORDNERSTRUKTUR
-        #model3.State = not int(root.find('.//ord_strukt').text)
+        model3.State =  int(imp_set['ord_strukt'])
+        control3.Enable = not int(imp_set['imp_dat'])
         control3.ActionCommand = 'struktur'
         fenster_cont.addControl('struktur', control3)
         
@@ -91,7 +91,7 @@ class ImportX():
         for label in labels:
             control, model = createControl(self.mb.ctx,"CheckBox",100,y,120,22,(),() )  
             model.Label = label
-            model.State = int(root.find('.//'+label).text)
+            model.State = imp_set[label]
             
             if label != 'odt':
                 control.Enable = False
@@ -110,11 +110,10 @@ class ImportX():
         y += 25
         
         controlE, modelE = createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
-        text = root.find('.//url_dat').text
+        text = imp_set['url_dat']
         if text == None or text == '': 
             text = '-'
         else:
-            #pd()
             text = uno.fileUrlToSystemPath(decode_utf(text))
         controlE.Text = text
         fenster_cont.addControl('Filter', controlE)    
@@ -129,7 +128,7 @@ class ImportX():
         y += 25
         
         controlE2, modelE2 = createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
-        text = root.find('.//url_ord').text
+        text = imp_set['url_ord']
         if text == None or text == '': 
             text = '-'
         else:
@@ -149,7 +148,7 @@ class ImportX():
         controlI.addActionListener(listener_imp)
         fenster_cont.addControl('importieren', controlI) 
 
-       
+
 
 def encode_utf(term):
     if isinstance(term, str):
@@ -243,26 +242,23 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
 
-        tree = self.mb.imp_settings_xml
-        root = tree.getroot()
+        imp_set = self.mb.settings_imp
         
-        import_datei = root.find('.//imp_dat')
-        
-        if import_datei.text == '1':
-            url_dat = root.find('.//url_dat')
+        if imp_set['imp_dat'] == '1':
+            url_dat = imp_set['url_dat']
             typ = 'dokument'
-            self.datei_importieren(tree,root,typ,url_dat)
+            self.datei_importieren(typ,url_dat)
         else:
-            self.ordner_importieren(tree,root)
+            self.ordner_importieren()
         
         
         
-    def datei_importieren(self,tree,root,typ,url_dat=None,name2=None):
-        
+    def datei_importieren(self,typ,url_dat=None,name2=None):
+
         zeile_nr,zeile_pfad = self.mb.class_Hauptfeld.erzeuge_neue_Zeile(typ,False)
         
         sections = self.mb.doc.TextSections
-        
+
         ordinal_neuer_Eintrag = 'nr'+str(zeile_nr)
         bereichsname = self.mb.dict_bereiche['ordinal'][ordinal_neuer_Eintrag]
         neuer_Bereich = sections.getByName(bereichsname)            
@@ -270,9 +266,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = 'Hidden'
         prop.Value = True
-        
+
         if url_dat != "private:factory/swriter":
-            link_quelle = url_dat.text  
+            link_quelle = url_dat
         else:
             link_quelle = "private:factory/swriter"
           
@@ -311,13 +307,13 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         self.mb.xml_tree.write(pfad)
 
         return ordinal_neuer_Eintrag,bereichsname
-
     
     
-    
-    def ordner_importieren(self,tree,root):
+    def ordner_importieren(self):
+        
+        imp_set = self.mb.settings_imp
         try:
-            path = uno.fileUrlToSystemPath(root.find('.//url_ord').text)
+            path = uno.fileUrlToSystemPath(imp_set['url_ord'])
             Verzeichnis,AusgangsOrdner = self.durchlaufe_ordner(path)
             
             # Elementtree ist nur ein Mittel,
@@ -327,12 +323,12 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             tree_xml = et.ElementTree(root_xml)
             
             # Der Hauptordner
-            ordinal_neuer_Eintrag,bereichsname = self.datei_importieren(tree,root,'Ordner',"private:factory/swriter",AusgangsOrdner)
+            ordinal_neuer_Eintrag,bereichsname = self.datei_importieren('Ordner',"private:factory/swriter",AusgangsOrdner)
             root_xml.text = ordinal_neuer_Eintrag
             self.setze_selektierte_zeile(ordinal_neuer_Eintrag)
             
                      
-            if root.find('.//ord_strukt').text == '0':
+            if imp_set['ord_strukt'] == '0':
 
                 for eintr in Verzeichnis:
                     File,Pfad,Ordner = eintr
@@ -347,9 +343,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                                 et.SubElement(elem,o)
                             elem = elem.find(o)
                              
-                    #print('schreibe Datei',File,'in Ordner',o) 
+                    print('schreibe Datei',File,'in Ordner',o) 
                     self.text = uno.systemPathToFileUrl(Pfad)
-                    ordinal_neuer_Eintrag,bereichsname = self.datei_importieren(tree,root,'Datei',self)
+                    ordinal_neuer_Eintrag,bereichsname = self.datei_importieren('Datei',self.text,File)
                     self.setze_selektierte_zeile(ordinal_neuer_Eintrag)   
                     
             else:
@@ -369,7 +365,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                                 
                                 name = unescape_xml(o)
                                 
-                                ordinal_neuer_Eintrag,bereichsname = self.datei_importieren(tree,root,'Ordner',"private:factory/swriter",name)
+                                ordinal_neuer_Eintrag,bereichsname = self.datei_importieren('Ordner',"private:factory/swriter",name)
                                 et.SubElement(elem,o)
                                 element = elem.find(o)
                                 element.text = ordinal_neuer_Eintrag
@@ -385,7 +381,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     self.setze_selektierte_zeile(elem.text)         
                     #print('schreibe Datei',File,'in Ordner',o) 
                     self.text = uno.systemPathToFileUrl(Pfad)
-                    ordinal_neuer_Eintrag,bereichsname = self.datei_importieren(tree,root,'Datei',self)
+                    ordinal_neuer_Eintrag,bereichsname = self.datei_importieren('Datei',self.text)
                     #ordner = elem.find(o)
                     et.SubElement(elem,File)
                     
@@ -416,7 +412,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         first_time = True
         
         for root, dirs, files in os.walk(path):
-            print(files)
+
             if first_time:
                 AusgangsOrdner = os.path.split(root)[1]
                 first_time = False
@@ -469,37 +465,30 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
         self.contr_strukt = contr_strukt
         
     def actionPerformed(self,ev):
-        
-        tree = self.mb.imp_settings_xml
-        root = tree.getroot()
-        
-        import_datei = root.find('.//imp_dat')
+        imp_set = self.mb.settings_imp
 
         if ev.ActionCommand == 'struktur':
-            struct = root.find('.//ord_strukt')
-            if struct.text == 0:
-                struct.text = 1
+            if imp_set['ord_strukt'] == 0:
+                imp_set['ord_strukt'] = 1
             else:
-                struct.text = 0                
+                imp_set['ord_strukt'] = 0                
         elif ev.Source.State == 0:
             ev.Source.State = 1
             return
 
         if ev.ActionCommand == 'model1':
             self.model2.State = False
-            import_datei.text = '1'
+            imp_set['imp_dat'] = '1'
             self.contr_strukt.Enable = False
         elif ev.ActionCommand == 'model2':
             self.model1.State = False
-            import_datei.text = '0'
+            imp_set['imp_dat'] = '0'
             self.contr_strukt.Enable = True
         else:
             pass
             #self.model1.State = False
             #import_datei.text = '0'
-            
-        pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
-        tree.write(pfad)
+        self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp)     
             
 
 class Auswahl_Button_Listener(unohelper.Base, XActionListener):
@@ -510,19 +499,13 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
         self.model2 = model2
         
     def actionPerformed(self,ev):
+        imp_set = self.mb.settings_imp 
 
-        tree = self.mb.imp_settings_xml
-        root = tree.getroot()
-        
-        url_dat = root.find('.//url_dat')
-        url_ord = root.find('.//url_ord')
-        
-        
         if ev.ActionCommand == 'Datei':
         
             Filepicker = createUnoService("com.sun.star.ui.dialogs.FilePicker")
-            if url_dat.text != None:
-                Filepicker.setDisplayDirectory(url_dat.text)
+            if imp_set['url_dat'] != None:
+                Filepicker.setDisplayDirectory(imp_set['url_dat'])
             Filepicker.execute()
          
             if Filepicker.Files == '':
@@ -530,27 +513,27 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
              
             filepath = Filepicker.Files[0]
             self.model1.Label = uno.fileUrlToSystemPath(filepath)
-            url_dat.text = filepath
-            pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
-            tree.write(pfad)
+            imp_set['url_dat'] = filepath
+            
+            self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp)  
 
         
         elif ev.ActionCommand == 'Ordner':
         
             Filepicker = createUnoService("com.sun.star.ui.dialogs.FolderPicker")
-            if url_ord.text != None:
-                Filepicker.setDisplayDirectory(url_ord.text)
+            if imp_set['url_ord'] != None:
+                Filepicker.setDisplayDirectory(imp_set['url_ord'])
             Filepicker.execute()
          
             if Filepicker.Directory == '':
                 return
              
             filepath = Filepicker.Directory
-            #self.mb.exp_settings['url'] = filepath
             self.model2.Label = uno.fileUrlToSystemPath(filepath)
-            url_ord.text = filepath
-            pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
-            tree.write(pfad)
+            imp_set['url_ord'] = filepath
+            
+            self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp)  
+
 
            
              

@@ -57,7 +57,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
         return
     
     def createInstanceWithArgumentsAndContext(self, args, ctx):
-        if oxt:print('createInstanceWithArgumentsAndContext in Factory')
+        #if oxt:print('createInstanceWithArgumentsAndContext in Factory')
         try:
             
             CWHandler = ContainerWindowHandler(ctx)
@@ -92,7 +92,7 @@ RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
 
 def create_window(ctx,factory):
-    if oxt: print('create_window')
+    #if oxt: print('create_window')
 
     dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
 
@@ -116,14 +116,14 @@ from com.sun.star.awt import XWindowListener,XActionListener,XContainerWindowEve
 class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
     
     def __init__(self, ctx):
-        if oxt:print('init ContainerWindowHandler')
+        #if oxt:print('init ContainerWindowHandler')
         self.ctx = ctx
         self.window2 = None
         #pydevBrk()
     
     # XContainerWindowEventHandler
     def callHandlerMethod(self, window, obj, name):
-        if oxt:print('callHandlerMethod')
+        #if oxt:print('callHandlerMethod')
         #pydevBrk()
         if name == "external_event":
             if obj == "initialize":
@@ -134,7 +134,7 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         return "external_event",
     
     def _initialize(self, window):
-        if oxt:print('_initialize in ContainerWindowHandler')
+        #if oxt:print('_initialize in ContainerWindowHandler')
 
         path_to_current = __file__.decode("utf-8")
         pyPath = path_to_current.split('factory.py')[0]

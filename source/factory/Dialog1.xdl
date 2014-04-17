@@ -2,7 +2,7 @@
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
 
 <dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" 
-		dlg:id="Dialog1" dlg:left="10" dlg:top="10" dlg:width="174" dlg:height="100" 
+		dlg:id="Dialog1" dlg:left="10" dlg:top="10" dlg:width="174" dlg:height="300" 
 		dlg:closeable="true" dlg:moveable="true" dlg:title='organon_dialogXDL' dlg:withmenubar="true" dlg:withtitlebar="false">
 		
 	 <dlg:bulletinboard>

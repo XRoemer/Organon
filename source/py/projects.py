@@ -1,50 +1,38 @@
 # -*- coding: utf-8 -*-
 
-#print('Projekte')
-import traceback
-import uno
 import unohelper
-import os
-import sys
-import codecs
-tb = traceback.print_exc
-
-ZEILENHOEHE = 22
-
-
 
 class Projekt():
     
     def __init__(self,mb,pydevBrk):
-        
-        global pd
-        pd = pydevBrk
-        
-        self.dialog = mb.dialog
         self.ctx = mb.ctx
         self.mb = mb
-        self.pd = pydevBrk
         
-        global lang
+        self.mb.settings_proj['use_template'] = (False,None)
+
+        global pd,lang
+        pd = pydevBrk
         lang = self.mb.lang
-   
-   
-   ##########   ausgesuchten Pfad neu setzen
-   
+      
    
     def erzeuge_neues_Projekt(self):
         try:
+            
+            if self.pruefe_auf_geladenes_organon_projekt():
+                return
+            
             geglueckt,self.mb.projekt_name = self.dialog_neues_projekt_anlegen()  
             
             if geglueckt:
                 self.setze_pfade()
-                #return
+
                 if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
                     
                     self.mb.Mitteilungen.nachricht(lang.DOUBLE_PROJ_NAME,"warningbox")
                     return
-                    # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
-                    # funktioniert das unter Linux?? ############
+                
+                # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
+                # funktioniert das unter Linux?? ############
                 elif os.path.exists(self.mb.pfade['projekt']):
                     # 16777216 Flag fuer YES_NO
                     entscheidung = self.mb.Mitteilungen.nachricht(lang.PROJ_EXISTS,"warningbox",16777216)
@@ -59,17 +47,13 @@ class Projekt():
                         except:
                             # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
                             pass
-                        
-        except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
-            tb()
-        
-        if geglueckt:
-            try:
-                self.erzeuge_Settings()
+                  
+            if geglueckt:
+                
                 self.erzeuge_Ordner_Struktur() 
                 self.erzeuge_import_Settings()
                 self.erzeuge_export_Settings()  
+                self.erzeuge_proj_Settings()
                           
                 self.mb.class_Bereiche.leere_Dokument()        
                 self.mb.class_Hauptfeld.start()             
@@ -79,12 +63,14 @@ class Projekt():
                   
                 Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
                 self.mb.xml_tree.write(Path1)
-                Path2 = os.path.join(self.mb.pfade['settings'],'settings.xml')
-                self.mb.xml_tree_settings.write(Path2)
                 
-            except Exception as e:
-                self.mb.Mitteilungen.nachricht(str(e),"warningbox")
-                tb()
+                self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+                
+                self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
+                
+        except Exception as e:
+            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            tb()
 
                         
     def setze_pfade(self): 
@@ -97,8 +83,7 @@ class Projekt():
 #         retval = os.getcwd()
 #         print ("Current working directory %s" % retval)          
 
-        pNavi = self.mb.projekt_path
-        pOrganon = uno.fileUrlToSystemPath(pNavi)
+        pOrganon = self.mb.projekt_path
 
         pProjekt =  os.path.join(pOrganon , '%s.organon' % self.mb.projekt_name)
         pFiles =    os.path.join(pProjekt , 'Files')
@@ -113,17 +98,17 @@ class Projekt():
         self.mb.pfade.update({'settings':pSettings}) 
 
     
-    def lade_imp_exp_settings(self):
+    def lade_settings(self):
 
-        pyPath = self.mb.pfade['settings']
-        sys.path.append(pyPath)
+        pfad = os.path.join(self.mb.pfade['settings'],'export_settings.txt')
+        self.mb.settings_exp = eval(open(pfad).read())
 
-        import export_settings
-        self.mb.exp_settings = export_settings.exp_settings[0]
-
-        pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
-        self.mb.imp_settings_xml = self.mb.ET.parse((pfad))
-
+        pfad = os.path.join(self.mb.pfade['settings'],'import_settings.txt')
+        self.mb.settings_imp = eval(open(pfad).read())
+        
+        pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
+        self.mb.settings_proj = eval(open(pfad).read())
+        
         
     def erzeuge_Ordner_Struktur(self):
         
@@ -225,17 +210,22 @@ class Projekt():
         
         controlForm1, modelForm1 = createControl(self.ctx,"CheckBox",125,y,200,20,(),() )  
         modelForm1.Label = lang.TEMPLATE_WRITER
-        modelForm1.State = not self.mb.use_template[0]
+        if not self.mb.settings_proj:
+            state = False
+        else:
+            state = self.mb.settings_proj['use_template'][0]
+        modelForm1.State = not state
         
 
         controlHelp, modelHelp = createControl(self.ctx,"Button",350,y ,30,30,(),() )  
         modelHelp.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
+        controlHelp.setActionCommand('formatierung')
         
         y += 25
         
         controlForm2, modelForm2 = createControl(self.ctx,"CheckBox",125,y,200,20,(),() ) 
         modelForm2.Label = lang.TEMPLATE_USER
-        modelForm2.State = self.mb.use_template[0]
+        modelForm2.State = state
         
         y += 25
             # Liste der Formate
@@ -307,7 +297,7 @@ class Projekt():
         
         controlHelpT, modelHelpT = createControl(self.ctx,"Button",350,y - 10 ,30,30,(),() )  
         modelHelpT.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
-        
+        controlHelpT.setActionCommand('template')
         
         
         y += 40
@@ -353,6 +343,8 @@ class Projekt():
         controlContainer.createPeer(toolkit, None);
         # ENDE HAUPTFENSTER
         
+        
+        
         # LISTENER 1
         listener = neues_Projekt_Dialog_Listener(self.mb,model1,modelLBF6,controlForm2,controlLBF2) 
         control1.addKeyListener(listener) 
@@ -363,13 +355,19 @@ class Projekt():
         
         
         
-        # LISTENER 2
+        # LISTENER 2 CheckBoxen
         listenerCB = Neues_Projekt_CheckBox_Listener(self.mb,modelForm1,modelForm2,modelLBF2)
         controlForm1.addActionListener(listenerCB)
         controlForm1.ActionCommand = 'standard'
         controlForm2.addActionListener(listenerCB)
         controlForm2.ActionCommand = 'user'
         controlLBF2.addItemListener(listenerCB)
+        
+        # LISTENER 3 Info
+        listener_info = Neues_Projekt_InfoButton_Listener(self.mb)
+        controlHelp.addActionListener(listener_info)
+        controlHelpT.addActionListener(listener_info)
+        
         
         
         # CONTROLS HINZUFUEGEN
@@ -454,21 +452,19 @@ class Projekt():
                         dateiname = os.path.split(pfad)[1]
                         dateiname1 = dateiname.split(erweiterung)[0]
                     
-                        benutzervorlagen.append(dateiname1)  #,pfad))
+                        benutzervorlagen.append(dateiname1)
                         pfade.append(pfad)
                     
         self.mb.user_styles_pfade = tuple(pfade)
-        return tuple(benutzervorlagen),tuple(pfade)
-
-# ===============================================================================================================  
+        return tuple(benutzervorlagen),tuple(pfade)  
 
 
     def lade_Projekt(self,filepicker = True):
         if self.mb.debug: print(self.mb.debug_time(),'lade_Projekt')
-       
-        # fehlt: wenn bereits ein Projekt geladen wurde, stuerzt oOO ab
-        # daher: alles entfernen !!
         
+        if self.pruefe_auf_geladenes_organon_projekt():
+            return
+
         if filepicker:
             Filepicker = createUnoService("com.sun.star.ui.dialogs.FilePicker")
             Filepicker.appendFilter('Organon Project','*.organon')
@@ -478,34 +474,27 @@ class Projekt():
 
             if Filepicker.Files == '':
                 return
-            
-            filepath = Filepicker.Files[0]
+
+            filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
+
+            dateiname = os.path.basename(filepath)
+            dateiendung = os.path.splitext(filepath)[1]
+
             # Wenn keine .organon Datei gewaehlt wurde
-            if filepath.split('/')[-1].split('.')[1]  != 'organon':
+            if dateiendung  != '.organon':
                 return
             
-            self.mb.projekt_name = filepath.split('/')[-1].split('.')[0] 
+            self.mb.projekt_name = dateiname.split(dateiendung)[0]
             proj = os.path.dirname(filepath) 
-            self.mb.projekt_path = os.path.dirname(proj)   
-            
-
-#         # prueft, ob eine Organon Datei geladen ist
-#         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
-#         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
-# 
-#         if has_prop:
-#             dialog_contr = self.mb.dialog.Controls
-#             for contr in dialog_contr:
-#                 contr.dispose()
-
+            self.mb.projekt_path = os.path.dirname(proj)  
+    
 
         try:
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
-            self.lese_xml_settings_datei() 
-            self.lade_imp_exp_settings()      
+            self.lade_settings()      
             self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
-            self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)       
+               
             Eintraege = self.lese_xml_datei()
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
@@ -513,7 +502,9 @@ class Projekt():
             self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
             
-    
+            self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
+            self.mb.class_Hauptfeld.korrigiere_scrollbar()
+            
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
             UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
             has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
@@ -525,15 +516,31 @@ class Projekt():
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
             
+            self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
+            
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")
             tb()
+    
+    
+    def pruefe_auf_geladenes_organon_projekt(self):
+        # prueft, ob eine Organon Datei geladen ist
+        UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
+        has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
+ 
+        if has_prop:
+            self.mb.Mitteilungen.nachricht(lang.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
+            return True
+        else:
+            return False
+        
       
     def erzeuge_Projekt_xml_tree(self):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Projekt_xml_tree')
         
-        et = self.mb.ET       
-        root = et.Element(self.mb.projekt_name)
+        et = self.mb.ET    
+        prj_name = self.mb.projekt_name.replace(' ','_')   
+        root = et.Element('Projekt')
         tree = et.ElementTree(root)
         self.mb.xml_tree = tree
         root.attrib['Name'] = 'root'
@@ -559,7 +566,7 @@ class Projekt():
 
             if sicht == 'ja':
                 # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
-                self.mb.dict_zeilen_posY.update({(index-1)*ZEILENHOEHE:eintrag})
+                self.mb.dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
                 self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
             # Bereiche   
@@ -607,7 +614,7 @@ class Projekt():
             
             if sicht == 'ja':
                 # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
-                self.mb.dict_zeilen_posY.update({(index-1)*ZEILENHOEHE:eintrag})
+                self.mb.dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
                 self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
             # Bereiche   
@@ -655,7 +662,7 @@ class Projekt():
         
         # Liste aller Ordner erstellen
         for eintrag in alle_eintraege:
-            if eintrag.attrib['Art'] in ('dir','waste'):
+            if eintrag.attrib['Art'] in ('dir','waste','prj'):
                 ordner.append(eintrag.tag)
         
         
@@ -678,7 +685,7 @@ class Projekt():
     def lese_xml_datei(self):
         if self.mb.debug: print(self.mb.debug_time(),'lese_xml_datei')
 
-        pfad = self.mb.pfade['settings'] + '/ElementTree.xml'        
+        pfad = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')      
         self.mb.xml_tree = self.mb.ET.parse(pfad)
         root = self.mb.xml_tree.getroot()
         
@@ -703,42 +710,28 @@ class Projekt():
             Eintraege.append((ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3))
             
         return Eintraege
-    
-    
-    def lese_xml_settings_datei(self):
-        if self.mb.debug: print(self.mb.debug_time(),'lese_xml_settings_datei')
+            
         
-        pfad = os.path.join(self.mb.pfade['settings'], 'settings.xml')      
-        self.mb.xml_tree_settings = self.mb.ET.parse(pfad)
-        root = self.mb.xml_tree_settings.getroot()
-      
-        self.mb.tag1_visible = (root.find(".//tag1").attrib['sichtbar'] == 'ja')
-        self.mb.tag2_visible = (root.find(".//tag2").attrib['sichtbar'] == 'ja')
-        self.mb.tag3_visible = (root.find(".//tag3").attrib['sichtbar'] == 'ja')
+    def erzeuge_proj_Settings(self):
+        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_proj_Settings')
         
-    
-    def erzeuge_Settings(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Settings')
-        
-        et = self.mb.ET       
-        root = et.Element('Settings')
-        tree = et.ElementTree(root)
-         
-        et.SubElement(root,'tag1',sichtbar='ja')
-        et.SubElement(root,'tag2',sichtbar='nein')
-        et.SubElement(root,'tag3',sichtbar='nein')
-        
-        self.mb.tag1_visible = True
-        self.mb.tag2_visible = False
-        self.mb.tag3_visible = False
-        
-        self.mb.xml_tree_settings = tree
+        settings_proj = {
+            'tag1' : 1, 
+            'tag2' : 0,
+            'tag3' : 0,
+            'use_template' : self.mb.settings_proj['use_template'],
+            'user_styles' : (),
+            'formatierung' : 'Standard',
+            }
+            
+        self.mb.speicher_settings("project_settings.txt", settings_proj)        
+        self.mb.settings_proj = settings_proj
     
     
     def erzeuge_export_Settings(self):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_export_Settings')
         
-        exp_settings = {
+        settings_exp = {
             # Export Dialog
             'alles' : 0, 
             'sichtbar' : 0,
@@ -771,52 +764,32 @@ class Projekt():
             'hoehe_auswahlfenster' : 200,
             }  
         
-        
-            
-        path = os.path.join(self.mb.pfade['settings'],"export_settings.py")
-        
-        with codecs.open(path , "w", 'utf-8') as file:
-            file.writelines('# -*- coding: utf-8 -*- \r\nexp_settings = ')          
-            for line in str(exp_settings).split(','):
-                file.writelines(line+(',\n'))
-        
-        self.mb.exp_settings = exp_settings
-        
-        
+        self.mb.speicher_settings("export_settings.txt", settings_exp)        
+        self.mb.settings_exp = settings_exp
+    
+    
     def erzeuge_import_Settings(self):
         
-        Settings = [('imp_dat','1'),
-                ('ord_strukt','1'),
+        Settings = {'imp_dat' : '1',
+                'ord_strukt' : '1',
                 
-                ('url_dat',''),
-                ('url_ord',''),
+                'url_dat' : '',
+                'url_ord' : '',
                 
                 #Filter
-                ('odt','1'),
-                ('doc','0'),
-                ('docx','0'),
-                ('rtf','0'),
-                ('txt','0'),]
+                'odt' : '1',
+                'doc' : '0',
+                'docx' : '0',
+                'rtf' : '0',
+                'txt' : '0',
+                }  
         
-        
-        
-        et = self.mb.ET       
-        root = et.Element('Import_Settings')
-
-        for set in Settings:
-            el = et.SubElement(root, set[0])
-            el.text = set[1]
-        
-        tree = et.ElementTree(root)
-        self.mb.imp_settings_xml = tree
-        
-        pfad = os.path.join(self.mb.pfade['settings'],'imp_settings.xml')
-        tree.write(pfad)
-        
-
-          
+        self.mb.speicher_settings("import_settings.txt", Settings)
+        self.mb.settings_imp = Settings
+      
+    
+    
        
-        
     def beispieleintraege(self):
         
         Eintraege = [('nr0','root','Vorbemerkung',0,'pg','-','ja'),
@@ -845,43 +818,60 @@ class Projekt():
 
     def beispieleintraege2(self):
             
-            Eintraege = [('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
-                    ('nr1','root','Projekt',0,'dir','auf','ja','leer','leer','leer'),
-                    ('nr2','nr1','Titelseite',1,'pg','-','ja','leer','leer','leer'),
-                    ('nr3','nr1','Kapitel1',1,'dir','auf','ja','leer','leer','leer'),
-                    ('nr4','nr3','Szene1',2,'pg','-','ja','leer','leer','leer'),
-                    ('nr5','nr3','Szene2',2,'pg','-','ja','leer','leer','leer'),
-#                     ('nr6','nr1','Kapitel2',1,'dir','auf','ja'),
-#                     ('nr7','nr6','Szene1b',2,'pg','-','ja'),
-#                     ('nr8','nr6','Szene2b',2,'pg','-','ja'),
-#                     ('nr9','nr1','Interlude',1,'pg','-','ja'),
-#                     ('nr10','nr1','Kapitel3',1,'dir','auf','ja'),
-#                     ('nr11','nr1','Kapitel4',1,'dir','auf','ja'),
-#                     ('nr12','nr11','UnterKapitel',2,'dir','zu','ja'),
-#                     ('nr13','nr12','Szene3a',3,'pg','-','nein'),
-#                     ('nr14','nr12','Szene3b',3,'pg','-','nein'),
-#                     ('nr15','nr11','Szene3c',2,'pg','-','ja'),
-#                     ('nr16','nr11','Szene3d',2,'pg','-','ja'),
-#                     ('nr17','nr11','Kapitel4a',2,'dir','auf','ja'),
-#                     ('nr18','nr1','Kapitel4b',1,'dir','auf','ja'),
-#                     ('nr19','nr18','Szene4',2,'pg','-','ja'),
-                    ('nr6','root','Papierkorb',0,'waste','zu','ja','leer','leer','leer')]
+            Eintraege = [#('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
+                    ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
+                    ('nr1','nr0','Titelseite',1,'pg','-','ja','leer','leer','leer'),
+                    ('nr2','nr0','Kapitel 1',1,'dir','auf','ja','leer','leer','leer'),
+                    ('nr3','nr2','Szene 1',2,'pg','-','ja','leer','leer','leer'),
+                    ('nr4','nr2','Szene 2',2,'pg','-','ja','leer','leer','leer'),
+                    ('nr5','root','Papierkorb',0,'waste','zu','ja','leer','leer','leer')]
             
             return Eintraege
         
     def test(self):
         print('test')
-        try:       
-           
+        try:   
 
-            
             pd()
-            
         except:
             tb()
-        
-        
+
+
+def erzeuge_Fenster(mb):
     
+    try:
+        # HAUPTFENSTER    
+        smgr = mb.smgr
+        ctx = mb.ctx
+        
+        # create the dialog model and set the properties
+        dialogModel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", ctx)
+           
+        dialogModel.PositionX = 65
+        dialogModel.PositionY = 65
+        dialogModel.Width = 215 # if lang == en:195
+    
+        dialogModel.Height = 320
+        dialogModel.Title = lang.CREATE_NEW_PROJECT
+                  
+        # create the dialog control and set the model
+        controlContainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx);
+        controlContainer.setModel(dialogModel);
+                 
+        # create a peer
+        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", ctx);       
+        controlContainer.setVisible(False);       
+        controlContainer.createPeer(toolkit, None);
+        # ENDE HAUPTFENSTER
+        
+        geglueckt = controlContainer.execute()       
+        controlContainer.dispose() 
+        return controlContainer
+    except:
+        tb()
+
+       
+        
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     
@@ -909,7 +899,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         filepath = Filepicker.getDirectory()
         
         with open( pfad, "w") as file:
-            file.write(filepath)  
+            file.write(uno.fileUrlToSystemPath(filepath))
         
         self.mb.speicherort_last_proj = filepath
         self.model.Label = uno.fileUrlToSystemPath(filepath)
@@ -980,10 +970,10 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                 return
             
             else:
-                if self.mb.use_template[0] == False:
+                if self.mb.settings_proj['use_template'][0] == False:
                     URL = "private:factory/swriter"
                 else:
-                    URL = uno.systemPathToFileUrl(self.mb.use_template[1])
+                    URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
                     
                 self.vorlage_erstellen(name,URL)
                 self.control_LB.Enable = True
@@ -1016,7 +1006,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
             prop.Value = True                
-            print(URL)
+            #print(URL)
             
             
             prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
@@ -1033,7 +1023,6 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
             Path2 = uno.systemPathToFileUrl(p2)
             newDoc.storeToURL(Path2,(prop2,))
             
-            #
         except:
             tb()
         newDoc.close(False)
@@ -1050,19 +1039,17 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
         self.modelListBox = modelListBox
         
     def actionPerformed(self,ev):
-        #set = self.mb.exp_settings
-        #set[ev.ActionCommand] = self.toggle(set[ev.ActionCommand])
         # um sich nicht selbst abzuwaehlen
         if ev.Source.State == 0:
             ev.Source.State = 1
             return
         elif ev.ActionCommand == 'standard':
             self.modelUser.State = False
-            self.mb.use_template = (False,None)
+            self.mb.settings_proj['use_template'] = (False,None)
         elif ev.ActionCommand == 'user':
             self.modelStandard.State = False
             pfad = self.get_template_pfad()
-            self.mb.use_template = (True,pfad)
+            self.mb.settings_proj['use_template'] = (True,pfad)
         
     
     def get_template_pfad(self):
@@ -1075,13 +1062,38 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
     
     def itemStateChanged(self, ev):  
 
-        use,pfad = self.mb.use_template
-        self.mb.use_template = (use,self.get_template_pfad())
+        use,pfad = self.mb.settings_proj['use_template']
+        self.mb.settings_proj['use_template'] = (use,self.get_template_pfad())
 
 
 
 
+class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
+    def __init__(self,mb):
+        self.mb = mb
+        
+    def actionPerformed(self,ev):
+        try:
+            
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'ReadOnly'
+            prop.Value = True
+#             fenster = erzeuge_Fenster(self.mb)
+#             
+#             y = 20
+#             
+#             controlForm, modelForm = createControl(self.mb.ctx,"FixedText",25,y,80,20,(),() )  
+#             modelForm.Label = lang.FORMATIERUNG #lang.ENTER_PROJ_NAME
+#             modelForm.FontWeight = 150
 
+            
+            URL="private:factory/swriter"
+            self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
+            pd()
+            self.oOO.close(False)
+        except:
+            tb()
+        pd()
         
         
         

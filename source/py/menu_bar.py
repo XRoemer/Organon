@@ -7,12 +7,17 @@ import os
 import xml.etree.ElementTree as ElementTree
 import time
 import codecs
+import math
+import re
+import konstanten as KONST
+
+tb = traceback.print_exc
+platform = sys.platform
+
 
 global oxt
 oxt = False
 
-tb = traceback.print_exc
-platform = sys.platform
 
 if oxt:
     pyPath = 'E:\\Eclipse_Workspace\\orga\\organon\\py'
@@ -20,22 +25,6 @@ if oxt:
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
         sys.path.append(pyPath)
     
-Color_MenuBar_Container = 13027014 #16777215 #weiss
-Color_MenuBar_MenuEintraege = 6279861
-Color_Menu_Container = 16771990
-MENU_DIALOG_FARBE = 14804725#13884141 #305099 # blau
-
-Breite_Menu_DropDown_Eintraege = 150
-Hoehe_Menu_DropDown_Eintraege = 180
-Abstand = 10
-Breite_Menu_DropDown_Container = Breite_Menu_DropDown_Eintraege + Abstand
-Hoehe_Menu_DropDown_Container = Hoehe_Menu_DropDown_Eintraege + Abstand
-
-IMG_ORDNER_NEU_24 =   'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerNeu_24.png'
-IMG_DATEI_NEU_24 =    'vnd.sun.star.extension://xaver.roemers.organon/img/neueDatei_24.png'
-
-from com.sun.star.awt import XMouseListener, XItemListener
-from com.sun.star.awt.MouseButton import LEFT as MB_LEFT
 
 
 class Menu_Bar():
@@ -43,10 +32,11 @@ class Menu_Bar():
     def __init__(self,pdk,dialog,ctx,tabs,path_to_extension):
         
         self.pd = pdk
-        global pd
+        global pd,IMPORTS
         pd = pdk
-        #pd()
-
+       
+        IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd')
+        
         if 'LibreOffice' in sys.executable:
             self.programm = 'LibreOffice'
         elif 'OpenOffice' in sys.executable:
@@ -60,7 +50,7 @@ class Menu_Bar():
         self.ctx = ctx
         self.smgr = self.ctx.ServiceManager
         self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
-        self.doc = self.desktop.getCurrentComponent() 
+        self.doc = self.get_doc()        
         self.current_Contr = self.doc.CurrentController 
         self.viewcursor = self.current_Contr.ViewCursor
         self.tabs = tabs
@@ -76,39 +66,35 @@ class Menu_Bar():
         self.dict_ordner = {}               # enthaelt alle Ordner und alle ihnen untergeordneten Zeilen
         self.dict_bereiche = {}             # besitzt drei Unterdicts: Bereichsname,ordinal,Bereichsname-ordinal
         self.sichtbare_bereiche = []        # Bereichsname ('OrganonSec'+ nr)
-        self.xml_tree = None
-        self.xml_tree_settings = None
         self.kommender_Eintrag = 0
         self.selektierte_zeile = None       # control des Zeilencontainers, Name = ordinal
         self.selektierte_Zeile_alt = None   # control 'textfeld' der Zeile
-        self.Papierkorb = None              # ordinal des Papierkorbs - wird anfangs einmal gesetzt und bleibt konstant      
+        self.Papierkorb = None              # ordinal des Papierkorbs - wird anfangs einmal gesetzt und bleibt konstant    
+        self.Projektordner = None  
         self.Papierkorb_geleert = False
         self.bereich_wurde_bearbeitet = False
         self.tastatureingabe = False
         self.zuletzt_gedrueckte_taste = None
-        self.exp_settings = None
-        self.imp_settings_xml = None
-        self.settings_org_xml = None
-        self.use_template = (False,None)
+        
+        self.xml_tree = None
+        #Settings
+        self.settings_exp = None
+        self.settings_imp = None
+        self.settings_proj = {}
         self.user_styles = ()
 
-        
-        #Settings
-        self.tag1_visible = None
-        self.tag2_visible = None
-        self.tag3_visible = None
         # Pfade
         self.pfade = {}
 
         # Klassen   
         self.Key_Handler = Key_Handler(self)
         self.ET = ElementTree  
-        self.Mitteilungen = Mitteilungen(self.dialog,self.ctx,self)
+        self.Mitteilungen = Mitteilungen(self.ctx,self)
          
         self.class_Hauptfeld,self.class_Zeilen_Listener = self.get_Klasse_Hauptfeld()
         self.class_Projekt =    self.lade_modul('projects','.Projekt(self, pd)')   
         self.class_XML =        self.lade_modul('xml_m','.XML_Methoden(self,pd)')
-        self.class_Funktionen = self.lade_modul('funktionen','.Funktionen(self, pd)')       
+        self.class_Funktionen = self.lade_modul('funktionen','.Funktionen(self, pd)')     
         self.class_Export =     self.lade_modul('export','.Export(self,pd)')
         self.class_Import =     self.lade_modul('importX','.ImportX(self,pd)') 
         bereiche =              self.lade_modul('bereiche')
@@ -116,16 +102,17 @@ class Menu_Bar():
         self.VC_selection_listener = bereiche.ViewCursor_Selection_Listener(self)          
         self.w_listener =            bereiche.Dialog_Window_Listener(self)
         
-        self.funktionen = self.lade_modul('funktionen')
+        self.doc_listener = Doc_Listener(self)
         
         
         
 
         # fuers debugging
         self.debug = False
-        if self.debug: print('Debug = True ; Menu_Bar')
+        if self.debug: print('Debug = True')
         self.time = time
         self.timer_start = self.time.clock()
+
 
         self.dialog.addWindowListener(self.w_listener)
         
@@ -133,20 +120,37 @@ class Menu_Bar():
         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
         
-        
+    
 #         if has_prop:
 #             self.entferne_alle_listener()
 #             dialog_contr = self.dialog.Controls
 #             for contr in dialog_contr:
 #                 contr.dispose()
-        if has_prop:    
-            self.projekt_name = UD_properties.getPropertyValue('ProjektName')
-            self.erzeuge_MenuBar_Container()
-            self.erzeuge_Menu()
+#         if has_prop:    
+#             self.projekt_name = UD_properties.getPropertyValue('ProjektName')
+#             self.erzeuge_MenuBar_Container()
+#             self.erzeuge_Menu()
             #self.class_Projekt.lade_Projekt(False)
            
        
-    
+    def get_doc(self):
+        
+        enum = self.desktop.Components.createEnumeration()
+        comps = []
+        
+        while enum.hasMoreElements():
+            comps.append(enum.nextElement())
+            
+        # Wenn ein neues Dokument geoeffnet wird, gibt es bei der Initialisierung
+        # noch kein Fenster, aber die Komponente wird schon aufgefuehrt.
+        # Hat die zuletzt erzeugte Komponente comps[0] kein ViewData,
+        # dann wurde sie neu geoeffnet.
+        if comps[0].ViewData == None:
+            doc = comps[0]
+        else:
+            doc = self.desktop.getCurrentComponent() 
+            
+        return doc
    
     def erzeuge_Menu(self):
         try:             
@@ -159,6 +163,7 @@ class Menu_Bar():
             
             if oxt:
                 self.erzeuge_Menu_Kopf_Test(listener)
+            self.erzeuge_Menu_Kopf_Test(listener)
             
             self.erzeuge_Menu_neuer_Ordner(listener2)
             self.erzeuge_Menu_Kopf_neues_Dokument(listener2)
@@ -171,7 +176,7 @@ class Menu_Bar():
     
     def erzeuge_MenuBar_Container(self):
         menuB_control, menuB_model = createControl3(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
-        menuB_model.BackgroundColor = Color_MenuBar_Container
+        menuB_model.BackgroundColor = KONST.Color_MenuBar_Container
          
         self.dialog.addControl('Organon_Menu_Bar', menuB_control)
 
@@ -205,7 +210,7 @@ class Menu_Bar():
         
     def erzeuge_Menu_neuer_Ordner(self,listener2):
         control, model = createControl3(self.ctx, "ImageControl", 120, 0, 20, 20, (), ())   
-        model.ImageURL = IMG_ORDNER_NEU_24
+        model.ImageURL = KONST.IMG_ORDNER_NEU_24
         
         model.HelpText = self.lang.INSERT_DIR
         model.Border = 0                    
@@ -217,7 +222,7 @@ class Menu_Bar():
         
     def erzeuge_Menu_Kopf_neues_Dokument(self,listener2):
         control, model = createControl3(self.ctx, "ImageControl", 140, 0, 20, 20, (), ())           
-        model.ImageURL = IMG_DATEI_NEU_24
+        model.ImageURL = KONST.IMG_DATEI_NEU_24
                     
         model.HelpText = self.lang.INSERT_DOC
         model.Border = 0                    
@@ -268,8 +273,8 @@ class Menu_Bar():
         oReturnValue, oRect = oXIdlClass.createObject(None)
         oRect.X = X
         oRect.Y = Y
-        oRect.Width = Breite_Menu_DropDown_Container
-        oRect.Height = Hoehe_Menu_DropDown_Container
+        oRect.Width = KONST.Breite_Menu_DropDown_Container
+        oRect.Height = KONST.Hoehe_Menu_DropDown_Container
         
         oWindowDesc.Bounds = oRect
       
@@ -287,7 +292,7 @@ class Menu_Bar():
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", self.ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", self.ctx)
-        cont_model.BackgroundColor = MENU_DIALOG_FARBE  # 9225984
+        cont_model.BackgroundColor = KONST.MENU_DIALOG_FARBE  # 9225984
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
@@ -313,8 +318,8 @@ class Menu_Bar():
     def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont):
         lang = self.lang
         control, model = createControl3(self.ctx, "ListBox", 10 ,  10 , 
-                                        Breite_Menu_DropDown_Eintraege-6, 
-                                        Hoehe_Menu_DropDown_Eintraege-6, (), ())   
+                                        KONST.Breite_Menu_DropDown_Eintraege-6, 
+                                        KONST.Hoehe_Menu_DropDown_Eintraege-6, (), ())   
         control.setMultipleMode(False)
         
         items = (lang.NEW_PROJECT, 
@@ -327,7 +332,7 @@ class Menu_Bar():
                 lang.IMPORT_2)
         
         control.addItems(items, 0)
-        model.BackgroundColor = MENU_DIALOG_FARBE
+        model.BackgroundColor = KONST.MENU_DIALOG_FARBE
         model.Border = False
         
         cont.addControl('Eintraege_Datei', control)
@@ -338,42 +343,44 @@ class Menu_Bar():
         
     
     def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
-        
-        # Tag1
-        control_tag1, model_tag1 = createControl3(self.ctx, "CheckBox", 10, 10, 
-                                                  Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-        model_tag1.Label = self.lang.SHOW_TAG1
-        
-        if self.tag1_visible == True:
-            model_tag1.State = 1
-        else:
-            model_tag1.State = 0
+        try:
+            # Tag1
+            control_tag1, model_tag1 = createControl3(self.ctx, "CheckBox", 10, 10, 
+                                                      KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
+            model_tag1.Label = self.lang.SHOW_TAG1
             
-        tag1_listener = Tag1_Item_Listener(self,model_tag1)
-        control_tag1.addItemListener(tag1_listener)
-        cont.addControl('Checkbox_Tag1', control_tag1)
-        
-
-        # ListBox
-        control, model = createControl3(self.ctx, "ListBox", 10, 34, Breite_Menu_DropDown_Eintraege-6, 
-                                        Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
-        control.setMultipleMode(False)
-        
-        items = ( self.lang.UNFOLD_PROJ_DIR, 
-                 '-------', 
-                 '#Homepage', 
-                 '#Updates', 
-                 '#Etc.')
-        
-        control.addItems(items, 0)
-        model.BackgroundColor = MENU_DIALOG_FARBE
-        model.Border = False
-        
-        cont.addControl('Eintraege_Optionen', control)
-        
-        listener = DropDown_Item_Listener(self)  
-        listener.window = window    
-        control.addItemListener(listener)   
+            if self.settings_proj['tag1']:
+                model_tag1.State = 1
+            else:
+                model_tag1.State = 0
+                
+            tag1_listener = Tag1_Item_Listener(self,model_tag1)
+            control_tag1.addItemListener(tag1_listener)
+            cont.addControl('Checkbox_Tag1', control_tag1)
+            
+    
+            # ListBox
+            control, model = createControl3(self.ctx, "ListBox", 10, 34, KONST.Breite_Menu_DropDown_Eintraege-6, 
+                                            KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
+            control.setMultipleMode(False)
+            
+            items = ( self.lang.UNFOLD_PROJ_DIR, 
+                     '-------', 
+                     '#Homepage', 
+                     '#Updates', 
+                     '#Etc.')
+            
+            control.addItems(items, 0)
+            model.BackgroundColor = KONST.MENU_DIALOG_FARBE
+            model.Border = False
+            
+            cont.addControl('Eintraege_Optionen', control)
+            
+            listener = DropDown_Item_Listener(self)  
+            listener.window = window    
+            control.addItemListener(listener)  
+        except:
+            tb() 
     
     
     def get_speicherort(self):
@@ -391,28 +398,48 @@ class Menu_Bar():
         if oxt:
             modul = 'h_feld'
             h_feld = load_reload_modul(modul,pyPath,self)  
+            
+            for imp in IMPORTS:
+                exec('h_feld.%s=%s' %(imp,imp))
         else: 
             import h_feld   
+            
+            for imp in IMPORTS:
+                exec('h_feld.%s=%s' %(imp,imp))
                    
         Klasse_Hauptfeld = h_feld.Main_Container(self)
         Klasse_Zeilen_Listener = h_feld.Zeilen_Listener(self.Hauptfeld,self.ctx,self)
         return Klasse_Hauptfeld,Klasse_Zeilen_Listener
 
     def lade_modul(self,modul,arg = None): 
+        
         try: 
-            oxt = False
             if oxt:
-                mod = load_reload_modul(modul,pyPath,self)
+                load_reload_modul(modul,pyPath,self)
+                exec('import '+modul)
+                
+                for imp in IMPORTS:
+                    exec(modul+'.%s=%s' %(imp,imp))
+
+                if arg == None:
+                    return eval(modul)
+                else:
+                    func = modul+arg
+                    return eval(func)
             else:
                 exec('import '+modul) 
-            if arg == None:
-                return eval(modul)
-            else:
-                return eval(modul+arg)
+                
+                for imp in IMPORTS:
+                    exec(modul+'.%s=%s' %(imp,imp))
+                
+                if arg == None:
+                    return eval(modul)
+                else:
+                    return eval(modul+arg)
         except:
             tb()
-            
-    
+     
+  
     def lade_Modul_Language(self):
         language = self.doc.CharLocale.Language
         import lang_en 
@@ -439,10 +466,7 @@ class Menu_Bar():
         self.class_Hauptfeld.erzeuge_neue_Zeile(ordner_oder_datei)          
             
     def leere_Papierkorb(self):
-        self.class_Hauptfeld.leere_Papierkorb()          
-
-    def speicher_Projekt(self):
-        self.class_Projekt.speicher_Projekt()          
+        self.class_Hauptfeld.leere_Papierkorb()                  
 
     def debug_time(self):
         zeit = "%0.2f" %(self.time.clock()-self.timer_start)
@@ -457,7 +481,6 @@ class Menu_Bar():
         
         EXPORT_DIALOG_FARBE = 305099
 
-        
         ctx = self.ctx
         smgr = self.smgr
         
@@ -506,7 +529,75 @@ class Menu_Bar():
         oFrame.setComponent(cont, None)
         return oWindow,cont
      
-    
+    def loesche_undo_Aktionen(self):
+        undoMgr = self.doc.UndoManager
+        undoMgr.reset()
+        
+    def speicher_settings(self,dateiname,eintraege):
+        
+        path = os.path.join(self.pfade['settings'],dateiname)
+        imp = str(eintraege).replace(',',',\n')
+            
+        with open(path , "w") as file:
+            file.writelines(imp)
+   
+
+
+from com.sun.star.document import XDocumentEventListener
+class Doc_Listener(unohelper.Base,XDocumentEventListener):
+    def __init__(self,mb):
+        self.mb = mb
+    def documentEventOccured(self,ev):
+        
+        
+        print('documentEventOccured')
+        print(ev.EventName)
+        return
+        def pydevBrk():  
+            # adjust your path 
+            print('hier')
+            import sys
+            sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
+            from pydevd import settrace
+            settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+        
+        #pydevBrk()
+        
+        if ev.EventName == 'OnUnfocus':
+            print(self.mb.Anzahl_Componenten)
+            import traceback
+            
+            try:
+                enum = self.mb.desktop.Components.createEnumeration()
+                comps = []
+                while enum.hasMoreElements():
+                    comps.append(enum.nextElement())
+                Anzahl_Componenten = len(comps)
+                if Anzahl_Componenten > self.mb.Anzahl_Componenten:
+                    
+                    
+                    from com.sun.star.awt import Rectangle,WindowDescriptor 
+                    from com.sun.star.awt.WindowClass import MODALTOP
+                    from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
+                    
+                    global Rectangle,WindowDescriptor,MODALTOP,OK,YES_NO_CANCEL, DEF_NO
+                    
+                    self.mb.Mitteilungen.nachricht(u'Sie haben eine weitere Instanz von OO/LO geöffnet. Organon funktioniert nun nicht mehr. Wenn Sie mehrere Instanzen von OO/LO nutzen möchten, öffnen Sie alle Instanzen und laden als letzte die Organon Datei.',"warningbox")
+                    pydevBrk()
+            except:
+                
+                
+                
+                
+                print('fehler')
+                traceback.print_exc()
+            
+    def disposing(self,ev):      
+        return False
+
+
+from com.sun.star.awt import XMouseListener, XItemListener
+from com.sun.star.awt.MouseButton import LEFT as MB_LEFT 
     
 class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
     def __init__(self,mb):
@@ -519,10 +610,12 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
             #print('maus gepresst')
             if self.menu_Kopf_Eintrag == self.mb.lang.FILE:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)            
-            if self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
+            elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
-            if self.menu_Kopf_Eintrag == 'Test':
+            elif self.menu_Kopf_Eintrag == 'Test':
                 self.mb.erzeuge_neue_Projekte()
+                
+            self.mb.loesche_undo_Aktionen()
             return False
 
     def mouseEntered(self, ev):
@@ -558,9 +651,10 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
                 self.mb.erzeuge_Zeile('Ordner')
             if ev.Source.Model.HelpText == self.mb.lang.CLEAR_RECYCLE_BIN:            
                 self.mb.leere_Papierkorb()
-#             if ev.Source.Model.HelpText == 'Projekt speichern':            
-#                 self.mb.speicher_Projekt()
+                
+            self.mb.loesche_undo_Aktionen()
             return False
+        
     def mouseExited(self,ev):
         return False
     def mouseEntered(self,ev):
@@ -635,7 +729,9 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
         elif sel == self.mb.lang.UNFOLD_PROJ_DIR:
             self.do()
             self.mb.class_Funktionen.projektordner_ausklappen()
-            
+        
+        self.mb.loesche_undo_Aktionen()
+        
     def do(self): 
         self.window.dispose()
         self.mb.geoeffnetesMenu = None
@@ -648,25 +744,24 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         
     # XItemListener    
     def itemStateChanged(self, ev):        
-
-        if self.model.State == 1:
-            self.mb.tag1_visible = True
-        else:
-            self.mb.tag1_visible = False
-        
-        tree = self.mb.xml_tree_settings
-        root = tree.getroot()  
-        xml_tag1 = root.find(".//tag1")
-
-        if self.mb.tag1_visible == False:
-            xml_tag1.attrib['sichtbar'] = 'nein'
-            self.mache_tag1_sichtbar(False)
-        else:
-            xml_tag1.attrib['sichtbar'] = 'ja'
-            self.mache_tag1_sichtbar(True)
-
-        Path = os.path.join(self.mb.pfade['settings'] , 'settings.xml' )
-        self.mb.xml_tree_settings.write(Path)  
+        try:
+            set = self.mb.settings_proj
+            
+            if self.model.State == 1:
+                set['tag1'] = 1
+            else:
+                set['tag1'] = 0
+            
+            if not set['tag1']:
+                set['tag1'] = 0
+                self.mache_tag1_sichtbar(False)
+            else:
+                set['tag1'] = 1
+                self.mache_tag1_sichtbar(True) 
+            
+            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+        except:
+            tb()
     
     def mache_tag1_sichtbar(self,sichtbar):
     
@@ -683,9 +778,9 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                 
                 text_contr.setPosSize(posSizeX-16,0,0,0,1)
 
-                if self.mb.tag2_visible:
+                if self.mb.settings_proj['tag2']:
                     tag2_contr = contr_zeile.getControl('tag2')
-                if self.mb.tag3_visible:
+                if self.mb.settings_proj['tag3']:
                     tag3_contr = contr_zeile.getControl('tag3')
                     
                 tag1_contr.dispose()
@@ -721,7 +816,7 @@ from com.sun.star.awt import XKeyHandler
 class Key_Handler(unohelper.Base, XKeyHandler):
     
     def __init__(self,mb):
-        if oxt:print('init Keyhandler')
+        #if oxt:print('init Keyhandler')
         self.mb = mb
         self.mb.keyhandler = self
         mb.current_Contr.addKeyHandler(self)
@@ -743,8 +838,7 @@ from com.sun.star.awt.WindowClass import MODALTOP
 from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
 
 class Mitteilungen():
-    def __init__(self,dialog,ctx,mb):
-        self.dialog = dialog  
+    def __init__(self,ctx,mb):
         self.ctx = ctx
         self.mb = mb     
     
@@ -762,7 +856,7 @@ class Mitteilungen():
      
         if MsgType not in MsgTypes:
             MsgType = "messbox"
-
+        
         #describe window properties.
         aDescriptor = WindowDescriptor()
         aDescriptor.Type = MODALTOP
@@ -812,10 +906,8 @@ def load_reload_modul(modul,pyPath,mb):
         try:
             if mb.programm == 'LibreOffice':
                 import shutil
-                if platform == 'linux':
-                    shutil.rmtree(pyPath+'/__pycache__')
-                else:
-                    shutil.rmtree(pyPath+'\\__pycache__')
+                shutil.rmtree(os.path.join(pyPath,'__pycache__'))
+
             elif mb.programm == 'OpenOffice':
 
                 path_menu = __file__.split(__name__)
@@ -829,7 +921,7 @@ def load_reload_modul(modul,pyPath,mb):
             traceback.print_exc()
                             
         exec('import '+ modul)
-        
+
         return eval(modul)
     except:
         traceback.print_exc()

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 #print('xml')
-import traceback
-tb = traceback.print_exc
-import uno
+# import traceback
+# tb = traceback.print_exc
+# import uno
 import unohelper
   
   
@@ -173,11 +173,11 @@ class XML_Methoden():
         
         
         tag1X,tag2X,tag3X = 0,0,0
-        if self.mb.tag1_visible:
+        if self.mb.settings_proj['tag1']:
             tag1X = 16
-        if self.mb.tag2_visible:
+        if self.mb.settings_proj['tag2']:
             tag2X = 16
-        if self.mb.tag3_visible:
+        if self.mb.settings_proj['tag3']:
             tag3X = 16
         
         for eintrag in eintr:
@@ -194,13 +194,13 @@ class XML_Methoden():
             icon.setPosSize(16+lvl2*16,0,0,0,1)
             text.setPosSize(32+lvl2*16 + tag1X + tag2X +tag3X,0,0,0,1)
             
-            if self.mb.tag1_visible:
+            if self.mb.settings_proj['tag1']:
                 tag1_cont = zeile.getControl('tag1')
                 tag1_cont.setPosSize(32+lvl2*16,0,0,0,1)
-            if self.mb.tag2_visible:
+            if self.mb.settings_proj['tag2']:
                 tag2_cont = zeile.getControl('tag2')
                 tag2_cont.setPosSize(32+lvl2*16+tag1X,0,0,0,1)
-            if self.mb.tag3_visible:
+            if self.mb.settings_proj['tag3']:
                 tag3_cont = zeile.getControl('tag3')
                 tag3_cont.setPosSize(32+lvl2*16+tag1X+tag2X,0,0,0,1)
             

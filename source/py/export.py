@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 #print('Export')
-import traceback
-import uno
+# import traceback
+# import uno
 import unohelper
-import os
-import re
+# import os
+# import re
 
-tb = traceback.print_exc
+# tb = traceback.print_exc
 
 EXPORT_DIALOG_FARBE = 305099
 
@@ -60,11 +60,11 @@ class Export():
             model.Label = label
             
             if label == lang.ALLES:
-                control.State = self.mb.exp_settings['alles']
+                control.State = self.mb.settings_exp['alles']
             elif label == lang.SICHTBARE:
-                control.State = self.mb.exp_settings['sichtbar']
+                control.State = self.mb.settings_exp['sichtbar']
             elif label == lang.AUSWAHL:
-                control.State = self.mb.exp_settings['eigene_ausw'] 
+                control.State = self.mb.settings_exp['eigene_ausw'] 
                 
             fenster_cont.addControl(label, control)
             buttons.append(control)
@@ -73,7 +73,7 @@ class Export():
         # Auswahl   
         controlA, modelA = createControl(self.mb.ctx,"Button",130,y - 25 ,70,22,(),() )  ###
         controlA.Label = lang.AUSWAHL
-        if self.mb.exp_settings['alles'] or self.mb.exp_settings['sichtbar']:
+        if self.mb.settings_exp['alles'] or self.mb.settings_exp['sichtbar']:
             controlA.Enable = False
         fenster_cont.addControl('Auswahl', controlA)
         
@@ -106,18 +106,18 @@ class Export():
             model1.Label = label
             
             if label == lang.EIN_DOKUMENT:
-                control1.State = self.mb.exp_settings['einz_dok']
+                control1.State = self.mb.settings_exp['einz_dok']
             elif label == lang.TRENNER:
-                control1.State = self.mb.exp_settings['trenner']
-                if self.mb.exp_settings['einz_dat']:
+                control1.State = self.mb.settings_exp['trenner']
+                if self.mb.settings_exp['einz_dat']:
                     control1.Enable = False
                 else:
                     control1.Enable = True
             elif label == lang.EINZ_DATEIEN:
-                control1.State = self.mb.exp_settings['einz_dat']
+                control1.State = self.mb.settings_exp['einz_dat']
             elif label == lang.ORDNERSTRUKTUR:
-                control1.State = self.mb.exp_settings['ordner_strukt']
-                if self.mb.exp_settings['einz_dok']:
+                control1.State = self.mb.settings_exp['ordner_strukt']
+                if self.mb.settings_exp['einz_dok']:
                     control1.Enable = False
                 else:
                     control1.Enable = True
@@ -133,7 +133,7 @@ class Export():
         # Auswahl   
         controlTr, modelTr = createControl(self.mb.ctx,"Button",130,y - 105 ,70,22,(),() )  ###
         controlTr.Label = lang.BEARBEITEN
-        if self.mb.exp_settings['trenner'] and self.mb.exp_settings['einz_dok']:
+        if self.mb.settings_exp['trenner'] and self.mb.settings_exp['einz_dok']:
             controlTr.Enable = True
         else:
             controlTr.Enable = False
@@ -179,7 +179,7 @@ class Export():
         controlFO, modelFO = createControl(self.mb.ctx,"FixedText",20 ,y,500,22,(),() )  
         modelFO.HelpText = 'URL'
         #modelF.Border = True
-        label = decode_utf(self.mb.exp_settings['speicherort'])
+        label = decode_utf(self.mb.settings_exp['speicherort'])
         modelFO.Label = uno.fileUrlToSystemPath(label)
         fenster_cont.addControl('Speicherort', controlFO) 
         
@@ -293,17 +293,17 @@ class Fenster_Export_Listener1(unohelper.Base, XItemListener):
         else:
             self.but_Auswahl.Enable = False
         
-        # exp_settings neu setzen
-        self.mb.exp_settings['alles'] = 0
-        self.mb.exp_settings['sichtbar'] = 0
-        self.mb.exp_settings['eigene_ausw'] = 0
+        # settings_exp neu setzen
+        self.mb.settings_exp['alles'] = 0
+        self.mb.settings_exp['sichtbar'] = 0
+        self.mb.settings_exp['eigene_ausw'] = 0
         
         if ev.Source.Model.Label == lang.ALLES:
-            self.mb.exp_settings['alles'] = 1
+            self.mb.settings_exp['alles'] = 1
         elif ev.Source.Model.Label == lang.SICHTBARE:
-            self.mb.exp_settings['sichtbar'] = 1
+            self.mb.settings_exp['sichtbar'] = 1
         elif ev.Source.Model.Label == lang.AUSWAHL:
-            self.mb.exp_settings['eigene_ausw'] = 1
+            self.mb.settings_exp['eigene_ausw'] = 1
             
         
 class Fenster_Export_Listener2(unohelper.Base, XItemListener):
@@ -325,7 +325,7 @@ class Fenster_Export_Listener2(unohelper.Base, XItemListener):
                 self.buttons2[1].Enable = True
                 self.buttons2[2].State = False
                 self.buttons2[3].Enable = False
-                if self.mb.exp_settings['trenner']:
+                if self.mb.settings_exp['trenner']:
                     self.trenner.Enable = True
             else:
                 self.buttons2[0].State = False
@@ -333,26 +333,26 @@ class Fenster_Export_Listener2(unohelper.Base, XItemListener):
                 self.buttons2[3].Enable = True
                 self.trenner.Enable = False
             
-            self.mb.exp_settings['einz_dat'] = 0
-            self.mb.exp_settings['einz_dok'] = 0
+            self.mb.settings_exp['einz_dat'] = 0
+            self.mb.settings_exp['einz_dok'] = 0
             
             if ev.Source.Model.Label == lang.EIN_DOKUMENT:
-                self.mb.exp_settings['einz_dok'] = 1
+                self.mb.settings_exp['einz_dok'] = 1
             elif ev.Source.Model.Label == lang.EINZ_DATEIEN:
-                self.mb.exp_settings['einz_dat'] = 1   
+                self.mb.settings_exp['einz_dat'] = 1   
                 
         elif ev.Source.Model.Label == lang.ORDNERSTRUKTUR:
-            if self.mb.exp_settings['ordner_strukt']:
-                self.mb.exp_settings['ordner_strukt'] = 0
+            if self.mb.settings_exp['ordner_strukt']:
+                self.mb.settings_exp['ordner_strukt'] = 0
             else:
-                self.mb.exp_settings['ordner_strukt'] = 1
+                self.mb.settings_exp['ordner_strukt'] = 1
         
         elif ev.Source.Model.Label == lang.TRENNER: 
-            if self.mb.exp_settings['trenner']:
-                self.mb.exp_settings['trenner'] = 0
+            if self.mb.settings_exp['trenner']:
+                self.mb.settings_exp['trenner'] = 0
                 self.trenner.Enable = False
             else:
-                self.mb.exp_settings['trenner'] = 1
+                self.mb.settings_exp['trenner'] = 1
                 self.trenner.Enable = True
 
 class Export_Button_Listener(unohelper.Base, XActionListener):
@@ -360,7 +360,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         self.mb = mb
         
     def actionPerformed(self,ev):
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         
         if set['einz_dok']:
             self.exp_in_ein_dokument()
@@ -372,7 +372,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         #pd()
         st_ind = self.mb.current_Contr.Frame.createStatusIndicator()        
         
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         self.mb.class_Bereiche.starte_oOO()
         
         oOO = self.mb.class_Bereiche.oOO
@@ -439,7 +439,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                             
                             if set['format_ord']:
                                 oldStyle = cur.ParaStyleName
-                                cur.ParaStyleName = self.mb.exp_settings['style_ord'] 
+                                cur.ParaStyleName = self.mb.settings_exp['style_ord'] 
                                 
                             cur.setString(titel)
                             cur.gotoEnd(False)
@@ -460,7 +460,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                             
                             if set['format_dat']:
                                 oldStyle = cur.ParaStyleName
-                                cur.ParaStyleName = self.mb.exp_settings['style_dat'] 
+                                cur.ParaStyleName = self.mb.settings_exp['style_dat'] 
                                 
                             cur.setString(titel)
                             cur.gotoEnd(False)
@@ -511,7 +511,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         cur.gotoEnd(False)
        
     
-        path = uno.fileUrlToSystemPath(decode_utf(self.mb.exp_settings['speicherort']))
+        path = uno.fileUrlToSystemPath(decode_utf(self.mb.settings_exp['speicherort']))
         Path2 = os.path.join(path, self.mb.projekt_name)
         
         if os.path.exists(Path2+set['typ']):
@@ -526,7 +526,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
 
     def exp_in_einzel_dat(self):
         
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         st_ind = self.mb.current_Contr.Frame.createStatusIndicator()    
         
         
@@ -555,7 +555,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
 
         
         # pruefen, ob speicherordner existiert; Namen aendern
-        speicherordner = os.path.join(uno.fileUrlToSystemPath(self.mb.exp_settings['speicherort']), self.mb.projekt_name)
+        speicherordner = os.path.join(uno.fileUrlToSystemPath(self.mb.settings_exp['speicherort']), self.mb.projekt_name)
         if os.path.exists(speicherordner):
             speicherordner = self.pruefe_dateiexistenz(speicherordner)
             
@@ -574,7 +574,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             for eintrag in baum:
                 ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
                 
-                if art == 'dir':
+                if art in ('dir','prj'):
                     if name in doppelte:
                         anz = doppelte.count(name)
                         name = name + '(%s)'%anz
@@ -602,7 +602,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     pfad2 = pfad2 + '/' + ordn
                     
                 pfad2 = pfad2 + '/' + dict_baum[ordinal][1]
-                if art == 'dir':
+                if art in ('dir','prj'):
                     pfad2 = pfad2 + '/' + name
                     
                     
@@ -727,15 +727,8 @@ class AB_Fenster_Dispose_Listener(unohelper.Base, XEventListener):
                 self.cl_exp.trenner_fenster = None
                
             # Settings speichern
-#             with open(self.mb.pfade['settings']+"/export_settings.py", "w") as file:
-#                 file.write('# -*- coding: utf-8 -*- \r\nexp_settings = '+ str(self.mb.exp_settings)) 
+            self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 
             
-            path = os.path.join(self.mb.pfade['settings'],"export_settings.py")
-            with codecs.open(path , "w", 'utf-8') as file:
-                file.writelines('# -*- coding: utf-8 -*- \r\nexp_settings = ')          
-                for line in str(exp_settings).split(','):
-                    file.writelines(line+(',\n'))
-
      
 class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,cl_exp,exp_fenster):
@@ -750,7 +743,7 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
 
         posSize = berechne_pos(self.mb,self.cl_exp,self.exp_fenster,'Trenner')
         
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         cb_listener = A_Trenner_CheckBox_Listener(self.mb)        
 
         posSize = posSize[0],posSize[1],320,360
@@ -869,7 +862,7 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
         controlF, modelF = createControl(self.mb.ctx,"FixedText",40 ,y,500,22,(),() )  
         modelF.HelpText = 'URL'
         #modelF.Border = True
-        if self.mb.exp_settings['url'] != '':
+        if self.mb.settings_exp['url'] != '':
             modelF.Label = uno.fileUrlToSystemPath(decode_utf(set['url']))#.decode("utf-8"))
         fenster_cont.addControl('Anzahl', controlF) 
         
@@ -902,7 +895,7 @@ class A_Trenner_CheckBox_Listener(unohelper.Base, XActionListener):
         self.mb = mb
         
     def actionPerformed(self,ev):
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         set[ev.ActionCommand] = self.toggle(set[ev.ActionCommand])
 
     def toggle(self,wert):   
@@ -920,15 +913,15 @@ class A_TrennDatei_Button_Listener(unohelper.Base, XActionListener):
     def actionPerformed(self,ev):
 
         Filepicker = createUnoService("com.sun.star.ui.dialogs.FilePicker")
-        if self.mb.exp_settings['url'] != '':
-            Filepicker.setDisplayDirectory(self.mb.exp_settings['url'])
+        if self.mb.settings_exp['url'] != '':
+            Filepicker.setDisplayDirectory(self.mb.settings_exp['url'])
         Filepicker.execute()
     
         if Filepicker.Files == '':
             return
         
         filepath = Filepicker.Files[0]
-        self.mb.exp_settings['url'] = filepath
+        self.mb.settings_exp['url'] = filepath
         self.model.Label = uno.fileUrlToSystemPath(filepath)
 
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
@@ -939,7 +932,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def actionPerformed(self,ev):
         
         Filepicker = createUnoService("com.sun.star.ui.dialogs.FolderPicker")
-        Filepicker.setDisplayDirectory(self.mb.exp_settings['speicherort'])
+        Filepicker.setDisplayDirectory(self.mb.settings_exp['speicherort'])
         Filepicker.execute()
         
         if Filepicker.Directory == '':
@@ -947,7 +940,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         filepath = Filepicker.getDirectory()
         
-        self.mb.exp_settings['speicherort'] = filepath
+        self.mb.settings_exp['speicherort'] = filepath
         self.model.Label = uno.fileUrlToSystemPath(filepath)
 
             
@@ -964,9 +957,9 @@ class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):
     # XItemListener    
     def itemStateChanged(self, ev):  
         if ev.Source == self.cont_ord:
-            self.mb.exp_settings['style_ord'] = ev.Source.Items[ev.Selected] 
+            self.mb.settings_exp['style_ord'] = ev.Source.Items[ev.Selected] 
         elif ev.Source == self.cont_dat:
-            self.mb.exp_settings['style_dat'] = ev.Source.Items[ev.Selected]           
+            self.mb.settings_exp['style_dat'] = ev.Source.Items[ev.Selected]           
        
     
 class A_Anz_Leerzeilen_Focus_Listener(unohelper.Base, XFocusListener):
@@ -977,9 +970,9 @@ class A_Anz_Leerzeilen_Focus_Listener(unohelper.Base, XFocusListener):
     def focusLost(self, ev): 
 
         if ev.Source.Model.Text.isdigit():
-            self.mb.exp_settings['anz_drunter'] = int(ev.Source.Model.Text)
+            self.mb.settings_exp['anz_drunter'] = int(ev.Source.Model.Text)
         else:
-            ev.Source.Model.Text = self.mb.exp_settings['anz_drunter']
+            ev.Source.Model.Text = self.mb.settings_exp['anz_drunter']
                 
     def focusGained(self,ev):
         return False  
@@ -1031,7 +1024,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         posSize = berechne_pos(self.mb,self.cl_exp,self.exp_fenster,'Auswahl')
         posSize = posSize[0],posSize[1],400,posSize[3]
 
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
 
         # Dict von alten Eintraegen bereinigen
         eintr = []
@@ -1087,7 +1080,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
     def erzeuge_auswahl(self,fenster_cont):
         
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         
         tree = self.mb.xml_tree
         root = tree.getroot()
@@ -1136,7 +1129,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
             
             control, model = createControl(self.mb.ctx,"ImageControl",x + 20+20*int(lvl),y ,16,16,(),() )  
             model.Border = False
-            if art == 'dir':
+            if art in ('dir','prj'):
                 model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/Ordner_16.png' 
             else:
                 model.ImageURL = 'private:graphicrepository/res/sx03150.png' 
@@ -1176,10 +1169,10 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
 
-        set = self.mb.exp_settings
+        set = self.mb.settings_exp
         if ev.ActionCommand == 'untereintraege_auswaehlen':
             set['auswahl'] = self.toggle(set['auswahl'])
-        
+            self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 
         else:
             ordinal,titel = ev.ActionCommand.split('xxx')
             state = ev.Source.Model.State
@@ -1187,7 +1180,22 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
 
             if set['auswahl']:
                 if ordinal in self.mb.dict_ordner:
-                    for ord in self.mb.dict_ordner[ordinal]:
+                    
+                    tree = self.mb.xml_tree
+                    root = tree.getroot()
+                    C_XML = self.mb.class_XML
+                    ord_xml = root.find('.//'+ordinal)
+                    
+                    eintraege = []
+                    # selbstaufruf nur fuer den debug
+                    C_XML.selbstaufruf = False
+                    C_XML.get_tree_info(ord_xml,eintraege)
+                    
+                    ordinale = []
+                    for eintr in eintraege:
+                        ordinale.append(eintr[0])
+                    
+                    for ord in ordinale:
                         if ord != self.mb.Papierkorb:
                             control = self.fenster_cont.getControl(ord)
                             control.Model.State = state
@@ -1199,9 +1207,7 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def toggle(self,wert):   
         if wert == 1:
             return 0
-        else:
-            with open(self.mb.pfade['projekt']+"/%s.txt" % self.mb.projekt_name, "w") as file:
-                file.write('exp_settings = '+ str(self.mb.exp_settings))    
+        else:              
             return 1           
         
             

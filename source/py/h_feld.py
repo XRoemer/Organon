@@ -1,40 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#print('neues Projekt')
-import traceback
-import uno
-import unohelper
-import math
-import time
-import os
-from os import remove
-from threading import Thread
-import sys
-
-tb = traceback.print_exc
-
-IMAGE_PFEIL_HOCH = 'vnd.sun.star.extension://xaver.roemers.organon/img/icon-set-colorarrows-slightly-up.png'
-IMAGE_PFEIL_RUNTER = 'vnd.sun.star.extension://xaver.roemers.organon/img/icon-set-colorarrows-slightly-down.png'
-IMAGE_PFEIL_RECHTS = 'vnd.sun.star.extension://xaver.roemers.organon/img/icon-set-colorarrows-same.png'
-IMAGE_GESCHEITERT = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_rot.png'
-
-IMG_ORDNER_GEOEFFNET_16 = 'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerGeoeffnet_16.png'
-IMG_ORDNER_NEU_24 =     'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerNeu_24.png'
-IMG_ORDNER_16 =         'vnd.sun.star.extension://xaver.roemers.organon/img/Ordner_16.png'
-IMG_ORDNER_VOLL_16 =    'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerVoll_16.png'
-IMG_DATEI_16 =          'vnd.sun.star.extension://xaver.roemers.organon/img/Datei_16.png'
-IMG_DATEI_NEU_24 =      'vnd.sun.star.extension://xaver.roemers.organon/img/neueDatei_24.png'
-
-Color_Hauptfeld = 16761459
-FARBE_ZEILE_STANDARD = 15790320 #LOO grau 16777215 # weiss
-FARBE_AUSGEWAEHLTE_ZEILE = 14866636 #creme 16777075 # hellgelb
-FARBE_EDITIERTE_ZEILE = 16771014 #16777075 # hellgelb
-FARBE_GEZOGENE_ZEILE  = 16741376 # orange
-
-ZEILENHOEHE = 22
-
-URL_TRENNER = 'vnd.sun.star.extension://xaver.roemers.organon/img/trenner.png'
-
 class Main_Container():
     
     def __init__(self,mb):
@@ -62,9 +27,9 @@ class Main_Container():
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Navigations_Hauptfeld')
         # Das aeussere Hauptfeld wird fuers Scrollen benoetigt. Das innere und eigentliche
         # Hauptfeld scrollt dann in diesem Hauptfeld_aussen
-        
+
         # Hauptfeld_Aussen
-        Attr = (22,ZEILENHOEHE+2,1000,800,'Hauptfeld_aussen', Color_Hauptfeld+500)    
+        Attr = (22,KONST.ZEILENHOEHE+2,1000,1800,'Hauptfeld_aussen', KONST.Color_Hauptfeld+500)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control1, model1 = createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
@@ -73,7 +38,7 @@ class Main_Container():
         self.dialog.addControl('Hauptfeld_aussen',control1)  
         
         # eigentliches Hauptfeld
-        Attr = (0,0,1000,1800,'Hauptfeld', Color_Hauptfeld)    
+        Attr = (0,0,1000,10000,'Hauptfeld', KONST.Color_Hauptfeld)    
         PosX,PosY,Width,Height,Name,Color = Attr
          
         control2, model2 = createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
@@ -82,17 +47,17 @@ class Main_Container():
         control1.addControl('Hauptfeld',control2)  
     
         self.mb.Hauptfeld = control2
-    
+
   
     def erzeuge_Verzeichniseintrag(self,eintrag,class_Zeilen_Listener,index=0):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Verzeichniseintrag')
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
 
-        ##### ?usserer Container #######
+        ##### Aeusserer Container #######
         
         Farbe__Container = 11581166     
-        Attr = (2,ZEILENHOEHE*index,600,20,Farbe__Container)    
+        Attr = (2,KONST.ZEILENHOEHE*index,600,20,Farbe__Container)    
         PosX,PosY,Width,Height,Farbe = Attr
         
         control, model = createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
@@ -104,11 +69,11 @@ class Main_Container():
         
         ### einzelne Elemente #####
         tag1X,tag2X,tag3X = 0,0,0
-        if self.mb.tag1_visible:
+        if int(self.mb.settings_proj['tag1']):
             tag1X = 16
-        if self.mb.tag2_visible:
+        if int(self.mb.settings_proj['tag2']):
             tag2X = 16
-        if self.mb.tag3_visible:
+        if int(self.mb.settings_proj['tag3']):
             tag3X = 16
         
         
@@ -120,7 +85,7 @@ class Main_Container():
         control1, model1 = createControl(self.ctx,"Edit",PosX,PosY,Width,Height,(),() )  
         model1.Text = name
         model1.Border = False
-        model1.BackgroundColor = FARBE_ZEILE_STANDARD
+        model1.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
         model1.ReadOnly = True
 
         control1.addMouseListener(class_Zeilen_Listener) 
@@ -135,20 +100,23 @@ class Main_Container():
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control2, model2 = createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
-        #model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/icon1.png' 
+
         if art == 'waste':
             control2.addMouseListener(self.listenerDir)
             self.mb.Papierkorb = ordinal
+        
+        if art == 'prj':
+            self.mb.Projektordner = ordinal
              
         
         # icons sind unter: C:\Program Files (x86)\LibreOffice 4\share\config ... \images\res
-        if art == 'dir':
+        if art in ('dir','prj'):
             control2.addMouseListener(self.listenerDir)
 
             if zustand == 'auf':
-                model2.ImageURL = IMG_ORDNER_GEOEFFNET_16 
+                model2.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16 
             else:
-                bild_ordner = IMG_ORDNER_16
+                bild_ordner = KONST.IMG_ORDNER_16
 
                 tree = self.mb.xml_tree 
                 root = tree.getroot()
@@ -156,7 +124,7 @@ class Main_Container():
                 if ordner_xml != None:
                     childs = list(ordner_xml)
                     if len(childs) > 0:
-                        bild_ordner = IMG_ORDNER_VOLL_16
+                        bild_ordner = KONST.IMG_ORDNER_VOLL_16
 
                 model2.ImageURL = bild_ordner
                 
@@ -174,7 +142,7 @@ class Main_Container():
         # return ist nur fuer neu angelegte Dokumente nutzbar 
         
         
-        if self.mb.tag1_visible:
+        if int(self.mb.settings_proj['tag1']):
             
             # Tag1 Farbe
             Color__Container = 10202
@@ -225,7 +193,20 @@ class Main_Container():
         listener = ScrollBarListener(nav_cont)
         control.addAdjustmentListener(listener) 
         
-  
+    def korrigiere_scrollbar(self):
+        if self.mb.debug: print(self.mb.debug_time(),'korrigiere_scrollbar')
+        dialog = self.mb.dialog
+        SB = dialog.getControl('ScrollBar')
+        
+        hoehe = sorted(list(self.mb.dict_zeilen_posY))
+        max =  hoehe[-1] - (self.mb.dialog.PosSize.Height - 100)
+        if max > 0:
+            
+            SB.Maximum = max
+        else:
+            SB.Maximum  = 1
+        #pd()
+    
     def erzeuge_neue_Zeile(self,ordner_oder_datei,erzeuge_File = True):
         
         self.mb.timer_start = self.mb.time.clock()
@@ -239,71 +220,71 @@ class Main_Container():
             StatusIndicator.start(self.mb.lang.ERZEUGE_NEUE_ZEILE,2)
             StatusIndicator.setValue(2)
             
+           
             try:
-                try:
-                    self.mb.doc.lockControllers()
-                    
-                    ord_sel_zeile = self.mb.selektierte_zeile.AccessibleName
-                    
-                    # XML TREE
-                    tree = self.mb.xml_tree
-                    root = tree.getroot()
-                    xml_sel_zeile = root.find('.//'+ord_sel_zeile)
-                    
-                    # Props ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3
-                    ordinal = 'nr'+root.attrib['kommender_Eintrag']
-                    parent = xml_sel_zeile.attrib['Parent']
-                    name = ordinal
-                    lvl = xml_sel_zeile.attrib['Lvl']
-                    tag1 = 'leer' #xml_sel_zeile.attrib['Tag1']
-                    tag2 = xml_sel_zeile.attrib['Tag2']
-                    tag3 = xml_sel_zeile.attrib['Tag3']
-                    sicht = 'ja' 
-                    if ordner_oder_datei == 'Ordner':
-                        art = 'dir'
-                        zustand = 'zu'
-                    else:
-                        art = 'pg'
-                        zustand = '-'            
-                    eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
-                    
-                    # neue Zeile / neuer XML Eintrag
-                    self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
-                    self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
-                                
-                    # neue Datei / neuen Bereich anlegen           
-                    # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
-                    nr = int(root.attrib['kommender_Eintrag']) - 1          
-                    inhalt = ordinal
+                self.mb.doc.lockControllers()
                 
-                    if erzeuge_File:
-                        self.mb.class_Bereiche.erzeuge_neue_Datei2(nr,inhalt)
-    
-                    #path = 'file:///' + self.mb.pfade['odts'] + '/nr%s.odt' %nr
-                    path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
-    
-                    #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)   
-                    self.mb.class_Bereiche.erzeuge_bereich2(nr,path,sicht)
-                    if self.mb.debug: print(self.mb.debug_time(),'nach erzeuge_bereich')   
-                    #self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
-                       
-                    # Zeilen anordnen
-                    source = ordinal
-                    target = xml_sel_zeile.tag
-                    action = 'drunter'  
-    
-                    # in zeilen_neu_ordnen wird auch die xml datei geschrieben
-                    self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(source,target,action)
-    
-                    if self.mb.doc.hasControllersLocked(): 
-                        self.mb.doc.unlockControllers()
-                except:
-                    pass
+                ord_sel_zeile = self.mb.selektierte_zeile.AccessibleName
                 
-                #pd()
+                # XML TREE
+                tree = self.mb.xml_tree
+                root = tree.getroot()
+                xml_sel_zeile = root.find('.//'+ord_sel_zeile)
+                
+                # Props ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3
+                ordinal = 'nr'+root.attrib['kommender_Eintrag']
+                parent = xml_sel_zeile.attrib['Parent']
+                name = ordinal
+                lvl = xml_sel_zeile.attrib['Lvl']
+                tag1 = 'leer' #xml_sel_zeile.attrib['Tag1']
+                tag2 = xml_sel_zeile.attrib['Tag2']
+                tag3 = xml_sel_zeile.attrib['Tag3']
+                sicht = 'ja' 
+                if ordner_oder_datei == 'Ordner':
+                    art = 'dir'
+                    zustand = 'zu'
+                else:
+                    art = 'pg'
+                    zustand = '-'            
+                eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
+                
+                # neue Zeile / neuer XML Eintrag
+                self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
+                self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
+                            
+                # neue Datei / neuen Bereich anlegen           
+                # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
+                nr = int(root.attrib['kommender_Eintrag']) - 1          
+                inhalt = ordinal
+
+                if erzeuge_File:
+                    self.mb.class_Bereiche.erzeuge_neue_Datei2(nr,inhalt)
+
+                #path = 'file:///' + self.mb.pfade['odts'] + '/nr%s.odt' %nr
+                path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
+
+                #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)   
+                self.mb.class_Bereiche.erzeuge_bereich2(nr,path,sicht)
+                #if self.mb.debug: print(self.mb.debug_time(),'nach erzeuge_bereich')   
+                #self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
+                   
+                # Zeilen anordnen
+                source = ordinal
+                target = xml_sel_zeile.tag
+                action = 'drunter'  
+
+                # in zeilen_neu_ordnen wird auch die xml datei geschrieben
+                self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(source,target,action)
+                self.korrigiere_scrollbar()
+
+                if self.mb.doc.hasControllersLocked(): 
+                    self.mb.doc.unlockControllers()
             except:
                 tb()
+                
+          
             StatusIndicator.end()
+
             return nr,path
             
             
@@ -367,6 +348,7 @@ class Main_Container():
         
         self.mb.Papierkorb_geleert = True
         self.erneuere_dict_bereiche()
+        self.korrigiere_scrollbar()
 
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
         
@@ -380,7 +362,7 @@ class Main_Container():
         
         if selektierter_ist_im_papierkorb:
             self.mb.selektierte_zeile = None
-            textfeld_Papierkorb.Model.BackgroundColor = FARBE_AUSGEWAEHLTE_ZEILE
+            textfeld_Papierkorb.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
             self.mb.selektierte_Zeile_alt = textfeld_Papierkorb
             papierkorb_bereichsname = self.mb.dict_bereiche['ordinal'][self.mb.Papierkorb]
             bereich_papierkorb = self.mb.doc.TextSections.getByName(papierkorb_bereichsname)
@@ -400,7 +382,7 @@ class Main_Container():
                 zahl = ordinal.split('nr')[1]
                 # loesche datei ordinal
                 Path = self.mb.pfade['odts'] + '/nr%s.odt' % zahl 
-                remove(Path)
+                os.remove(Path)
                 
                 bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
                 
@@ -464,7 +446,7 @@ class Main_Container():
 from com.sun.star.awt import XMouseListener,XMouseMotionListener,XFocusListener
 from com.sun.star.awt.MouseButton import LEFT as MB_LEFT
 from com.sun.star.awt.MouseButton import RIGHT as MB_RIGHT
-
+import unohelper
 
 class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocusListener):
     def __init__(self,hf,ctx,mb):
@@ -492,38 +474,53 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     
     def mousePressed(self, ev):
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
-        # die gesamte Zeile, control (ordinal)
-        self.mb.selektierte_zeile = ev.Source.Context.AccessibleContext  
-        # control 'textfeld'   
-        zeile = ev.Source
-        # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
-        zeile.Model.BackgroundColor = FARBE_AUSGEWAEHLTE_ZEILE 
-        if self.mb.selektierte_Zeile_alt != None:
-            if zeile != self.mb.selektierte_Zeile_alt:
-                self.mb.selektierte_Zeile_alt.Model.BackgroundColor = FARBE_ZEILE_STANDARD
         
-        # bei bearbeitetem Bereich: speichern  
-        if self.mb.selektierte_Zeile_alt != None: 
-            if self.mb.bereich_wurde_bearbeitet == True:
-                zeilenordinal_zeile_alt = self.mb.selektierte_Zeile_alt.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName   
-                bereichsname_zeile_alt = self.mb.dict_bereiche['ordinal'][zeilenordinal_zeile_alt]
-                bereich_zeile_alt = self.mb.doc.TextSections.getByName(bereichsname_zeile_alt)
-
-                self.mb.bereich_wurde_bearbeitet = False
-                self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
-                
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
-        self.mb.selektierte_Zeile_alt = zeile
-        
-        # Bei Doppelclick Zeileneintrag bearbeiten
-        if ev.Buttons == MB_LEFT:   
-            if ev.ClickCount == 2: 
-                zeile.Model.ReadOnly = False 
-                zeile.Model.BackgroundColor = FARBE_EDITIERTE_ZEILE
-                self.edit_text = True   
-                return False
-        
-        return False
+        try:
+            # die gesamte Zeile, control (ordinal)
+            self.mb.selektierte_zeile = ev.Source.Context.AccessibleContext  
+            # control 'textfeld'   
+            zeile = ev.Source
+            # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
+            zeile.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
+            if self.mb.selektierte_Zeile_alt != None:
+                if zeile != self.mb.selektierte_Zeile_alt:
+                    self.mb.selektierte_Zeile_alt.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
+            
+            # bei bearbeitetem Bereich: speichern  
+            if self.mb.selektierte_Zeile_alt != None: 
+                if self.mb.bereich_wurde_bearbeitet == True:
+                    zeilenordinal_zeile_alt = self.mb.selektierte_Zeile_alt.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName   
+                    bereichsname_zeile_alt = self.mb.dict_bereiche['ordinal'][zeilenordinal_zeile_alt]
+                    bereich_zeile_alt = self.mb.doc.TextSections.getByName(bereichsname_zeile_alt)
+    
+                    self.mb.bereich_wurde_bearbeitet = False
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
+                    
+            self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
+            self.mb.selektierte_Zeile_alt = zeile
+            
+            # Bei Doppelclick Zeileneintrag bearbeiten
+            if ev.Buttons == MB_LEFT:   
+                if ev.ClickCount == 2: 
+                    
+                    # Projektordner von der Umbenennung ausnehmen
+                    zeilenordinal = self.mb.selektierte_Zeile_alt.Context.AccessibleContext.AccessibleName
+                    root = self.mb.xml_tree.getroot()
+                    zeile_xml = root.find('.//'+zeilenordinal)
+                    art = zeile_xml.attrib['Art']
+                    
+                    if art == 'prj':
+                        self.mb.Mitteilungen.nachricht('Der Projektordner kann nicht umbenannt werden',"infobox")
+                        return False
+                    else:
+                        zeile.Model.ReadOnly = False 
+                        zeile.Model.BackgroundColor = KONST.FARBE_EDITIERTE_ZEILE
+                        self.edit_text = True   
+                        return False
+            
+            return False
+        except:
+            tb()
     
     def mouseReleased(self, ev):
         
@@ -565,7 +562,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.viewcursor.gotoStart(False)
             
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
-
+        
+        self.mb.loesche_undo_Aktionen()
                            
     def focusGained(self,ev):
         return False  
@@ -587,6 +585,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return False
 
     def mouseDragged(self,ev):
+        # Papierkorb darf nicht verschoben werden
+        ordinal = ev.Source.Context.AccessibleContext.AccessibleName
+        if ordinal in (self.mb.Papierkorb,self.mb.Projektordner):
+            self.mb.Mitteilungen.nachricht(self.mb.lang.NICHT_VERSCHIEBBAR,"infobox")
+            return
+
         self.dragged = True
         if self.edit_text == False:
             self.pfeil = True
@@ -600,7 +604,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if not self.colored:
                 self.colored = True
                 self.old_color = ev.Source.Model.BackgroundColor
-                ev.Source.Model.BackgroundColor = FARBE_GEZOGENE_ZEILE 
+                ev.Source.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE 
                            
     def erzeuge_pfeil(self,X,Y,ev):
        
@@ -616,7 +620,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     self.Y = Y
 
                     # zur Sicherheit - wenn keine Abfrage greift, wird ein falsches Bild dargestellt
-                    ImageURL = IMAGE_GESCHEITERT
+                    ImageURL = KONST.IMAGE_GESCHEITERT
 
                     sourceZeile = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext
                     sourceName = sourceZeile.AccessibleName
@@ -624,22 +628,22 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
                     sourceArt = self.mb.dict_zeilen_posY[sourceYPos][4]
 
-                    if sourceArt == 'dir':
+                    if sourceArt in ('dir','prj'):
                         subelements = self.mb.dict_ordner[sourceName]
                     else:
                         subelements = 'quatsch'
                     
-                    if sourceArt == 'dir' and ordinal in subelements:
-                        ImageURL = IMAGE_GESCHEITERT
+                    if sourceArt in ('dir','prj') and ordinal in subelements:
+                        ImageURL = KONST.IMAGE_GESCHEITERT
                         self.einfuegen = 'gescheitert'  
 
                     # Wenn Erster
                     elif ordinal == ord_erster:
                         if zeileY < 12:
-                            ImageURL = IMAGE_PFEIL_HOCH
+                            ImageURL = KONST.IMAGE_PFEIL_HOCH
                             self.einfuegen = 'drueber'
                         else:
-                            ImageURL = IMAGE_PFEIL_RUNTER
+                            ImageURL = KONST.IMAGE_PFEIL_RUNTER
                             self.einfuegen = 'drunter'
 
                     # Wenn 'pg'
@@ -652,33 +656,33 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                 self.einfuegen = 'drunter'                                
                         else:
                             self.einfuegen = 'drunter'
-                        ImageURL = IMAGE_PFEIL_RUNTER
+                        ImageURL = KONST.IMAGE_PFEIL_RUNTER
                      
 
                     # Wenn 'dir'
-                    elif (art == 'dir') :
+                    elif (art in ('dir','prj')) :
                         if lvl_nf < lvl:
                             if zeileY > 15:
                                 lvl = lvl_nf
-                                ImageURL = IMAGE_PFEIL_RUNTER
+                                ImageURL = KONST.IMAGE_PFEIL_RUNTER
                                 self.einfuegen = 'vorNachfolger',ord_nf                               
                             else:
-                                ImageURL = IMAGE_PFEIL_RECHTS
+                                ImageURL = KONST.IMAGE_PFEIL_RECHTS
                                 self.einfuegen = 'inOrdnerEinfuegen'                                                   
-                        elif art_nf == 'dir':
+                        elif art_nf in ('dir','prj'):
                             if zeileY > 15:
-                                ImageURL = IMAGE_PFEIL_RUNTER
+                                ImageURL = KONST.IMAGE_PFEIL_RUNTER
                                 self.einfuegen = 'drunter'   
                             else:
-                                ImageURL = IMAGE_PFEIL_RECHTS
+                                ImageURL = KONST.IMAGE_PFEIL_RECHTS
                                 self.einfuegen = 'inOrdnerEinfuegen'                                                             
                         else:
-                            ImageURL = IMAGE_PFEIL_RECHTS
+                            ImageURL = KONST.IMAGE_PFEIL_RECHTS
                             self.einfuegen = 'inOrdnerEinfuegen' 
                                                                             
                     # Wenn 'waste'                  
                     elif (art == 'waste') :
-                        ImageURL = IMAGE_PFEIL_RECHTS
+                        ImageURL = KONST.IMAGE_PFEIL_RECHTS
                         self.einfuegen = 'inPapierkorbEinfuegen'
                    
 
@@ -718,12 +722,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                     self.Y = Y  
                                 else:                                    
                                     pass
-                            if art == 'dir':
+                            if art in ('dir','prj'):
                                 if lvl_nf < lvl:
                                     self.zielordner.getControl("symbol").dispose()
                                     self.first_time = True
                                     self.Y = Y 
-                                elif art_nf == 'dir': 
+                                elif art_nf in ('dir','prj'): 
                                     self.zielordner.getControl("symbol").dispose()
                                     self.first_time = True
                                     self.Y = Y 
@@ -731,24 +735,26 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                     pass
                             else: 
                                 pass                    
-                        else:                    
-                            self.zielordner.getControl("symbol").dispose()
-                            self.first_time = True
-                            self.Y = Y  
+                        else:      
+                            pfeil = self.zielordner.getControl("symbol")  
+                            if pfeil != None:
+                                pfeil.dispose()
+                                self.first_time = True
+                                self.Y = Y  
                     
         except:
             tb()
                 
     def berechne_pos(self,Y):
         
-        y = (math.floor(Y/ZEILENHOEHE)) 
+        y = (math.floor(Y/KONST.ZEILENHOEHE)) 
         
         # Position des Papierkorbs 
         tree = self.mb.xml_tree
         root = tree.getroot()   
         ord_papierkorb = root.find(".//*[@Art='waste']").tag
         zeile_papierkorb = self.mb.Hauptfeld.getControl(ord_papierkorb)
-        pos_papierkorb = zeile_papierkorb.PosSize.Y/ZEILENHOEHE
+        pos_papierkorb = zeile_papierkorb.PosSize.Y/KONST.ZEILENHOEHE
 
         # abfangen: wenn Mauspos ueber Hauptfeld oder unter Papierkorb hinausgeht
         if y < 0:
@@ -756,8 +762,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         elif y > pos_papierkorb:
             y = pos_papierkorb
 
-        posY = (y * ZEILENHOEHE)       
-        posY_nachf = ((y+1) * ZEILENHOEHE)
+        posY = (y * KONST.ZEILENHOEHE)       
+        posY_nachf = ((y+1) * KONST.ZEILENHOEHE)
         
         ordinal,parent,text,lvl,art,zustand,sicht,tag1,tag2,tag3 = self.mb.dict_zeilen_posY[posY]
         ord_erster = self.mb.dict_zeilen_posY[0][0]
@@ -816,11 +822,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         index = 0
         
         tag1X,tag2X,tag3X = 0,0,0
-        if self.mb.tag1_visible:
+        if int(self.mb.settings_proj['tag1']):
             tag1X = 16
-        if self.mb.tag2_visible:
+        if int(self.mb.settings_proj['tag2']):
             tag2X = 16
-        if self.mb.tag3_visible:
+        if int(self.mb.settings_proj['tag3']):
             tag3X = 16
         
         
@@ -832,18 +838,18 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 # Y_Wert sichtbarer Eintraege setzen
                 cont = self.mb.Hauptfeld.getControl(ordinal)
                 # der X-Wert ALLER Eintraege wird in xml_m neu gesetzt
-                cont.Peer.setPosSize(0,ZEILENHOEHE*index,0,0,2)# 2: Flag fuer: nur Y Wert aendern
+                cont.Peer.setPosSize(0,KONST.ZEILENHOEHE*index,0,0,2)# 2: Flag fuer: nur Y Wert aendern
                 
                 iconArt = cont.getControl('icon')
                 iconArt.Peer.setPosSize(16+int(lvl)*16,0,0,0,1)   
                 
-                if self.mb.tag1_visible:
+                if int(self.mb.settings_proj['tag1']):
                     tag1_cont = cont.getControl('tag1')
                     tag1_cont.Peer.setPosSize(32+int(lvl)*16,0,0,0,1)  
-                if self.mb.tag2_visible:
+                if int(self.mb.settings_proj['tag2']):
                     tag2_cont = cont.getControl('tag2')
                     tag2_cont.Peer.setPosSize(32+int(lvl)*16+tag1X,0,0,0,1)   
-                if self.mb.tag3_visible:
+                if int(self.mb.settings_proj['tag3']):
                     tag3_cont = cont.getControl('tag3')
                     tag3_cont.Peer.setPosSize(32+int(lvl)*16+tag1X+tag2X,0,0,0,1)    
                 
@@ -851,7 +857,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 textfeld.Peer.setPosSize(32+int(lvl)*16+tag1X+tag2X+tag3X,0,0,0,1)        
                  
                 # dict_zeilen_posY updaten            
-                self.mb.dict_zeilen_posY.update({ZEILENHOEHE*index:eintrag})                   
+                self.mb.dict_zeilen_posY.update({KONST.ZEILENHOEHE*index:eintrag})                   
                 index += 1  
              
         # dict_ordner updaten
@@ -880,7 +886,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             tar_cont = self.mb.Hauptfeld.getControl(target)
             tar = tar_cont.getControl('icon')
-            tar.Model.ImageURL = IMG_ORDNER_GEOEFFNET_16
+            tar.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
         
         
         if 'drunter' in action:
@@ -920,7 +926,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         def durchlaufe_baum(dir):  
             for child in dir:
                 #print(child.tag,child.attrib['Name'])
-                if child.attrib['Art'] in ('dir','waste'):  
+                if child.attrib['Art'] in ('dir','waste','prj'):  
                     #print('wird sichtbar 1', child.attrib['Name'],child.attrib['Zustand'],child.attrib['Parent'])  
                     tar = self.mb.Hauptfeld.getControl(child.tag)
                     tar.Visible = True   
@@ -958,6 +964,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
         self.positioniere_elemente_im_baum_neu()          
         self.update_dict_zeilen_posY() 
+        
         
         
         
@@ -1002,11 +1009,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             
             sec.setPropertyValue('FileLink',SFLink)
-            # statt setPropertyValue, mit Thread setzen, um schneller zu sein
-            #argu = sections,SFLink,i,ordinal
-#             argu = sections,i,ordinal
-#             t = Thread(target=self.file_linker, args=(argu,))
-#             t.start()
             
             Bereichsname_dict.update({'OrganonSec'+str(i):Path})
             ordinal_dict.update({ordinal:'OrganonSec'+str(i)})
@@ -1104,9 +1106,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         bgl = newSection.BackGraphicLocation
         bgl.value = 'MIDDLE_BOTTOM'
          
-        URL_TRENNER = 'vnd.sun.star.extension://xaver.roemers.organon/img/trenner.png'
+        KONST.URL_TRENNER = 'vnd.sun.star.extension://xaver.roemers.organon/img/trenner.png'
  
-        newSection.setPropertyValue('BackGraphicURL',URL_TRENNER)
+        newSection.setPropertyValue('BackGraphicURL',KONST.URL_TRENNER)
         newSection.setPropertyValue("BackGraphicLocation", bgl)
         
     def entferne_Trenner(self,sec):
@@ -1142,7 +1144,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         for eintrag in eintraege:
             ordinal,parent,text,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
             if sicht == 'ja':
-                self.mb.dict_zeilen_posY.update({i*ZEILENHOEHE:eintrag})
+                self.mb.dict_zeilen_posY.update({i*KONST.ZEILENHOEHE:eintrag})
                 i += 1
         
         
@@ -1157,7 +1159,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         index = 0
         for elem in alle_sichtbaren:
             zeile = self.mb.Hauptfeld.getControl(elem.tag)
-            zeile.setPosSize(0,index*ZEILENHOEHE,0,0,2)
+            zeile.setPosSize(0,index*KONST.ZEILENHOEHE,0,0,2)
             index += 1
             
     def disposing(self,ev):
@@ -1190,18 +1192,18 @@ class Dir_Listener (unohelper.Base, XMouseListener):
                     
                     if zustand == 'zu':
                         selbst_xml.attrib['Zustand'] = 'auf'
-                        if selbst_xml.attrib['Art'] == 'dir':
-                            ev.Source.Model.ImageURL = IMG_ORDNER_GEOEFFNET_16
+                        if selbst_xml.attrib['Art'] in ('dir','prj'):
+                            ev.Source.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
                         if selbst_xml.attrib['Art'] == 'waste':
                             ev.Source.Model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_offen.png'
                         self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(selbst,selbst_xml,zustand)    
                     else:
                         selbst_xml.attrib['Zustand'] = 'zu'
-                        if selbst_xml.attrib['Art'] == 'dir':
-                            bild_ordner = IMG_ORDNER_16
+                        if selbst_xml.attrib['Art'] in ('dir','prj'):
+                            bild_ordner = KONST.IMG_ORDNER_16
                             childs = list(selbst_xml)
                             if len(childs) > 0:
-                                bild_ordner = IMG_ORDNER_VOLL_16
+                                bild_ordner = KONST.IMG_ORDNER_VOLL_16
                             ev.Source.Model.ImageURL = bild_ordner
                         if selbst_xml.attrib['Art'] == 'waste':
                             ev.Source.Model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png'
@@ -1211,11 +1213,18 @@ class Dir_Listener (unohelper.Base, XMouseListener):
                     Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
                     tree.write(Path)
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
+                    self.mb.class_Hauptfeld.korrigiere_scrollbar()
                 except:
-                    pass
+                    tb()
                 
             return False
-
+        
+    def mouseReleased(self,ev):
+        return False
+    def mouseExited(self,ev):
+        return False
+    def mouseEntered(self,ev):
+        return False
 
 class Tag1_Listener (unohelper.Base, XMouseListener):
     
@@ -1245,10 +1254,7 @@ class ScrollBarListener (unohelper.Base,XAdjustmentListener):
         
     def disposing(self,ev):
         return False
-        
 
-
- 
     
 ################ TOOLS ################################################################
 

@@ -8,6 +8,7 @@ OPEN_PROJECT = u'Projekt öffnen'
 CLEAR_RECYCLE_BIN = 'Papierkorb leeren'
 INSERT_DOC = u'Neues Dokument einfügen'
 INSERT_DIR = u'Neuen Ordner einfügen'
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'Es ist bereits ein Organon Projekt geladen. Sie müssen die Datei erst schließen, bevor Sie ein neues Projekt beginnen oder laden. Menüleiste: Datei/Schließen'
 
 SPEICHERORT = 'Speicherort'
 FORMATIERUNG = 'Formatierung'
@@ -78,3 +79,6 @@ IMPORT_ORDNER ='Ordner importieren'
 DATEIAUSWAHL = u'Datei auswählen'
 ORDNERAUSWAHL = u'Ordner auswählen'
 IMPORTIEREN = 'Importieren'
+
+## DIVERSES
+NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
