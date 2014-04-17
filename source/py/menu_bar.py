@@ -163,7 +163,6 @@ class Menu_Bar():
             
             if oxt:
                 self.erzeuge_Menu_Kopf_Test(listener)
-            self.erzeuge_Menu_Kopf_Test(listener)
             
             self.erzeuge_Menu_neuer_Ordner(listener2)
             self.erzeuge_Menu_Kopf_neues_Dokument(listener2)
