@@ -66,7 +66,7 @@ class Projekt():
                 
                 self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
                 
-                self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
+                #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")
@@ -516,7 +516,7 @@ class Projekt():
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
             
-            self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
+            #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
             
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")

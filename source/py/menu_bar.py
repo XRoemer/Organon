@@ -102,7 +102,7 @@ class Menu_Bar():
         self.VC_selection_listener = bereiche.ViewCursor_Selection_Listener(self)          
         self.w_listener =            bereiche.Dialog_Window_Listener(self)
         
-        self.doc_listener = Doc_Listener(self)
+        #self.doc_listener = Doc_Listener(self)
         
         
         
@@ -542,57 +542,57 @@ class Menu_Bar():
    
 
 
-from com.sun.star.document import XDocumentEventListener
-class Doc_Listener(unohelper.Base,XDocumentEventListener):
-    def __init__(self,mb):
-        self.mb = mb
-    def documentEventOccured(self,ev):
-        
-        
-        print('documentEventOccured')
-        print(ev.EventName)
-        return
-        def pydevBrk():  
-            # adjust your path 
-            print('hier')
-            import sys
-            sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
-            from pydevd import settrace
-            settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
-        
-        #pydevBrk()
-        
-        if ev.EventName == 'OnUnfocus':
-            print(self.mb.Anzahl_Componenten)
-            import traceback
-            
-            try:
-                enum = self.mb.desktop.Components.createEnumeration()
-                comps = []
-                while enum.hasMoreElements():
-                    comps.append(enum.nextElement())
-                Anzahl_Componenten = len(comps)
-                if Anzahl_Componenten > self.mb.Anzahl_Componenten:
-                    
-                    
-                    from com.sun.star.awt import Rectangle,WindowDescriptor 
-                    from com.sun.star.awt.WindowClass import MODALTOP
-                    from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
-                    
-                    global Rectangle,WindowDescriptor,MODALTOP,OK,YES_NO_CANCEL, DEF_NO
-                    
-                    self.mb.Mitteilungen.nachricht(u'Sie haben eine weitere Instanz von OO/LO geöffnet. Organon funktioniert nun nicht mehr. Wenn Sie mehrere Instanzen von OO/LO nutzen möchten, öffnen Sie alle Instanzen und laden als letzte die Organon Datei.',"warningbox")
-                    pydevBrk()
-            except:
-                
-                
-                
-                
-                print('fehler')
-                traceback.print_exc()
-            
-    def disposing(self,ev):      
-        return False
+# from com.sun.star.document import XDocumentEventListener
+# class Doc_Listener(unohelper.Base,XDocumentEventListener):
+#     def __init__(self,mb):
+#         self.mb = mb
+#     def documentEventOccured(self,ev):
+#         
+#         
+#         print('documentEventOccured')
+#         print(ev.EventName)
+#         return
+#         def pydevBrk():  
+#             # adjust your path 
+#             print('hier')
+#             import sys
+#             sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
+#             from pydevd import settrace
+#             settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+#         
+#         #pydevBrk()
+#         
+#         if ev.EventName == 'OnUnfocus':
+#             print(self.mb.Anzahl_Componenten)
+#             import traceback
+#             
+#             try:
+#                 enum = self.mb.desktop.Components.createEnumeration()
+#                 comps = []
+#                 while enum.hasMoreElements():
+#                     comps.append(enum.nextElement())
+#                 Anzahl_Componenten = len(comps)
+#                 if Anzahl_Componenten > self.mb.Anzahl_Componenten:
+#                     
+#                     
+#                     from com.sun.star.awt import Rectangle,WindowDescriptor 
+#                     from com.sun.star.awt.WindowClass import MODALTOP
+#                     from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
+#                     
+#                     global Rectangle,WindowDescriptor,MODALTOP,OK,YES_NO_CANCEL, DEF_NO
+#                     
+#                     self.mb.Mitteilungen.nachricht(u'Sie haben eine weitere Instanz von OO/LO geöffnet. Organon funktioniert nun nicht mehr. Wenn Sie mehrere Instanzen von OO/LO nutzen möchten, öffnen Sie alle Instanzen und laden als letzte die Organon Datei.',"warningbox")
+#                     pydevBrk()
+#             except:
+#                 
+#                 
+#                 
+#                 
+#                 print('fehler')
+#                 traceback.print_exc()
+#             
+#     def disposing(self,ev):      
+#         return False
 
 
 from com.sun.star.awt import XMouseListener, XItemListener
