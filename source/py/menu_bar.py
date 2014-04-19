@@ -10,6 +10,7 @@ import codecs
 import math
 import re
 import konstanten as KONST
+import copy
 
 tb = traceback.print_exc
 platform = sys.platform
@@ -35,7 +36,7 @@ class Menu_Bar():
         global pd,IMPORTS
         pd = pdk
        
-        IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd')
+        IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd','copy')
         
         if 'LibreOffice' in sys.executable:
             self.programm = 'LibreOffice'

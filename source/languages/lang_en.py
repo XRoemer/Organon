@@ -68,6 +68,7 @@ WAEHLEN = 'Select'
 SEITENUMBRUCH_ORD = 'Pagebreak before Folder' 
 SEITENUMBRUCH_DAT = 'Pagebreak before File'
 ORDNER_CLICK = 'Click on Folder selects Folder Entry'      
+NICHTS_AUSGEWAEHLT = u'No Files for Export are selected'
 
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'

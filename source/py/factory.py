@@ -6,7 +6,7 @@ import uno
 import unohelper
 
 global oxt
-oxt = False
+oxt = True
 
 tb = traceback.print_exc
 platform = sys.platform

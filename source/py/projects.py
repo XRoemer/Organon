@@ -831,11 +831,12 @@ class Projekt():
     def test(self):
         print('test')
         try:   
-
-            pd()
+            pass
+                
+            
         except:
             tb()
-
+        pd()
 
 def erzeuge_Fenster(mb):
     

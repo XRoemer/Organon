@@ -69,6 +69,7 @@ WAEHLEN = u'wählen'
 SEITENUMBRUCH_ORD = 'Seitenumbruch vor Ordner' 
 SEITENUMBRUCH_DAT = 'Seitenumbruch vor Datei'
 ORDNER_CLICK = u'Klick auf Ordner wählt Untereintraege aus'
+NICHTS_AUSGEWAEHLT = u'Es sind keine Dateien zum Export ausgewählt'
 
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'

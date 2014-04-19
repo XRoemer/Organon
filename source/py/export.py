@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#print('Export')
-# import traceback
-# import uno
 import unohelper
-# import os
-# import re
 
-# tb = traceback.print_exc
-
-EXPORT_DIALOG_FARBE = 305099
 
 class Export():
     
@@ -25,7 +17,7 @@ class Export():
 
     def export(self):
         self.erzeuge_exportfenster()
- 
+
     def erzeuge_exportfenster(self): 
         
 
@@ -260,7 +252,7 @@ def erzeuge_Dialog_Container(smgr,ctx,posSize):
     # create new control container
     cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
     cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-    cont_model.BackgroundColor = EXPORT_DIALOG_FARBE  # 9225984
+    cont_model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  # 9225984
     cont.setModel(cont_model)
     # need createPeer just only the container
     cont.createPeer(toolkit, oWindow)
@@ -550,39 +542,58 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             sections = sects
         
         if len(sections) < 1:
-            print('nichts zu speichern')
-            # Nachricht: 'Es gibt nichts zu speichern'   #########  einfuegen!
+            self.mb.Mitteilungen.nachricht(lang.NICHTS_AUSGEWAEHLT,"infobox")
 
         
         # pruefen, ob speicherordner existiert; Namen aendern
         speicherordner = os.path.join(uno.fileUrlToSystemPath(self.mb.settings_exp['speicherort']), self.mb.projekt_name)
         if os.path.exists(speicherordner):
             speicherordner = self.pruefe_dateiexistenz(speicherordner)
+        
+        
+        def berechne_tree():
+             
+            tree2 = copy.deepcopy(self.mb.xml_tree)
+            root2 = tree2.getroot()
             
-        # Pfade fuer speichern in ordnerstruktur berechnen
+            all = root2.findall('.//')
+            
+            for el in all:
+                parent = root2.find('.//'+el.tag+'/..')
+                childs = list(parent)                
+                
+                childnames = []
+                for c in childs:
+                    childnames.append(c.attrib['Name'])
+                
+                if childnames.count(el.attrib['Name']) > 1:
+                    anzahl = childnames.count(el.attrib['Name'])
+                    
+                    for an in range(anzahl):
+                        el2 = root2.find('.//'+childs[an].tag)
+                        el2.attrib['Name'] = el2.attrib['Name'] + '(%s)'  %an 
+            
+            return tree2
+         
+        # Pfade zum Speichern in Ordnerstruktur berechnen
+        # Die Berechnung durchlaeuft mehrfach den Baum und koennte vereinfacht werden
+        # Die Pfade koennten schon in berechne_tree angelegt werden
+        
         if set['ordner_strukt']:
 
-            tree = self.mb.xml_tree
+            tree = berechne_tree()
             root = tree.getroot()
             
             baum = []
             self.mb.class_XML.get_tree_info(root,baum)
 
             pfade = {}
-            doppelte = []
             dict_baum = {}
+
             for eintrag in baum:
-                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-                
-                if art in ('dir','prj'):
-                    if name in doppelte:
-                        anz = doppelte.count(name)
-                        name = name + '(%s)'%anz
-
-                    doppelte.append(name)
-                    
+                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag  
                 dict_baum.update({ordinal:(parent,name,lvl,art,zustand,sicht)})
-
+            
             def suche_parent(ord_kind):
                 ord_parent = dict_baum[ord_kind][0]
                 return ord_parent
@@ -599,78 +610,101 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 
                 ordner.reverse()  
                 for ordn in ordner:
-                    pfad2 = pfad2 + '/' + ordn
+                    pfad2 = os.path.join(pfad2, ordn)
                     
-                pfad2 = pfad2 + '/' + dict_baum[ordinal][1]
+                pfad2 = os.path.join(pfad2, dict_baum[ordinal][1])
                 if art in ('dir','prj'):
-                    pfad2 = pfad2 + '/' + name
+                    pfad2 = os.path.join(pfad2, name)
                     
                     
                 pfade.update({ordinal:(name,pfad2,art)})
         
+        
+        
+        
+        # Statusindicator
         anz_sections = len(sections)
         st_ind.start('exportiere, bitte warten',anz_sections)
         zaehler = 0
         
         
         
+        
+        
+
         while zaehler < anz_sections - 1:
-            
+             
             self.mb.class_Bereiche.starte_oOO()
             oOO = self.mb.class_Bereiche.oOO
             cur = oOO.Text.createTextCursor()
             text = oOO.Text
-
+             
             # Speichern     
             for i in range(3):
+ 
                 if zaehler  > len(sections) - 1:
                     break
+                 
+                 
                 sec_name = sections[zaehler]
-                
+                 
                 if 'OrganonSec' in sec_name:  
-                    
+                     
                     zaehler += 1       
-                    
+                     
                     sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
                     if sec_ordinal == self.mb.Papierkorb:
                         break  
-                    
+                     
                     cur.gotoStart(False)
                     cur.gotoEnd(True)
                     cur.setString('')
-                    
+                     
                     sec = self.mb.doc.TextSections.getByName(sec_name)
                     SFLink = sec.FileLink
-                    
+                     
                     newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                     newSection.setPropertyValue('FileLink',SFLink)
                     newSection.setName(sec.Name)
-                    
+                     
                     oOO.Text.insertTextContent(cur,newSection,False)
                     oOO.Text.removeTextContent(newSection)
-                    
+                     
                     contr = self.mb.Hauptfeld.getControl(sec_ordinal)
                     tf = contr.getControl('textfeld')
                     titel = tf.Model.Text
-                    
+                     
                     if not set['ordner_strukt']:
                         pfad = os.path.join(speicherordner, titel)
                     else:
                         pfad = pfade[sec_ordinal][1]
-                        
+                         
                     # pruefen, ob datei existiert; Namen aendern       
                     if os.path.exists(pfad+set['typ']):
                         pfad = self.pruefe_dateiexistenz(pfad,set['typ'])
-                    
+                    print(pfad)
                     path = pfad + set['typ'] 
                     path2 = uno.systemPathToFileUrl(path)  
                     oOO.storeToURL(path2,())
-    
+                 
+                # unterbricht while Schleife, wenn nur Trenner und keine keine OrganonSec mehr uebrig sind 
+                if self.teste_auf_verbliebene_bereiche(sections[zaehler::]):
+                    zaehler = anz_sections
+                     
             self.mb.class_Bereiche.schliesse_oOO()    
             st_ind.setValue(zaehler)
 
         st_ind.end()  
 
+    def teste_auf_verbliebene_bereiche(self,sections):
+        
+        regex = re.compile('OrganonSec')
+        matches = [string for string in sections if re.match(regex, string)]
+        
+        if len(matches) == 0:
+            return True
+        else:
+            return False
 
 
     def pruefe_dateiexistenz(self,pfad,dateierweiterung = None):
@@ -1043,7 +1077,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         
         control_innen, model = createControl(self.mb.ctx,"Container",20,0,posSize[2],posSize[3],(),() )  
-        model.BackgroundColor = EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
         fenster_cont.addControl('Huelle', control_innen)
         
         
@@ -1065,9 +1099,9 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
             
             # SCROLLBAR
             control, model = createControl(self.mb.ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
-            model.BackgroundColor = EXPORT_DIALOG_FARBE
+            model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
             model.Orientation = 1
-            model.BorderColor = EXPORT_DIALOG_FARBE
+            model.BorderColor = KONST.EXPORT_DIALOG_FARBE
             model.LiveScroll = True        
             model.ScrollValueMax = y/2
             
