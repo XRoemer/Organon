@@ -7,7 +7,7 @@ import unohelper
 
 global oxt
 oxt = False
-
+ 
 tb = traceback.print_exc
 platform = sys.platform
 
