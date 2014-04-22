@@ -35,7 +35,7 @@ class Menu_Bar():
         self.pd = pdk
         global pd,IMPORTS
         pd = pdk
-       
+
         IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd','copy')
         
         if 'LibreOffice' in sys.executable:
@@ -56,6 +56,7 @@ class Menu_Bar():
         self.viewcursor = self.current_Contr.ViewCursor
         self.tabs = tabs
         self.platform = sys.platform
+        self.language = None
         self.lang = self.lade_Modul_Language()
         self.path_to_extension = path_to_extension
 
@@ -442,6 +443,12 @@ class Menu_Bar():
   
     def lade_Modul_Language(self):
         language = self.doc.CharLocale.Language
+        
+        if language not in ('de'):
+            language = 'en'
+            
+        self.language = language
+        
         import lang_en 
         try:
             exec('import lang_' + language)
@@ -473,6 +480,7 @@ class Menu_Bar():
         return zeit
 
     def entferne_alle_listener(self):
+        return
         self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener) 
         self.current_Contr.removeKeyHandler(self.keyhandler)
         self.dialog.removeWindowListener(self.w_listener)

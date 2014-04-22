@@ -12,7 +12,7 @@ PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. C
 
 SPEICHERORT = 'Storage Location'
 FORMATIERUNG = 'Format'
-TEMPLATE_WRITER = 'Writer Standard Template'
+TEMPLATE_WRITER = 'Writer Default Template'
 TEMPLATE_USER = 'User Template'
 NO_TEMPLATES = 'No Templates'
 EIGENES_TEMPL_ERSTELLEN = 'Create Template from Selection'

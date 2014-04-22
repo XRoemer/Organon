@@ -830,13 +830,16 @@ class Projekt():
         
     def test(self):
         print('test')
-        try:   
-            pass
-                
-            
-        except:
-            tb()
         pd()
+        
+#         def pydevBrk():  
+#             import sys
+#             sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
+#             from pydevd import settrace
+#             settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
+#             
+#         #pydevBrk()
+
 
 def erzeuge_Fenster(mb):
     
@@ -1075,26 +1078,41 @@ class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
         try:
+            if ev.ActionCommand == 'formatierung':
+                path = os.path.join(self.mb.path_to_extension,'languages','info_format_%s.odt' % self.mb.language)
+                URL = uno.systemPathToFileUrl(path)
+            else:
+                path = os.path.join(self.mb.path_to_extension,'languages','info_template_%s.odt' % self.mb.language)
+                URL = uno.systemPathToFileUrl(path)
             
-            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop.Name = 'ReadOnly'
-            prop.Value = True
-#             fenster = erzeuge_Fenster(self.mb)
-#             
-#             y = 20
-#             
-#             controlForm, modelForm = createControl(self.mb.ctx,"FixedText",25,y,80,20,(),() )  
-#             modelForm.Label = lang.FORMATIERUNG #lang.ENTER_PROJ_NAME
-#             modelForm.FontWeight = 150
+            self.new_doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
+            
+            contWin = self.new_doc.CurrentController.Frame.ContainerWindow               
+            contWin.setPosSize(0,0,870,900,12)
+            
+            lmgr = self.new_doc.CurrentController.Frame.LayoutManager
+            for elem in lmgr.Elements:
+            
+                if lmgr.isElementVisible(elem.ResourceURL):
+                    lmgr.hideElement(elem.ResourceURL)
+                    
+            lmgr.HideCurrentUI = True  
+            
+            
+            viewSettings = self.new_doc.CurrentController.ViewSettings
+            viewSettings.ZoomType = 3
+            viewSettings.ZoomValue = 100
+            viewSettings.ShowRulers = False
+            
+            
+            
 
             
-            URL="private:factory/swriter"
-            self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
-            pd()
-            self.oOO.close(False)
+            
+
         except:
             tb()
-        pd()
+        #pd()
         
         
         
