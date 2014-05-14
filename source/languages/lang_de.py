@@ -80,6 +80,19 @@ IMPORT_ORDNER ='Ordner importieren'
 DATEIAUSWAHL = u'Datei auswählen'
 ORDNERAUSWAHL = u'Ordner auswählen'
 IMPORTIEREN = 'Importieren'
+FILTER = 'Filter'
+ALLE_WAEHLEN = u'Alle auswählen'
+ERST_DATEI_AUSWAEHLEN = u'Sie haben noch keine Datei ausgewählt'
+ERST_ORDNER_AUSWAEHLEN = u'Sie haben noch keinen Ordner ausgewählt'
+IMPORT_FILTER_WARNUNG = '''WARNING:
+This is an experimental feature and not all of the filters are working. (Pdf for example)
+
+It might be a good idea to try filters on an unimportant or fresh project. Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.
+
+Using the import function on LibreOffice seemes to be more reliable than on OpenOffice.'''
+ERZEUGE_DATEI = 'erzeuge Datei %s von %s'
+NO_FILES = u'Es existieren keine Dateien mit dem ausgesuchten Filter im selektierten Ordner'
+IMP_FORTFAHREN = u'Es sollen %s Dateien importiert werden. Wollen Sie wirklich fortfahren?'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

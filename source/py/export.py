@@ -16,19 +16,26 @@ class Export():
         lang = self.mb.lang
 
     def export(self):
+        if self.mb.filters_export == None:
+            self.mb.class_Import.erzeuge_filter()
         self.erzeuge_exportfenster()
 
     def erzeuge_exportfenster(self): 
         
-
+        breite = 400
+        hoehe = 480
+        tab1 = 130
+        
+        set = self.mb.settings_exp
+        
         posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
         X = posSize_main.X +20
         Y = posSize_main.Y +20
-        Width = 220
-        Height = 420
+        Width = breite
+        Height = hoehe
         
         posSize = X,Y,Width,Height
-        fenster,fenster_cont = erzeuge_Dialog_Container(self.mb.smgr,self.mb.ctx,posSize)
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         fenster_cont.Model.Text = lang.EXPORT
         listenerDis = AB_Fenster_Dispose_Listener(self.mb,self)
         fenster_cont.addEventListener(listenerDis)
@@ -52,27 +59,27 @@ class Export():
             model.Label = label
             
             if label == lang.ALLES:
-                control.State = self.mb.settings_exp['alles']
+                control.State = set['alles']
             elif label == lang.SICHTBARE:
-                control.State = self.mb.settings_exp['sichtbar']
+                control.State = set['sichtbar']
             elif label == lang.AUSWAHL:
-                control.State = self.mb.settings_exp['eigene_ausw'] 
+                control.State = set['eigene_ausw'] 
                 
             fenster_cont.addControl(label, control)
             buttons.append(control)
             y += 20
         
         # Auswahl   
-        controlA, modelA = createControl(self.mb.ctx,"Button",130,y - 25 ,70,22,(),() )  ###
+        controlA, modelA = createControl(self.mb.ctx,"Button",tab1,y - 25 ,70,20,(),() )  ###
         controlA.Label = lang.AUSWAHL
-        if self.mb.settings_exp['alles'] or self.mb.settings_exp['sichtbar']:
+        if set['alles'] or set['sichtbar']:
             controlA.Enable = False
         fenster_cont.addControl('Auswahl', controlA)
         
         y += 20
         
-        # Trenner 
-        controlT, modelT = createControl(self.mb.ctx,"FixedLine",20,y-10 ,180,40,(),() )  
+        # Trenner -----------------------------------------------------------------------------
+        controlT, modelT = createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
         fenster_cont.addControl('Trenner', controlT)
         
         y += 40
@@ -80,7 +87,7 @@ class Export():
         # text
         controlex, modelex = createControl(self.mb.ctx,"FixedText",20,y ,150,20,(),() )  
         controlex.Text = lang.EXPORTIEREN_ALS
-        modelex.FontWeight = 200.0
+        modelex.FontWeight = 150.0
         fenster_cont.addControl('Titel', controlex)
         
         y += 30
@@ -98,18 +105,18 @@ class Export():
             model1.Label = label
             
             if label == lang.EIN_DOKUMENT:
-                control1.State = self.mb.settings_exp['einz_dok']
+                control1.State = set['einz_dok']
             elif label == lang.TRENNER:
-                control1.State = self.mb.settings_exp['trenner']
-                if self.mb.settings_exp['einz_dat']:
+                control1.State = set['trenner']
+                if set['einz_dat']:
                     control1.Enable = False
                 else:
                     control1.Enable = True
             elif label == lang.EINZ_DATEIEN:
-                control1.State = self.mb.settings_exp['einz_dat']
+                control1.State = set['einz_dat']
             elif label == lang.ORDNERSTRUKTUR:
-                control1.State = self.mb.settings_exp['ordner_strukt']
-                if self.mb.settings_exp['einz_dok']:
+                control1.State = set['ordner_strukt']
+                if set['einz_dok']:
                     control1.Enable = False
                 else:
                     control1.Enable = True
@@ -123,45 +130,62 @@ class Export():
         control1.setPosSize(0,0,200,0,4)
         
         # Auswahl   
-        controlTr, modelTr = createControl(self.mb.ctx,"Button",130,y - 105 ,70,22,(),() )  ###
+        controlTr, modelTr = createControl(self.mb.ctx,"Button",tab1,y - 105 ,70,20,(),() )  ###
         controlTr.Label = lang.BEARBEITEN
-        if self.mb.settings_exp['trenner'] and self.mb.settings_exp['einz_dok']:
+        if set['trenner'] and set['einz_dok']:
             controlTr.Enable = True
         else:
             controlTr.Enable = False
         fenster_cont.addControl('Auswahl', controlTr)
         
         
+
+        # Trenner ------------------------------------------------------------------------------
+        controlT, modelT = createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
+        fenster_cont.addControl('Trenner', controlT)
+        
+        y += 40
         
         
-        #y += 10
         
-        # Exportformat ## fehlt ##
-        controlf, modelf = createControl(self.mb.ctx,"FixedText",20,y ,150,20,(),() )  
-        controlf.Text = '#' + lang.DATEITYP
+        # Exportformat 
+        controlf, modelf = createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
+        controlf.Text = lang.DATEITYP
         fenster_cont.addControl('Typ', controlf)
+        modelf.FontWeight = 150.0
         
         # Liste der Formate
-        controlL, modelL = createControl(self.mb.ctx,"ListBox",20 + 85,y ,50,20,(),() )  
+        controlL, modelL = createControl(self.mb.ctx,"ListBox",tab1,y ,250,20,(),() )  
         #controlL.setMultipleMode(False)
-        items = ('odt','doc','pdf')
+        filters = self.mb.filters_export
+        modelL.LineCount = 15
+        
+        
+        items = tuple(filters[x][0] for x in filters)
+
         controlL.addItems(items,0)
         modelL.Dropdown = True
-        modelL.SelectedItems = 0,
+        s = [f for f in filters if f == set['typ']]
+        sel = tuple(list(filters).index(f) for f in filters if f == set['typ'])
+        sel2 = 0,
+        modelL.SelectedItems = sel
+
         fenster_cont.addControl('Liste', controlL)
         
-        controlL.Enable = False
-        #pd()
+        f_listener = ExportFilter_Item_Listener(self.mb)
+        controlL.addItemListener(f_listener)
+    
         
         y += 40
         
         controlSO, modelSO = createControl(self.mb.ctx,"FixedText",20 ,y,100,22,(),() )  
         modelSO.Label = lang.SPEICHERORT
+        modelSO.FontWeight = 150.0
         
         fenster_cont.addControl('Dokument', controlSO)
         
         # Button
-        controlSD, modelSD = createControl(self.mb.ctx,"Button",130,y-3,70,22,(),() )  ###
+        controlSD, modelSD = createControl(self.mb.ctx,"Button",tab1,y-3,70,20,(),() )  ###
         controlSD.Label = lang.WAEHLEN
         controlSD.ActionCommand = 'speicherort'
         fenster_cont.addControl('Dok', controlSD)
@@ -171,7 +195,7 @@ class Export():
         controlFO, modelFO = createControl(self.mb.ctx,"FixedText",20 ,y,500,22,(),() )  
         modelFO.HelpText = 'URL'
         #modelF.Border = True
-        label = decode_utf(self.mb.settings_exp['speicherort'])
+        label = decode_utf(set['speicherort'])
         modelFO.Label = uno.fileUrlToSystemPath(label)
         fenster_cont.addControl('Speicherort', controlFO) 
         
@@ -179,10 +203,10 @@ class Export():
         controlSD.addActionListener(listener)
 
         
-        y += 40
+        y += 60
         
         # Exportbutton
-        controlB, modelB = createControl(self.mb.ctx,"Button",120,y,80,30,(),() )  
+        controlB, modelB = createControl(self.mb.ctx,"Button",breite - 80 -20,y,80,30,(),() )  
         controlB.Label = lang.EXPORTIEREN
         fenster_cont.addControl('Export', controlB)
         
@@ -214,55 +238,26 @@ def decode_utf(term):
         return term.decode('utf8')   
 
         
-def erzeuge_Dialog_Container(smgr,ctx,posSize):
-    
-    X,Y,Width,Height = posSize
 
-    toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-    oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
-
-    # Create Uno Struct
-    oXIdlClass = oCoreReflection.forName("com.sun.star.awt.WindowDescriptor")
-    oReturnValue, oWindowDesc = oXIdlClass.createObject(None)
-    # global oWindow
-    oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
-    oWindowDesc.WindowServiceName = ""
-    oWindowDesc.Parent = toolkit.getDesktopWindow()
-    oWindowDesc.ParentIndex = -1
-    oWindowDesc.WindowAttributes = 1  +32 +64 + 128 # Flags fuer com.sun.star.awt.WindowAttribute
-
-    oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
-    oReturnValue, oRect = oXIdlClass.createObject(None)
-    oRect.X = X
-    oRect.Y = Y
-    oRect.Width = Width 
-    oRect.Height = Height 
-    
-    oWindowDesc.Bounds = oRect
-
-    # create window
-    oWindow = toolkit.createWindow(oWindowDesc)
-     
-    # create frame for window
-    oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame",ctx)
-    oFrame.initialize(oWindow)
-    #oFrame.setCreator(self.mb.desktop)
-    oFrame.activate()
-
-    # create new control container
-    cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
-    cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-    cont_model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  # 9225984
-    cont.setModel(cont_model)
-    # need createPeer just only the container
-    cont.createPeer(toolkit, oWindow)
-    cont.setPosSize(0, 0, 0, 0, 15)
-
-    oFrame.setComponent(cont, None)
-    return oWindow,cont
- 
 
 from com.sun.star.awt import XItemListener, XActionListener, XFocusListener    
+
+class ExportFilter_Item_Listener(unohelper.Base, XItemListener):
+    def __init__(self,mb):
+        self.mb = mb
+        
+    # XItemListener    
+    def itemStateChanged(self, ev):        
+        sel = ev.value.Source.Items[ev.value.Selected] 
+        filters = self.mb.filters_export
+
+        for f in filters:
+            if filters[f][0] == sel:
+                sel_filter = f
+                self.mb.settings_exp['typ'] = f
+                self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp)
+    def disposing(self,ev):
+        return False
 
 class Fenster_Export_Listener1(unohelper.Base, XItemListener):
     def __init__(self,mb,buttons,but_Auswahl):
@@ -271,7 +266,8 @@ class Fenster_Export_Listener1(unohelper.Base, XItemListener):
         self.but_Auswahl = but_Auswahl
         
     # XItemListener    
-    def itemStateChanged(self, ev):        
+    def itemStateChanged(self, ev):     
+        set = self.mb.settings_exp   
         # um sich nicht selbst abzuwaehlen
         if ev.Source.State == 0:
             ev.Source.State = 1
@@ -286,16 +282,20 @@ class Fenster_Export_Listener1(unohelper.Base, XItemListener):
             self.but_Auswahl.Enable = False
         
         # settings_exp neu setzen
-        self.mb.settings_exp['alles'] = 0
-        self.mb.settings_exp['sichtbar'] = 0
-        self.mb.settings_exp['eigene_ausw'] = 0
+        set['alles'] = 0
+        set['sichtbar'] = 0
+        set['eigene_ausw'] = 0
         
         if ev.Source.Model.Label == lang.ALLES:
-            self.mb.settings_exp['alles'] = 1
+            set['alles'] = 1
         elif ev.Source.Model.Label == lang.SICHTBARE:
-            self.mb.settings_exp['sichtbar'] = 1
+            set['sichtbar'] = 1
         elif ev.Source.Model.Label == lang.AUSWAHL:
-            self.mb.settings_exp['eigene_ausw'] = 1
+            set['eigene_ausw'] = 1
+            
+    def disposing(self,ev):
+        return False
+
             
         
 class Fenster_Export_Listener2(unohelper.Base, XItemListener):
@@ -346,6 +346,10 @@ class Fenster_Export_Listener2(unohelper.Base, XItemListener):
             else:
                 self.mb.settings_exp['trenner'] = 1
                 self.trenner.Enable = True
+                
+    def disposing(self,ev):
+        return False
+
 
 class Export_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
@@ -353,15 +357,18 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
         set = self.mb.settings_exp
-        
-        if set['einz_dok']:
-            self.exp_in_ein_dokument()
-        elif set['einz_dat']:
-            self.exp_in_einzel_dat()
+
+        try:
+            if set['einz_dok']:
+                self.exp_in_ein_dokument()
+            elif set['einz_dat']:
+                self.exp_in_einzel_dat()
+        except:
+            tb()
             
             
     def exp_in_ein_dokument(self):
-        #pd()
+
         st_ind = self.mb.current_Contr.Frame.createStatusIndicator()        
         
         set = self.mb.settings_exp
@@ -397,7 +404,6 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         for sec_name in sections:
             if 'OrganonSec' in sec_name:         
                 
-               # st_ind.setValue(zaehler)
                 zaehler += 1
                  
                 cur.gotoEnd(False)
@@ -466,15 +472,20 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                                 
                 cur.gotoEnd(False)
                 cur.gotoEndOfParagraph(False)
-                sec = self.mb.doc.TextSections.getByName(sec_name)
-                SFLink = sec.FileLink
+
+                fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
+                link = uno.systemPathToFileUrl(fl)
                 
+                SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                SFLink.FilterName = 'writer8'
+                SFLink.FileURL = link
+                                
                 newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                 newSection.setPropertyValue('FileLink',SFLink)
-                newSection.setName(sec.Name)
                 
                 oOO.Text.insertTextContent(cur,newSection,False)
                 oOO.Text.removeTextContent(newSection)
+
                 
                 if set['trenner']:
                 
@@ -506,16 +517,29 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         path = uno.fileUrlToSystemPath(decode_utf(self.mb.settings_exp['speicherort']))
         Path2 = os.path.join(path, self.mb.projekt_name)
         
-        if os.path.exists(Path2+set['typ']):
-            Path2 = self.pruefe_dateiexistenz(Path2,set['typ'])
-        
-        Path1 = Path2+set['typ']
-        Path3 = uno.systemPathToFileUrl(Path1)   
-        oOO.storeToURL(Path3,())
-        self.mb.class_Bereiche.schliesse_oOO()   
-         
-        st_ind.end() 
+        filters = self.mb.filters_export
 
+        filter = [(f,filters[f]) for f in filters if f == set['typ']]
+        filterName = filter[0][0]
+        extension = '.' + filter[0][1][1][0]
+
+        if os.path.exists(Path2+extension):
+            Path2 = self.pruefe_dateiexistenz(Path2,extension)
+        
+        Path1 = Path2+extension
+        Path3 = uno.systemPathToFileUrl(Path1)   
+        
+        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop.Name = 'FilterName'
+        prop.Value = filterName
+        
+        oOO.storeToURL(Path3,(prop,))
+            
+            
+        self.mb.class_Bereiche.schliesse_oOO()   
+        st_ind.end() 
+        
+        
     def exp_in_einzel_dat(self):
         
         set = self.mb.settings_exp
@@ -546,7 +570,8 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
 
         
         # pruefen, ob speicherordner existiert; Namen aendern
-        speicherordner = os.path.join(uno.fileUrlToSystemPath(self.mb.settings_exp['speicherort']), self.mb.projekt_name)
+        speicherort = decode_utf(self.mb.settings_exp['speicherort'])
+        speicherordner = os.path.join(uno.fileUrlToSystemPath(speicherort), self.mb.projekt_name)
         if os.path.exists(speicherordner):
             speicherordner = self.pruefe_dateiexistenz(speicherordner)
         
@@ -560,25 +585,17 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             
             for el in all:
                 parent = root2.find('.//'+el.tag+'/..')
-                childs = list(parent)                
+                doppelte = parent.findall("./*[@Name='%s']" %el.attrib['Name'])
                 
-                childnames = []
-                for c in childs:
-                    childnames.append(c.attrib['Name'])
-                
-                if childnames.count(el.attrib['Name']) > 1:
-                    anzahl = childnames.count(el.attrib['Name'])
-                    
-                    for an in range(anzahl):
-                        el2 = root2.find('.//'+childs[an].tag)
-                        el2.attrib['Name'] = el2.attrib['Name'] + '(%s)'  %an 
-            
+                if len(doppelte) > 1:
+                    for i in range(len(doppelte)-1):
+                        elem = doppelte[i+1]
+                        elem.attrib['Name'] = elem.attrib['Name'] + '(%s)' %i
+                        
             return tree2
          
-        # Pfade zum Speichern in Ordnerstruktur berechnen
-        # Die Berechnung durchlaeuft mehrfach den Baum und koennte vereinfacht werden
-        # Die Pfade koennten schon in berechne_tree angelegt werden
-        
+         
+        # Pfade zum Speichern in Ordnerstruktur berechnen        
         if set['ordner_strukt']:
 
             tree = berechne_tree()
@@ -601,25 +618,23 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             for eintrag in baum:
                 pfad2 = speicherordner
                 ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-                
+
                 ordner = []
                 ord = ordinal
-                for i in range(int(lvl)):
+                for i in range(int(lvl)-1):
                     ord = suche_parent(ord)
                     ordner.append(dict_baum[ord][1])
                 
                 ordner.reverse()  
+
                 for ordn in ordner:
                     pfad2 = os.path.join(pfad2, ordn)
                     
                 pfad2 = os.path.join(pfad2, dict_baum[ordinal][1])
-                if art in ('dir','prj'):
+                if art in ('dir'):
                     pfad2 = os.path.join(pfad2, name)
                     
-                    
                 pfade.update({ordinal:(name,pfad2,art)})
-        
-        
         
         
         # Statusindicator
@@ -628,11 +643,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         zaehler = 0
         
         
-        
-        
-        
-
-        while zaehler < anz_sections - 1:
+        while zaehler < anz_sections:
              
             self.mb.class_Bereiche.starte_oOO()
             oOO = self.mb.class_Bereiche.oOO
@@ -641,10 +652,9 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
              
             # Speichern     
             for i in range(3):
- 
-                if zaehler  > len(sections) - 1:
+                
+                if zaehler  > len(sections) - 1:  
                     break
-                 
                  
                 sec_name = sections[zaehler]
                  
@@ -660,13 +670,17 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     cur.gotoEnd(True)
                     cur.setString('')
                      
-                    sec = self.mb.doc.TextSections.getByName(sec_name)
-                    SFLink = sec.FileLink
-                     
+                    
+                    fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
+                    link = uno.systemPathToFileUrl(fl)
+                    
+                    SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                    SFLink.FilterName = 'writer8'
+                    SFLink.FileURL = link
+                                    
                     newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                     newSection.setPropertyValue('FileLink',SFLink)
-                    newSection.setName(sec.Name)
-                     
+                    
                     oOO.Text.insertTextContent(cur,newSection,False)
                     oOO.Text.removeTextContent(newSection)
                      
@@ -678,14 +692,24 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         pfad = os.path.join(speicherordner, titel)
                     else:
                         pfad = pfade[sec_ordinal][1]
-                         
+                        
+                    # Prop fuer Filter erstellen    
+                    filters = self.mb.filters_export
+                    filter = [(f,filters[f]) for f in filters if f == set['typ']]
+                    filterName = filter[0][0]
+                    extension = '.' + filter[0][1][1][0] 
+                    
+                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                    prop.Name = 'FilterName'
+                    prop.Value = filterName
+                    
                     # pruefen, ob datei existiert; Namen aendern       
-                    if os.path.exists(pfad+set['typ']):
-                        pfad = self.pruefe_dateiexistenz(pfad,set['typ'])
-                    print(pfad)
-                    path = pfad + set['typ'] 
+                    if os.path.exists(pfad+extension):
+                        pfad = self.pruefe_dateiexistenz(pfad,extension)
+                        
+                    path = pfad + extension 
                     path2 = uno.systemPathToFileUrl(path)  
-                    oOO.storeToURL(path2,())
+                    oOO.storeToURL(path2,(prop,))
                  
                 # unterbricht while Schleife, wenn nur Trenner und keine keine OrganonSec mehr uebrig sind 
                 if self.teste_auf_verbliebene_bereiche(sections[zaehler::]):
@@ -714,7 +738,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             while os.path.exists(pfad+dateierweiterung):
                 pfadX = pfad.split(dateierweiterung)[0]
                 if pfadX[-1] == ')':                                    
-                    sub = re.sub(r"\([0-9]+\)",'('+str(i)+')', pfadX) 
+                    sub = re.sub(r"\([0-9]+\)\Z",'('+str(i)+')', pfadX) 
                     if sub == pfad:
                         pfad = pfad + '(%s)' %i
                     else:
@@ -728,7 +752,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             i = 0
             while os.path.exists(pfad):
                 if pfad[-1] == ')':                                    
-                    sub = re.sub(r"\([0-9]*\)",'('+str(i)+')', pfad) 
+                    sub = re.sub(r"\([0-9]*\)\Z",'('+str(i)+')', pfad) 
                     if sub == pfad:
                         pfad = pfad + '(%s)' %i
                     else:
@@ -737,6 +761,10 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     pfad = pfad + '(%s)' %i
                 i += 1
             return pfad
+        
+    def disposing(self,ev):
+        return False
+
                         
 from com.sun.star.lang import XEventListener
 class AB_Fenster_Dispose_Listener(unohelper.Base, XEventListener):
@@ -770,6 +798,10 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
         self.exp_fenster = exp_fenster
         self.cl_exp = cl_exp
         
+    def disposing(self,ev):
+        return False
+
+        
     def actionPerformed(self,ev):      
         
         if self.cl_exp.trenner_fenster != None:
@@ -781,7 +813,7 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
         cb_listener = A_Trenner_CheckBox_Listener(self.mb)        
 
         posSize = posSize[0],posSize[1],320,360
-        fenster,fenster_cont = erzeuge_Dialog_Container(self.mb.smgr,self.mb.ctx,posSize)
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         fenster_cont.Model.Text = lang.TRENNER_TIT
         listenerF = AB_Fenster_Dispose_Listener(self.mb,self.cl_exp)
         fenster_cont.addEventListener(listenerF)
@@ -928,6 +960,10 @@ class A_Trenner_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
         self.mb = mb
         
+    def disposing(self,ev):
+        return False
+
+        
     def actionPerformed(self,ev):
         set = self.mb.settings_exp
         set[ev.ActionCommand] = self.toggle(set[ev.ActionCommand])
@@ -943,6 +979,10 @@ class A_TrennDatei_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,model):
         self.mb = mb
         self.model = model
+        
+    def disposing(self,ev):
+        return False
+
         
     def actionPerformed(self,ev):
 
@@ -962,6 +1002,10 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,model):
         self.mb = mb
         self.model = model
+        
+    def disposing(self,ev):
+        return False
+
         
     def actionPerformed(self,ev):
         
@@ -987,18 +1031,30 @@ class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):
         self.mb = mb
         self.cont_ord = cont_ord
         self.cont_dat = cont_dat
+    
+    def disposing(self,ev):
+        return False
+
         
     # XItemListener    
     def itemStateChanged(self, ev):  
         if ev.Source == self.cont_ord:
             self.mb.settings_exp['style_ord'] = ev.Source.Items[ev.Selected] 
         elif ev.Source == self.cont_dat:
-            self.mb.settings_exp['style_dat'] = ev.Source.Items[ev.Selected]           
+            self.mb.settings_exp['style_dat'] = ev.Source.Items[ev.Selected]     
+    
+    def disposing(self,ev):
+        return False
+      
        
     
 class A_Anz_Leerzeilen_Focus_Listener(unohelper.Base, XFocusListener):
     def __init__(self,mb):
         self.mb = mb
+    
+    def disposing(self,ev):
+        return False
+
         
     # XItemListener    
     def focusLost(self, ev): 
@@ -1068,9 +1124,10 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         for ord in eintr:
             del set['ausgewaehlte'][ord]
 
-        fenster,fenster_cont = erzeuge_Dialog_Container(self.mb.smgr,self.mb.ctx,posSize)
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         # Listener um Position zu bestimmen
         fenster_cont.Model.Text = lang.AUSWAHL
+        fenster_cont.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
         listenerF = AB_Fenster_Dispose_Listener(self.mb,self.cl_exp)
         fenster_cont.addEventListener(listenerF)
         self.cl_exp.auswahl_fenster = fenster
@@ -1085,6 +1142,10 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         control_innen.setPosSize(0, 0,0,y + 20,8)
 
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
+    
+    def disposing(self,ev):
+        return False
+
         
 
     def setze_hoehe_und_scrollbalken(self,y,y_desk,fenster,fenster_cont,control_innen):  
@@ -1099,11 +1160,16 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
             
             # SCROLLBAR
             control, model = createControl(self.mb.ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
-            model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+            #
             model.Orientation = 1
             model.BorderColor = KONST.EXPORT_DIALOG_FARBE
+            model.Border = 0
+            model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+            
+            
             model.LiveScroll = True        
-            model.ScrollValueMax = y/2
+            #model.ScrollValueMax = y/2
+            control.Maximum = y
             
             listener = B_Auswahl_ScrollBar_Listener(self.mb,control_innen)
             control.addAdjustmentListener(listener) 
@@ -1200,6 +1266,10 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,fenster_cont):
         self.mb = mb
         self.fenster_cont = fenster_cont
+    
+    def disposing(self,ev):
+        return False
+
         
     def actionPerformed(self,ev):
 

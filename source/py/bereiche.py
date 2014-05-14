@@ -64,7 +64,7 @@ class Bereiche():
         Path2 = uno.systemPathToFileUrl(Path1)        
         self.oOO.storeToURL(Path2,())
         
-        return Path2
+        return Path1
     
     def erzeuge_neue_Datei2(self,i,inhalt):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Datei2')
@@ -118,7 +118,7 @@ class Bereiche():
         except:
             if self.mb.debug: print('Dokument ist schon leer')
                      
-    def erzeuge_bereich(self,i,path,sicht):
+    def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich')
         
         nr = str(i) 
@@ -128,10 +128,11 @@ class Bereiche():
                 
         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
         SFLink.FileURL = path
-        SFLink.FilterName = 'nr'+nr
+        SFLink.FilterName = 'writer8'
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-        newSection.setPropertyValue('FileLink',SFLink)
+        if papierkorb:
+            newSection.setPropertyValue('FileLink',SFLink)
         newSection.setName('OrganonSec'+nr)
         
         if sicht == 'nein':
@@ -164,7 +165,7 @@ class Bereiche():
                 
         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
         SFLink.FileURL = path
-        SFLink.FilterName = 'nr'+nr
+        SFLink.FilterName = 'writer8'
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
         newSection.setPropertyValue('FileLink',SFLink)
@@ -180,7 +181,7 @@ class Bereiche():
             sectionN = sections.getByIndex(sections.Count-1)
             textSectionCursor = text.createTextCursorByRange(sectionN.Anchor)
             textSectionCursor.gotoEnd(False)
-
+        
         text.insertTextContent(textSectionCursor, newSection, False)
         
     
@@ -197,22 +198,22 @@ class Bereiche():
         cur.setString('')
        
                        
-    def verlinke_bereiche(self,quellbereich_name,zielbereich_name):
-        if self.mb.debug: print(self.mb.debug_time(),'verlinke_bereiche')
-        
-        sections = self.doc.TextSections
-        
-        for nr in range(sections.Count):            
-            sec = sections.getByIndex(nr)
-                
-        link_quelle = self.mb.dict_bereiche['Bereichsname'][quellbereich_name]# <- der Link
-        zielbereich = sections.getByName(zielbereich_name)
-
-        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        SFLink.FileURL = link_quelle
-        SFLink.FilterName = 'filter'
-        
-        zielbereich.setPropertyValue('FileLink',SFLink)
+#     def verlinke_bereiche(self,quellbereich_name,zielbereich_name):
+#         if self.mb.debug: print(self.mb.debug_time(),'verlinke_bereiche')
+#         
+#         sections = self.doc.TextSections
+#         
+#         for nr in range(sections.Count):            
+#             sec = sections.getByIndex(nr)
+#                 
+#         link_quelle = self.mb.dict_bereiche['Bereichsname'][quellbereich_name]# <- der Link
+#         zielbereich = sections.getByName(zielbereich_name)
+# 
+#         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+#         SFLink.FileURL = link_quelle
+#         SFLink.FilterName = 'writer8'
+#         
+#         zielbereich.setPropertyValue('FileLink',SFLink)
         
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
         
@@ -298,6 +299,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
+                
                 if self.mb.zuletzt_gedrueckte_taste == None:
                     try:
                         self.mb.viewcursor.goDown(1,False)
@@ -402,18 +404,25 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
         return False
     
     def windowHidden(self,ev):
-        if self.mb.bereich_wurde_bearbeitet:
-            try:
-                ordinal = self.mb.selektierte_zeile.AccessibleName
-                bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
-                path = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][bereichsname])
-                self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
-            except:
-                tb()
-        self.mb.entferne_alle_listener() 
+        print('hiding window')
+        try:
+            if self.mb.debug:print('windowHidden')
+            if self.mb.bereich_wurde_bearbeitet:
+                try:
+                    ordinal = self.mb.selektierte_zeile.AccessibleName
+                    bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
+                    path = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][bereichsname])
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+                except:
+                    tb()
+                    
+            self.mb.entferne_alle_listener() 
+            
+            #self.mb = None
+            return False
         
-        if self.mb.debug:print('windowHidden')
-        return False
+        except:
+            tb()
     
     def korrigiere_hoehe_des_scrollbalkens(self):
         try:

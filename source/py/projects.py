@@ -60,12 +60,14 @@ class Projekt():
                 Eintraege = self.beispieleintraege2()
                 self.erzeuge_Projekt_xml_tree()
                 self.erzeuge_Eintraege_und_Bereiche(Eintraege)
-                  
+                
                 Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
                 self.mb.xml_tree.write(Path1)
                 
                 self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
                 
+                self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
+                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
                 #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
         except Exception as e:
@@ -105,6 +107,7 @@ class Projekt():
 
         pfad = os.path.join(self.mb.pfade['settings'],'import_settings.txt')
         self.mb.settings_imp = eval(open(pfad).read())
+        #self.mb.settings_imp['url_ord'] = u'file:///C:/Users/Homer/Desktop/Organon%20total/01wacht%20-%20Kopie'
         
         pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
         self.mb.settings_proj = eval(open(pfad).read())
@@ -500,7 +503,7 @@ class Projekt():
             
             # setzt die selektierte Zeile auf die erste Zeile
             self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
             self.mb.class_Hauptfeld.korrigiere_scrollbar()
@@ -516,8 +519,8 @@ class Projekt():
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
             
-            #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
-            
+            self.selektiere_ersten_Bereich()
+                        
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")
             tb()
@@ -572,7 +575,8 @@ class Projekt():
             # Bereiche   
             inhalt = name
             path = CB.erzeuge_neue_Datei(index2,inhalt)
-            CB.erzeuge_bereich(index2,path,sicht)            
+            path2 = uno.systemPathToFileUrl(path)
+            CB.erzeuge_bereich(index2,path2,sicht)            
 
             Bereichsname_dict.update({'OrganonSec'+str(index2):path})
             ordinal_dict.update({ordinal:'OrganonSec'+str(index2)})
@@ -620,7 +624,11 @@ class Projekt():
             # Bereiche   
             path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)
             path2 = uno.systemPathToFileUrl(path)
-            CB.erzeuge_bereich(index2,path2,sicht) 
+            # Der Papierkorb muss mit einem File verlinkt werden, damit die Bereiche richtig eingefuegt werden koennen
+            if art == 'waste':
+                CB.erzeuge_bereich(index2,path2,sicht,True) 
+            else:
+                CB.erzeuge_bereich(index2,path2,sicht) 
 
             if first_time:       
                 # Viewcursor an den Anfang setzen, damit 
@@ -710,7 +718,13 @@ class Projekt():
             Eintraege.append((ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3))
             
         return Eintraege
-            
+    
+    def selektiere_ersten_Bereich(self):
+        
+        ordinal = self.mb.dict_bereiche['Bereichsname-ordinal']['OrganonSec0']
+        zeile = self.mb.Hauptfeld.getControl(ordinal)
+        textfeld = zeile.getControl('textfeld')
+        self.mb.selektierte_Zeile_alt = textfeld 
         
     def erzeuge_proj_Settings(self):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_proj_Settings')
@@ -741,7 +755,7 @@ class Projekt():
             'trenner' : 1,
             'einz_dat' : 0,
             'ordner_strukt' : 0,
-            'typ' : '.odt',
+            'typ' : 'writer8',
             'speicherort' : self.mb.pfade['projekt'].encode("utf-8"),
             
             # Trenner
@@ -782,6 +796,8 @@ class Projekt():
                 'docx' : '0',
                 'rtf' : '0',
                 'txt' : '0',
+                'auswahl' : '0',
+                'filterauswahl' : {},
                 }  
         
         self.mb.speicher_settings("import_settings.txt", Settings)
@@ -830,15 +846,21 @@ class Projekt():
         
     def test(self):
         print('test')
-        pd()
         
-#         def pydevBrk():  
-#             import sys
-#             sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
-#             from pydevd import settrace
-#             settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
-#             
-#         #pydevBrk()
+        #pd()
+        
+        
+        try:
+            self.mb
+        except NameError:
+            print('mb existiert nicht')
+        
+        
+        
+       
+        
+        pd()
+    
 
 
 def erzeuge_Fenster(mb):
@@ -907,7 +929,9 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         self.mb.speicherort_last_proj = filepath
         self.model.Label = uno.fileUrlToSystemPath(filepath)
-
+        
+    def disposing(self,ev):
+        return False
 
 
 
@@ -1033,7 +1057,17 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         self.mb.Mitteilungen.nachricht(lang.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
         
         # var DefaultTemplate = ((XDocumentPropertiesSupplier)oDoc).getDocumentProperties().TemplateURL;
-        
+    def windowOpened(self,ev):
+        return False
+    def windowActivated(self,ev):
+        return False
+    def windowDeactivated(self,ev):
+        return False
+    def keyReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+    
         
 class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListener):
     def __init__(self,mb,modelStandard,modelUser,modelListBox):
@@ -1068,7 +1102,9 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
 
         use,pfad = self.mb.settings_proj['use_template']
         self.mb.settings_proj['use_template'] = (use,self.get_template_pfad())
-
+    
+    def disposing(self,ev):
+        return False
 
 
 
@@ -1114,6 +1150,8 @@ class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
             tb()
         #pd()
         
+    def disposing(self,ev):
+        return False
         
         
         

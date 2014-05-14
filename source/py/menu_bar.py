@@ -35,7 +35,7 @@ class Menu_Bar():
         self.pd = pdk
         global pd,IMPORTS
         pd = pdk
-
+        
         IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd','copy')
         
         if 'LibreOffice' in sys.executable:
@@ -59,6 +59,8 @@ class Menu_Bar():
         self.language = None
         self.lang = self.lade_Modul_Language()
         self.path_to_extension = path_to_extension
+        self.filters_import = None
+        self.filters_export = None
 
         # Properties
         self.projekt_name = None
@@ -107,7 +109,6 @@ class Menu_Bar():
         #self.doc_listener = Doc_Listener(self)
         
         
-        
 
         # fuers debugging
         self.debug = False
@@ -118,21 +119,8 @@ class Menu_Bar():
 
         self.dialog.addWindowListener(self.w_listener)
         
-        # prueft, ob eine Organon Datei geladen wurde
-        UD_properties = self.doc.DocumentProperties.UserDefinedProperties
-        has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
         
     
-#         if has_prop:
-#             self.entferne_alle_listener()
-#             dialog_contr = self.dialog.Controls
-#             for contr in dialog_contr:
-#                 contr.dispose()
-#         if has_prop:    
-#             self.projekt_name = UD_properties.getPropertyValue('ProjektName')
-#             self.erzeuge_MenuBar_Container()
-#             self.erzeuge_Menu()
-            #self.class_Projekt.lade_Projekt(False)
            
        
     def get_doc(self):
@@ -486,8 +474,6 @@ class Menu_Bar():
         self.dialog.removeWindowListener(self.w_listener)
         
     def erzeuge_Dialog_Container(self,posSize):
-        
-        EXPORT_DIALOG_FARBE = 305099
 
         ctx = self.ctx
         smgr = self.smgr
@@ -503,8 +489,8 @@ class Menu_Bar():
         # global oWindow
         oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
         oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = toolkit.getDesktopWindow()
-        oWindowDesc.ParentIndex = -1
+        #oWindowDesc.Parent = toolkit.getDesktopWindow()
+        #oWindowDesc.ParentIndex = 1
         oWindowDesc.WindowAttributes = 1  +32 +64 + 128 # Flags fuer com.sun.star.awt.WindowAttribute
     
         oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
@@ -522,13 +508,13 @@ class Menu_Bar():
         # create frame for window
         oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame",ctx)
         oFrame.initialize(oWindow)
-        #oFrame.setCreator(self.mb.desktop)
+        oFrame.setCreator(self.desktop)
         oFrame.activate()
     
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-        cont_model.BackgroundColor = EXPORT_DIALOG_FARBE  # 9225984
+        cont_model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  # 9225984
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)

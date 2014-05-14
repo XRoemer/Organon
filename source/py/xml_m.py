@@ -46,7 +46,7 @@ class XML_Methoden():
             par = root
         else:
             par = root.find('.//'+parent)
-         
+
         el = et.SubElement(par,ordinal)
         el.attrib['Parent'] = parent
         el.attrib['Name'] = name

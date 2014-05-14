@@ -74,6 +74,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
             return win 
         except Exception as e:
             print(e)
+            traceback.print_exc()
 
 
 
@@ -107,6 +108,7 @@ def create_window(ctx,factory):
     tabs.activateTab(id) 
     
     tabs.Window.setProperty('Name','ProjektFenster')
+    
     window = tabs.Window # real window
     
     return window,tabs
