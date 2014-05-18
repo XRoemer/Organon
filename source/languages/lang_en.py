@@ -69,6 +69,7 @@ SEITENUMBRUCH_ORD = 'Pagebreak before Folder'
 SEITENUMBRUCH_DAT = 'Pagebreak before File'
 ORDNER_CLICK = 'Click on Folder selects Folder Entry'      
 NICHTS_AUSGEWAEHLT = u'No Files for Export are selected'
+EXPORT_BITTE_WARTEN = 'Export. Please wait.'
 
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'
@@ -83,6 +84,7 @@ FILTER = 'Filter'
 ALLE_WAEHLEN = u'Select all'
 ERST_DATEI_AUSWAEHLEN = u'There is no selected File'
 ERST_ORDNER_AUSWAEHLEN = u'There is no selected Folder'
+IMPORT_ABGESCHLOSSEN = 'Import finished'
 IMPORT_FILTER_WARNUNG = '''WARNING:
 This is an experimental feature and not all of the filters are working. (Pdf for example)
 
@@ -93,6 +95,23 @@ ERZEUGE_DATEI = 'creating file %s/%s'
 NO_FILES = u'There are no files with the selected filter in the selcted folder'
 IMP_FORTFAHREN = u'%s files wil be imported. Do you want to continue?'
 
+OPENOFFICE_WARNING = u'''By using the import- or export-function OpenOffice gets unstable. 
+OpenOffice might crash in irregular intervals. 
+
+You shouldn't use the import-function on already developed projects! (Use copy and paste instead.)
+
+After a crash during the export, open your project as usual. (Don't use the recovery.)
+Your files stay save.
+
+
+In LibreOffice import and export work reliable. Projects are exchangeable between OpenOffice and LibreOffice.
+If you install both OpenOffice and LibreOffice, you should disable the quickstarter.
+(Tools/Options/OpenOffice/Memory/OpenOffice Qickstarter)
+
+
+Do you want to continue?
+
+'''
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

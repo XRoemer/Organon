@@ -7,6 +7,8 @@ class ImportX():
     
     def __init__(self,mb,pdk):
         self.mb = mb
+        self.fenster_import = None
+        self.fenster_filter = None
         
         global pd
         pd = pdk
@@ -17,10 +19,28 @@ class ImportX():
         
     def importX(self):
         
-        if self.mb.filters_import == None:
-            self.erzeuge_filter()
-
-        self.erzeuge_importfenster()
+        try:
+            if self.mb.programm == 'OpenOffice':
+                fortsetzen = self.warning(self.mb)
+                if not fortsetzen:
+                    return
+        
+        
+            if self.mb.filters_import == None:
+                self.erzeuge_filter()
+            
+            
+            if self.fenster_import != None:
+                self.fenster_import.toFront()
+                
+                if self.fenster_filter != None:
+                    self.fenster_filter.toFront()
+            else:
+                self.erzeuge_importfenster()
+                
+        except Exception as e:
+            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            tb()
 
  
     def erzeuge_importfenster(self): 
@@ -39,18 +59,22 @@ class ImportX():
         posSize = X,Y,Width,Height
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         fenster_cont.Model.Text = lang.IMPORT
-
+        
+        self.fenster_import = fenster
+        listenerDisp = Fenster_Dispose_Listener(self.mb,self)
+        fenster_cont.addEventListener(listenerDisp)
+        
         y = 10
         
         # Titel
-        controlE, modelE = createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
+        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
         controlE.Text = lang.IMPORT
         modelE.FontWeight = 200.0
         fenster_cont.addControl('Titel', controlE)
         
         y += 30
         
-        control1, model1 = createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
+        control1, model1 = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
         model1.Label = lang.IMPORT_DATEI
         model1.State = int(imp_set['imp_dat'])
         control1.ActionCommand = 'model1'
@@ -58,7 +82,7 @@ class ImportX():
         
         y += 30
         
-        control2, model2 = createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
+        control2, model2 = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
         model2.Label = lang.IMPORT_ORDNER
         model2.State = not int(imp_set['imp_dat'])
         control2.ActionCommand = 'model2'
@@ -66,7 +90,7 @@ class ImportX():
 
         y += 20
         
-        control3, model3 = createControl(self.mb.ctx,"CheckBox",40,y,180,22,(),() )  
+        control3, model3 = self.mb.createControl(self.mb.ctx,"CheckBox",40,y,180,22,(),() )  
         model3.Label = lang.ORDNERSTRUKTUR
         model3.State =  int(imp_set['ord_strukt'])
         control3.Enable = not int(imp_set['imp_dat'])
@@ -83,12 +107,12 @@ class ImportX():
         y += 40
         
         # Trenner -----------------------------------------------------------------------------
-        controlT, modelT = createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
+        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
         fenster_cont.addControl('Trenner', controlT)
         
         y += 40
         
-        controlE, modelE = createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
+        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
         controlE.Text = lang.DATEIFILTER
         fenster_cont.addControl('Filter', controlE)
         
@@ -96,7 +120,7 @@ class ImportX():
         filters = ('odt','doc','docx','rtf','txt')
         filter_CB_listener = Filter_CheckBox_Listener(self.mb,buttons,fenster)
         for filt in filters:
-            control, model = createControl(self.mb.ctx,"CheckBox",100 ,y,80,22,(),() ) 
+            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",100 ,y,80,22,(),() ) 
             control.ActionCommand = filt 
             model.Label = filt
             model.State = imp_set[filt]    
@@ -108,7 +132,7 @@ class ImportX():
             y += 16
 
         
-        control, model = createControl(self.mb.ctx,"CheckBox",180 ,y-5*16,100,22,(),() )  
+        control, model = self.mb.createControl(self.mb.ctx,"CheckBox",180 ,y-5*16,100,22,(),() )  
         buttons.update({'auswahl':control})
         control.ActionCommand = 'auswahl'
         model.Label = 'eigene Auswahl'
@@ -117,7 +141,7 @@ class ImportX():
         fenster_cont.addControl('auswahl', control)      
         
         
-        control, model = createControl(self.mb.ctx,"Button",180 + 16,y - 3*16  ,80,20,(),() )  ###
+        control, model = self.mb.createControl(self.mb.ctx,"Button",180 + 16,y - 3*16  ,80,20,(),() )  ###
         control.Label = lang.AUSWAHL
         fenster_cont.addControl('Filter_Auswahl', control)  
         
@@ -128,19 +152,19 @@ class ImportX():
         y += 20   
         
         # Trenner -----------------------------------------------------------------------------
-        controlT, modelT = createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
+        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
         fenster_cont.addControl('Trenner', controlT)
         
         y += 40
 
-        controlA, modelA = createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
+        controlA, modelA = self.mb.createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
         controlA.Label = lang.DATEIAUSWAHL
         controlA.ActionCommand = 'Datei'
         fenster_cont.addControl('Auswahl', controlA) 
         
         y += 25
         
-        controlE, modelE = createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
+        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
         text = imp_set['url_dat']
         if text == None or text == '': 
             text = '-'
@@ -151,14 +175,14 @@ class ImportX():
         
         y += 40   
         
-        controlA2, modelA2 = createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
+        controlA2, modelA2 = self.mb.createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
         controlA2.Label = lang.ORDNERAUSWAHL
         controlA2.ActionCommand = 'Ordner'
         fenster_cont.addControl('Auswahl2', controlA2)             
         
         y += 25
         
-        controlE2, modelE2 = createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
+        controlE2, modelE2 = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
         text = imp_set['url_ord']
         if text == None or text == '': 
             text = '-'
@@ -173,13 +197,14 @@ class ImportX():
         
         y += 60
         
-        controlI, modelI = createControl(self.mb.ctx,"Button",breite - 80 - 20,y  ,80,30,(),() )  ###
+        controlI, modelI = self.mb.createControl(self.mb.ctx,"Button",breite - 80 - 20,y  ,80,30,(),() )  ###
         controlI.Label = lang.IMPORTIEREN
         listener_imp = Import_Button_Listener(self.mb,fenster)
         controlI.addActionListener(listener_imp)
         fenster_cont.addControl('importieren', controlI) 
 
         fenster.setPosSize(0,0,0,y + 40,8)
+    
     
     def get_flags(self,x):
                 
@@ -198,8 +223,8 @@ class ImportX():
     
     def erzeuge_filter(self):
 
-        typeDet = createUnoService("com.sun.star.document.TypeDetection")
-        FF = createUnoService( "com.sun.star.document.FilterFactory" )
+        typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
+        FF = self.mb.createUnoService( "com.sun.star.document.FilterFactory" )
         FilterNames = FF.getElementNames()
         
         # da in OO und LO die Positionen der Eintraege im MediaDescriptor verschieden sind,
@@ -268,6 +293,15 @@ class ImportX():
                     if 2 in flags:                        
                         # FilterName: Filter als Label, Extensions Endungen
                         self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
+                        
+                        
+    def warning(self,mb):
+        entscheidung = mb.Mitteilungen.nachricht(lang.OPENOFFICE_WARNING,"warningbox",16777216)
+        # 3 = Nein oder Cancel, 2 = Ja
+        if entscheidung == 3:
+            return False
+        elif entscheidung == 2:
+            return True
 
 
 def encode_utf(term):
@@ -305,10 +339,25 @@ def unescape_xml(term):
     return term
 
 
-    
+from com.sun.star.lang import XEventListener
+class Fenster_Dispose_Listener(unohelper.Base, XEventListener):
+    # Listener um Position zu bestimmen
+    def __init__(self,mb,class_Import):
+        self.mb = mb
+        self.class_Import = class_Import
+        
+    def disposing(self,ev):
+
+        self.class_Import.fenster_import = None
+
+        if self.class_Import.fenster_filter != None:
+            self.class_Import.fenster_filter.dispose()
+            self.class_Import.fenster_filter = None
+        # Settings speichern
+        self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp) 
+        
 
 from com.sun.star.awt import XItemListener, XActionListener, XFocusListener    
-
 class Import_Button_Listener(unohelper.Base, XActionListener):
     
     def __init__(self,mb,fenster):
@@ -318,32 +367,31 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
         imp_set = self.mb.settings_imp
-        try:
 
-            if int(imp_set['imp_dat']) == 1:
-                
-                if imp_set['url_dat'] == '':
-                    self.mb.Mitteilungen.nachricht(lang.ERST_DATEI_AUSWAEHLEN,"warningbox")
-                    self.fenster.toFront()
-                    return
+        if int(imp_set['imp_dat']) == 1:
             
-                self.datei_importieren('dokument',imp_set['url_dat'])
-            else:
-                if imp_set['url_ord'] == '':
-                    self.mb.Mitteilungen.nachricht(lang.ERST_ORDNER_AUSWAEHLEN,"warningbox")
-                    self.fenster.toFront()
-                    return
-                
-                self.fenster.dispose()
-                lade = self.ordner_importieren()
-    
-                if lade:
-                    self.lade_Projekt()
-                    self.mb.Mitteilungen.nachricht('Import abgeschlossen','infobox')
-        except:
-            tb()
-          
-          
+            if imp_set['url_dat'] == '':
+                self.mb.Mitteilungen.nachricht(lang.ERST_DATEI_AUSWAEHLEN,"warningbox")
+                self.fenster.toFront()
+                return
+        
+            self.datei_importieren('dokument',imp_set['url_dat'])
+            
+        else:
+            if imp_set['url_ord'] == '':
+                self.mb.Mitteilungen.nachricht(lang.ERST_ORDNER_AUSWAEHLEN,"warningbox")
+                self.fenster.toFront()
+                return
+
+            self.fenster.dispose()
+            self.mb.class_Import.fenster_import = None
+            
+            lade = self.ordner_importieren()
+
+            if lade:
+                self.lade_Projekt()
+                self.mb.Mitteilungen.nachricht(lang.IMPORT_ABGESCHLOSSEN,'infobox')
+
             
     def datei_importieren(self,typ,url_dat):
         
@@ -449,7 +497,6 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             return nr,path    
         
     
-    
     def erzeuge_bereich3(self,i,path,sicht):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich3')
         
@@ -484,7 +531,6 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
         text.insertTextContent(textSectionCursor, newSection, False)
  
- 
     
     def ordner_importieren(self):
         importXml,links_und_filter,erfolg = self.erzeuge_elementTree()
@@ -501,9 +547,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         else:
             return False
 
-
-    
-    
+ 
     def neue_Dateien_erzeugen(self,importXml,links_und_filter):
         
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
@@ -550,8 +594,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             
             StatusIndicator.end()
 
-
-    
+ 
     def fuege_importXml_in_xml_ein(self,importXml):
         root = self.mb.xml_tree.getroot()
         
@@ -568,120 +611,117 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     def erzeuge_elementTree(self):
 
         imp_set = self.mb.settings_imp
-        try:
-            path = uno.fileUrlToSystemPath(imp_set['url_ord'])
+        path = uno.fileUrlToSystemPath(imp_set['url_ord'])
 
-            Verzeichnis,AusgangsOrdner = self.durchlaufe_ordner(path)
-            anz = len(Verzeichnis)
-            if anz == 0:
-                self.mb.Mitteilungen.nachricht(lang.NO_FILES,"infobox")
+        Verzeichnis,AusgangsOrdner = self.durchlaufe_ordner(path)
+        anz = len(Verzeichnis)
+        
+        if anz == 0:
+            self.mb.Mitteilungen.nachricht(lang.NO_FILES,"infobox")
+            return None,None,False
+        elif anz > 10:
+            entscheidung = self.mb.Mitteilungen.nachricht(lang.IMP_FORTFAHREN %anz,"warningbox",16777216)
+            # 3 = Nein oder Cancel, 2 = Ja
+            if entscheidung == 3:
                 return None,None,False
-            elif anz > 10:
-                entscheidung = self.mb.Mitteilungen.nachricht(lang.IMP_FORTFAHREN %anz,"warningbox",16777216)
-                # 3 = Nein oder Cancel, 2 = Ja
-                if entscheidung == 3:
-                    return None,None,False
-                
-                        
-            ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-            self.mb.kommender_Eintrag += 1
-
-            et = self.mb.ET
-            root_xml = et.Element(ordinal_neuer_Eintrag)
-            tree_xml = et.ElementTree(root_xml)
             
-            name_selek_zeile = self.mb.selektierte_zeile.AccessibleName
-            xml_selekt_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile)
-            parent_sel_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile+'/..')
-            lvl = int(xml_selekt_zeile.attrib['Lvl'])
+                    
+        ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
+        self.mb.kommender_Eintrag += 1
+
+        et = self.mb.ET
+        root_xml = et.Element(ordinal_neuer_Eintrag)
+        tree_xml = et.ElementTree(root_xml)
+        
+        name_selek_zeile = self.mb.selektierte_zeile.AccessibleName
+        xml_selekt_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile)
+        parent_sel_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile+'/..')
+        lvl = int(xml_selekt_zeile.attrib['Lvl'])
+        
+        # Der Hauptordner
+        self.setze_attribute(root_xml,AusgangsOrdner,'dir',lvl,parent_sel_zeile)
+        
+        url_links = {}
+        url_links.update({ordinal_neuer_Eintrag:("private:factory/swriter",None)})
+        
+        if int(imp_set['ord_strukt']) == 0:               
             
-            # Der Hauptordner
-            self.setze_attribute(root_xml,AusgangsOrdner,'dir',lvl,parent_sel_zeile)
+            for eintr in Verzeichnis:
+                File,Pfad,Ordner,filt = eintr
+                
+                ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
+                self.mb.kommender_Eintrag += 1
+                
+                element = et.SubElement(root_xml,ordinal_neuer_Eintrag)
+                
+                lvl = int(root_xml.attrib['Lvl']) + 1
+                name = os.path.splitext(File)[0]
+                self.setze_attribute(element,name,'pg',lvl,root_xml)
+                                    
+                file_url = uno.systemPathToFileUrl(Pfad)
+                url_links.update({ordinal_neuer_Eintrag:(file_url,None)})
+                
+            root = self.mb.xml_tree.getroot()
+            root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
             
-            url_links = {}
-            url_links.update({ordinal_neuer_Eintrag:("private:factory/swriter",None)})
+            return root_xml,url_links,True                    
             
-            if int(imp_set['ord_strukt']) == 0:               
+        else:
+            for eintr in Verzeichnis:
+                File,Pfad,Ordner,filt = eintr
+                elem = root_xml
                 
-                for eintr in Verzeichnis:
-                    File,Pfad,Ordner,filt = eintr
-                    
-                    ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-                    self.mb.kommender_Eintrag += 1
-                    
-                    element = et.SubElement(root_xml,ordinal_neuer_Eintrag)
-                    
-                    lvl = int(root_xml.attrib['Lvl']) + 1
-                    name = os.path.splitext(File)[0]
-                    self.setze_attribute(element,name,'pg',lvl,root_xml)
-                                        
-                    file_url = uno.systemPathToFileUrl(Pfad)
-                    url_links.update({ordinal_neuer_Eintrag:(file_url,None)})
-                    
-                root = self.mb.xml_tree.getroot()
-                root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
+                for o in Ordner[::-1]:
+                    o = escape_xml(o)
+       
+                    if unescape_xml(o) != AusgangsOrdner:
+
+                        x = elem.find(o)
+                        if x == None:
+                            
+                            ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
+                            self.mb.kommender_Eintrag += 1
+                            
+                            url_links.update({ordinal_neuer_Eintrag:("private:factory/swriter",None)})
+                            name = unescape_xml(o)
+                            
+                            #print('schreibe Ordner',name,'in Ordner',elem.attrib['Name']) 
+                            et.SubElement(elem,o)
+                            element = elem.find(o)
+                            element.text = ordinal_neuer_Eintrag
+                            lvl = int(elem.attrib['Lvl']) + 1
+                            self.setze_attribute(element,name,'dir',lvl,elem)
+                                                            
+                        elem = elem.find(o)
                 
-                return root_xml,url_links,True                    
+                #print('schreibe Datei',File,'in Ordner',o) 
+                file_url = uno.systemPathToFileUrl(Pfad)
+                ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
+                self.mb.kommender_Eintrag += 1
+                url_links.update({ordinal_neuer_Eintrag:(file_url,filt)})
+
+                et.SubElement(elem,ordinal_neuer_Eintrag)
                 
-            else:
-                #Verzeichnis = Verzeichnis[::-1]
-
-                for eintr in Verzeichnis:
-                    File,Pfad,Ordner,filt = eintr
-                    elem = root_xml
-                    
-                    for o in Ordner[::-1]:
-                        o = escape_xml(o)
-           
-                        if unescape_xml(o) != AusgangsOrdner:
-
-                            x = elem.find(o)
-                            if x == None:
-                                
-                                ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-                                self.mb.kommender_Eintrag += 1
-                                
-                                url_links.update({ordinal_neuer_Eintrag:("private:factory/swriter",None)})
-                                name = unescape_xml(o)
-                                
-                                #print('schreibe Ordner',name,'in Ordner',elem.attrib['Name']) 
-                                et.SubElement(elem,o)
-                                element = elem.find(o)
-                                element.text = ordinal_neuer_Eintrag
-                                lvl = int(elem.attrib['Lvl']) + 1
-                                self.setze_attribute(element,name,'dir',lvl,elem)
-                                                                
-                            elem = elem.find(o)
-                    
-                    #print('schreibe Datei',File,'in Ordner',o) 
-                    file_url = uno.systemPathToFileUrl(Pfad)
-                    ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-                    self.mb.kommender_Eintrag += 1
-                    url_links.update({ordinal_neuer_Eintrag:(file_url,filt)})
-
-                    et.SubElement(elem,ordinal_neuer_Eintrag)
-                    
-                    element = elem.find(ordinal_neuer_Eintrag)
-                    lvl = int(elem.attrib['Lvl']) + 1
-                    name = os.path.splitext(File)[0]
-                    self.setze_attribute(element,name,'pg',lvl,elem)
-                    
+                element = elem.find(ordinal_neuer_Eintrag)
+                lvl = int(elem.attrib['Lvl']) + 1
+                name = os.path.splitext(File)[0]
+                self.setze_attribute(element,name,'pg',lvl,elem)
                 
-                # Tag der Ordner auf deren Text setzen
-                for elemen in root_xml.findall('.//'):
-                    if elemen.text != None:
-                        elemen.tag = elemen.text
-                        for child in list(elemen):
-                            child.attrib['Parent'] = elemen.tag
+            
+            # Tag der Ordner auf deren Text setzen
+            for elemen in root_xml.findall('.//'):
+                if elemen.text != None:
+                    elemen.tag = elemen.text
+                    for child in list(elemen):
+                        child.attrib['Parent'] = elemen.tag
 
-                root = self.mb.xml_tree.getroot()
-                root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
-                
-                return root_xml,url_links,True
+            root = self.mb.xml_tree.getroot()
+            root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
+            
+            return root_xml,url_links,True
 
-        except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
-            tb()
+
+    
             
     def setze_attribute(self,element,name,art,level,parent):
 
@@ -726,7 +766,6 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
         return filterendungen
 
-    
     
     def durchlaufe_ordner(self,path):
 
@@ -773,8 +812,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
         return Verzeichnis,AusgangsOrdner
 
-    
-    
+  
     def deep_scan(self,root,file):
 
         if int(self.mb.settings_imp['auswahl']) == 0:
@@ -787,7 +825,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             prop.Name = 'URL'
             prop.Value = url
             
-            typeDet = createUnoService("com.sun.star.document.TypeDetection")
+            typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
             filter_det = typeDet.queryTypeByDescriptor((prop,),True)     
             
             for i in range(len(filter_det[1])): 
@@ -806,9 +844,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                         return True,filter_det
 
             return False,None
-
-            
-            
+         
             
     def lade_Projekt(self,filepicker = True):
         if self.mb.debug: print(self.mb.debug_time(),'lade_Projekt (importX)')
@@ -840,8 +876,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")
             tb()
-    
-    
+ 
     
     def leere_hf(self):
         contr = self.mb.dialog.getControl('Hauptfeld_aussen') 
@@ -851,7 +886,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
     
     def disposing(self,ev):
-        print('Fenster wir geschlossen')
+        print('Fenster wird geschlossen')
         return False
 
 class Import_CheckBox_Listener(unohelper.Base, XItemListener):
@@ -867,7 +902,6 @@ class Import_CheckBox_Listener(unohelper.Base, XItemListener):
             ev.Source.State = 1
        
      
-         
 
 class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,model1,model2,contr_strukt):
@@ -929,18 +963,20 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         fenster, fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         
+        self.mb.class_Import.fenster_filter = fenster
+        
         buttons = {}
         f_listener = Filter_CheckBox_Listener2(self.mb,buttons)
 
         y = 20
         
         # Titel
-        control, model = createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
+        control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
         control.Text = lang.FILTER
         model.FontWeight = 200.0
         fenster_cont.addControl('Titel', control)
 
-        control, model = createControl(self.mb.ctx,"Button",160,y-3,100,20,(),() )  
+        control, model = self.mb.createControl(self.mb.ctx,"Button",160,y-3,100,20,(),() )  
         control.Label = lang.ALLE_WAEHLEN
         control.ActionCommand = 'alle_waehlen'
         control.addActionListener(f_listener)
@@ -952,7 +988,7 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         for name in filter_name:
             
-            control, model = createControl(self.mb.ctx,"CheckBox",20,y,400,22,(),() )  
+            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,400,22,(),() )  
             model.Label = filters[name][0]             
             control.ActionCommand = name
             
@@ -989,8 +1025,8 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
     
     def erzeuge_filter(self):
         # Nur fuer OO
-        typeDet = createUnoService("com.sun.star.document.TypeDetection")
-        FF = createUnoService( "com.sun.star.document.FilterFactory" )
+        typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
+        FF = self.mb.createUnoService( "com.sun.star.document.FilterFactory" )
         FilterNames = FF.getElementNames()
         
         # da in OO und LO die Positionen der Eintraege im MediaDescriptor verschieden sind,
@@ -1054,7 +1090,6 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
                     
                     if 1 in flags:
                         # FilterName: Filter als Label, Extensions Endungen
-                        #self.mb.filters_import.update({filt:(formatiere(str(label2)),extensions)})
                         self.filters_import.update({filt:(formatiere(str(label2)),extensions)})
                     
                     if 2 in flags:                        
@@ -1121,7 +1156,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
 
         if ev.ActionCommand == 'Datei':
         
-            Filepicker = createUnoService("com.sun.star.ui.dialogs.FilePicker")
+            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
             if imp_set['url_dat'] != None:
                 Filepicker.setDisplayDirectory(imp_set['url_dat'])
             Filepicker.execute()
@@ -1138,7 +1173,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         elif ev.ActionCommand == 'Ordner':
         
-            Filepicker = createUnoService("com.sun.star.ui.dialogs.FolderPicker")
+            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
             if imp_set['url_ord'] != None:
                 Filepicker.setDisplayDirectory(imp_set['url_ord'])
             Filepicker.execute()
@@ -1155,19 +1190,3 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
     def disposing(self,ev):
         return False
            
-             
-################ TOOLS ################################################################
-
-# Handy function provided by hanya (from the OOo forums) to create a control, model.
-def createControl(ctx,type,x,y,width,height,names,values):
-   smgr = ctx.getServiceManager()
-   ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-   ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
-   ctrl_model.setPropertyValues(names,values)
-   ctrl.setModel(ctrl_model)
-   ctrl.setPosSize(x,y,width,height,15)
-   return (ctrl, ctrl_model)
-def createUnoService(serviceName):
-  sm = uno.getComponentContext().ServiceManager
-  return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
-

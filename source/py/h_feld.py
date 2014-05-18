@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import unohelper
+
+
 class Main_Container():
     
     def __init__(self,mb):
@@ -15,12 +18,9 @@ class Main_Container():
         
     def start(self):
         if self.mb.debug: print(self.mb.debug_time(),'start')
-        try:
-            self.erzeuge_Navigations_Hauptfeld()  
-            self.erzeuge_Scrollbar(self.dialog,self.ctx)
-            if self.mb.debug: print(self.mb.debug_time(),'start fertig')
-        except:
-            traceback.print_exc()      
+
+        self.erzeuge_Navigations_Hauptfeld()  
+        self.erzeuge_Scrollbar(self.dialog,self.ctx)
 
         
     def erzeuge_Navigations_Hauptfeld(self):
@@ -32,7 +32,7 @@ class Main_Container():
         Attr = (22,KONST.ZEILENHOEHE+2,1000,1800,'Hauptfeld_aussen', KONST.Color_Hauptfeld+500)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
-        control1, model1 = createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
+        control1, model1 = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
         #model1.BackgroundColor = Color
              
         self.dialog.addControl('Hauptfeld_aussen',control1)  
@@ -41,7 +41,7 @@ class Main_Container():
         Attr = (0,0,1000,10000,'Hauptfeld', KONST.Color_Hauptfeld)    
         PosX,PosY,Width,Height,Name,Color = Attr
          
-        control2, model2 = createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
+        control2, model2 = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
          
         #model2.BackgroundColor = Color     
         control1.addControl('Hauptfeld',control2)  
@@ -60,7 +60,7 @@ class Main_Container():
         Attr = (2,KONST.ZEILENHOEHE*index,600,20,Farbe__Container)    
         PosX,PosY,Width,Height,Farbe = Attr
         
-        control, model = createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
+        control, model = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
         model.Text = ordinal
         #model.BackgroundColor = Farbe 
             
@@ -82,7 +82,7 @@ class Main_Container():
         Attr = (32+int(lvl)*16+tag1X+tag2X+tag3X,0,400,20,'egal', Farbe_Textfeld)   
         PosX,PosY,Width,Height,Name,Color = Attr
         
-        control1, model1 = createControl(self.ctx,"Edit",PosX,PosY,Width,Height,(),() )  
+        control1, model1 = self.mb.createControl(self.ctx,"Edit",PosX,PosY,Width,Height,(),() )  
         model1.Text = name
         model1.Border = False
         model1.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
@@ -99,7 +99,7 @@ class Main_Container():
         Attr = (16+int(lvl)*16,2,16,16,'egal', Color__Container)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
-        control2, model2 = createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+        control2, model2 = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
 
         if art == 'waste':
             control2.addMouseListener(self.listenerDir)
@@ -149,7 +149,7 @@ class Main_Container():
             Attr = (32+int(lvl)*16,2,16,16,'egal', Color__Container)    
             PosX,PosY,Width,Height,Name,Color = Attr
             
-            control_tag1, model_tag1 = createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+            control_tag1, model_tag1 = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
             model_tag1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % tag1
             model_tag1.Border = 0
             control_tag1.addMouseListener(self.tag1_listener)
@@ -179,7 +179,7 @@ class Main_Container():
         Attr = (0,Y,20,Height,'scrollbar', None)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
-        control, model = createControl(ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
+        control, model = self.mb.createControl(ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
         #model.Name = 'ScrollBar_Hauptfeld'
         model.Orientation = 1
         model.LiveScroll = True        
@@ -289,63 +289,65 @@ class Main_Container():
         asd = []
         for i in alle:
             asd.append((i.tag,i.attrib['Lvl'],i.attrib['Sicht'],i))
-        #pd()
+
 
     def leere_Papierkorb(self):
         self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: print(self.mb.debug_time(),'leere_Papierkorb')
-        
-        self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
-        
-        tree = self.mb.xml_tree
-        root = tree.getroot()
-        C_XML = self.mb.class_XML
-
-        papierkorb_xml = root.find(".//"+self.mb.Papierkorb)  
-        papierkorb_xml.attrib['Zustand'] = 'zu'
-        papierkorb_inhalt1 = []
-        C_XML.selbstaufruf = False
-        C_XML.get_tree_info(papierkorb_xml,papierkorb_inhalt1)        
-        selektierter_ist_im_papierkorb = False
-
-        # Zeilen im Hauptfeld loeschen
-        for eintrag in papierkorb_inhalt1:        
-            ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-
-            if not selektierter_ist_im_papierkorb:
-                if self.mb.selektierte_zeile.AccessibleName == ordinal:
-                    selektierter_ist_im_papierkorb = True
+        try:
+            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
             
-            if art != 'waste':
-                contr = self.mb.Hauptfeld.getControl(ordinal)               
-                contr.dispose()
-
-        # Eintraege in XML Tree loeschen
-        papierkorb_inhalt = list(papierkorb_xml)
-        for verworfene in papierkorb_inhalt:
-            papierkorb_xml.remove(verworfene)
-                            
-        Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        tree.write(Path)
-
-        self.erneuere_selektierungen(selektierter_ist_im_papierkorb) 
-
-        # loesche Bereich(e) und Datei(en)
-        self.loesche_Bereiche_und_Dateien(papierkorb_inhalt1,papierkorb_inhalt)
-       
-        # XML,Ansicht und Dicts neu ordnen
-        # vielleicht gibt es noch eine andere Moeglichkeit?
-        # hier wird der gesamte Baum fuer jede Neuordnung nochmals durchlaufen
-        # -> Performance?
-        # Insgesamt wird der Baum 4x durchlaufen
-        self.mb.class_Projekt.erzeuge_dict_ordner()
-        self.mb.class_Zeilen_Listener.update_dict_zeilen_posY()    # <- dict wird durch tree aufgebaut. schon erneuert?    
-        
-        self.mb.Papierkorb_geleert = True
-        self.erneuere_dict_bereiche()
-        self.korrigiere_scrollbar()
-
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
+            tree = self.mb.xml_tree
+            root = tree.getroot()
+            C_XML = self.mb.class_XML
+    
+            papierkorb_xml = root.find(".//"+self.mb.Papierkorb)  
+            papierkorb_xml.attrib['Zustand'] = 'zu'
+            papierkorb_inhalt1 = []
+            C_XML.selbstaufruf = False
+            C_XML.get_tree_info(papierkorb_xml,papierkorb_inhalt1)        
+            selektierter_ist_im_papierkorb = False
+    
+            # Zeilen im Hauptfeld loeschen
+            for eintrag in papierkorb_inhalt1:        
+                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
+    
+                if not selektierter_ist_im_papierkorb:
+                    if self.mb.selektierte_zeile.AccessibleName == ordinal:
+                        selektierter_ist_im_papierkorb = True
+                
+                if art != 'waste':
+                    contr = self.mb.Hauptfeld.getControl(ordinal)               
+                    contr.dispose()
+    
+            # Eintraege in XML Tree loeschen
+            papierkorb_inhalt = list(papierkorb_xml)
+            for verworfene in papierkorb_inhalt:
+                papierkorb_xml.remove(verworfene)
+                                
+            Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
+            tree.write(Path)
+    
+            self.erneuere_selektierungen(selektierter_ist_im_papierkorb) 
+    
+            # loesche Bereich(e) und Datei(en)
+            self.loesche_Bereiche_und_Dateien(papierkorb_inhalt1,papierkorb_inhalt)
+           
+            # XML,Ansicht und Dicts neu ordnen
+            # vielleicht gibt es noch eine andere Moeglichkeit?
+            # hier wird der gesamte Baum fuer jede Neuordnung nochmals durchlaufen
+            # -> Performance?
+            # Insgesamt wird der Baum 4x durchlaufen
+            self.mb.class_Projekt.erzeuge_dict_ordner()
+            self.mb.class_Zeilen_Listener.update_dict_zeilen_posY()    # <- dict wird durch tree aufgebaut. schon erneuert?    
+            
+            self.mb.Papierkorb_geleert = True
+            self.erneuere_dict_bereiche()
+            self.korrigiere_scrollbar()
+    
+            self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
+        except:
+            tb()
         
                 
     def erneuere_selektierungen(self,selektierter_ist_im_papierkorb):
@@ -440,7 +442,6 @@ class Main_Container():
 from com.sun.star.awt import XMouseListener,XMouseMotionListener,XFocusListener
 from com.sun.star.awt.MouseButton import LEFT as MB_LEFT
 from com.sun.star.awt.MouseButton import RIGHT as MB_RIGHT
-import unohelper
 
 class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocusListener):
     def __init__(self,hf,ctx,mb):
@@ -561,6 +562,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                            
     def focusGained(self,ev):
         return False  
+    
     def focusLost(self, ev):
         # Bearbeitung des Zeileneintrags wieder ausschalten
         if self.edit_text == True:
@@ -685,7 +687,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     Attr = (int(lvl)*16,3,16,16,'eintrag23', Color__Container)    
                     PosX,PosY,Width,Height,Name,Color = Attr
                      
-                    control, model = createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )      
+                    control, model = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )      
                     model.Border = False                    
                     model.ImageURL = ImageURL
  
@@ -983,24 +985,15 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         Bereichsname_ord_dict = {}
 
         try:
-            # Hack: !!! Blendet den Papierkorb aus, wenn neuer Bereich eingefuegt wurde
+            # Blendet den Papierkorb aus, wenn neuer Bereich eingefuegt wurde
             letzte_zeile = sections.getByIndex(sections.Count - 1)
             letzte_zeile.IsVisible = False   
-            #self.mb.sichtbare_bereiche = [selekt_bereich_name]
         except:
             tb()
                 
         for i in range (len(alle_Zeilen)):
-            #sec = sections.getByName('OrganonSec'+str(i))
             ordinal = alle_Zeilen[i].tag
-
             Path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)  
-            
-#             SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-#             SFLink.FilterName = 'writer8'
-#             SFLink.FileURL = Path
-#             
-#             sec.setPropertyValue('FileLink',SFLink)
             
             Bereichsname_dict.update({'OrganonSec'+str(i):Path})
             ordinal_dict.update({ordinal:'OrganonSec'+str(i)})
@@ -1012,7 +1005,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)         
         
-
         
     def schalte_sichtbarkeit_der_Bereiche(self):
         if self.mb.debug: print(self.mb.debug_time(),'schalte_sichtbarkeit_der_Bereiche')
@@ -1048,9 +1040,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                             name_sec = self.mb.dict_bereiche['ordinal'][z]
                             orga_sec = self.mb.doc.TextSections.getByName(name_sec)
                             self.entferne_Trenner(orga_sec)
-    
-                            
-    
+        
                 # uebrige noch sichtbare ausblenden
                 for bereich in reversed(self.mb.sichtbare_bereiche):                        
                     bereich_ord = self.mb.dict_bereiche['Bereichsname-ordinal'][bereich]                     
@@ -1112,12 +1102,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 if bereich_ord not in zeilen_in_ordner_ordinal:                            
                     sec = self.mb.doc.TextSections.getByName(bereich)
                     sec.IsVisible = False 
-                    self.entferne_Trenner(sec)
-                                       
-#             # sichtbare Bereiche wieder in Prop eintragen
-#             self.mb.sichtbare_bereiche = []  
-#             for b in zeilen_in_ordner_ordinal:
-#                 self.mb.sichtbare_bereiche.append(self.mb.dict_bereiche['ordinal'][b])                    
+                    self.entferne_Trenner(sec)                 
         
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
 
@@ -1164,7 +1149,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         cur.ParaStyleName = 'Standard'
         #cur.PageDescName = ""
         #cur.Text.insertString(cur,'a',False)
-        #pd()
+
         
         bgl = newSection.BackGraphicLocation
         bgl.value = 'MIDDLE_BOTTOM'
@@ -1321,16 +1306,6 @@ class ScrollBarListener (unohelper.Base,XAdjustmentListener):
         return False
 
     
-################ TOOLS ################################################################
 
-# Handy function provided by hanya (from the OOo forums) to create a control, model.
-def createControl(ctx,type,x,y,width,height,names,values):
-   smgr = ctx.getServiceManager()
-   ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-   ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
-   ctrl_model.setPropertyValues(names,values)
-   ctrl.setModel(ctrl_model)
-   ctrl.setPosSize(x,y,width,height,15)
-   return (ctrl, ctrl_model)
 
   

@@ -13,7 +13,8 @@ class Projekt():
         global pd,lang
         pd = pydevBrk
         lang = self.mb.lang
-      
+        
+        self.first_time = True
    
     def erzeuge_neues_Projekt(self):
         try:
@@ -151,19 +152,19 @@ class Projekt():
         Path2 = uno.systemPathToFileUrl(Path1)
 
         self.mb.doc.storeAsURL(Path2,())   
-
+    
                        
     def dialog_neues_projekt_anlegen(self):
         
         y = 20
         # Projektname eingeben
-        control, model = createControl(self.ctx,"FixedText",25,y,250,20,(),() )  
+        control, model = self.mb.createControl(self.ctx,"FixedText",25,y,250,20,(),() )  
         model.Label = lang.ENTER_PROJ_NAME
         model.FontWeight = 150
         
         y += 30
         # Eingabefeld
-        control1, model1 = createControl(self.ctx,"Edit",25,y,200,20,(),() ) 
+        control1, model1 = self.mb.createControl(self.ctx,"Edit",25,y,200,20,(),() ) 
         
         
         
@@ -171,23 +172,23 @@ class Projekt():
         y += 40
         
         # Trenner 
-        controlT3, model3 = createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() ) 
+        controlT3, model3 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() ) 
         
         
         y += 40
         # speicherort
-        controlP, modelP = createControl(self.ctx,"FixedText",25,y + 3,120,20,(),() )  
+        controlP, modelP = self.mb.createControl(self.ctx,"FixedText",25,y + 3,120,20,(),() )  
         modelP.Label = lang.SPEICHERORT
         modelP.FontWeight = 150
         
         # waehlen 
-        controlW, modelW = createControl(self.ctx,"Button",142,y,80,20,(),() )  
+        controlW, modelW = self.mb.createControl(self.ctx,"Button",142,y,80,20,(),() )  
         modelW.Label = lang.AUSWAHL 
         controlW.setActionCommand(lang.WAEHLEN)
         
         y += 30
         # url
-        controlU, modelU = createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
+        controlU, modelU = self.mb.createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
         if self.mb.speicherort_last_proj != None:
             modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
         else:
@@ -199,19 +200,19 @@ class Projekt():
         y += 40
         
         # Trenner 
-        controlT, modelT = createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
+        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
         
         
         
         
         y += 40
         # Formatierung
-        controlForm, modelForm = createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
+        controlForm, modelForm = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
         modelForm.Label = lang.FORMATIERUNG #lang.ENTER_PROJ_NAME
         modelForm.FontWeight = 150
         
         
-        controlForm1, modelForm1 = createControl(self.ctx,"CheckBox",125,y,200,20,(),() )  
+        controlForm1, modelForm1 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() )  
         modelForm1.Label = lang.TEMPLATE_WRITER
         if not self.mb.settings_proj:
             state = False
@@ -220,19 +221,19 @@ class Projekt():
         modelForm1.State = not state
         
 
-        controlHelp, modelHelp = createControl(self.ctx,"Button",350,y ,30,30,(),() )  
+        controlHelp, modelHelp = self.mb.createControl(self.ctx,"Button",350,y ,30,30,(),() )  
         modelHelp.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
         controlHelp.setActionCommand('formatierung')
         
         y += 25
         
-        controlForm2, modelForm2 = createControl(self.ctx,"CheckBox",125,y,200,20,(),() ) 
+        controlForm2, modelForm2 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() ) 
         modelForm2.Label = lang.TEMPLATE_USER
         modelForm2.State = state
         
         y += 25
             # Liste der Formate
-        controlLBF2, modelLBF2 = createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
+        controlLBF2, modelLBF2 = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
 
         self.mb.user_styles,pfade = self.get_user_styles()
 
@@ -250,27 +251,27 @@ class Projekt():
         
         
         # Trenner 
-        controlT5, modelT5 = createControl(self.mb.ctx,"FixedLine",142,y+15 ,238,40,(),() )
+        controlT5, modelT5 = self.mb.createControl(self.mb.ctx,"FixedLine",142,y+15 ,238,40,(),() )
         
         
         y += 50
         
-        controlFormLBF4, modelFormLBF4 = createControl(self.ctx,"FixedText",142,y,300,20,(),() )  
+        controlFormLBF4, modelFormLBF4 = self.mb.createControl(self.ctx,"FixedText",142,y,300,20,(),() )  
         modelFormLBF4.Label = lang.EIGENES_TEMPL_ERSTELLEN
 
         
         y += 25
         
-        controlLBF5, modelLBF5 = createControl(self.ctx,"FixedText",142,y,50,20,(),() )  
+        controlLBF5, modelLBF5 = self.mb.createControl(self.ctx,"FixedText",142,y,50,20,(),() )  
         modelLBF5.Label = lang.NAME
         
-        controlLBF6, modelLBF6 = createControl(self.ctx,"Edit",222,y,158,20,(),() ) 
+        controlLBF6, modelLBF6 = self.mb.createControl(self.ctx,"Edit",222,y,158,20,(),() ) 
         
         
         y += 25
         
         # waehlen 
-        controlER, modelER = createControl(self.ctx,"Button",142,y ,80,20,(),() )  
+        controlER, modelER = self.mb.createControl(self.ctx,"Button",142,y ,80,20,(),() )  
         modelER.Label = lang.ERSTELLEN
         controlER.setActionCommand('vorlage_erstellen')
         
@@ -278,17 +279,17 @@ class Projekt():
         y += 40
         
         # Trenner 
-        controlT2, modelT2 = createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
+        controlT2, modelT2 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
         
         
         y += 40
         # Formatierung
-        controlTemp, modelTemp = createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
+        controlTemp, modelTemp = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
         modelTemp.Label = lang.TEMPLATE
         modelTemp.FontWeight = 150
         
         
-        controlTempL, modelTempL = createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
+        controlTempL, modelTempL = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
         templates = ('Minimal','Standard','Maximum')
         controlTempL.addItems(templates,0)
         modelTempL.Dropdown = True
@@ -298,7 +299,7 @@ class Projekt():
         controlTempL.Enable = False
         
         
-        controlHelpT, modelHelpT = createControl(self.ctx,"Button",350,y - 10 ,30,30,(),() )  
+        controlHelpT, modelHelpT = self.mb.createControl(self.ctx,"Button",350,y - 10 ,30,30,(),() )  
         modelHelpT.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
         controlHelpT.setActionCommand('template')
         
@@ -306,18 +307,18 @@ class Projekt():
         y += 40
         
         # Trenner 
-        controlT4, modelT4 = createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
+        controlT4, modelT4 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
         
         
         y += 40
         x = 142
         # ok button
-        control2, model2 = createControl(self.ctx,"Button",x,y,80,30,(),() )  
+        control2, model2 = self.mb.createControl(self.ctx,"Button",x,y,80,30,(),() )  
         model2.Label = lang.OK
         control2.setActionCommand(lang.OK)
         
         # cancel button  
-        control3, model3 = createControl(self.ctx,"Button",x + 120,y,80,30,(),() )  
+        control3, model3 = self.mb.createControl(self.ctx,"Button",x + 120,y,80,30,(),() )  
         model3.Label = lang.CANCEL
         control3.setActionCommand(lang.CANCEL)
         
@@ -469,7 +470,7 @@ class Projekt():
             return
 
         if filepicker:
-            Filepicker = createUnoService("com.sun.star.ui.dialogs.FilePicker")
+            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
             Filepicker.appendFilter('Organon Project','*.organon')
             filter = Filepicker.getCurrentFilter()
             Filepicker.execute()
@@ -576,7 +577,11 @@ class Projekt():
             inhalt = name
             path = CB.erzeuge_neue_Datei(index2,inhalt)
             path2 = uno.systemPathToFileUrl(path)
-            CB.erzeuge_bereich(index2,path2,sicht)            
+            
+            if art == 'waste':
+                CB.erzeuge_bereich(index2,path2,sicht,True) 
+            else:
+                CB.erzeuge_bereich(index2,path2,sicht) 
 
             Bereichsname_dict.update({'OrganonSec'+str(index2):path})
             ordinal_dict.update({ordinal:'OrganonSec'+str(index2)})
@@ -848,13 +853,43 @@ class Projekt():
         print('test')
         
         #pd()
-        
+                    
         
         try:
-            self.mb
-        except NameError:
-            print('mb existiert nicht')
-        
+#             for w in self.mb.desktop.ActiveFrame.ContainerWindow.Windows:
+#                 print(w.AccessibleContext.AccessibleName)
+#             if self.first_time:
+# 
+#                 self.windows = []  
+#                 toolkit = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.mb.ctx) 
+#                 for i in range(toolkit.TopWindowCount):
+#                     self.windows.append(toolkit.getTopWindow(i))
+#                     fenster_name = toolkit.getTopWindow(i).AccessibleContext.AccessibleName
+#                     name_active_frame = self.mb.desktop.ActiveFrame.Title
+#                     
+#                     if fenster_name == name_active_frame:
+#                         fn = toolkit.getTopWindow(i)
+#                         break
+#                 self.first_time = False
+#                 self.fn = fn
+#             else:
+#                 wins = []  
+#                 toolkit = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.mb.ctx) 
+#                 for i in range(toolkit.TopWindowCount):
+#                     if toolkit.getTopWindow(i) not in self.windows:
+#                         wins.append(toolkit.getTopWindow(i))
+#                     
+#                 
+#                 
+#             #fn.toBack()
+#             print(toolkit.TopWindowCount)
+#             desktop = self.mb.desktop
+#             x = desktop.findFrame('Xaver',23)
+#             y = desktop.findFrame('Xaver2',23)
+            pass
+        except :
+            tb()
+            
         
         
        
@@ -914,7 +949,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             with codecs.open( pfad, "r","utf-8") as file:
                 filepath = file.read() 
 
-        Filepicker = createUnoService("com.sun.star.ui.dialogs.FolderPicker")
+        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
         if filepath != None:
             Filepicker.setDisplayDirectory(filepath)
         Filepicker.execute()
@@ -1155,21 +1190,3 @@ class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
         
         
         
-################ TOOLS ################################################################
-
-# Handy function provided by hanya (from the OOo forums) to create a control, model.
-def createControl(ctx,type,x,y,width,height,names,values):
-   smgr = ctx.getServiceManager()
-   ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-   ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
-   ctrl_model.setPropertyValues(names,values)
-   ctrl.setModel(ctrl_model)
-   ctrl.setPosSize(x,y,width,height,15)
-   return (ctrl, ctrl_model)
-
-
-def createUnoService(serviceName):
-  sm = uno.getComponentContext().ServiceManager
-  return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
-                   
-

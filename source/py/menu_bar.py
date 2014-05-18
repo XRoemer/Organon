@@ -105,9 +105,7 @@ class Menu_Bar():
         self.class_Bereiche =        bereiche.Bereiche(self)
         self.VC_selection_listener = bereiche.ViewCursor_Selection_Listener(self)          
         self.w_listener =            bereiche.Dialog_Window_Listener(self)
-        
-        #self.doc_listener = Doc_Listener(self)
-        
+                
         
 
         # fuers debugging
@@ -164,14 +162,14 @@ class Menu_Bar():
 
     
     def erzeuge_MenuBar_Container(self):
-        menuB_control, menuB_model = createControl3(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
+        menuB_control, menuB_model = self.createControl(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
         menuB_model.BackgroundColor = KONST.Color_MenuBar_Container
          
         self.dialog.addControl('Organon_Menu_Bar', menuB_control)
 
 
     def erzeuge_Menu_Kopf_Datei(self,listener):
-        control, model = createControl3(self.ctx, "FixedText", 0, 2, 35, 20, (), ())           
+        control, model = self.createControl(self.ctx, "FixedText", 0, 2, 35, 20, (), ())           
         model.Label = self.lang.FILE             
         control.addMouseListener(listener)
         
@@ -180,7 +178,7 @@ class Menu_Bar():
     
     
     def erzeuge_Menu_Kopf_Optionen(self,listener):         
-        control, model = createControl3(self.ctx, "FixedText", 37, 2, 55, 20, (), ())           
+        control, model = self.createControl(self.ctx, "FixedText", 37, 2, 55, 20, (), ())           
         model.Label = self.lang.OPTIONS           
         control.addMouseListener(listener)
         
@@ -189,7 +187,7 @@ class Menu_Bar():
         
         
     def erzeuge_Menu_Kopf_Test(self,listener):
-        control, model = createControl3(self.ctx, "FixedText", 300, 2, 50, 20, (), ())           
+        control, model = self.createControl(self.ctx, "FixedText", 300, 2, 50, 20, (), ())           
         model.Label = 'Test'                     
         control.addMouseListener(listener) 
         
@@ -198,7 +196,7 @@ class Menu_Bar():
         
         
     def erzeuge_Menu_neuer_Ordner(self,listener2):
-        control, model = createControl3(self.ctx, "ImageControl", 120, 0, 20, 20, (), ())   
+        control, model = self.createControl(self.ctx, "ImageControl", 120, 0, 20, 20, (), ())   
         model.ImageURL = KONST.IMG_ORDNER_NEU_24
         
         model.HelpText = self.lang.INSERT_DIR
@@ -210,7 +208,7 @@ class Menu_Bar():
         
         
     def erzeuge_Menu_Kopf_neues_Dokument(self,listener2):
-        control, model = createControl3(self.ctx, "ImageControl", 140, 0, 20, 20, (), ())           
+        control, model = self.createControl(self.ctx, "ImageControl", 140, 0, 20, 20, (), ())           
         model.ImageURL = KONST.IMG_DATEI_NEU_24
                     
         model.HelpText = self.lang.INSERT_DOC
@@ -222,7 +220,7 @@ class Menu_Bar():
   
         
     def erzeuge_Menu_Kopf_Papierkorb_leeren(self,listener2):
-        control, model = createControl3(self.ctx, "ImageControl", 220, 0, 20, 20, (), ())           
+        control, model = self.createControl(self.ctx, "ImageControl", 220, 0, 20, 20, (), ())           
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png'
         model.HelpText = self.lang.CLEAR_RECYCLE_BIN
         model.Border = 0                       
@@ -306,7 +304,7 @@ class Menu_Bar():
     
     def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont):
         lang = self.lang
-        control, model = createControl3(self.ctx, "ListBox", 10 ,  10 , 
+        control, model = self.createControl(self.ctx, "ListBox", 10 ,  10 , 
                                         KONST.Breite_Menu_DropDown_Eintraege-6, 
                                         KONST.Hoehe_Menu_DropDown_Eintraege-6, (), ())   
         control.setMultipleMode(False)
@@ -334,7 +332,7 @@ class Menu_Bar():
     def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
         try:
             # Tag1
-            control_tag1, model_tag1 = createControl3(self.ctx, "CheckBox", 10, 10, 
+            control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, 10, 
                                                       KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
             model_tag1.Label = self.lang.SHOW_TAG1
             
@@ -349,7 +347,7 @@ class Menu_Bar():
             
     
             # ListBox
-            control, model = createControl3(self.ctx, "ListBox", 10, 34, KONST.Breite_Menu_DropDown_Eintraege-6, 
+            control, model = self.createControl(self.ctx, "ListBox", 10, 34, KONST.Breite_Menu_DropDown_Eintraege-6, 
                                             KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
             control.setMultipleMode(False)
             
@@ -473,7 +471,7 @@ class Menu_Bar():
         self.current_Contr.removeKeyHandler(self.keyhandler)
         self.dialog.removeWindowListener(self.w_listener)
         
-    def erzeuge_Dialog_Container(self,posSize):
+    def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128):
 
         ctx = self.ctx
         smgr = self.smgr
@@ -491,7 +489,7 @@ class Menu_Bar():
         oWindowDesc.WindowServiceName = ""
         #oWindowDesc.Parent = toolkit.getDesktopWindow()
         #oWindowDesc.ParentIndex = 1
-        oWindowDesc.WindowAttributes = 1  +32 +64 + 128 # Flags fuer com.sun.star.awt.WindowAttribute
+        oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
     
         oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
         oReturnValue, oRect = oXIdlClass.createObject(None)
@@ -508,9 +506,10 @@ class Menu_Bar():
         # create frame for window
         oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame",ctx)
         oFrame.initialize(oWindow)
-        oFrame.setCreator(self.desktop)
+        #oFrame.setCreator(self.desktop)
         oFrame.activate()
-    
+        oFrame.Name = 'Xaver'
+        oFrame.Title = 'Xaver2'
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
@@ -519,8 +518,10 @@ class Menu_Bar():
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
         cont.setPosSize(0, 0, 0, 0, 15)
-    
+        #pd()
         oFrame.setComponent(cont, None)
+        cont.Model.Text = 'Gabriel'
+
         return oWindow,cont
      
     def loesche_undo_Aktionen(self):
@@ -535,59 +536,19 @@ class Menu_Bar():
         with open(path , "w") as file:
             file.writelines(imp)
    
-
-
-# from com.sun.star.document import XDocumentEventListener
-# class Doc_Listener(unohelper.Base,XDocumentEventListener):
-#     def __init__(self,mb):
-#         self.mb = mb
-#     def documentEventOccured(self,ev):
-#         
-#         
-#         print('documentEventOccured')
-#         print(ev.EventName)
-#         return
-#         def pydevBrk():  
-#             # adjust your path 
-#             print('hier')
-#             import sys
-#             sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
-#             from pydevd import settrace
-#             settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
-#         
-#         #pydevBrk()
-#         
-#         if ev.EventName == 'OnUnfocus':
-#             print(self.mb.Anzahl_Componenten)
-#             import traceback
-#             
-#             try:
-#                 enum = self.mb.desktop.Components.createEnumeration()
-#                 comps = []
-#                 while enum.hasMoreElements():
-#                     comps.append(enum.nextElement())
-#                 Anzahl_Componenten = len(comps)
-#                 if Anzahl_Componenten > self.mb.Anzahl_Componenten:
-#                     
-#                     
-#                     from com.sun.star.awt import Rectangle,WindowDescriptor 
-#                     from com.sun.star.awt.WindowClass import MODALTOP
-#                     from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
-#                     
-#                     global Rectangle,WindowDescriptor,MODALTOP,OK,YES_NO_CANCEL, DEF_NO
-#                     
-#                     self.mb.Mitteilungen.nachricht(u'Sie haben eine weitere Instanz von OO/LO geöffnet. Organon funktioniert nun nicht mehr. Wenn Sie mehrere Instanzen von OO/LO nutzen möchten, öffnen Sie alle Instanzen und laden als letzte die Organon Datei.',"warningbox")
-#                     pydevBrk()
-#             except:
-#                 
-#                 
-#                 
-#                 
-#                 print('fehler')
-#                 traceback.print_exc()
-#             
-#     def disposing(self,ev):      
-#         return False
+    # Handy function provided by hanya (from the OOo forums) to create a control, model.
+    def createControl(self,ctx,type,x,y,width,height,names,values):
+       smgr = ctx.getServiceManager()
+       ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+       ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
+       ctrl_model.setPropertyValues(names,values)
+       ctrl.setModel(ctrl_model)
+       ctrl.setPosSize(x,y,width,height,15)
+       return (ctrl, ctrl_model)
+    
+    def createUnoService(self,serviceName):
+      sm = uno.getComponentContext().ServiceManager
+      return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
 
 
 from com.sun.star.awt import XMouseListener, XItemListener
@@ -796,7 +757,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                 zeile_xml = root.find('.//'+ord_zeile)
                 tag1 = zeile_xml.attrib['Tag1']
 
-                control_tag1, model_tag1 = createControl3(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+                control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
                 model_tag1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % tag1
                 model_tag1.Border = 0
                 control_tag1.addMouseListener(self.mb.class_Hauptfeld.tag1_listener)
@@ -872,21 +833,6 @@ class Mitteilungen():
    
 ################ TOOLS ################################################################
 
-# Handy function provided by hanya (from the OOo forums) to create a control, model.
-def createControl3(ctx, type, x, y, width, height, names, values):
-   smgr = ctx.getServiceManager()
-   ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type, ctx)
-   ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type, ctx)
-   ctrl_model.setPropertyValues(names, values)
-   ctrl.setModel(ctrl_model)
-   ctrl.setPosSize(x, y, width, height, 15)
-   return (ctrl, ctrl_model)
-
-
-
-def createUnoService(serviceName):
-  sm = uno.getComponentContext().ServiceManager
-  return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
 
 
 def load_reload_modul(modul,pyPath,mb):

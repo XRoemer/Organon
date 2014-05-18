@@ -125,14 +125,15 @@ class Bereiche():
         
         text = self.mb.doc.Text
         sections = self.mb.doc.TextSections  
-                
-        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        SFLink.FileURL = path
-        SFLink.FilterName = 'writer8'
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+        
         if papierkorb:
+            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink.FileURL = path
+            SFLink.FilterName = 'writer8'
             newSection.setPropertyValue('FileLink',SFLink)
+            
         newSection.setName('OrganonSec'+nr)
         
         if sicht == 'nein':
@@ -174,14 +175,9 @@ class Bereiche():
         if sicht == 'nein':
             newSection.IsVisible = False
 
-        if sections.Count == 0:
-            # bei leerem Projekt
-            textSectionCursor = text.createTextCursor()
-        else:
-            sectionN = sections.getByIndex(sections.Count-1)
-            textSectionCursor = text.createTextCursorByRange(sectionN.Anchor)
-            textSectionCursor.gotoEnd(False)
-        
+        textSectionCursor = text.createTextCursor()
+        textSectionCursor.gotoEnd(False)
+
         text.insertTextContent(textSectionCursor, newSection, False)
         
     

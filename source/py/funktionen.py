@@ -1,19 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# import traceback
-# import uno
 import unohelper
-# import os
-# 
-# tb = traceback.print_exc
-
-BREITE_TAG1_CONTAINER = 100
-HOEHE_TAG1_CONTAINER = 350
-URL_IMGS = 'vnd.sun.star.extension://xaver.roemers.organon/img/'
-
-IMG_ORDNER_GEOEFFNET_16 = 'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerGeoeffnet_16.png'
-
-EXPORT_DIALOG_FARBE = 305099
 
 
 class Funktionen():
@@ -55,75 +42,27 @@ class Funktionen():
 
        
     def erzeuge_Tag1_Container(self,ev):
-    
-        smgr = self.mb.smgr
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.mb.ctx)    
-        oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", self.mb.ctx)
-
-        # Create Uno Struct
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.WindowDescriptor")
-        oReturnValue, oWindowDesc = oXIdlClass.createObject(None)
-        # global oWindow
-        oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
-        oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = toolkit.getDesktopWindow()
-        oWindowDesc.ParentIndex = -1
-        oWindowDesc.WindowAttributes = 32
-
-        # Set Window Attributes
-        gnDefaultWindowAttributes = 1 + 16  # + 32 +64+128 
-#         com_sun_star_awt_WindowAttribute_SHOW + \
-#         com_sun_star_awt_WindowAttribute_BORDER + \
-#         com_sun_star_awt_WindowAttribute_MOVEABLE + \
-#         com_sun_star_awt_WindowAttribute_CLOSEABLE + \
-#         com_sun_star_awt_WindowAttribute_SIZEABLE
-          
+ 
+        Width = KONST.BREITE_TAG1_CONTAINER
+        Height = KONST.HOEHE_TAG1_CONTAINER
         X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X 
         Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y + ev.value.Source.Size.value.Height
-
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
-        oReturnValue, oRect = oXIdlClass.createObject(None)
-        oRect.X = X
-        oRect.Y = Y
-        oRect.Width = BREITE_TAG1_CONTAINER
-        oRect.Height = HOEHE_TAG1_CONTAINER
-        
-        oWindowDesc.Bounds = oRect
-
-        # specify the window attributes.
-        oWindowDesc.WindowAttributes = gnDefaultWindowAttributes
-        # create window
-        oWindow = toolkit.createWindow(oWindowDesc)
-         
-        # create frame for window
-        oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", self.mb.ctx)
-        oFrame.initialize(oWindow)
-        oFrame.setCreator(self.mb.desktop)
-        oFrame.activate()
-
-        # create new control container
-        cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", self.mb.ctx)
-        cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", self.mb.ctx)
-        cont_model.BackgroundColor = 305099  # 9225984
-        cont.setModel(cont_model)
-        # need createPeer just only the container
-        cont.createPeer(toolkit, oWindow)
-        cont.setPosSize(0, 0, 0, 0, 15)
-        
-        oFrame.setComponent(cont, None)
+        posSize = X,Y,Width,Height 
+        flags = 1+16+32+128
+        #flags=1+32+64+128
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags)
         
         # create Listener
         listener = Tag1_Container_Listener()
-        cont.addMouseListener(listener) 
-        listener.ob = oWindow  
+        fenster_cont.addMouseListener(listener) 
+        listener.ob = fenster  
         
-#    if ev.value.Source.AccessibleContext.AccessibleName == 'Datei':
-        self.erzeuge_Menu_DropDown_Eintraege_Datei(oWindow, cont,ev.Source)
-   
+        self.erzeuge_Menu_DropDown_Eintraege_Datei(fenster, fenster_cont,ev.Source)
+
     
     def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont,source):
-        control, model = createControl(self.mb.ctx, "ListBox", 4 ,  4 , 
-                                       BREITE_TAG1_CONTAINER - 10, HOEHE_TAG1_CONTAINER - 10, (), ())   
+        control, model = self.mb.createControl(self.mb.ctx, "ListBox", 4 ,  4 , 
+                                       KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
 
         items = ('leer',
@@ -149,7 +88,7 @@ class Funktionen():
         
         for item in items:
             pos = items.index(item)
-            model.setItemImage(pos,URL_IMGS+'punkt_%s.png' %item)
+            model.setItemImage(pos,KONST.URL_IMGS+'punkt_%s.png' %item)
         
         
         tag_item_listener = Tag1_Item_Listener(self.mb,window,source)
@@ -158,10 +97,7 @@ class Funktionen():
         cont.addControl('Eintraege_Tag1', control)
 
 
-                
-
-
-       
+     
 from com.sun.star.awt import XMouseListener,XItemListener
 class Tag1_Container_Listener (unohelper.Base, XMouseListener):
         def __init__(self):
@@ -205,7 +141,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         sel = ev.value.Source.Items[ev.value.Selected]
         #print(sel)
         # image tag1 aendern
-        self.source.Model.ImageURL = URL_IMGS+'punkt_%s.png' %sel
+        self.source.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
          # tag1 in xml datei einfuegen und speichern
         ord_source = self.source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
         tree = self.mb.xml_tree
@@ -221,19 +157,3 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
          
 
              
-################ TOOLS ################################################################
-
-# Handy function provided by hanya (from the OOo forums) to create a control, model.
-def createControl(ctx,type,x,y,width,height,names,values):
-   smgr = ctx.getServiceManager()
-   ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-   ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
-   ctrl_model.setPropertyValues(names,values)
-   ctrl.setModel(ctrl_model)
-   ctrl.setPosSize(x,y,width,height,15)
-   return (ctrl, ctrl_model)
-
-def createUnoService(serviceName):
-  sm = uno.getComponentContext().ServiceManager
-  return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
-

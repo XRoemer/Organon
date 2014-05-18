@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-
-#print('xml')
-# import traceback
-# tb = traceback.print_exc
-# import uno
-import unohelper
-  
   
 class XML_Methoden():
     

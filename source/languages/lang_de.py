@@ -70,6 +70,7 @@ SEITENUMBRUCH_ORD = 'Seitenumbruch vor Ordner'
 SEITENUMBRUCH_DAT = 'Seitenumbruch vor Datei'
 ORDNER_CLICK = u'Klick auf Ordner wählt Untereintraege aus'
 NICHTS_AUSGEWAEHLT = u'Es sind keine Dateien zum Export ausgewählt'
+EXPORT_BITTE_WARTEN = 'Exportiere. Bitte warten.'
 
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'
@@ -84,6 +85,7 @@ FILTER = 'Filter'
 ALLE_WAEHLEN = u'Alle auswählen'
 ERST_DATEI_AUSWAEHLEN = u'Sie haben noch keine Datei ausgewählt'
 ERST_ORDNER_AUSWAEHLEN = u'Sie haben noch keinen Ordner ausgewählt'
+IMPORT_ABGESCHLOSSEN = 'Import abgeschlossen'
 IMPORT_FILTER_WARNUNG = '''WARNING:
 This is an experimental feature and not all of the filters are working. (Pdf for example)
 
@@ -93,6 +95,25 @@ Using the import function on LibreOffice seemes to be more reliable than on Open
 ERZEUGE_DATEI = 'erzeuge Datei %s von %s'
 NO_FILES = u'Es existieren keine Dateien mit dem ausgesuchten Filter im selektierten Ordner'
 IMP_FORTFAHREN = u'Es sollen %s Dateien importiert werden. Wollen Sie wirklich fortfahren?'
+
+OPENOFFICE_WARNING = u'''OpenOffice wird durch den Gebrauch von Import und Export instabil. 
+In unregelmäßigen Abständen stürzt das Programm ohne Vorwarnung ab. 
+
+Die Import Funktion sollten Sie in bereits fortgeschrittenen Projekten nicht nutzen! (Da bleibt leider nur Copy and Paste.)
+
+Bei einem Absturz während des Exports oder danach, öffnen Sie Ihr Projekt wie gewohnt. (Benutzen Sie nicht die automatische Wiederherstellung.)
+Ihre Daten bleiben unversehrt.
+
+
+In LibreOffice funktionieren Import und Export zuverlässig. Projekte sind zwischen OpenOffice und LibreOffice austauschbar.
+Wenn Sie OpenOffice und LibreOffice parallel installieren, sollten Sie bei einem der Programme den Schnellstarter abschalten.
+(Extras/Einstellungen/OpenOffice/Arbeitsspeicher/OpenOffice Schnellstart: Häkchen entfernen)
+
+
+Wollen Sie den Vorgang fortsetzen?
+
+'''
+
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
