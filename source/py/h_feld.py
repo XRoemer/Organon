@@ -110,6 +110,7 @@ class Main_Container():
              
         
         # icons sind unter: C:\Program Files (x86)\LibreOffice 4\share\config ... \images\res
+        # richtige Icons finden
         if art in ('dir','prj'):
             control2.addMouseListener(self.listenerDir)
 
@@ -120,7 +121,8 @@ class Main_Container():
 
                 tree = self.mb.xml_tree 
                 root = tree.getroot()
-                ordner_xml = root.find('.//'+name)
+
+                ordner_xml = root.find('.//'+ordinal)
                 if ordner_xml != None:
                     childs = list(ordner_xml)
                     if len(childs) > 0:
@@ -275,7 +277,6 @@ class Main_Container():
                 if self.mb.doc.hasControllersLocked(): 
                     self.mb.doc.unlockControllers()
             
-                print('ENDE erzeuge neue Zeile #############################################################')
             except:
                 tb()
             StatusIndicator.end()

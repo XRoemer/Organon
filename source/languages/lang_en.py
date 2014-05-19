@@ -91,9 +91,7 @@ IMPORT_FILTER_WARNUNG = '''WARNING:
 This is an experimental feature and not all of the filters are working. (Pdf for example)
 
 It might be a good idea to try filters on an unimportant or fresh project. \
-Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.
-
-In LibreOffice Import and Export are working reliably.'''
+Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.'''
 ERZEUGE_DATEI = 'creating file %s/%s'
 NO_FILES = u'There are no files with the selected filter in the selcted folder'
 IMP_FORTFAHREN = u'%s files wil be imported. Do you want to continue?'

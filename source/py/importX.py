@@ -20,11 +20,10 @@ class ImportX():
     def importX(self):
         
         try:
-            if self.mb.programm == 'OpenOffice':
-                fortsetzen = self.warning(self.mb)
-                if not fortsetzen:
-                    return
-        
+#             if self.mb.programm == 'OpenOffice':
+#                 fortsetzen = self.warning(self.mb)
+#                 if not fortsetzen:
+#                     return
         
             if self.mb.filters_import == None:
                 self.erzeuge_filter()
@@ -367,30 +366,32 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
         imp_set = self.mb.settings_imp
-
-        if int(imp_set['imp_dat']) == 1:
+        try:
+            if int(imp_set['imp_dat']) == 1:
+                
+                if imp_set['url_dat'] == '':
+                    self.mb.Mitteilungen.nachricht(lang.ERST_DATEI_AUSWAEHLEN,"warningbox")
+                    self.fenster.toFront()
+                    return
             
-            if imp_set['url_dat'] == '':
-                self.mb.Mitteilungen.nachricht(lang.ERST_DATEI_AUSWAEHLEN,"warningbox")
-                self.fenster.toFront()
-                return
-        
-            self.datei_importieren('dokument',imp_set['url_dat'])
-            
-        else:
-            if imp_set['url_ord'] == '':
-                self.mb.Mitteilungen.nachricht(lang.ERST_ORDNER_AUSWAEHLEN,"warningbox")
-                self.fenster.toFront()
-                return
-
-            self.fenster.dispose()
-            self.mb.class_Import.fenster_import = None
-            
-            lade = self.ordner_importieren()
-
-            if lade:
-                self.lade_Projekt()
-                self.mb.Mitteilungen.nachricht(lang.IMPORT_ABGESCHLOSSEN,'infobox')
+                self.datei_importieren('dokument',imp_set['url_dat'])
+                
+            else:
+                if imp_set['url_ord'] == '':
+                    self.mb.Mitteilungen.nachricht(lang.ERST_ORDNER_AUSWAEHLEN,"warningbox")
+                    self.fenster.toFront()
+                    return
+    
+                self.fenster.dispose()
+                self.mb.class_Import.fenster_import = None
+                
+                lade = self.ordner_importieren()
+    
+                if lade:
+                    self.lade_Projekt()
+                    self.mb.Mitteilungen.nachricht(lang.IMPORT_ABGESCHLOSSEN,'infobox')
+        except:
+            tb()
 
             
     def datei_importieren(self,typ,url_dat):
@@ -612,7 +613,11 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
         imp_set = self.mb.settings_imp
         path = uno.fileUrlToSystemPath(imp_set['url_ord'])
-
+        
+        if not os.path.exists(path):
+            self.mb.Mitteilungen.nachricht(lang.NO_FILES,"infobox")
+            return None,None,False
+        
         Verzeichnis,AusgangsOrdner = self.durchlaufe_ordner(path)
         anz = len(Verzeichnis)
         

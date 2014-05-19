@@ -21,10 +21,10 @@ class Export():
         
         try:
             
-            if self.mb.programm == 'OpenOffice':
-                fortsetzen = self.mb.class_Import.warning(self.mb)
-                if not fortsetzen:
-                    return
+#             if self.mb.programm == 'OpenOffice':
+#                 fortsetzen = self.mb.class_Import.warning(self.mb)
+#                 if not fortsetzen:
+#                     return
             
             if self.mb.filters_export == None:
                 self.mb.class_Import.erzeuge_filter()
@@ -392,171 +392,180 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
 
         st_ind = self.mb.current_Contr.Frame.createStatusIndicator()        
         
-        set = self.mb.settings_exp
-        self.mb.class_Bereiche.starte_oOO()
-        
-        oOO = self.mb.class_Bereiche.oOO
-        cur = oOO.Text.createTextCursor()
-        text = oOO.Text
-        cur.gotoEnd(False)
-        
-        sections = self.mb.doc.TextSections.ElementNames
-
-        if set['sichtbar']:
-            sections = []
-            for sec_name in self.mb.sichtbare_bereiche:
-                sections.append(sec_name)
-                
-        if set['eigene_ausw']:
-            sects = [] 
-            for sec_name in sections:
-                if 'OrganonSec' in sec_name:  
-                    sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
-                    if sec_ordinal in set['ausgewaehlte']:
-                        if set['ausgewaehlte'][sec_ordinal][1] == 1:
-                            sects.append(sec_name)
-            sections = sects
-        
-        anz_sections = len(sections)
-        st_ind.start('exportiere, bitte warten',anz_sections)
-        st_ind.setValue(anz_sections/2)
-        zaehler = 1
+        try:
+            set = self.mb.settings_exp
+            self.mb.class_Bereiche.starte_oOO()
             
-        for sec_name in sections:
-            if 'OrganonSec' in sec_name:         
-                
-                zaehler += 1
-                 
-                cur.gotoEnd(False)
-                
-                sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
-                
-                if sec_ordinal == self.mb.Papierkorb:
-                    break  
-                
-                
-                if set['trenner']:
-                
-                    if set['seitenumbruch_ord']:
-                        if sec_ordinal in self.mb.dict_ordner:
-                            from com.sun.star.style.BreakType import PAGE_BEFORE
-                            cur.BreakType = PAGE_BEFORE
-                            text.insertControlCharacter(cur, 0, True)
-                            
-                    if set['seitenumbruch_dat']:
-                        if sec_ordinal not in self.mb.dict_ordner:
-                            from com.sun.star.style.BreakType import PAGE_BEFORE
-                            cur.BreakType = PAGE_BEFORE
-                            text.insertControlCharacter(cur, 0, True)   
-                    
-                    if set['ordnertitel']:
-                        if sec_ordinal in self.mb.dict_ordner:
-                            
-                            contr = self.mb.Hauptfeld.getControl(sec_ordinal)
-                            tf = contr.getControl('textfeld')
-                            titel = tf.Model.Text
-                            
-                            if set['format_ord']:
-                                oldStyle = cur.ParaStyleName
-                                cur.ParaStyleName = self.mb.settings_exp['style_ord'] 
-                                
-                            cur.setString(titel)
-                            cur.gotoEnd(False)
-                            
-                            if set['format_ord']:
-                                text.insertControlCharacter(cur,0,False)
-                                cur.ParaStyleName = oldStyle
-                            
-                            cur.gotoEnd(False)
-                            
-                    
-                    if set['dateititel']:
-                        if sec_ordinal not in self.mb.dict_ordner:
-                            
-                            contr = self.mb.Hauptfeld.getControl(sec_ordinal)
-                            tf = contr.getControl('textfeld')
-                            titel = tf.Model.Text
-                            
-                            if set['format_dat']:
-                                oldStyle = cur.ParaStyleName
-                                cur.ParaStyleName = self.mb.settings_exp['style_dat'] 
-                                
-                            cur.setString(titel)
-                            cur.gotoEnd(False)
-                            
-                            if set['format_dat']:
-                                text.insertControlCharacter(cur,0,False)
-                                cur.ParaStyleName = oldStyle
-                            
-                            cur.gotoEnd(False)
-
-                                
-                cur.gotoEnd(False)
-                cur.gotoEndOfParagraph(False)
-
-                fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
-                link = uno.systemPathToFileUrl(fl)
-                
-                SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-                SFLink.FilterName = 'writer8'
-                SFLink.FileURL = link
-                                
-                newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-                newSection.setPropertyValue('FileLink',SFLink)
-                
-                oOO.Text.insertTextContent(cur,newSection,False)
-                oOO.Text.removeTextContent(newSection)
-
-                
-                if set['trenner']:
-                
-                    if set['leerzeilen_drunter']:
-                        
-                        anz = int(set['anz_drunter'])
-                        for i in range(anz):
-                            cur.gotoEnd(False)
-                            text.insertControlCharacter(cur,0,False)
-                            cur.gotoEnd(False)
-                  
-                    
-                    if set['dok_einfuegen']:
-                        cur.gotoEnd(False)
-                        URL = set['url']
-                        
-                        SFLink2 = sec.FileLink
-                        SFLink2.FileURL = URL
-                        newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-                        newSection2.setPropertyValue('FileLink',SFLink2)
-                        newSection2.setName(sec.Name)
-                        
-                        oOO.Text.insertTextContent(cur,newSection2,False)
-                        oOO.Text.removeTextContent(newSection2)
-                        
-                        cur.gotoEnd(False)
-       
+            oOO = self.mb.class_Bereiche.oOO
+            cur = oOO.Text.createTextCursor()
+            text = oOO.Text
+            cur.gotoEnd(False)
+            
+            sections = self.mb.doc.TextSections.ElementNames
     
-        path = uno.fileUrlToSystemPath(decode_utf(self.mb.settings_exp['speicherort']))
-        Path2 = os.path.join(path, self.mb.projekt_name)
-        
-        filters = self.mb.filters_export
-
-        filter = [(f,filters[f]) for f in filters if f == set['typ']]
-        filterName = filter[0][0]
-        extension = '.' + filter[0][1][1][0]
-
-        if os.path.exists(Path2+extension):
-            Path2 = self.pruefe_dateiexistenz(Path2,extension)
-        
-        Path1 = Path2+extension
-        Path3 = uno.systemPathToFileUrl(Path1)   
-        
-        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop.Name = 'FilterName'
-        prop.Value = filterName
-        
-        oOO.storeToURL(Path3,(prop,))
+            if set['sichtbar']:
+                sections = []
+                for sec_name in self.mb.sichtbare_bereiche:
+                    sections.append(sec_name)
+                    
+            if set['eigene_ausw']:
+                sects = [] 
+                for sec_name in sections:
+                    if 'OrganonSec' in sec_name:  
+                        sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
+                        if sec_ordinal in set['ausgewaehlte']:
+                            if set['ausgewaehlte'][sec_ordinal][1] == 1:
+                                sects.append(sec_name)
+                sections = sects
             
+            anz_sections = len(sections)
+            st_ind.start('exportiere, bitte warten',anz_sections)
+            st_ind.setValue(anz_sections/2)
+            zaehler = 1
             
+            # Pruefen, ob die Trenndatei noch existiert
+            trennerDat_existiert = True
+            if set['dok_einfuegen']:
+                URL = set['url']
+                if URL != '':
+                    if not os.path.exists(uno.fileUrlToSystemPath(URL)):
+                        trennerDat_existiert = False
+                    
+                
+            for sec_name in sections:
+                if 'OrganonSec' in sec_name:         
+                    
+                    zaehler += 1
+                     
+                    cur.gotoEnd(False)
+                    
+                    sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
+                    
+                    if sec_ordinal == self.mb.Papierkorb:
+                        break  
+                    
+                    
+                    if set['trenner']:
+                    
+                        if set['seitenumbruch_ord']:
+                            if sec_ordinal in self.mb.dict_ordner:
+                                from com.sun.star.style.BreakType import PAGE_BEFORE
+                                cur.BreakType = PAGE_BEFORE
+                                text.insertControlCharacter(cur, 0, True)
+                                
+                        if set['seitenumbruch_dat']:
+                            if sec_ordinal not in self.mb.dict_ordner:
+                                from com.sun.star.style.BreakType import PAGE_BEFORE
+                                cur.BreakType = PAGE_BEFORE
+                                text.insertControlCharacter(cur, 0, True)   
+                        
+                        if set['ordnertitel']:
+                            if sec_ordinal in self.mb.dict_ordner:
+                                
+                                contr = self.mb.Hauptfeld.getControl(sec_ordinal)
+                                tf = contr.getControl('textfeld')
+                                titel = tf.Model.Text
+                                
+                                if set['format_ord']:
+                                    oldStyle = cur.ParaStyleName
+                                    cur.ParaStyleName = self.mb.settings_exp['style_ord'] 
+                                    
+                                cur.setString(titel)
+                                cur.gotoEnd(False)
+                                
+                                if set['format_ord']:
+                                    text.insertControlCharacter(cur,0,False)
+                                    cur.ParaStyleName = oldStyle
+                                
+                                cur.gotoEnd(False)
+                                
+                        
+                        if set['dateititel']:
+                            if sec_ordinal not in self.mb.dict_ordner:
+                                
+                                contr = self.mb.Hauptfeld.getControl(sec_ordinal)
+                                tf = contr.getControl('textfeld')
+                                titel = tf.Model.Text
+                                
+                                if set['format_dat']:
+                                    oldStyle = cur.ParaStyleName
+                                    cur.ParaStyleName = self.mb.settings_exp['style_dat'] 
+                                    
+                                cur.setString(titel)
+                                cur.gotoEnd(False)
+                                
+                                if set['format_dat']:
+                                    text.insertControlCharacter(cur,0,False)
+                                    cur.ParaStyleName = oldStyle
+                                
+                                cur.gotoEnd(False)
+    
+                                    
+                    cur.gotoEnd(False)
+                    cur.gotoEndOfParagraph(False)
+    
+                    fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
+                    link = uno.systemPathToFileUrl(fl)
+                    
+                    SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                    SFLink.FilterName = 'writer8'
+                    SFLink.FileURL = link
+                                    
+                    newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+                    newSection.setPropertyValue('FileLink',SFLink)
+                    
+                    oOO.Text.insertTextContent(cur,newSection,False)
+                    oOO.Text.removeTextContent(newSection)
+    
+                    
+                    if set['trenner']:
+                    
+                        if set['leerzeilen_drunter']:
+                            anz = int(set['anz_drunter'])
+                            for i in range(anz):
+                                cur.gotoEnd(False)
+                                text.insertControlCharacter(cur,0,False)
+                                cur.gotoEnd(False)
+                      
+                        
+                        if set['dok_einfuegen'] and trennerDat_existiert:
+                            cur.gotoEnd(False)
+                            URL = set['url']
+                            SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                            SFLink2.FileURL = URL
+
+                            newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+                            newSection2.setPropertyValue('FileLink',SFLink2)
+                            
+                            oOO.Text.insertTextContent(cur,newSection2,False)
+                            oOO.Text.removeTextContent(newSection2)
+                            
+                            cur.gotoEnd(False)
+           
+        
+            path = uno.fileUrlToSystemPath(decode_utf(self.mb.settings_exp['speicherort']))
+            Path2 = os.path.join(path, self.mb.projekt_name)
+            
+            filters = self.mb.filters_export
+    
+            filter = [(f,filters[f]) for f in filters if f == set['typ']]
+            filterName = filter[0][0]
+            extension = '.' + filter[0][1][1][0]
+    
+            if os.path.exists(Path2+extension):
+                Path2 = self.pruefe_dateiexistenz(Path2,extension)
+            
+            Path1 = Path2+extension
+            Path3 = uno.systemPathToFileUrl(Path1)   
+            
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'FilterName'
+            prop.Value = filterName
+            
+            oOO.storeToURL(Path3,(prop,))
+            
+        except:
+            tb()
         self.mb.class_Bereiche.schliesse_oOO()   
         st_ind.end() 
         

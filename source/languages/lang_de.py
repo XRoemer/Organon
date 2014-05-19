@@ -91,10 +91,7 @@ IMPORT_FILTER_WARNUNG = u'''WARNUNG:
 Dies ist ein experimentelles Feature und nicht alle gelisteten Filter funktionieren. (z.B. Pdf)
 
 Probieren Sie Filter an einem neuen Projekt erst aus. \
-Exportieren Sie importierte Dateien aus dem neuen Projekt als .odt Files und reimportieren Sie sie ins Zielprojekt.
-
-Z.Z wird OpenOffice durch den Gebrauch der Import-Funktion instabil und stürzt währenddessen oder danach häufig ab.
-In LibreOffice funktioniert der Import zuverlässig.'''
+Exportieren Sie importierte Dateien aus dem neuen Projekt als .odt Files und reimportieren Sie sie ins Zielprojekt.'''
 ERZEUGE_DATEI = 'erzeuge Datei %s von %s'
 NO_FILES = u'Es existieren keine Dateien mit dem ausgesuchten Filter im selektierten Ordner'
 IMP_FORTFAHREN = u'Es sollen %s Dateien importiert werden. Wollen Sie wirklich fortfahren?'
