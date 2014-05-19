@@ -8,7 +8,8 @@ OPEN_PROJECT = 'Open Project'
 CLEAR_RECYCLE_BIN = 'Clear Recycle Bin'
 INSERT_DOC = 'Insert New Document'
 INSERT_DIR = 'Insert New Folder'
-PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. Close the file, before you start or load another project. Menubar: File/Close'
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. \
+Close the file, before you start or load another project. Menubar: File/Close'
 
 SPEICHERORT = 'Storage Location'
 FORMATIERUNG = 'Format'
@@ -86,16 +87,20 @@ ERST_DATEI_AUSWAEHLEN = u'There is no selected File'
 ERST_ORDNER_AUSWAEHLEN = u'There is no selected Folder'
 IMPORT_ABGESCHLOSSEN = 'Import finished'
 IMPORT_FILTER_WARNUNG = '''WARNING:
+
 This is an experimental feature and not all of the filters are working. (Pdf for example)
 
-It might be a good idea to try filters on an unimportant or fresh project. Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.
+It might be a good idea to try filters on an unimportant or fresh project. \
+Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.
 
-Using the import function on LibreOffice seemes to be more reliable than on OpenOffice.'''
+In LibreOffice Import and Export are working reliably.'''
 ERZEUGE_DATEI = 'creating file %s/%s'
 NO_FILES = u'There are no files with the selected filter in the selcted folder'
 IMP_FORTFAHREN = u'%s files wil be imported. Do you want to continue?'
 
-OPENOFFICE_WARNING = u'''By using the import- or export-function OpenOffice gets unstable. 
+OPENOFFICE_WARNING = u'''WARNING:
+
+By using the import- or export-function OpenOffice gets unstable. 
 OpenOffice might crash in irregular intervals. 
 
 You shouldn't use the import-function on already developed projects! (Use copy and paste instead.)

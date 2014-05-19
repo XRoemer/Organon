@@ -86,26 +86,33 @@ ALLE_WAEHLEN = u'Alle auswählen'
 ERST_DATEI_AUSWAEHLEN = u'Sie haben noch keine Datei ausgewählt'
 ERST_ORDNER_AUSWAEHLEN = u'Sie haben noch keinen Ordner ausgewählt'
 IMPORT_ABGESCHLOSSEN = 'Import abgeschlossen'
-IMPORT_FILTER_WARNUNG = '''WARNING:
-This is an experimental feature and not all of the filters are working. (Pdf for example)
+IMPORT_FILTER_WARNUNG = u'''WARNUNG:
 
-It might be a good idea to try filters on an unimportant or fresh project. Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.
+Dies ist ein experimentelles Feature und nicht alle gelisteten Filter funktionieren. (z.B. Pdf)
 
-Using the import function on LibreOffice seemes to be more reliable than on OpenOffice.'''
+Probieren Sie Filter an einem neuen Projekt erst aus. \
+Exportieren Sie importierte Dateien aus dem neuen Projekt als .odt Files und reimportieren Sie sie ins Zielprojekt.
+
+Z.Z wird OpenOffice durch den Gebrauch der Import-Funktion instabil und stürzt währenddessen oder danach häufig ab.
+In LibreOffice funktioniert der Import zuverlässig.'''
 ERZEUGE_DATEI = 'erzeuge Datei %s von %s'
 NO_FILES = u'Es existieren keine Dateien mit dem ausgesuchten Filter im selektierten Ordner'
 IMP_FORTFAHREN = u'Es sollen %s Dateien importiert werden. Wollen Sie wirklich fortfahren?'
 
-OPENOFFICE_WARNING = u'''OpenOffice wird durch den Gebrauch von Import und Export instabil. 
-In unregelmäßigen Abständen stürzt das Programm ohne Vorwarnung ab. 
+OPENOFFICE_WARNING = u'''WARNUNG:
+
+OpenOffice wird durch den Gebrauch von Import und Export instabil und stürzt währenddessen oder danach häufig ab. 
 
 Die Import Funktion sollten Sie in bereits fortgeschrittenen Projekten nicht nutzen! (Da bleibt leider nur Copy and Paste.)
 
-Bei einem Absturz während des Exports oder danach, öffnen Sie Ihr Projekt wie gewohnt. (Benutzen Sie nicht die automatische Wiederherstellung.)
+Bei einem Absturz während des Exports oder danach, öffnen Sie Ihr Projekt wie gewohnt. \
+(Benutzen Sie nicht die automatische Wiederherstellung.)
 Ihre Daten bleiben unversehrt.
 
 
-In LibreOffice funktionieren Import und Export zuverlässig. Projekte sind zwischen OpenOffice und LibreOffice austauschbar.
+In LibreOffice funktionieren Import und Export zuverlässig. 
+
+Projekte sind zwischen OpenOffice und LibreOffice austauschbar. \
 Wenn Sie OpenOffice und LibreOffice parallel installieren, sollten Sie bei einem der Programme den Schnellstarter abschalten.
 (Extras/Einstellungen/OpenOffice/Arbeitsspeicher/OpenOffice Schnellstart: Häkchen entfernen)
 
