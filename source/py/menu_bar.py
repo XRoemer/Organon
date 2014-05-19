@@ -487,8 +487,8 @@ class Menu_Bar():
         # global oWindow
         oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
         oWindowDesc.WindowServiceName = ""
-        #oWindowDesc.Parent = toolkit.getDesktopWindow()
-        #oWindowDesc.ParentIndex = 1
+        oWindowDesc.Parent = toolkit.getDesktopWindow()
+        oWindowDesc.ParentIndex = -1
         oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
     
         oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
