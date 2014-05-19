@@ -13,7 +13,7 @@ class Funktionen():
         
     def projektordner_ausklappen(self):
         if self.mb.debug: print(self.mb.debug_time(),'projektordner_ausklappen')
-
+        
         tree = self.mb.xml_tree
         root = tree.getroot()
 
@@ -22,7 +22,7 @@ class Funktionen():
 
         projekt_zeile = self.mb.Hauptfeld.getControl(xml_projekt.tag)
         icon = projekt_zeile.getControl('icon')
-        icon.Model.ImageURL = IMG_ORDNER_GEOEFFNET_16
+        icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
         
         for zeile in alle_elem:
             zeile.attrib['Sicht'] = 'ja'
@@ -30,7 +30,7 @@ class Funktionen():
                 zeile.attrib['Zustand'] = 'auf'
                 hf_zeile = self.mb.Hauptfeld.getControl(zeile.tag)
                 icon = hf_zeile.getControl('icon')
-                icon.Model.ImageURL = IMG_ORDNER_GEOEFFNET_16
+                icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
                 
         tag = xml_projekt.tag
         self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(xml_projekt.tag,xml_projekt,'zu',True)
@@ -139,10 +139,10 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
     def itemStateChanged(self, ev):    
 
         sel = ev.value.Source.Items[ev.value.Selected]
-        #print(sel)
+
         # image tag1 aendern
         self.source.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
-         # tag1 in xml datei einfuegen und speichern
+        # tag1 in xml datei einfuegen und speichern
         ord_source = self.source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
         tree = self.mb.xml_tree
         root = tree.getroot()        
