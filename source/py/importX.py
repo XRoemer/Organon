@@ -246,7 +246,16 @@ class ImportX():
                 flags_pos = i
                 
             i += 1          
-
+        
+        
+        fil = typeDet.getByName(typeDet.ElementNames[0])
+        
+        i = 0
+        
+        for fi in fil:
+            if fi.Name == 'Extensions':
+                extensions_pos = i                 
+            i += 1          
         
         def formatiere(term):
             term = term.replace("'","")
@@ -281,7 +290,7 @@ class ImportX():
                     filter_typeDet = typeDet.getByName(f[type_pos].Value)
                     
                     # in LO und OO gleich
-                    extensions = filter_typeDet[5].Value
+                    extensions = filter_typeDet[extensions_pos].Value
                     label2 = formatiere2(extensions)
                     label2.insert(0,str(uiName))
                     
