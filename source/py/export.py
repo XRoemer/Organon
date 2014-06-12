@@ -221,11 +221,8 @@ class Export():
         modelFO.HelpText = 'URL'
         #modelF.Border = True
         label = decode_utf(set['speicherort'])
-        try:
-            l = uno.fileUrlToSystemPath(label)
-        except:
-            l = label
-        modelFO.Label = l
+        if label != '':
+            modelFO.Label = uno.fileUrlToSystemPath(label)
         fenster_cont.addControl('Speicherort', controlFO) 
         
         listener = Speicherordner_Button_Listener(self.mb,modelFO)

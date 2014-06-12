@@ -16,12 +16,12 @@ tb = traceback.print_exc
 platform = sys.platform
 
 
-global oxt
-oxt = True
+
+oxt = False
 
 
 if oxt:
-    pyPath = 'E:\\Eclipse_Workspace\\orga\\organon\\py'
+    pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
         sys.path.append(pyPath)
@@ -537,10 +537,10 @@ class Menu_Bar():
             file.writelines(imp)
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
-    def createControl(self,ctx,otype,x,y,width,height,names,values):
+    def createControl(self,ctx,type,x,y,width,height,names,values):
        smgr = ctx.getServiceManager()
-       ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % otype,ctx)
-       ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % otype,ctx)
+       ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+       ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
        ctrl_model.setPropertyValues(names,values)
        ctrl.setModel(ctrl_model)
        ctrl.setPosSize(x,y,width,height,15)
