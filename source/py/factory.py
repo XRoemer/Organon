@@ -6,13 +6,13 @@ import uno
 import unohelper
 
 global oxt
-oxt = False
- 
+oxt = True
+
 tb = traceback.print_exc
 platform = sys.platform
 
 if oxt:
-    pyPath = 'E:\\Eclipse_Workspace\\orga\\organon\\py'
+    pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
         sys.path.append(pyPath)
@@ -28,7 +28,7 @@ def pydevBrk():
     if platform == 'linux':
         sys.path.append('/opt/eclipse/plugins/org.python.pydev_3.3.3.201401272249/pysrc')  
     else:
-        sys.path.append(r'C:\Users\Homer\Desktop\Programme\eclipse\plugins\org.python.pydev_3.1.0.201312121632\pysrc')  
+        sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_3.5.0.201405201709/pysrc')  
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
 #pydevBrk()
