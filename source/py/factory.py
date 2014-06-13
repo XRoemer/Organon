@@ -6,12 +6,12 @@ import uno
 import unohelper
 
 
-oxt = False
+debug = False
 
 tb = traceback.print_exc
 platform = sys.platform
 
-if oxt:
+if debug:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
@@ -51,13 +51,13 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     
     def __init__(self, ctx, *args):
         self.ctx = ctx
-        if oxt:print("factory init")
+        if debug:print("factory init")
         #pydevBrk()
     def do(self):
         return
     
     def createInstanceWithArgumentsAndContext(self, args, ctx):
-        #if oxt:print('createInstanceWithArgumentsAndContext in Factory')
+        #if debug:print('createInstanceWithArgumentsAndContext in Factory')
         try:
             
             CWHandler = ContainerWindowHandler(ctx)
@@ -93,7 +93,7 @@ RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
 
 def create_window(ctx,factory):
-    #if oxt: print('create_window')
+    #if debug: print('create_window')
 
     dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
 
@@ -118,14 +118,14 @@ from com.sun.star.awt import XWindowListener,XActionListener,XContainerWindowEve
 class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
     
     def __init__(self, ctx):
-        #if oxt:print('init ContainerWindowHandler')
+        #if debug:print('init ContainerWindowHandler')
         self.ctx = ctx
         self.window2 = None
         #pydevBrk()
     
     # XContainerWindowEventHandler
     def callHandlerMethod(self, window, obj, name):
-        #if oxt:print('callHandlerMethod')
+        #if debug:print('callHandlerMethod')
         #pydevBrk()
         if name == "external_event":
             if obj == "initialize":
@@ -136,7 +136,7 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         return "external_event",
     
     def _initialize(self, window):
-        #if oxt:print('_initialize in ContainerWindowHandler')
+        #if debug:print('_initialize in ContainerWindowHandler')
 
         path_to_current = __file__.decode("utf-8")
         pyPath = path_to_current.split('factory.py')[0]
@@ -153,7 +153,7 @@ def start_main(pd,window,ctx,tabs,path_to_extension):
 
     dialog = window
     
-    if oxt:
+    if debug:
         modul = 'menu_bar'
         menu_bar = load_reload_modul(modul,pyPath)  # gleichbedeutend mit: import menu_bar
     else:

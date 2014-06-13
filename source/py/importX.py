@@ -230,6 +230,7 @@ class ImportX():
         # wird zuerst nach den richtigen Positionen gesucht
         
         fil = FF.getByName(FilterNames[0])
+        fil2 = typeDet.getByName(typeDet.ElementNames[0])
 
         i = 0
         
@@ -246,8 +247,15 @@ class ImportX():
                 flags_pos = i
                 
             i += 1          
-
         
+        i = 0
+        
+        for fil in fil2:
+            if fil.Name == 'Extensions':
+                extensions_pos = i
+                 
+            i += 1   
+
         def formatiere(term):
             term = term.replace("'","")
             term = term.replace('[','')
@@ -280,8 +288,7 @@ class ImportX():
                     uiName = f[uiName_pos].Value  
                     filter_typeDet = typeDet.getByName(f[type_pos].Value)
                     
-                    # in LO und OO gleich
-                    extensions = filter_typeDet[5].Value
+                    extensions = filter_typeDet[extensions_pos].Value
                     label2 = formatiere2(extensions)
                     label2.insert(0,str(uiName))
                     

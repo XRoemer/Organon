@@ -210,7 +210,7 @@ class Main_Container():
     
     def erzeuge_neue_Zeile(self,ordner_oder_datei,erzeuge_File = True):
         
-        self.mb.timer_start = self.mb.time.clock()
+        #self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Zeile')
         
         if self.mb.selektierte_zeile == None:       
@@ -293,7 +293,7 @@ class Main_Container():
 
 
     def leere_Papierkorb(self):
-        self.mb.timer_start = self.mb.time.clock()
+        #self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: print(self.mb.debug_time(),'leere_Papierkorb')
         try:
             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)

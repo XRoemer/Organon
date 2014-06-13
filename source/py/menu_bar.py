@@ -15,12 +15,10 @@ import copy
 tb = traceback.print_exc
 platform = sys.platform
 
+debug = False
 
 
-oxt = False
-
-
-if oxt:
+if debug:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/Arbeitsordner/organon/py'
@@ -35,7 +33,7 @@ class Menu_Bar():
         self.pd = pdk
         global pd,IMPORTS
         pd = pdk
-        
+
         IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd','copy')
         
         if 'LibreOffice' in sys.executable:
@@ -109,10 +107,11 @@ class Menu_Bar():
         
 
         # fuers debugging
-        self.debug = True
-        if self.debug: print('Debug = True')
-        self.time = time
-        self.timer_start = self.time.clock()
+        self.debug = debug
+        if self.debug: 
+            print('Debug = True')
+            self.time = time
+            self.timer_start = self.time.clock()
 
 
         self.dialog.addWindowListener(self.w_listener)
@@ -149,7 +148,7 @@ class Menu_Bar():
             self.erzeuge_Menu_Kopf_Datei(listener)
             self.erzeuge_Menu_Kopf_Optionen(listener)
             
-            if oxt:
+            if debug:
                 self.erzeuge_Menu_Kopf_Test(listener)
             
             self.erzeuge_Menu_neuer_Ordner(listener2)
@@ -246,7 +245,7 @@ class Menu_Bar():
         oWindowDesc.WindowAttributes = 32
         
         # Set Window Attributes
-        gnDefaultWindowAttributes = 1 + 16  # + 32 +64+128 
+        gnDefaultWindowAttributes = 1   # + 16 + 32 + 64 + 128 
     #         com_sun_star_awt_WindowAttribute_SHOW + \
     #         com_sun_star_awt_WindowAttribute_BORDER + \
     #         com_sun_star_awt_WindowAttribute_MOVEABLE + \
@@ -331,8 +330,11 @@ class Menu_Bar():
     
     def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
         try:
+            
+            y = 10
+            
             # Tag1
-            control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, 10, 
+            control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, y, 
                                                       KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
             model_tag1.Label = self.lang.SHOW_TAG1
             
@@ -340,22 +342,51 @@ class Menu_Bar():
                 model_tag1.State = 1
             else:
                 model_tag1.State = 0
+            
+            y += 16
+            
+            # Tag2
+            control_tag2, model_tag2 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                      KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
+            model_tag2.Label = self.lang.SHOW_TAG2
+            control_tag2.Enable = False
+            
+            if self.settings_proj['tag2']:
+                model_tag2.State = 1
+            else:
+                model_tag2.State = 0
+            
+            y += 16
+                
+            # Tag3
+            control_tag3, model_tag3 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                      KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
+            model_tag3.Label = self.lang.SHOW_TAG3
+            control_tag3.Enable = False
+            
+            if self.settings_proj['tag3']:
+                model_tag3.State = 1
+            else:
+                model_tag3.State = 0
+                
                 
             tag1_listener = Tag1_Item_Listener(self,model_tag1)
             control_tag1.addItemListener(tag1_listener)
             cont.addControl('Checkbox_Tag1', control_tag1)
+            cont.addControl('Checkbox_Tag2', control_tag2)
+            cont.addControl('Checkbox_Tag3', control_tag3)
             
-    
+            
+            y += 24
+            
             # ListBox
-            control, model = self.createControl(self.ctx, "ListBox", 10, 34, KONST.Breite_Menu_DropDown_Eintraege-6, 
+            control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.Breite_Menu_DropDown_Eintraege-6, 
                                             KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
             control.setMultipleMode(False)
             
             items = ( self.lang.UNFOLD_PROJ_DIR, 
                      '-------', 
-                     '#Homepage', 
-                     '#Updates', 
-                     '#Etc.')
+                     '#Homepage')
             
             control.addItems(items, 0)
             model.BackgroundColor = KONST.MENU_DIALOG_FARBE
@@ -382,7 +413,7 @@ class Menu_Bar():
             
     def get_Klasse_Hauptfeld(self):
 
-        if oxt:
+        if debug:
             modul = 'h_feld'
             h_feld = load_reload_modul(modul,pyPath,self)  
             
@@ -401,7 +432,7 @@ class Menu_Bar():
     def lade_modul(self,modul,arg = None): 
         
         try: 
-            if oxt:
+            if debug:
                 load_reload_modul(modul,pyPath,self)
                 exec('import '+modul)
                 
@@ -456,7 +487,10 @@ class Menu_Bar():
             traceback.print_exc()
             
     def erzeuge_Zeile(self,ordner_oder_datei):
-        self.class_Hauptfeld.erzeuge_neue_Zeile(ordner_oder_datei)          
+        try:
+            self.class_Hauptfeld.erzeuge_neue_Zeile(ordner_oder_datei)    
+        except:
+            tb()      
             
     def leere_Papierkorb(self):
         self.class_Hauptfeld.leere_Papierkorb()                  
@@ -771,7 +805,7 @@ from com.sun.star.awt import XKeyHandler
 class Key_Handler(unohelper.Base, XKeyHandler):
     
     def __init__(self,mb):
-        #if oxt:print('init Keyhandler')
+        #if debug:print('init Keyhandler')
         self.mb = mb
         self.mb.keyhandler = self
         mb.current_Contr.addKeyHandler(self)
