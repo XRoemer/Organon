@@ -1,6 +1,18 @@
 	Organon - Description
 
-Organon is a navigation and organisation tool for writer.
+Organon is a organisation and navigation-tool for writer (LibreOffice and OpenOffice).
+
+Organon creates a navigation-tree for folders and files. 
+
+It's possible to:
+
+- use drag and drop
+- create tags
+- import and export files
+
+While working within the text, Organon points to the place of the text in the navigation-tree. 
+
+
 
 Extension for LibreOffice (LO) and OpenOffice (OO)
 tested for Win7 (LO 4.2.0.4, OO 4.0.1) and Ubuntu 13.10 (LO 4.2.0.4), untested for OSX
@@ -11,14 +23,29 @@ WARNING:         This is still a beta version.
 Click 'Add' in Tools/Extension Manager and choose the saved 'organon.oxt'. Accept the licence and restart LO/OO.
 
 	Usage
-For a detailed description read 'Description.odt' 	
+For a detailed description read 'Description.odt'.	
+
+
 
 
 
 
 	Organon – Beschreibung
 
-Ein Navigations- und Organisationswerkzeug für Writer.
+Organon ist ein Werkzeug für eine übersichtliche Navigation zwischen Texten in Writer (OpenOffice und LibreOffice).
+
+Organon legt Textdateien in einem Verzeichnisbaum an.
+
+Texte/Verzeichnisse können:
+
+- per Drag and Drop verschoben werden
+- mit Tags versehen werden
+- ex- und
+- importiert werden
+
+Bei Auswahl eines Ordners oder einer Datei springt Organon an die entsprechende Textstelle. 
+
+
 
 Extension für LibreOffice (LO) und OpenOffice (OO)
 getestet für Win7 (LO 4.2.0.4 und OO 4.0.1) und Ubuntu 13.10 (LO 4.2.0.4), ungetestet für Mac 
@@ -29,7 +56,7 @@ WARNUNG:	Dies ist eine Beta-Version.
 Unter Extras/Extension Manager auf hinzufügen klicken und die organon.oxt Datei auswählen. Lizenzvertrag akzeptieren und Office schließen und neu starten.
 
  	Bedienung
-Lesen Sie für eine ausführlichere Beschreibung die 'Anleitung.odt' oder 'Anleitung.rtf'
+Lesen Sie für eine ausführlichere Beschreibung die 'Anleitung.odt'.
 
 
 

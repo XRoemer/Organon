@@ -329,76 +329,72 @@ class Menu_Bar():
         
     
     def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
-        try:
+        
+        if self.projekt_name != None:
+            tag1 = self.settings_proj['tag1']
+            tag2 = self.settings_proj['tag2']
+            tag3 = self.settings_proj['tag3']
+        else:
+            tag1 = 0
+            tag2 = 0
+            tag3 = 0
             
-            y = 10
+        y = 10
+        
+        # Tag1
+        control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                  KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
+        model_tag1.Label = self.lang.SHOW_TAG1
+        model_tag1.State = tag1
+        
+        
+        y += 16
+        
+        # Tag2
+        control_tag2, model_tag2 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                  KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
+        model_tag2.Label = self.lang.SHOW_TAG2
+        control_tag2.Enable = False
+        model_tag2.State = tag2
+        
+        y += 16
             
-            # Tag1
-            control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                      KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-            model_tag1.Label = self.lang.SHOW_TAG1
-            
-            if self.settings_proj['tag1']:
-                model_tag1.State = 1
-            else:
-                model_tag1.State = 0
-            
-            y += 16
-            
-            # Tag2
-            control_tag2, model_tag2 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                      KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-            model_tag2.Label = self.lang.SHOW_TAG2
-            control_tag2.Enable = False
-            
-            if self.settings_proj['tag2']:
-                model_tag2.State = 1
-            else:
-                model_tag2.State = 0
-            
-            y += 16
-                
-            # Tag3
-            control_tag3, model_tag3 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                      KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-            model_tag3.Label = self.lang.SHOW_TAG3
-            control_tag3.Enable = False
-            
-            if self.settings_proj['tag3']:
-                model_tag3.State = 1
-            else:
-                model_tag3.State = 0
-                
-                
-            tag1_listener = Tag1_Item_Listener(self,model_tag1)
-            control_tag1.addItemListener(tag1_listener)
-            cont.addControl('Checkbox_Tag1', control_tag1)
-            cont.addControl('Checkbox_Tag2', control_tag2)
-            cont.addControl('Checkbox_Tag3', control_tag3)
+        # Tag3
+        control_tag3, model_tag3 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                  KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
+        model_tag3.Label = self.lang.SHOW_TAG3
+        control_tag3.Enable = False
+        model_tag3.State = tag3
             
             
-            y += 24
-            
-            # ListBox
-            control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.Breite_Menu_DropDown_Eintraege-6, 
-                                            KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
-            control.setMultipleMode(False)
-            
-            items = ( self.lang.UNFOLD_PROJ_DIR, 
-                     '-------', 
-                     '#Homepage')
-            
-            control.addItems(items, 0)
-            model.BackgroundColor = KONST.MENU_DIALOG_FARBE
-            model.Border = False
-            
-            cont.addControl('Eintraege_Optionen', control)
-            
-            listener = DropDown_Item_Listener(self)  
-            listener.window = window    
-            control.addItemListener(listener)  
-        except:
-            tb() 
+        tag1_listener = Tag1_Item_Listener(self,model_tag1)
+        control_tag1.addItemListener(tag1_listener)
+        cont.addControl('Checkbox_Tag1', control_tag1)
+        cont.addControl('Checkbox_Tag2', control_tag2)
+        cont.addControl('Checkbox_Tag3', control_tag3)
+        
+        
+        y += 24
+        
+        # ListBox
+        control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.Breite_Menu_DropDown_Eintraege-6, 
+                                        KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
+        control.setMultipleMode(False)
+        
+        items = ( self.lang.UNFOLD_PROJ_DIR, 
+                 '-------',
+                 self.lang.ORGANON_BESCHREIBUNG, 
+                 'Homepage')
+        
+        control.addItems(items, 0)
+        model.BackgroundColor = KONST.MENU_DIALOG_FARBE
+        model.Border = False
+        
+        cont.addControl('Eintraege_Optionen', control)
+        
+        listener = DropDown_Item_Listener(self)  
+        listener.window = window    
+        control.addItemListener(listener)  
     
     
     def get_speicherort(self):
@@ -569,20 +565,40 @@ class Menu_Bar():
             
         with open(path , "w") as file:
             file.writelines(imp)
+            
+    def oeffne_dokument_in_neuem_fenster(self,URL):
+        self.new_doc = self.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
+            
+        contWin = self.new_doc.CurrentController.Frame.ContainerWindow               
+        contWin.setPosSize(0,0,870,900,12)
+        
+        lmgr = self.new_doc.CurrentController.Frame.LayoutManager
+        for elem in lmgr.Elements:
+        
+            if lmgr.isElementVisible(elem.ResourceURL):
+                lmgr.hideElement(elem.ResourceURL)
+                
+        lmgr.HideCurrentUI = True  
+        
+        viewSettings = self.new_doc.CurrentController.ViewSettings
+        viewSettings.ZoomType = 3
+        viewSettings.ZoomValue = 100
+        viewSettings.ShowRulers = False
+        
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
-       smgr = ctx.getServiceManager()
-       ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-       ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
-       ctrl_model.setPropertyValues(names,values)
-       ctrl.setModel(ctrl_model)
-       ctrl.setPosSize(x,y,width,height,15)
-       return (ctrl, ctrl_model)
+        smgr = ctx.getServiceManager()
+        ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+        ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
+        ctrl_model.setPropertyValues(names,values)
+        ctrl.setModel(ctrl_model)
+        ctrl.setPosSize(x,y,width,height,15)
+        return (ctrl, ctrl_model)
     
     def createUnoService(self,serviceName):
-      sm = uno.getComponentContext().ServiceManager
-      return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
+        sm = uno.getComponentContext().ServiceManager
+        return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
 
 
 from com.sun.star.awt import XMouseListener, XItemListener
@@ -596,19 +612,18 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
         
     def mousePressed(self, ev):
         if ev.Buttons == MB_LEFT:
-            #print('maus gepresst')
             if self.menu_Kopf_Eintrag == self.mb.lang.FILE:
-                self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)            
-            elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
             elif self.menu_Kopf_Eintrag == 'Test':
-                self.mb.erzeuge_neue_Projekte()
+                self.mb.erzeuge_neue_Projekte()          
+            elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
+                self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
+            
                 
             self.mb.loesche_undo_Aktionen()
             return False
 
     def mouseEntered(self, ev):
-        #print('maus kommt')
         ev.value.Source.Model.FontUnderline = 1     
         if self.menu_Kopf_Eintrag != ev.value.Source.Text:
             self.menu_Kopf_Eintrag = ev.value.Source.Text  
@@ -634,15 +649,16 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
     def mousePressed(self, ev):
         #print('mousePressed, Menu_Kopf_Listener2')
         if ev.Buttons == 1:
-            if ev.Source.Model.HelpText == self.mb.lang.INSERT_DOC:            
-                self.mb.erzeuge_Zeile('dokument')
-            if ev.Source.Model.HelpText == self.mb.lang.INSERT_DIR:            
-                self.mb.erzeuge_Zeile('Ordner')
-            if ev.Source.Model.HelpText == self.mb.lang.CLEAR_RECYCLE_BIN:            
-                self.mb.leere_Papierkorb()
-                
-            self.mb.loesche_undo_Aktionen()
-            return False
+            if self.mb.projekt_name != None:
+                if ev.Source.Model.HelpText == self.mb.lang.INSERT_DOC:            
+                    self.mb.erzeuge_Zeile('dokument')
+                if ev.Source.Model.HelpText == self.mb.lang.INSERT_DIR:            
+                    self.mb.erzeuge_Zeile('Ordner')
+                if ev.Source.Model.HelpText == self.mb.lang.CLEAR_RECYCLE_BIN:            
+                    self.mb.leere_Papierkorb()
+                    
+                self.mb.loesche_undo_Aktionen()
+                return False
         
     def mouseExited(self,ev):
         return False
@@ -718,7 +734,17 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
         elif sel == self.mb.lang.UNFOLD_PROJ_DIR:
             self.do()
             self.mb.class_Funktionen.projektordner_ausklappen()
-        
+        elif sel == self.mb.lang.ORGANON_BESCHREIBUNG:
+            self.do()
+            path = os.path.join(self.mb.path_to_extension,'description','Desc_%s.odt' % self.mb.language)
+            URL = uno.systemPathToFileUrl(path)
+            self.mb.oeffne_dokument_in_neuem_fenster(URL)
+        elif sel == 'Homepage':
+            self.do()
+            import webbrowser
+            webbrowser.open('https://github.com/XRoemer/Organon')
+
+
         self.mb.loesche_undo_Aktionen()
         
     def do(self): 
@@ -817,6 +843,18 @@ class Key_Handler(unohelper.Base, XKeyHandler):
         return False
         
     def keyReleased(self,ev):
+        
+        if self.mb.projekt_name != None:
+            # Wenn eine OrganonSec durch den Benutzer geloescht wird, wird die Aktion rueckgaengig gemacht
+            # KeyCodes: backspace, delete
+            if ev.KeyCode in (1283,1286):
+                anz_im_bereiche_dict = len(self.mb.dict_bereiche['ordinal'])
+                anz_im_dok = 0
+                for sec in self.mb.doc.TextSections.ElementNames:
+                    if 'OrganonSec' in sec:
+                        anz_im_dok += 1
+                if anz_im_dok < anz_im_bereiche_dict:
+                    self.mb.doc.UndoManager.undo()
         return False
                               
 

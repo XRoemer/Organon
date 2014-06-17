@@ -1,0 +1,12 @@
+Organon is an organisation and navigation-tool for OpenOffice and LibreOffice.
+
+Organon creates a navigation-tree for folders and files 
+
+It's possible to:
+
+- use drag and drop
+- create tags
+- import and export files
+
+While working within the text, Organon points to the place of the text in the navigation-tree. 
+

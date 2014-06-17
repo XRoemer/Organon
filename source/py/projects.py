@@ -190,7 +190,12 @@ class Projekt():
         # url
         controlU, modelU = self.mb.createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
         if self.mb.speicherort_last_proj != None:
-            modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
+            # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
+            # -> gespeicherten Pfad ueberpruefen!
+            try:
+                modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
+            except:
+                modelU.Label = '-' 
         else:
             modelU.Label = '-' 
         
@@ -841,11 +846,11 @@ class Projekt():
             
             Eintraege = [#('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
                     ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
-                    ('nr1','nr0','Titelseite',1,'pg','-','ja','leer','leer','leer'),
-                    ('nr2','nr0','Kapitel 1',1,'dir','auf','ja','leer','leer','leer'),
-                    ('nr3','nr2','Szene 1',2,'pg','-','ja','leer','leer','leer'),
-                    ('nr4','nr2','Szene 2',2,'pg','-','ja','leer','leer','leer'),
-                    ('nr5','root','Papierkorb',0,'waste','zu','ja','leer','leer','leer')]
+                    ('nr1','nr0',lang.TITEL,1,'pg','-','ja','leer','leer','leer'),
+                    ('nr2','nr0',lang.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
+                    ('nr3','nr2',lang.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
+                    ('nr4','nr2',lang.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
+                    ('nr5','root',lang.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
             
             return Eintraege
         
@@ -856,44 +861,12 @@ class Projekt():
                     
         
         try:
-#             for w in self.mb.desktop.ActiveFrame.ContainerWindow.Windows:
-#                 print(w.AccessibleContext.AccessibleName)
-#             if self.first_time:
-# 
-#                 self.windows = []  
-#                 toolkit = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.mb.ctx) 
-#                 for i in range(toolkit.TopWindowCount):
-#                     self.windows.append(toolkit.getTopWindow(i))
-#                     fenster_name = toolkit.getTopWindow(i).AccessibleContext.AccessibleName
-#                     name_active_frame = self.mb.desktop.ActiveFrame.Title
-#                     
-#                     if fenster_name == name_active_frame:
-#                         fn = toolkit.getTopWindow(i)
-#                         break
-#                 self.first_time = False
-#                 self.fn = fn
-#             else:
-#                 wins = []  
-#                 toolkit = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.mb.ctx) 
-#                 for i in range(toolkit.TopWindowCount):
-#                     if toolkit.getTopWindow(i) not in self.windows:
-#                         wins.append(toolkit.getTopWindow(i))
-#                     
-#                 
-#                 
-#             #fn.toBack()
-#             print(toolkit.TopWindowCount)
-#             desktop = self.mb.desktop
-#             x = desktop.findFrame('Xaver',23)
-#             y = desktop.findFrame('Xaver2',23)
-            pass
+            import webbrowser
+
+            #webbrowser.open('https://github.com/XRoemer/Organon')
         except :
             tb()
             
-        
-        
-       
-        
         pd()
     
 

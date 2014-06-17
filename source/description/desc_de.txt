@@ -1,1 +1,13 @@
-Organon legt Textdateien in einem Verzeichnisbaum an. Bei Auswahl eines Ordners oder einer Datei springt Organon an die entsprechende Textstelle. Dateien und Ordner koennen gekennzeichnet ('getaggt') werden.
+﻿Organon ist ein Werkzeug für eine übersichtliche Navigation zwischen Texten in OpenOffice und LibreOffice.
+
+Organon legt Textdateien in einem Verzeichnisbaum an.
+
+Texte/Verzeichnisse können:
+
+- per Drag and Drop verschoben werden
+- mit Tags versehen werden
+- ex- und
+- importiert werden
+
+Bei Auswahl eines Ordners oder einer Datei springt Organon an die entsprechende Textstelle. 
+

@@ -22,8 +22,10 @@ class ImportX():
         try:
 #             if self.mb.programm == 'OpenOffice':
 #                 fortsetzen = self.warning(self.mb)
-#                 if not fortsetzen:
-#                     return
+#             if not fortsetzen:
+#                 return
+#             lang.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
+#             self.mb.Mitteilungen.nachricht(lang.IMPORT_WARNING,"infobox",16777216)
         
             if self.mb.filters_import == None:
                 self.erzeuge_filter()
@@ -302,7 +304,8 @@ class ImportX():
                         
                         
     def warning(self,mb):
-        entscheidung = mb.Mitteilungen.nachricht(lang.OPENOFFICE_WARNING,"warningbox",16777216)
+        lang.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
+        entscheidung = mb.Mitteilungen.nachricht(lang.IMPORT_WARNING,"warningbox",16777216)
         # 3 = Nein oder Cancel, 2 = Ja
         if entscheidung == 3:
             return False
@@ -416,6 +419,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
         self.oOO = self.mb.desktop.loadComponentFromURL(url_dat,'_blank',8+32,(prop,))
         
+        # moeglicherweise vorhandene Links entfernen
+        self.entferne_links(self.oOO)
+                
         prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop3.Name = 'FilterName'
         prop3.Value = 'writer8'
@@ -451,6 +457,30 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
         return ordinal_neuer_Eintrag,bereichsname
             
+    def entferne_links(self,oOO):
+        try:
+            self.mb.class_Bereiche.verlinkte_Bilder_einbetten(oOO)
+            
+            all_links = []
+            
+            for name in oOO.Links.ElementNames:
+                all_links.append( oOO.Links.getByName(name))
+    
+            for l in all_links:
+                if len(l.ElementNames) != 0:
+                    
+                    # Sections (=region) entfernen
+                    if 'region' in l.ElementNames[0]:
+                        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                        for li in l.ElementNames:
+                            link = l.getByName(li)
+                            link.setPropertyValue('FileLink',SFLink)
+                            link.IsVisible = True
+                            if 'OrganonSec' in link.Name:
+                                link.Name = 'OldOrgSec'+link.Name.split('OrganonSec')[1]
+        except:
+            tb()
+
             
     def erzeuge_neue_Zeile(self):
         
@@ -589,7 +619,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
               
 
             self.oOO = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
-        
+            self.entferne_links(self.oOO)
+            
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop3.Name = 'FilterName'
             prop3.Value = 'writer8'
@@ -898,7 +929,6 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
     
     def disposing(self,ev):
-        print('Fenster wird geschlossen')
         return False
 
 class Import_CheckBox_Listener(unohelper.Base, XItemListener):

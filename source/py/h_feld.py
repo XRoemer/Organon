@@ -376,38 +376,52 @@ class Main_Container():
         for inhalt in papierkorb_inhalt1:
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = inhalt
             
-            if art != 'waste':
-                zahl = ordinal.split('nr')[1]
-                # loesche datei ordinal
-                Path = os.path.join(self.mb.pfade['odts'], 'nr%s.odt' % zahl)
-                os.remove(Path)
-                
-                bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
-                
-                # loesche text der Datei im Dokument
-                sections = self.mb.doc.TextSections
-                sec = sections.getByName(bereichsname)                
-                textSectionCursor = self.mb.doc.Text.createTextCursorByRange(sec.Anchor)
-                #textSectionCursor.gotoRange(sec.End,True)
-                textSectionCursor.setString('')
-
-                trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
-                sec.dispose()
-                
-                # Trenner loeschen
-                if trenner_name in self.mb.doc.TextSections.ElementNames:
-                    trenner = self.mb.doc.TextSections.getByName(trenner_name)
-                    textSectionCursor.gotoRange(trenner.Anchor,True)
-                    trenner.dispose()
+            try:
+            
+                if art != 'waste':
+                    zahl = ordinal.split('nr')[1]
+                    # loesche datei ordinal
+                    Path = os.path.join(self.mb.pfade['odts'], 'nr%s.odt' % zahl)
+                    os.remove(Path)
+                    
+                    bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
+                    
+                    # loesche text der Datei im Dokument
+                    sections = self.mb.doc.TextSections
+                    sec = sections.getByName(bereichsname) 
+                    
+                    
+#                     # neu TEST  ########
+#                     SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+#                     sec.setPropertyValue('FileLink',SFLink)
+                    
+                    # loesche eventuell vorhandene Kind Bereiche
+                    for child_sec in sec.ChildSections:
+                        child_sec.dispose()
+                                   
+                    textSectionCursor = self.mb.doc.Text.createTextCursorByRange(sec.Anchor)
+                    #textSectionCursor.gotoRange(sec.End,True)
                     textSectionCursor.setString('')
-              
-                textSectionCursor.gotoEnd(False)
-                while textSectionCursor.TextSection == None:
-                    textSectionCursor.goLeft(1,True)
-                #textSectionCursor.goLeft(1,True)
-                textSectionCursor.setString('')
-
-        
+    
+                    trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
+                    sec.dispose()
+                    
+                    # Trenner loeschen
+                    if trenner_name in self.mb.doc.TextSections.ElementNames:
+                        trenner = self.mb.doc.TextSections.getByName(trenner_name)
+                        textSectionCursor.gotoRange(trenner.Anchor,True)
+                        trenner.dispose()
+                        textSectionCursor.setString('')
+                  
+                    textSectionCursor.gotoEnd(False)
+                    while textSectionCursor.TextSection == None:
+                        textSectionCursor.goLeft(1,True)
+                    #textSectionCursor.goLeft(1,True)
+                    textSectionCursor.setString('')
+    
+                    
+            except:
+                tb()
         
     def erneuere_dict_bereiche(self):
         if self.mb.debug: print(self.mb.debug_time(),'erneuere_dict_bereiche')
@@ -1137,13 +1151,19 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                  
         newSection.setName(trenner_name)
         newSection.IsProtected = True
-
-        cur = sec.Anchor.Text.createTextCursor()
-        cur.gotoRange(sec.Anchor,False)
-        cur.gotoRange(cur.TextSection.Anchor.End,False)
-        cur.gotoNextParagraph(False)
         
-         
+        sec_nachfolger_name = 'OrganonSec' + str(int(sec.Name.split('OrganonSec')[1])+1)
+        sec_nachfolger = self.mb.doc.TextSections.getByName(sec_nachfolger_name)
+        
+#         cur = sec.Anchor.Text.createTextCursor()
+#         cur.gotoRange(sec.Anchor,False)
+#         cur.gotoRange(cur.TextSection.Anchor.End,False)
+#         cur.gotoNextParagraph(False)
+
+        cur = sec_nachfolger.Anchor.Text.createTextCursor()
+        cur.gotoRange(sec_nachfolger.Anchor,False)
+        cur.gotoRange(cur.TextSection.Anchor.Start,False)        
+        
         sec.Anchor.End.Text.insertTextContent(cur, newSection, False)
         
         cur.goLeft(1,False)

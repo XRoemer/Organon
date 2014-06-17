@@ -90,6 +90,8 @@ class Bereiche():
             
             if self.mb.debug:
                 text.insertString( cursor, inhalt, True )
+            else:
+                text.insertString( cursor, ' ', True )
             
             Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
             Path2 = uno.systemPathToFileUrl(Path1)    
@@ -216,7 +218,7 @@ class Bereiche():
         if self.mb.tastatureingabe == True and bereichsname != None:
             if self.mb.debug: print(self.mb.debug_time(),'datei_nach_aenderung_speichern')
             
-            self.pruefe_auf_unverlinkte_bilder()
+            self.verlinkte_Bilder_einbetten(self.mb.doc)
             projekt_path = self.mb.doc.URL
             
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
@@ -241,8 +243,8 @@ class Bereiche():
 
             self.mb.tastatureingabe = False
 
-    def pruefe_auf_unverlinkte_bilder(self):
-        if self.mb.debug: print(self.mb.debug_time(),'pruefe_auf_unverlinkte_bilder')
+    def verlinkte_Bilder_einbetten(self,doc):
+        if self.mb.debug: print(self.mb.debug_time(),'verlinkte_Bilder_einbetten')
         self.mb.selbstruf = True
         
         bilder = self.mb.doc.GraphicObjects
@@ -286,7 +288,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 if self.mb.debug: print('selection selbstruf')
                 return
     
-            selected_text_section = self.mb.current_Contr.ViewCursor.TextSection
+            selected_text_section = self.mb.current_Contr.ViewCursor.TextSection            
             if selected_text_section == None:
                 return False
             
@@ -295,7 +297,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
-                
+
                 if self.mb.zuletzt_gedrueckte_taste == None:
                     try:
                         self.mb.viewcursor.goDown(1,False)
@@ -318,6 +320,12 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 sec = []
                 self.test_for_parent_section(selected_text_section,sec)
                 selected_text_section = sec[0]
+                
+                # steht nach test_for... selcted_text... nicht auf einer OrganonSec, 
+                # ist der Bereich außerhalb des Organon trees
+                if 'OrganonSec' not in selected_text_section.Name:
+                    return
+                
                 
             self.so_name =  None   
                  

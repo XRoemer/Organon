@@ -3,6 +3,10 @@
 
 OPTIONS = 'Options'
 FILE = 'File'
+TITEL = 'Titel'
+PAPIERKORB = 'Waste Bin'
+KAPITEL = 'Chapter'
+SZENE = 'Scene'
 NEW_PROJECT = 'New Project'
 OPEN_PROJECT = 'Open Project'
 CLEAR_RECYCLE_BIN = 'Clear Recycle Bin'
@@ -10,6 +14,7 @@ INSERT_DOC = 'Insert New Document'
 INSERT_DIR = 'Insert New Folder'
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. \
 Close the file, before you start or load another project. Menubar: File/Close'
+ORGANON_BESCHREIBUNG = 'Organon Description'
 
 SPEICHERORT = 'Storage Location'
 FORMATIERUNG = 'Format'
