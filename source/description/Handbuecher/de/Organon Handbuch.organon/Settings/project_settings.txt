@@ -1,0 +1,7 @@
+{'user_styles': (),
+ 'formatierung': 'Standard',
+ 'tag2': 0,
+ 'tag3': 0,
+ 'use_template': (False,
+ None),
+ 'tag1': 1}

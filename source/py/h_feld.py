@@ -29,21 +29,21 @@ class Main_Container():
         # Hauptfeld scrollt dann in diesem Hauptfeld_aussen
 
         # Hauptfeld_Aussen
-        Attr = (22,KONST.ZEILENHOEHE+2,1000,1800,'Hauptfeld_aussen', KONST.Color_Hauptfeld+500)    
-        PosX,PosY,Width,Height,Name,Color = Attr
+        Attr = (22,KONST.ZEILENHOEHE+2,1000,1800,'Hauptfeld_aussen')    
+        PosX,PosY,Width,Height,Name = Attr
         
         control1, model1 = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
-        #model1.BackgroundColor = Color
+        
              
         self.dialog.addControl('Hauptfeld_aussen',control1)  
         
         # eigentliches Hauptfeld
-        Attr = (0,0,1000,10000,'Hauptfeld', KONST.Color_Hauptfeld)    
-        PosX,PosY,Width,Height,Name,Color = Attr
+        Attr = (0,0,1000,10000,)    
+        PosX,PosY,Width,Height = Attr
          
         control2, model2 = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
-         
-        #model2.BackgroundColor = Color     
+
+        model2.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
         control1.addControl('Hauptfeld',control2)  
     
         self.mb.Hauptfeld = control2
@@ -56,13 +56,12 @@ class Main_Container():
 
         ##### Aeusserer Container #######
         
-        Farbe__Container = 11581166     
-        Attr = (2,KONST.ZEILENHOEHE*index,600,20,Farbe__Container)    
-        PosX,PosY,Width,Height,Farbe = Attr
+        Attr = (2,KONST.ZEILENHOEHE*index,600,20)    
+        PosX,PosY,Width,Height = Attr
         
         control, model = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
         model.Text = ordinal
-        #model.BackgroundColor = Farbe 
+        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
             
         self.mb.Hauptfeld.addControl(ordinal,control)
         
@@ -187,9 +186,11 @@ class Main_Container():
         model.LiveScroll = True        
         hoehe_Hauptfeld = nav_cont.Size.value.Height 
         model.ScrollValueMax = hoehe_Hauptfeld/4
-                
+        
+        self.mb.scrollbar = control
+        
         dialog.addControl('ScrollBar',control)  
-               
+
         listener = ScrollBarListener(nav_cont)
         control.addAdjustmentListener(listener) 
         
@@ -197,18 +198,26 @@ class Main_Container():
         if self.mb.debug: print(self.mb.debug_time(),'korrigiere_scrollbar')
         
         dialog = self.mb.dialog
-        SB = dialog.getControl('ScrollBar')
+        #SB = dialog.getControl('ScrollBar')
+        SB = self.mb.scrollbar
+        
         
         hoehe = sorted(list(self.mb.dict_zeilen_posY))
         if hoehe != []:
             max =  hoehe[-1] - (self.mb.dialog.PosSize.Height - 100)
             if max > 0:
+                SB.Visible = True
                 SB.Maximum = max
+                
             else:
                 SB.Maximum  = 1
-
+                SB.Visible = False
+                nav_cont_aussen = dialog.getControl('Hauptfeld_aussen')
+                nav_cont = nav_cont_aussen.getControl('Hauptfeld')
+                nav_cont.setPosSize(0, 0,0,0,2)
+                #pd()
     
-    def erzeuge_neue_Zeile(self,ordner_oder_datei,erzeuge_File = True):
+    def erzeuge_neue_Zeile(self,ordner_oder_datei):
         
         #self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Zeile')
@@ -249,7 +258,7 @@ class Main_Container():
                 eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
                 
                 # neue Zeile / neuer XML Eintrag
-                self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
+                self.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
                             
                 # neue Datei / neuen Bereich anlegen           
@@ -257,13 +266,8 @@ class Main_Container():
                 nr = int(root.attrib['kommender_Eintrag']) - 1          
                 inhalt = ordinal
     
-                if erzeuge_File:
-                    self.mb.class_Bereiche.erzeuge_neue_Datei2(nr,inhalt)
-    
-                path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
-                path = uno.systemPathToFileUrl(path)
-                self.mb.class_Bereiche.erzeuge_bereich2(nr,path,sicht)
-               
+                self.mb.class_Bereiche.erzeuge_neue_Datei2(nr,inhalt)
+                self.mb.class_Bereiche.erzeuge_bereich2(nr,sicht)
     
                 # Zeilen anordnen
                 source = ordinal
@@ -276,12 +280,11 @@ class Main_Container():
     
                 if self.mb.doc.hasControllersLocked(): 
                     self.mb.doc.unlockControllers()
-            
+
             except:
                 tb()
             StatusIndicator.end()
 
-            return nr,path
             
             
     def kontrolle(self):
@@ -396,7 +399,16 @@ class Main_Container():
 #                     sec.setPropertyValue('FileLink',SFLink)
                     
                     # loesche eventuell vorhandene Kind Bereiche
-                    for child_sec in sec.ChildSections:
+                    ch_sections = []
+                    def get_childs(childs):
+                        for i in range (len(childs)):
+                            ch_sections.append(childs[i])
+                            if childs[i].ChildSections != None:
+                                get_childs(childs[i].ChildSections)
+
+                    get_childs(sec.ChildSections)
+                        
+                    for child_sec in ch_sections:
                         child_sec.dispose()
                                    
                     textSectionCursor = self.mb.doc.Text.createTextCursorByRange(sec.Anchor)
@@ -1041,7 +1053,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     ordnereintrag_name = self.mb.dict_bereiche['ordinal'][z]
                                             
                     z_in_ordner = self.mb.doc.TextSections.getByName(ordnereintrag_name)
-                    
+
                     self.verlinke_Sektion(ordnereintrag_name,z_in_ordner)
                     
                     z_in_ordner.IsVisible = True
@@ -1072,7 +1084,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             # Seiten 
                 selekt_bereich_name = self.mb.dict_bereiche['ordinal'][zeilenordinal]
                 selekt_bereich = self.mb.doc.TextSections.getByName(selekt_bereich_name)
-                
+
                 self.verlinke_Sektion(selekt_bereich_name,selekt_bereich)
                 
                 selekt_bereich.IsVisible = True
@@ -1141,24 +1153,27 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if len(kind.ChildSections) > 0:
                 self.mache_Kind_Bereiche_sichtbar(kind)
     
-    def zeige_Trenner(self,sec):   
+    def zeige_Trenner(self,sec):  
+        
         trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
          
         if trenner_name in self.mb.doc.TextSections.ElementNames:
+            trennerSec = self.mb.doc.TextSections.getByName(trenner_name)
+            trennerSec.IsVisible = True
+            if len(sec.ChildSections) != 0:
+                trennerSec.BackColor = sec.ChildSections[0].BackColor
             return
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                  
         newSection.setName(trenner_name)
         newSection.IsProtected = True
+        if len(sec.ChildSections) != 0:
+            newSection.BackColor = sec.ChildSections[0].BackColor
+
         
         sec_nachfolger_name = 'OrganonSec' + str(int(sec.Name.split('OrganonSec')[1])+1)
         sec_nachfolger = self.mb.doc.TextSections.getByName(sec_nachfolger_name)
-        
-#         cur = sec.Anchor.Text.createTextCursor()
-#         cur.gotoRange(sec.Anchor,False)
-#         cur.gotoRange(cur.TextSection.Anchor.End,False)
-#         cur.gotoNextParagraph(False)
 
         cur = sec_nachfolger.Anchor.Text.createTextCursor()
         cur.gotoRange(sec_nachfolger.Anchor,False)
@@ -1183,6 +1198,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         #pd() #newSection.setPropertyValue("ParaStyleName", 'Standard')
         
     def entferne_Trenner(self,sec):
+        
         #print('entferne', sec.Name)
         trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
         
@@ -1190,7 +1206,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             return
         
         trenner = self.mb.doc.TextSections.getByName(trenner_name)
-
+        trenner.IsVisible = False
+        return
         cur = self.mb.doc.Text.createTextCursor()
         cur.gotoRange(trenner.Anchor,False)
         cur.collapseToEnd()

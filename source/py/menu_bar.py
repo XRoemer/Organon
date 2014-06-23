@@ -15,25 +15,24 @@ import copy
 tb = traceback.print_exc
 platform = sys.platform
 
-debug = False
-
-
-if debug:
-    pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
-    if platform == 'linux':
-        pyPath = '/home/xgr/Arbeitsordner/organon/py'
-        sys.path.append(pyPath)
-    
-
 
 class Menu_Bar():
     
-    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension):
+    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,debugX):
         
+        global debug
+        debug = debugX
+        if debug:
+            self.get_pyPath()
+        
+        self.win = win
         self.pd = pdk
         global pd,IMPORTS
         pd = pdk
-
+        
+        
+        #pd()
+        print('############################')
         IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd','copy')
         
         if 'LibreOffice' in sys.executable:
@@ -51,6 +50,7 @@ class Menu_Bar():
         self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
         self.doc = self.get_doc()        
         self.current_Contr = self.doc.CurrentController 
+        self.undo_mgr = self.doc.UndoManager
         self.viewcursor = self.current_Contr.ViewCursor
         self.tabs = tabs
         self.platform = sys.platform
@@ -59,6 +59,7 @@ class Menu_Bar():
         self.path_to_extension = path_to_extension
         self.filters_import = None
         self.filters_export = None
+        self.BEREICH_EINFUEGEN = self.get_BEREICH_EINFUEGEN()
 
         # Properties
         self.projekt_name = None
@@ -79,6 +80,7 @@ class Menu_Bar():
         self.zuletzt_gedrueckte_taste = None
         
         self.xml_tree = None
+        
         #Settings
         self.settings_exp = None
         self.settings_imp = None
@@ -101,11 +103,17 @@ class Menu_Bar():
         self.class_Import =     self.lade_modul('importX','.ImportX(self,pd)') 
         bereiche =              self.lade_modul('bereiche')
         self.class_Bereiche =        bereiche.Bereiche(self)
-        self.VC_selection_listener = bereiche.ViewCursor_Selection_Listener(self)          
-        self.w_listener =            bereiche.Dialog_Window_Listener(self)
-                
         
-
+        
+        # Listener  
+        self.VC_selection_listener = bereiche.ViewCursor_Selection_Listener(self)          
+        self.w_listener =            bereiche.Dialog_Window_Listener(self)    
+        self.undo_mgr_listener = Undo_Manager_Listener(self)
+        
+        self.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
+        self.dialog.addWindowListener(self.w_listener)
+        self.use_UM_Listener = False
+        
         # fuers debugging
         self.debug = debug
         if self.debug: 
@@ -114,7 +122,12 @@ class Menu_Bar():
             self.timer_start = self.time.clock()
 
 
-        self.dialog.addWindowListener(self.w_listener)
+        
+
+#         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
+
+        
+        
         
         
     
@@ -138,7 +151,37 @@ class Menu_Bar():
             doc = self.desktop.getCurrentComponent() 
             
         return doc
-   
+    
+    def get_BEREICH_EINFUEGEN(self):
+        UM = self.doc.UndoManager
+        newSection = self.doc.createInstance("com.sun.star.text.TextSection")
+        cur = self.doc.Text.createTextCursor()  
+        cur.gotoEnd(False)
+        self.doc.Text.insertTextContent(cur, newSection, False)
+        BEREICH_EINFUEGEN = UM.getCurrentUndoActionTitle()
+        cur.gotoRange(newSection.Anchor,True)
+        newSection.dispose()
+        cur.setString('')
+        return BEREICH_EINFUEGEN
+    
+    def erzeuge_Menu2(self):
+        try:             
+            listener = Menu_Kopf_Listener(self) 
+            listener2 = Menu_Kopf_Listener2(self) 
+            self.erzeuge_MenuBar_Container()
+            
+            self.erzeuge_Menu_Kopf_Datei(listener)
+            self.erzeuge_Menu_Kopf_Optionen(listener)
+            
+            if debug:
+                self.erzeuge_Menu_Kopf_Test(listener)
+            
+           
+            
+        except Exception as e:
+                self.Mitteilungen.nachricht(str(e),"warningbox")
+                tb()
+    
     def erzeuge_Menu(self):
         try:             
             listener = Menu_Kopf_Listener(self) 
@@ -278,7 +321,7 @@ class Menu_Bar():
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", self.ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", self.ctx)
-        cont_model.BackgroundColor = KONST.MENU_DIALOG_FARBE  # 9225984
+        cont_model.BackgroundColor = KONST.MENU_DIALOG_FARBE  
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
@@ -496,10 +539,11 @@ class Menu_Bar():
         return zeit
 
     def entferne_alle_listener(self):
-        return
+        #return
         self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener) 
         self.current_Contr.removeKeyHandler(self.keyhandler)
         self.dialog.removeWindowListener(self.w_listener)
+        self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
         
     def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128):
 
@@ -584,7 +628,14 @@ class Menu_Bar():
         viewSettings.ZoomType = 3
         viewSettings.ZoomValue = 100
         viewSettings.ShowRulers = False
-        
+    
+    
+    def get_pyPath(self):
+        global pyPath
+        pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
+        if platform == 'linux':
+            pyPath = '/home/xgr/Arbeitsordner/organon/py'
+            sys.path.append(pyPath)    
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
@@ -901,8 +952,119 @@ class Mitteilungen():
         msgbox.dispose()
         return x
 
+from com.sun.star.document import XUndoManagerListener 
+class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener): 
+    
+    def __init__(self,mb):
+        self.mb = mb 
+        self.textbereiche = ()
         
-   
+        
+    def enteredContext(self,ev):
+        if self.mb.use_UM_Listener == False:
+            return
+        if ev.UndoActionTitle == self.mb.BEREICH_EINFUEGEN:
+            if self.mb.doc.TextSections.Count == 0:
+                self.textbereiche = ()
+            else:
+                self.textbereiche = self.mb.doc.TextSections.ElementNames
+    
+    
+    def leftContext(self,ev):
+        if self.mb.use_UM_Listener == False:
+            return
+        if ev.UndoActionTitle == self.mb.BEREICH_EINFUEGEN:
+            for tbe in self.mb.doc.TextSections.ElementNames:
+                if 'trenner' not in tbe:
+                    if tbe not in self.textbereiche:
+                        self.bereich_in_OrganonSec_einfuegen(tbe)
+    
+    
+    def undoActionAdded(self,ev):return False
+    def actionUndone(self,ev):return False
+    def actionRedone(self,ev):return False
+    def allActionsCleared(self,ev):return False
+    def redoActionsCleared(self,ev):return False
+    def resetAll(self,ev):return False
+    def enteredHiddenContext(self,ev):return False
+    def leftHiddenContext(self,ev):return False
+    def cancelledContext(self,ev):return False
+    
+    def bereich_in_OrganonSec_einfuegen(self,tbe):
+        
+        text = self.mb.doc.Text
+        vc = self.mb.viewcursor
+        TS = self.mb.doc.TextSections
+        
+        sec = TS.getByName(tbe)
+        sec_name = sec.Name
+        
+        if sec.ParentSection == None:
+            
+            position_neuer_Bereich = None
+            
+            cur2 = self.mb.doc.Text.createTextCursorByRange(vc)
+            cur2.collapseToStart()
+            cur2.goLeft(1,False)
+            
+            if cur2.TextSection == sec:
+                position_neuer_Bereich = 'davor'
+            
+            else:
+                cur2.gotoRange(vc,False)
+                cur2.collapseToEnd()
+                cur2.goRight(1,False)
+             
+                if cur2.TextSection == sec:
+                    position_neuer_Bereich = 'danach'
+            
+            cur = self.mb.doc.Text.createTextCursorByRange(vc)
+            cur.collapseToEnd()
+            
+            if position_neuer_Bereich == 'davor':
+                
+                cur.gotoRange(sec.Anchor,True)
+                cur.setString('')
+                self.mb.doc.Text.insertString(vc,' ',False)
+                cur.gotoRange(vc,False)
+                goLeft = 1
+                
+            elif position_neuer_Bereich == 'danach':
+        
+                self.mb.doc.Text.insertString(vc,' ',False)
+                
+                cur.gotoRange(sec.Anchor,True)
+                cur.setString('')
+                cur.gotoRange(vc,False)
+                cur.goLeft(1,False)
+                goLeft = 2
+                
+            else:
+                return
+            
+            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            newSection.setName(sec_name)
+            
+            self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
+            self.mb.doc.Text.insertTextContent(cur,newSection,False)
+            self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
+            
+            vc.goLeft(goLeft,False)
+
+        # Wenn ein Bereich eingefuegt wurde, auf jeden Fall speichern
+        section = vc.TextSection
+        while section != None:
+            bereichsname = section.Name
+            section = section.ParentSection
+        
+        path = self.mb.dict_bereiche['Bereichsname'][bereichsname]
+        path = uno.systemPathToFileUrl(path)
+        self.mb.tastatureingabe = True
+        self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+        
+            
+            
+    
 ################ TOOLS ################################################################
 
 

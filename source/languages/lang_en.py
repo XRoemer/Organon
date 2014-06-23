@@ -9,11 +9,12 @@ KAPITEL = 'Chapter'
 SZENE = 'Scene'
 NEW_PROJECT = 'New Project'
 OPEN_PROJECT = 'Open Project'
+LOAD_DESCRIPTION = 'Load Description'
 CLEAR_RECYCLE_BIN = 'Clear Recycle Bin'
 INSERT_DOC = 'Insert New Document'
 INSERT_DIR = 'Insert New Folder'
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. \
-Close the file, before you start or load another project. Menubar: File/Close'
+Close Organon, before you start or load another project. Menubar: Organon>open/close'
 ORGANON_BESCHREIBUNG = 'Organon Description'
 
 SPEICHERORT = 'Storage Location'

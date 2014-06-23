@@ -519,8 +519,13 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     newSection.setPropertyValue('FileLink',SFLink)
                     
                     oOO.Text.insertTextContent(cur,newSection,False)
-                    oOO.Text.removeTextContent(newSection)
-    
+                    
+                    # entferne OrgInnerSec
+                    if True:
+                        cur.goLeft(1,False)
+                        cur.TextSection.dispose()
+                        
+                    oOO.Text.removeTextContent(newSection)                   
                     
                     if set['trenner']:
                     
@@ -683,7 +688,12 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             oOO = self.mb.class_Bereiche.oOO
             cur = oOO.Text.createTextCursor()
             text = oOO.Text
-             
+            
+#             # entferne OrgInnerSec
+#             if True:
+#                 #cur.goLeft(1,False)
+#                 cur.TextSection.dispose()
+                
             # Speichern     
             for i in range(3):
                 
@@ -699,11 +709,16 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
                     if sec_ordinal == self.mb.Papierkorb:
                         break  
-                     
+                    
+                    # evt vorhandene Sections loeschen, die mit dem Cursor nicht erreicht werden
+                    for el_n in range(oOO.TextSections.Count):
+                        el = oOO.TextSections.getByIndex(0)
+                        el.dispose()
+
                     cur.gotoStart(False)
                     cur.gotoEnd(True)
                     cur.setString('')
-                     
+                    
                     
                     fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
                     link = uno.systemPathToFileUrl(fl)
@@ -715,9 +730,23 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                     newSection.setPropertyValue('FileLink',SFLink)
                     
-                    oOO.Text.insertTextContent(cur,newSection,False)
+                  
+                    oOO.Text.insertTextContent(cur,newSection,False)                   
+                    
+                    # Den durch Organon angelegten Textbereich wieder loeschen
+                    cur.gotoRange(newSection.Anchor,False)  
+                    orgSec = cur.TextSection
+                    while orgSec.ParentSection.Name != 'TextSection':
+                        orgSec = orgSec.ParentSection
+                    orgSec.dispose()
+                    # das durch dispose entstandene Leerzeichen loeschen
+                    cur.gotoEnd(False)
+                    cur.goLeft(1,True)
+                    cur.setString('')
+                        
                     oOO.Text.removeTextContent(newSection)
-                     
+                    
+                    
                     contr = self.mb.Hauptfeld.getControl(sec_ordinal)
                     tf = contr.getControl('textfeld')
                     titel = tf.Model.Text
@@ -744,7 +773,8 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     path = pfad + extension 
                     path2 = uno.systemPathToFileUrl(path)  
                     oOO.storeToURL(path2,(prop,))
-                 
+                    
+                    
                 # unterbricht while Schleife, wenn nur Trenner und keine keine OrganonSec mehr uebrig sind 
                 if self.teste_auf_verbliebene_bereiche(sections[zaehler::]):
                     zaehler = anz_sections

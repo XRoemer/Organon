@@ -56,13 +56,22 @@ class Bereiche():
         cursor = text.createTextCursor()
         cursor.gotoStart(False)
         cursor.gotoEnd(True)
+        text.insertString( cursor, '', True )
 
-        #if self.mb.debug:
+        
+        newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+        newSection.setName('OrgInnerSec'+nr)
+        text.insertTextContent(cursor, newSection, False)
+        cursor.goLeft(1,True)
+        
         text.insertString( cursor, inhalt, True )
                 
         Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
         Path2 = uno.systemPathToFileUrl(Path1)        
         self.oOO.storeToURL(Path2,())
+        
+        newSection.dispose()
+        
         
         return Path1
     
@@ -87,6 +96,11 @@ class Bereiche():
             cursor = text.createTextCursor()
             cursor.gotoStart(False)
             cursor.gotoEnd(True)
+            
+            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            newSection.setName('OrgInnerSec'+nr)
+            text.insertTextContent(cursor, newSection, False)
+            cursor.goLeft(1,True)
             
             if self.mb.debug:
                 text.insertString( cursor, inhalt, True )
@@ -152,11 +166,11 @@ class Bereiche():
         text.insertTextContent(textSectionCursor, newSection, False)
         
     
-    def erzeuge_bereich2(self,i,path,sicht):
+    def erzeuge_bereich2(self,i,sicht):
         if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich2')
         
         nr = str(i) 
-        
+
         text = self.mb.doc.Text
         sections = self.mb.doc.TextSections  
         
@@ -165,9 +179,15 @@ class Bereiche():
             if 'OrganonSec' in sec_name:
                 alle_hotzenploetze.append(sec_name)
         anzahl_hotzenploetze = len(alle_hotzenploetze)
-                
+
+        bereichsname_Papierkorb = self.mb.dict_bereiche['ordinal'][self.mb.Papierkorb]
+        path_to_Papierkorb = self.mb.dict_bereiche['Bereichsname'][bereichsname_Papierkorb]
+        
+        path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
+        path = uno.systemPathToFileUrl(path)
+                 
         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        SFLink.FileURL = path
+        SFLink.FileURL = path#_to_Papierkorb
         SFLink.FilterName = 'writer8'
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
@@ -179,11 +199,15 @@ class Bereiche():
 
         textSectionCursor = text.createTextCursor()
         textSectionCursor.gotoEnd(False)
-
+        
         text.insertTextContent(textSectionCursor, newSection, False)
         
-    
-        
+        # Der richtige Link fuer den letzten Bereich wird erst hier gesetzt, da die sec ansonsten
+        # falsch eingefuegt wird (weiss der Henker, warum)
+        SFLink.FileURL = path_to_Papierkorb
+        newSection.setPropertyValue('FileLink',SFLink)
+
+
     def loesche_leeren_Textbereich_am_Ende(self):
         if self.mb.debug: print(self.mb.debug_time(),'loesche_leeren_Textbereich_am_Ende')
         
@@ -372,16 +396,15 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         
                   
     def farbe_der_selektion_aendern(self,bereichsname):      
-
+        
         ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][bereichsname]
         zeile = self.mb.Hauptfeld.getControl(ordinal)
         textfeld = zeile.getControl('textfeld')
         
         self.mb.selektierte_zeile = zeile.AccessibleContext
-        
         # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
         textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
-        if self.mb.selektierte_Zeile_alt != None:                
+        if self.mb.selektierte_Zeile_alt != None:  
             self.mb.selektierte_Zeile_alt.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
 
         self.mb.selektierte_Zeile_alt = textfeld
@@ -408,7 +431,6 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
         return False
     
     def windowHidden(self,ev):
-        print('hiding window')
         try:
             if self.mb.debug:print('windowHidden')
             if self.mb.bereich_wurde_bearbeitet:
@@ -422,7 +444,7 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
                     
             self.mb.entferne_alle_listener() 
             
-            #self.mb = None
+            self.mb = None
             return False
         
         except:

@@ -69,7 +69,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
 
             path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
             
-            start_main(pydevBrk,window,ctx,tabs,path_to_extension)  
+            start_main(pydevBrk,window,ctx,tabs,path_to_extension,win,debug)  
             
             return win 
         except Exception as e:
@@ -86,8 +86,6 @@ g_ImplementationHelper.addImplementation(*Factory.get_imple())
 
 
 from com.sun.star.beans import NamedValue
-
-
 
 RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
@@ -149,18 +147,18 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         pass
     
 
-def start_main(pd,window,ctx,tabs,path_to_extension):
+def start_main(pd,window,ctx,tabs,path_to_extension,win,debug):
 
     dialog = window
-    
-    if debug:
-        modul = 'menu_bar'
-        menu_bar = load_reload_modul(modul,pyPath)  # gleichbedeutend mit: import menu_bar
-    else:
-        import menu_bar
         
-    Menu_Bar = menu_bar.Menu_Bar(pd,dialog,ctx,tabs,path_to_extension)
-    Menu_Bar.erzeuge_Menu()
+    if debug:
+        modul = 'menu_start'
+        menu_start = load_reload_modul(modul,pyPath)  # gleichbedeutend mit: import menu_bar
+    else:
+        import menu_start
+
+    Menu_Start = menu_start.Menu_Start(pd,dialog,ctx,tabs,path_to_extension,win,debug)
+    Menu_Start.erzeuge_Startmenu()
 
         
 

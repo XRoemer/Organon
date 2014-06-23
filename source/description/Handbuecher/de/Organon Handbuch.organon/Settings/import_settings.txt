@@ -1,0 +1,11 @@
+{'docx': '0',
+ 'rtf': '0',
+ 'auswahl': '0',
+ 'odt': '1',
+ 'filterauswahl': {},
+ 'txt': '0',
+ 'url_dat': '',
+ 'url_ord': '',
+ 'imp_dat': '1',
+ 'doc': '0',
+ 'ord_strukt': '1'}

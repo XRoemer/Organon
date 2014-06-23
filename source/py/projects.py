@@ -71,6 +71,8 @@ class Projekt():
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
                 #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
+                self.mb.use_UM_Listener = True
+                
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")
             tb()
@@ -468,7 +470,7 @@ class Projekt():
         return tuple(benutzervorlagen),tuple(pfade)  
 
 
-    def lade_Projekt(self,filepicker = True):
+    def lade_Projekt(self,filepicker = True, filepath = ''):
         if self.mb.debug: print(self.mb.debug_time(),'lade_Projekt')
         
         if self.pruefe_auf_geladenes_organon_projekt():
@@ -477,7 +479,7 @@ class Projekt():
         if filepicker:
             Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
             Filepicker.appendFilter('Organon Project','*.organon')
-            filter = Filepicker.getCurrentFilter()
+            #filter = Filepicker.getCurrentFilter()
             Filepicker.execute()
             # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
 
@@ -485,17 +487,17 @@ class Projekt():
                 return
 
             filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
-
-            dateiname = os.path.basename(filepath)
-            dateiendung = os.path.splitext(filepath)[1]
-
-            # Wenn keine .organon Datei gewaehlt wurde
-            if dateiendung  != '.organon':
-                return
             
-            self.mb.projekt_name = dateiname.split(dateiendung)[0]
-            proj = os.path.dirname(filepath) 
-            self.mb.projekt_path = os.path.dirname(proj)  
+        dateiname = os.path.basename(filepath)
+        dateiendung = os.path.splitext(filepath)[1]
+
+        # Wenn keine .organon Datei gewaehlt wurde
+        if dateiendung  != '.organon':
+            return
+        
+        self.mb.projekt_name = dateiname.split(dateiendung)[0]
+        proj = os.path.dirname(filepath) 
+        self.mb.projekt_path = os.path.dirname(proj)  
     
 
         try:
@@ -526,22 +528,24 @@ class Projekt():
             self.mb.doc.storeAsURL(Path2,()) 
             
             self.selektiere_ersten_Bereich()
-                        
+            self.mb.use_UM_Listener = True
+             
         except Exception as e:
             self.mb.Mitteilungen.nachricht(str(e),"warningbox")
             tb()
-    
-    
+        
     def pruefe_auf_geladenes_organon_projekt(self):
         # prueft, ob eine Organon Datei geladen ist
         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
- 
-        if has_prop:
+        #self.mb.entferne_alle_listener() 
+        if len(self.mb.dict_bereiche) == 0:
+            return False
+        else:
+#         if has_prop:
             self.mb.Mitteilungen.nachricht(lang.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
             return True
-        else:
-            return False
+        
         
       
     def erzeuge_Projekt_xml_tree(self):
@@ -854,23 +858,71 @@ class Projekt():
             
             return Eintraege
         
+        
+    def get_flags(self,x):
+                
+        x_bin_rev = bin(x).split('0b')[1][::-1]
+
+        flags = []
+        
+        for i in range(len(x_bin_rev)):
+            z = 2**int(i)*int(x_bin_rev[i])
+        
+            if z != 0:
+                flags.append(z)
+        
+        return flags
+    
+       
     def test(self):
         print('test')
+
+
         
-        #pd()
+        
                     
         
         try:
-            import webbrowser
-
-            #webbrowser.open('https://github.com/XRoemer/Organon')
+            pass
+            
+                
+                
+                
         except :
             tb()
             
         pd()
+
+
+
+# win = self.mb.win
+# tabs = self.mb.tabs
+# #tab = tabs.insertTab()
+# #tabs.getPropertyByName('Title')
+# pass
+# 
+# from com.sun.star.beans import NamedValue
+# dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
+# id = tabs.insertTab() # Create new tab, return value is tab id
+# # Valid properties are: 
+# # Title, ToolTip, PageURL, EventHdl, Image, Disabled.
+# v1 = NamedValue("PageURL", dialog1)
+# v2 = NamedValue("Title", "KEUNER")
+# #v3 = NamedValue("EventHdl", factory.CWHandler)
+# tabs.setTabProps(id, (v1, v2))
+# tabs.activateTab(id) 
+# #v2 = NamedValue("Title", "Keuner")
+# #             tabs.setTabProps(id, (v1, v2))
+# #             #tabs.removeTab(id) 
+# 
+# id = 1
+# props = tabs.getTabProps(1)
+# props[1].Value = 'Keuner2'
+# tabs.setTabProps(id, (v2,))
+# #tabs.setPropertyValue('Title','WER')
+# tabs.activateTab(id)     
+
     
-
-
 def erzeuge_Fenster(mb):
     
     try:

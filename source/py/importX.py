@@ -20,12 +20,6 @@ class ImportX():
     def importX(self):
         
         try:
-#             if self.mb.programm == 'OpenOffice':
-#                 fortsetzen = self.warning(self.mb)
-#             if not fortsetzen:
-#                 return
-#             lang.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
-#             self.mb.Mitteilungen.nachricht(lang.IMPORT_WARNING,"infobox",16777216)
         
             if self.mb.filters_import == None:
                 self.erzeuge_filter()
@@ -383,8 +377,10 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     self.mb.Mitteilungen.nachricht(lang.ERST_DATEI_AUSWAEHLEN,"warningbox")
                     self.fenster.toFront()
                     return
-            
+                
+                self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
                 self.datei_importieren('dokument',imp_set['url_dat'])
+                self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
                 
             else:
                 if imp_set['url_ord'] == '':
@@ -395,11 +391,14 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 self.fenster.dispose()
                 self.mb.class_Import.fenster_import = None
                 
+                self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
                 lade = self.ordner_importieren()
     
                 if lade:
                     self.lade_Projekt()
                     self.mb.Mitteilungen.nachricht(lang.IMPORT_ABGESCHLOSSEN,'infobox')
+                    
+                self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
         except:
             tb()
 
@@ -421,6 +420,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
         # moeglicherweise vorhandene Links entfernen
         self.entferne_links(self.oOO)
+        self.kapsel_in_Bereich(self.oOO,str(zeile_nr))
                 
         prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop3.Name = 'FilterName'
@@ -480,7 +480,30 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                                 link.Name = 'OldOrgSec'+link.Name.split('OrganonSec')[1]
         except:
             tb()
-
+    
+    def kapsel_in_Bereich(self,oOO,ord):
+        
+        cur = oOO.Text.createTextCursor()
+        cur.gotoEnd(False)
+        
+        if cur.TextSection != None:
+            # Zur Sicherheit, falls der Text nur aus einem Textbereich besteht,
+            # wird eine Zeile angehangen
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'ParaStyleName'
+            prop.Value = 'Standard'   
+            oOO.Text.appendParagraph((prop,))
+        
+        cur.gotoStart(False)
+        cur.gotoEnd(True)
+        cur.goRight(1,True)
+        
+        newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+        newSection.setName('OrgInnerSec'+ord)
+        
+        oOO.Text.insertTextContent(cur,newSection,True)
+        
+        
             
     def erzeuge_neue_Zeile(self):
         
@@ -619,7 +642,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
               
 
             self.oOO = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
+
             self.entferne_links(self.oOO)
+            self.kapsel_in_Bereich(self.oOO,ord)
             
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop3.Name = 'FilterName'
