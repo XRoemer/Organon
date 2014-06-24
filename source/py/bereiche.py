@@ -240,6 +240,10 @@ class Bereiche():
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
         
         if self.mb.tastatureingabe == True and bereichsname != None:
+            # Damit das Handbuch nicht geaendert wird:
+            if self.mb.anleitung_geladen:
+                return
+            
             if self.mb.debug: print(self.mb.debug_time(),'datei_nach_aenderung_speichern')
             
             self.verlinkte_Bilder_einbetten(self.mb.doc)

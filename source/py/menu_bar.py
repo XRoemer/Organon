@@ -60,6 +60,7 @@ class Menu_Bar():
         self.filters_import = None
         self.filters_export = None
         self.BEREICH_EINFUEGEN = self.get_BEREICH_EINFUEGEN()
+        self.anleitung_geladen = False
 
         # Properties
         self.projekt_name = None
@@ -425,8 +426,8 @@ class Menu_Bar():
         control.setMultipleMode(False)
         
         items = ( self.lang.UNFOLD_PROJ_DIR, 
+                  self.lang.ZEIGE_TEXTBEREICHE,
                  '-------',
-                 self.lang.ORGANON_BESCHREIBUNG, 
                  'Homepage')
         
         control.addItems(items, 0)
@@ -785,11 +786,10 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
         elif sel == self.mb.lang.UNFOLD_PROJ_DIR:
             self.do()
             self.mb.class_Funktionen.projektordner_ausklappen()
-        elif sel == self.mb.lang.ORGANON_BESCHREIBUNG:
+        elif sel == self.mb.lang.ZEIGE_TEXTBEREICHE:
             self.do()
-            path = os.path.join(self.mb.path_to_extension,'description','Desc_%s.odt' % self.mb.language)
-            URL = uno.systemPathToFileUrl(path)
-            self.mb.oeffne_dokument_in_neuem_fenster(URL)
+            oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
+            self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool   
         elif sel == 'Homepage':
             self.do()
             import webbrowser

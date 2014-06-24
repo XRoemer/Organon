@@ -885,7 +885,9 @@ class Projekt():
         try:
             pass
             
-                
+#             oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
+#             self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool
+            #self.mb.current_Contr.ViewSettings.ShowTextBoundaries = oBool
                 
                 
         except :

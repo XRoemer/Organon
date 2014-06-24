@@ -15,7 +15,7 @@ INSERT_DOC = u'Neues Dokument einfügen'
 INSERT_DIR = u'Neuen Ordner einfügen'
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen, bevor Sie ein neues Projekt \
 beginnen oder laden. Menüleiste: Organon>open/close'
-ORGANON_BESCHREIBUNG = 'Organon Beschreibung'
+ZEIGE_TEXTBEREICHE = 'Zeige Textbereiche'
 
 
 SPEICHERORT = 'Speicherort'
@@ -92,6 +92,7 @@ DATEIAUSWAHL = u'Datei auswählen'
 ORDNERAUSWAHL = u'Ordner auswählen'
 IMPORTIEREN = 'Importieren'
 FILTER = 'Filter'
+EIGENE_AUSWAHL = 'eigene Auswahl'
 ALLE_WAEHLEN = u'Alle auswählen'
 ERST_DATEI_AUSWAEHLEN = u'Sie haben noch keine Datei ausgewählt'
 ERST_ORDNER_AUSWAEHLEN = u'Sie haben noch keinen Ordner ausgewählt'

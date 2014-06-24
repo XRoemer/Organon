@@ -108,7 +108,7 @@ class Menu_Start():
         control.setActionCommand('anleitung_laden')
         control.addActionListener(self.listener)
         model.Label = self.LANG.LOAD_DESCRIPTION
-          
+
         self.cont.addControl('Hauptfeld_aussen',control) 
 
     
@@ -127,9 +127,15 @@ class Menu_Start():
         
               
     def lade_Modul_Language(self):
-
-        language = self.dialog.AccessibleContext.Locale.Language
         
+        enum = self.desktop.Components.createEnumeration()
+        comps = []
+        
+        while enum.hasMoreElements():
+            comps.append(enum.nextElement())
+
+        language = comps[0].CharLocale.Language
+
         if language not in ('de'):
             language = 'en'
             
@@ -196,6 +202,7 @@ class Menu_Listener (unohelper.Base, XActionListener):
                 self.menu.cont.dispose()
                 self.menu.erzeuge_Menu()
                 self.menu.Menu_Bar.class_Projekt.lade_Projekt(False,pfad)
+                self.menu.Menu_Bar.anleitung_geladen = True
         except:
             tb()
             
@@ -220,6 +227,9 @@ class Menu_Listener (unohelper.Base, XActionListener):
         
         desc_path = path.join(path_HB,projekt_name[0],projekt_name[0])
         return desc_path
+    
+    def disposing(self,ev):
+        pass
            
     
 ################ TOOLS ################################################################

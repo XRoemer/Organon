@@ -1036,13 +1036,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     def schalte_sichtbarkeit_der_Bereiche(self):
         if self.mb.debug: print(self.mb.debug_time(),'schalte_sichtbarkeit_der_Bereiche')
         try:
-        
             # Der VC Listener wird von IsVisible ausgeloest,
             # daher wird er vorher ab- und hinterher wieder angeschaltet
             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
     
             zeilenordinal =  self.mb.selektierte_zeile.AccessibleName
-            bereichsname = self.mb.dict_bereiche['ordinal'][zeilenordinal]
+            #bereichsname = self.mb.dict_bereiche['ordinal'][zeilenordinal]
     
             # Ordner
             if zeilenordinal in self.mb.dict_ordner:
@@ -1084,11 +1083,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             # Seiten 
                 selekt_bereich_name = self.mb.dict_bereiche['ordinal'][zeilenordinal]
                 selekt_bereich = self.mb.doc.TextSections.getByName(selekt_bereich_name)
-
-                self.verlinke_Sektion(selekt_bereich_name,selekt_bereich)
                 
                 selekt_bereich.IsVisible = True
-                self.mache_Kind_Bereiche_sichtbar(selekt_bereich)
+                self.verlinke_Sektion(selekt_bereich_name,selekt_bereich)
+                
+                #self.mache_Kind_Bereiche_sichtbar(selekt_bereich)
                 self.entferne_Trenner(selekt_bereich)
                 
                 for bereich in reversed(self.mb.sichtbare_bereiche):
@@ -1098,8 +1097,18 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                         self.entferne_Trenner(section)
                         
                 self.mb.sichtbare_bereiche = [selekt_bereich_name]
-
+                
+                # HACK ! Manchmal wird die Ansicht des Dokumentenfensters nicht vollstaendig erneuert.
+                # Scheint mit Formatierungen des Textes zusammenzuhaengen.
+                # Daher wird die Anzeige von Textbereichen gesetzt, um die 
+                # Ansicht zu aktualisieren.
+                oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
+                self.mb.current_Contr.ViewSettings.ShowTextBoundaries = oBool
+             
             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
+            
+            
+            
         except:
             tb()
         
@@ -1135,16 +1144,20 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
     def verlinke_Sektion(self,name,bereich):
         #if self.mb.debug: print(self.mb.debug_time(),'verlinke_Sektion')
-        url_in_dict = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][name])
-        url_sec = bereich.FileLink.FileURL
-
-        if url_in_dict != url_sec:
-        
-            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-            SFLink.FilterName = 'writer8'
-            SFLink.FileURL = url_in_dict
-
-            bereich.setPropertyValue('FileLink',SFLink)
+        try:
+            url_in_dict = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][name])
+            url_sec = bereich.FileLink.FileURL
+    
+            if url_in_dict != url_sec:
+            
+                SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                #SFLink.FilterName = 'writer8'
+                SFLink.FileURL = url_in_dict
+    
+                bereich.setPropertyValue('FileLink',SFLink)
+                
+        except:
+            tb()
           
     
     def mache_Kind_Bereiche_sichtbar(self,sec):

@@ -130,7 +130,7 @@ class ImportX():
         control, model = self.mb.createControl(self.mb.ctx,"CheckBox",180 ,y-5*16,100,22,(),() )  
         buttons.update({'auswahl':control})
         control.ActionCommand = 'auswahl'
-        model.Label = 'eigene Auswahl'
+        model.Label = self.mb.lang.EIGENE_AUSWAHL
         model.State = imp_set['auswahl']   
         control.addActionListener(filter_CB_listener)                    
         fenster_cont.addControl('auswahl', control)      
