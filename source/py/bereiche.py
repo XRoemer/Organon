@@ -20,7 +20,7 @@ class Bereiche():
     
     
     def starte_oOO(self,URL=None):
-        if self.mb.debug: print(self.mb.debug_time(),'starte_oOO') 
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche starte_oOO') 
          
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = 'Hidden'
@@ -37,15 +37,15 @@ class Bereiche():
 
         self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
         
-        if self.mb.debug: print(self.mb.debug_time(),'oOO geladen')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche oOO geladen')
         
     def schliesse_oOO(self):
-        if self.mb.debug: print(self.mb.debug_time(),'schliesse_oOO')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche schliesse_oOO')
         self.oOO.close(False)
         
     
     def erzeuge_neue_Datei(self,i,inhalt):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Datei')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche erzeuge_neue_Datei')
         
         nr = str(i) 
 
@@ -76,7 +76,7 @@ class Bereiche():
         return Path1
     
     def erzeuge_neue_Datei2(self,i,inhalt):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Datei2')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche erzeuge_neue_Datei2')
         try:
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
@@ -117,7 +117,7 @@ class Bereiche():
     
         
     def leere_Dokument(self):
-        if self.mb.debug: print(self.mb.debug_time(),'leere_Dokument')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche leere_Dokument')
         
         text = self.doc.Text        
         try:
@@ -135,7 +135,7 @@ class Bereiche():
             if self.mb.debug: print('Dokument ist schon leer')
                      
     def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche erzeuge_bereich')
         
         nr = str(i) 
         
@@ -167,7 +167,7 @@ class Bereiche():
         
     
     def erzeuge_bereich2(self,i,sicht):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich2')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche erzeuge_bereich2')
         
         nr = str(i) 
 
@@ -209,7 +209,7 @@ class Bereiche():
 
 
     def loesche_leeren_Textbereich_am_Ende(self):
-        if self.mb.debug: print(self.mb.debug_time(),'loesche_leeren_Textbereich_am_Ende')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche loesche_leeren_Textbereich_am_Ende')
         
         text = self.doc.Text
         sections = self.doc.TextSections
@@ -221,7 +221,7 @@ class Bereiche():
        
                        
 #     def verlinke_bereiche(self,quellbereich_name,zielbereich_name):
-#         if self.mb.debug: print(self.mb.debug_time(),'verlinke_bereiche')
+#         if self.mb.debug: print(self.mb.debug_time(),'bereiche verlinke_bereiche')
 #         
 #         sections = self.doc.TextSections
 #         
@@ -244,7 +244,7 @@ class Bereiche():
             if self.mb.anleitung_geladen:
                 return
             
-            if self.mb.debug: print(self.mb.debug_time(),'datei_nach_aenderung_speichern')
+            if self.mb.debug: print(self.mb.debug_time(),'bereiche datei_nach_aenderung_speichern')
             
             self.verlinkte_Bilder_einbetten(self.mb.doc)
             projekt_path = self.mb.doc.URL
@@ -272,7 +272,7 @@ class Bereiche():
             self.mb.tastatureingabe = False
 
     def verlinkte_Bilder_einbetten(self,doc):
-        if self.mb.debug: print(self.mb.debug_time(),'verlinkte_Bilder_einbetten')
+        if self.mb.debug: print(self.mb.debug_time(),'bereiche verlinkte_Bilder_einbetten')
         self.mb.selbstruf = True
         
         bilder = self.mb.doc.GraphicObjects
@@ -297,7 +297,8 @@ class Bereiche():
                 except:
                     if self.mb.debug: print('insert unverlinkte bilder gescheitert')
                 
-        self.mb.selbstruf = False      
+        self.mb.selbstruf = False   
+        
 
 from com.sun.star.view import XSelectionChangeListener
 class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
@@ -410,10 +411,10 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
         if self.mb.selektierte_Zeile_alt != None:  
             self.mb.selektierte_Zeile_alt.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
-
+            self.mb.class_Sidebar.passe_sb_an(textfeld)
         self.mb.selektierte_Zeile_alt = textfeld
   
-     
+    
 
 from com.sun.star.awt import XWindowListener
 class Dialog_Window_Listener(unohelper.Base,XWindowListener):
@@ -422,34 +423,32 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
         self.mb = mb
         
     def windowResized(self,ev):
-        print('windowResized')
+        #print('windowResized')
         self.korrigiere_hoehe_des_scrollbalkens()
         self.mb.class_Hauptfeld.korrigiere_scrollbar()
-        return False
-    def windowMoved(self,ev):
-        print('windowMoved')
-        return False
+    def windowMoved(self,ev):pass
+        #print('windowMoved')
     def windowShown(self,ev):
         self.korrigiere_hoehe_des_scrollbalkens()
-        print('windowShown')
-        return False
+        #print('windowShown')
     
     def windowHidden(self,ev):
+        if self.mb.debug:print('windowHidden')
+        
         try:
-            if self.mb.debug:print('windowHidden')
             if self.mb.bereich_wurde_bearbeitet:
-                try:
-                    ordinal = self.mb.selektierte_zeile.AccessibleName
-                    bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
-                    path = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][bereichsname])
-                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
-                except:
-                    tb()
-                    
-            self.mb.entferne_alle_listener() 
+                ordinal = self.mb.selektierte_zeile.AccessibleName
+                bereichsname = self.mb.dict_bereiche['ordinal'][ordinal]
+                path = uno.systemPathToFileUrl(self.mb.dict_bereiche['Bereichsname'][bereichsname])
+                self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
             
+            if 'files' in self.mb.pfade: 
+                self.mb.class_Sidebar.speicher_sidebar_dict()       
+                self.mb.class_Sidebar.dict_sb_zuruecksetzen()
+            
+            self.mb.class_Sidebar.toggle_sicht_sidebar()
+            self.mb.entferne_alle_listener() 
             self.mb = None
-            return False
         
         except:
             tb()

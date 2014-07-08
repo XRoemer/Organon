@@ -50,9 +50,9 @@
             <prop oor:name="Title" oor:type="xs:string">
               <value xml:lang="en-US">open/close</value>
             </prop>
-						<prop oor:name="ImageIdentifier" oor:type="xs:string">
-							<value/>
-						</prop>
+			<prop oor:name="ImageIdentifier" oor:type="xs:string">
+				<value/>
+			</prop>
             <prop oor:name="URL" oor:type="xs:string">
               <value>service:com.open.office.roemers.schalter</value>
             </prop>
@@ -75,15 +75,15 @@
         </prop>
         <node oor:name="UserDefinedImages">
           <prop oor:name="ImageSmallURL">
-            <value>%origin%/img/organon_icon_gedreht_16.png</value>
+            <value>%origin%/img/organon icon_30_3.png</value>
           </prop>
           <prop oor:name="ImageBigURL">
-            <value>%origin%/img/organon_icon_gedreht_24.png</value>
+            <value>%origin%/img/organon icon_24.png</value>
           </prop>
-          <!-- <prop oor:name="ImageSmallHCURL">
-            </value>
+          <prop oor:name="ImageSmallHCURL">
+            <value>%origin%/img/organon icon_48.png</value>
           </prop>
-          <prop oor:name="ImageBigHCURL">
+          <!-- <prop oor:name="ImageBigHCURL">
             </value>
           </prop> -->
         </node>

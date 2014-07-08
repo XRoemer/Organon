@@ -7,6 +7,7 @@ import os
 import xml.etree.ElementTree as ElementTree
 import time
 import codecs
+import json
 import math
 import re
 import konstanten as KONST
@@ -18,7 +19,7 @@ platform = sys.platform
 
 class Menu_Bar():
     
-    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,debugX):
+    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,dict_sb,debugX):
         
         global debug
         debug = debugX
@@ -29,11 +30,10 @@ class Menu_Bar():
         self.pd = pdk
         global pd,IMPORTS
         pd = pdk
-        
-        
         #pd()
-        print('############################')
-        IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time','codecs','math','re','tb','platform','KONST','pd','copy')
+
+        IMPORTS = ('traceback','uno','unohelper','sys','os','ElementTree','time',
+                   'codecs','json','math','re','tb','platform','KONST','pd','copy')
         
         if 'LibreOffice' in sys.executable:
             self.programm = 'LibreOffice'
@@ -57,18 +57,22 @@ class Menu_Bar():
         self.language = None
         self.lang = self.lade_Modul_Language()
         self.path_to_extension = path_to_extension
+        self.programm_version = self.get_programm_version()
         self.filters_import = None
         self.filters_export = None
         self.BEREICH_EINFUEGEN = self.get_BEREICH_EINFUEGEN()
         self.anleitung_geladen = False
-
+        
         # Properties
+        self.dict_zeilen_posY = {}
+        self.dict_ordner = {}               # enthaelt alle Ordner und alle ihnen untergeordneten Zeilen
+        self.dict_bereiche = {}             # drei Unterdicts: Bereichsname,ordinal,Bereichsname-ordinal
+        self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
+        
         self.projekt_name = None
         self.speicherort_last_proj = self.get_speicherort()
         self.Hauptfeld = None               # alle Zeilen, Controls
-        self.dict_zeilen_posY = {}
-        self.dict_ordner = {}               # enthaelt alle Ordner und alle ihnen untergeordneten Zeilen
-        self.dict_bereiche = {}             # besitzt drei Unterdicts: Bereichsname,ordinal,Bereichsname-ordinal
+                
         self.sichtbare_bereiche = []        # Bereichsname ('OrganonSec'+ nr)
         self.kommender_Eintrag = 0
         self.selektierte_zeile = None       # control des Zeilencontainers, Name = ordinal
@@ -79,6 +83,8 @@ class Menu_Bar():
         self.bereich_wurde_bearbeitet = False
         self.tastatureingabe = False
         self.zuletzt_gedrueckte_taste = None
+        
+        
         
         self.xml_tree = None
         
@@ -102,8 +108,10 @@ class Menu_Bar():
         self.class_Funktionen = self.lade_modul('funktionen','.Funktionen(self, pd)')     
         self.class_Export =     self.lade_modul('export','.Export(self,pd)')
         self.class_Import =     self.lade_modul('importX','.ImportX(self,pd)') 
+        self.class_Sidebar =    self.lade_modul('sidebar','.Sidebar(self,pd)') 
         bereiche =              self.lade_modul('bereiche')
         self.class_Bereiche =        bereiche.Bereiche(self)
+        self.class_Version =    self.lade_modul('version','.Version(self,pd)') 
         
         
         # Listener  
@@ -165,23 +173,12 @@ class Menu_Bar():
         cur.setString('')
         return BEREICH_EINFUEGEN
     
-    def erzeuge_Menu2(self):
-        try:             
-            listener = Menu_Kopf_Listener(self) 
-            listener2 = Menu_Kopf_Listener2(self) 
-            self.erzeuge_MenuBar_Container()
-            
-            self.erzeuge_Menu_Kopf_Datei(listener)
-            self.erzeuge_Menu_Kopf_Optionen(listener)
-            
-            if debug:
-                self.erzeuge_Menu_Kopf_Test(listener)
-            
-           
-            
-        except Exception as e:
-                self.Mitteilungen.nachricht(str(e),"warningbox")
-                tb()
+    def get_programm_version(self):
+        pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
+        for ext in pip.ExtensionList:
+            if ext[0] == 'xaver.roemers.organon':
+                version = ext[1]
+        return version
     
     def erzeuge_Menu(self):
         try:             
@@ -190,6 +187,7 @@ class Menu_Bar():
             self.erzeuge_MenuBar_Container()
             
             self.erzeuge_Menu_Kopf_Datei(listener)
+            self.erzeuge_Menu_Kopf_Bearbeiten(listener)
             self.erzeuge_Menu_Kopf_Optionen(listener)
             
             if debug:
@@ -200,7 +198,7 @@ class Menu_Bar():
             self.erzeuge_Menu_Kopf_Papierkorb_leeren(listener2)
             
         except Exception as e:
-                self.Mitteilungen.nachricht(str(e),"warningbox")
+                self.Mitteilungen.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 tb()
 
     
@@ -213,15 +211,24 @@ class Menu_Bar():
 
     def erzeuge_Menu_Kopf_Datei(self,listener):
         control, model = self.createControl(self.ctx, "FixedText", 0, 2, 35, 20, (), ())           
-        model.Label = self.lang.FILE             
+        model.Label = self.lang.FILE           
         control.addMouseListener(listener)
         
         MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
         MenuBarCont.addControl('Datei', control)
+        
+        
+    def erzeuge_Menu_Kopf_Bearbeiten(self,listener):
+        control, model = self.createControl(self.ctx, "FixedText", 37, 2, 60, 20, (), ())           
+        model.Label = self.lang.BEARBEITEN_M             
+        control.addMouseListener(listener)
+        
+        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
+        MenuBarCont.addControl('Bearbeiten', control)
     
     
     def erzeuge_Menu_Kopf_Optionen(self,listener):         
-        control, model = self.createControl(self.ctx, "FixedText", 37, 2, 55, 20, (), ())           
+        control, model = self.createControl(self.ctx, "FixedText", 100, 2, 55, 20, (), ())           
         model.Label = self.lang.OPTIONS           
         control.addMouseListener(listener)
         
@@ -239,7 +246,7 @@ class Menu_Bar():
         
         
     def erzeuge_Menu_neuer_Ordner(self,listener2):
-        control, model = self.createControl(self.ctx, "ImageControl", 120, 0, 20, 20, (), ())   
+        control, model = self.createControl(self.ctx, "ImageControl", 170, 0, 20, 20, (), ())   
         model.ImageURL = KONST.IMG_ORDNER_NEU_24
         
         model.HelpText = self.lang.INSERT_DIR
@@ -251,7 +258,7 @@ class Menu_Bar():
         
         
     def erzeuge_Menu_Kopf_neues_Dokument(self,listener2):
-        control, model = self.createControl(self.ctx, "ImageControl", 140, 0, 20, 20, (), ())           
+        control, model = self.createControl(self.ctx, "ImageControl", 190, 0, 20, 20, (), ())           
         model.ImageURL = KONST.IMG_DATEI_NEU_24
                     
         model.HelpText = self.lang.INSERT_DOC
@@ -263,7 +270,7 @@ class Menu_Bar():
   
         
     def erzeuge_Menu_Kopf_Papierkorb_leeren(self,listener2):
-        control, model = self.createControl(self.ctx, "ImageControl", 220, 0, 20, 20, (), ())           
+        control, model = self.createControl(self.ctx, "ImageControl", 240, 0, 20, 20, (), ())           
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png'
         model.HelpText = self.lang.CLEAR_RECYCLE_BIN
         model.Border = 0                       
@@ -273,7 +280,7 @@ class Menu_Bar():
         MenuBarCont.addControl('Papierkorb_leeren', control)
 
 
-    def erzeuge_Menu_DropDown_Container(self,ev):
+    def erzeuge_Menu_DropDown_Container(self,ev,BREITE = KONST.Breite_Menu_DropDown_Container, HOEHE = KONST.Hoehe_Menu_DropDown_Container):
         smgr = self.smgr
         toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.ctx)    
         oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", self.ctx)
@@ -303,11 +310,11 @@ class Menu_Bar():
         oReturnValue, oRect = oXIdlClass.createObject(None)
         oRect.X = X
         oRect.Y = Y
-        oRect.Width = KONST.Breite_Menu_DropDown_Container
-        oRect.Height = KONST.Hoehe_Menu_DropDown_Container
+        oRect.Width = BREITE
+        oRect.Height = HOEHE
         
         oWindowDesc.Bounds = oRect
-      
+        #pd()
         # specify the window attributes.
         oWindowDesc.WindowAttributes = gnDefaultWindowAttributes
         # create window
@@ -337,9 +344,11 @@ class Menu_Bar():
         Name = ev.value.Source.AccessibleContext.AccessibleName
 
         self.menu_fenster = oWindow
-        
+
         if Name == self.lang.FILE:
             self.erzeuge_Menu_DropDown_Eintraege_Datei(oWindow, cont)
+        if Name == self.lang.BEARBEITEN_M:
+            self.erzeuge_Menu_DropDown_Eintraege_Bearbeiten(oWindow, cont)
         if Name == self.lang.OPTIONS:
             self.erzeuge_Menu_DropDown_Eintraege_Optionen(oWindow, cont)
         return Name
@@ -373,73 +382,155 @@ class Menu_Bar():
         
     
     def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
-        
-        if self.projekt_name != None:
-            tag1 = self.settings_proj['tag1']
-            tag2 = self.settings_proj['tag2']
-            tag3 = self.settings_proj['tag3']
-        else:
-            tag1 = 0
-            tag2 = 0
-            tag3 = 0
+        try:
+            if self.projekt_name != None:
+                tag1 = self.settings_proj['tag1']
+                tag2 = self.settings_proj['tag2']
+                tag3 = self.settings_proj['tag3']
+            else:
+                tag1 = 0
+                tag2 = 0
+                tag3 = 0
+                
+            y = 10
+            
+            # Titel Baumansicht
+            control, model = self.createControl(self.ctx, "FixedText", 10, y,KONST.BREITE_DROPDOWN_OPTIONEN-16, 30-6, (), ())   
+            model.Label = self.lang.SICHTBARE_TAGS_BAUMANSICHT
+            model.FontWeight = 200
+            cont.addControl('Titel_Baumansicht',control)
+            
+            y += 20
+            
+            # Tag1
+            control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                      KONST.BREITE_DROPDOWN_OPTIONEN-6, 30-6, (), ())   
+            model_tag1.Label = self.lang.SHOW_TAG1
+            model_tag1.State = tag1
+            
+            
+            y += 16
+            
+            # Tag2
+            control_tag2, model_tag2 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                      KONST.BREITE_DROPDOWN_OPTIONEN-6, 30-6, (), ())   
+            model_tag2.Label = self.lang.SHOW_TAG2
+            control_tag2.Enable = False
+            model_tag2.State = tag2
+            
+            y += 16
+                
+            # Tag3
+            control_tag3, model_tag3 = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                      KONST.BREITE_DROPDOWN_OPTIONEN-6, 30-6, (), ())   
+            model_tag3.Label = self.lang.SHOW_TAG3
+            control_tag3.Enable = False
+            model_tag3.State = tag3
+                
+                
+            tag1_listener = Tag1_Item_Listener(self,model_tag1)
+            control_tag1.addItemListener(tag1_listener)
+            cont.addControl('Checkbox_Tag1', control_tag1)
+            cont.addControl('Checkbox_Tag2', control_tag2)
+            cont.addControl('Checkbox_Tag3', control_tag3)
+            
+            
+            y += 24
+            
+            
+            # Titel Sidebar
+            control, model = self.createControl(self.ctx, "FixedText", 10, y,KONST.BREITE_DROPDOWN_OPTIONEN-20, 30-6, (), ())   
+            model.Label = self.lang.SICHTBARE_TAGS_SEITENLEISTE
+            model.FontWeight = 200
+            cont.addControl('Titel_Baumansicht',control)
+    
+            y += 20
+            
+            
+            sb_panels_tup = self.class_Sidebar.sb_panels_tup
+            sb_panels1 = self.class_Sidebar.sb_panels1
+            # Tags Sidebar
+            
+            listener_SB = Tag_SB_Item_Listener(self)
+            
+            for panel in sb_panels_tup:
+            
+                control, model = self.createControl(self.ctx, "CheckBox", 10, y, 
+                                                          KONST.BREITE_DROPDOWN_OPTIONEN-20, 20, (), ())   
+                model.Label = sb_panels1[panel]
+                if panel in self.dict_sb['sichtbare']:
+                    model.State = True
+                else:
+                    model.State = False
+                cont.addControl(panel, control)
+                control.addItemListener(listener_SB)
+                y += 16
+    
+            y += 24
+            
+            HOEHE_LISTBOX = 50
+            # ListBox
+            control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.BREITE_DROPDOWN_OPTIONEN-20, 
+                                            HOEHE_LISTBOX, (), ())   
+            control.setMultipleMode(False)
+            
+            items = (  
+                      self.lang.ZEIGE_TEXTBEREICHE,
+                     '-------',
+                     'Homepage')
+            
+            control.addItems(items, 0)
+            model.BackgroundColor = KONST.MENU_DIALOG_FARBE
+            model.Border = False
+            
+            cont.addControl('Eintraege_Optionen', control)
+            
+            listener = DropDown_Item_Listener(self)  
+            listener.window = window    
+            control.addItemListener(listener)  
+            
+            y += HOEHE_LISTBOX + 10
+            
+            window.setPosSize(0,0,0,y,8)
+        except:
+            tb()
+            pd()
+    
+    def erzeuge_Menu_DropDown_Eintraege_Bearbeiten(self,window,cont):
             
         y = 10
-        
-        # Tag1
-        control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                  KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-        model_tag1.Label = self.lang.SHOW_TAG1
-        model_tag1.State = tag1
-        
-        
-        y += 16
-        
-        # Tag2
-        control_tag2, model_tag2 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                  KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-        model_tag2.Label = self.lang.SHOW_TAG2
-        control_tag2.Enable = False
-        model_tag2.State = tag2
-        
-        y += 16
-            
-        # Tag3
-        control_tag3, model_tag3 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                  KONST.Breite_Menu_DropDown_Eintraege-6, 30-6, (), ())   
-        model_tag3.Label = self.lang.SHOW_TAG3
-        control_tag3.Enable = False
-        model_tag3.State = tag3
-            
-            
-        tag1_listener = Tag1_Item_Listener(self,model_tag1)
-        control_tag1.addItemListener(tag1_listener)
-        cont.addControl('Checkbox_Tag1', control_tag1)
-        cont.addControl('Checkbox_Tag2', control_tag2)
-        cont.addControl('Checkbox_Tag3', control_tag3)
-        
-        
-        y += 24
-        
+                
         # ListBox
         control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.Breite_Menu_DropDown_Eintraege-6, 
                                         KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
         control.setMultipleMode(False)
         
         items = ( self.lang.UNFOLD_PROJ_DIR, 
-                  self.lang.ZEIGE_TEXTBEREICHE,
-                 '-------',
-                 'Homepage')
+                  '',
+                  '*Suche',
+                  '*Nach Tags sortieren')
+                  
         
         control.addItems(items, 0)
         model.BackgroundColor = KONST.MENU_DIALOG_FARBE
         model.Border = False
         
-        cont.addControl('Eintraege_Optionen', control)
+        cont.addControl('Eintraege_Bearbeiten', control)
         
         listener = DropDown_Item_Listener(self)  
         listener.window = window    
         control.addItemListener(listener)  
-    
+        
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
     def get_speicherort(self):
         pfad = os.path.join(self.path_to_extension,'pfade.txt')
@@ -669,6 +760,9 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
             elif self.menu_Kopf_Eintrag == 'Test':
                 self.mb.erzeuge_neue_Projekte()          
             elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
+                BREITE = KONST.BREITE_DROPDOWN_OPTIONEN
+                self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev,BREITE)
+            elif self.menu_Kopf_Eintrag == self.mb.lang.BEARBEITEN_M:
                 self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
             
                 
@@ -875,8 +969,23 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
 
                 contr_zeile.addControl('tag1',control_tag1)
 
-    
-    
+class Tag_SB_Item_Listener(unohelper.Base, XItemListener):
+    def __init__(self,mb):
+        self.mb = mb
+        
+    def itemStateChanged(self, ev):        
+        name = ev.Source.AccessibleContext.AccessibleName
+        state = ev.Source.State
+        
+        panels = self.mb.class_Sidebar.sb_panels2
+        if state == 1:
+            self.mb.dict_sb['sichtbare'].append(panels[name])
+            #self.mb.class_Sidebar.erzeuge_sb_layout(name,'ein')
+        else:
+            self.mb.dict_sb['sichtbare'].remove(panels[name])
+            #self.mb.class_Sidebar.erzeuge_sb_layout(name,'aus')
+
+
 
 from com.sun.star.awt import XKeyHandler
 class Key_Handler(unohelper.Base, XKeyHandler):
@@ -989,6 +1098,7 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
     def enteredHiddenContext(self,ev):return False
     def leftHiddenContext(self,ev):return False
     def cancelledContext(self,ev):return False
+    def disposing(self,ev):return False
     
     def bereich_in_OrganonSec_einfuegen(self,tbe):
         

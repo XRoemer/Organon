@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
+# Menubar
 OPTIONS = 'Options'
+BEARBEITEN_M = 'Create'
 FILE = 'File'
 TITEL = 'Titel'
 PAPIERKORB = 'Waste Bin'
@@ -9,13 +10,15 @@ KAPITEL = 'Chapter'
 SZENE = 'Scene'
 NEW_PROJECT = 'New Project'
 OPEN_PROJECT = 'Open Project'
-LOAD_DESCRIPTION = 'Load Description'
+LOAD_DESCRIPTION = 'Load Manual'
 CLEAR_RECYCLE_BIN = 'Clear Recycle Bin'
 INSERT_DOC = 'Insert New Document'
 INSERT_DIR = 'Insert New Folder'
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. \
 Close Organon, before you start or load another project. Menubar: Organon>open/close'
 ZEIGE_TEXTBEREICHE = 'Show Textsections'
+SICHTBARE_TAGS_BAUMANSICHT = 'Visible Tags in Treeview'
+SICHTBARE_TAGS_SEITENLEISTE = 'Visible Tags in Sidebar'
 
 
 SPEICHERORT = 'Storage Location'
@@ -125,6 +128,35 @@ If you install both OpenOffice and LibreOffice, you should disable the quickstar
 Do you want to continue?
 
 '''
+
+
+###### SIDEBAR  #######
+
+SYNOPSIS = 'Synopsis'
+NOTIZEN = 'Notes'
+BILDER = 'Images'
+ALLGEMEIN = 'General'
+CHARAKTERE = 'Character'
+ORTE = 'Location'
+OBJEKTE = 'Objects'
+ZEIT = 'Date'
+BENUTZER1 = 'User 1'
+BENUTZER2 = 'User 2'
+BENUTZER3 = 'User 3'
+
+GROESSE_TEXT_BOX = 'Size Text Box'
+HOEHE = 'Height'
+BREITE = 'Width'
+
+EINSTELLUNGEN_TAGS_GENERAL = u'Delete-Settings Tags: General.'
+TAGS_IM_GES_DOK_LOESCHEN = u'Tag will be deleted within the whole document.'
+TAGS_IN_AKT_DAT_LOESCHEN = u'Tag will be deleted within the selected file/folder only.'
+TAG_LOESCHEN = 'Removes tag from this panel'
+TAG_HINZUFUEGEN = 'Click to add tag'
+ENTER_NEW_TAG = 'Enter new tag and click into document window.'
+IN_PROJEKTORDNER_IMPORTIEREN = u'The selected image will be imported to the project-folder.'
+BILD_EINFUEGEN = 'Insert Image'
+BILD_LOESCHEN = 'Delete Image'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

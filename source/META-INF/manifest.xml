@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest:manifest>
 
-		<manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=Python" 
-    manifest:full-path="py/factory.py"/>
-				
-	 <manifest:file-entry manifest:full-path="factory/WindowContentFactories.xcu" 
-		manifest:media-type="application/vnd.sun.star.configuration-data"/>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=Python" 
+		manifest:full-path="py/factory.py"/>
 		
-	 <manifest:file-entry manifest:full-path="factory/WriterWindowState.xcu" 
+	<manifest:file-entry manifest:full-path="factory/WindowContentFactories.xcu" 
 		manifest:media-type="application/vnd.sun.star.configuration-data"/>
-		
-		<manifest:file-entry manifest:full-path="Addons.xcu" 
+
+	<manifest:file-entry manifest:full-path="factory/WriterWindowState.xcu" 
 		manifest:media-type="application/vnd.sun.star.configuration-data"/>
-		
-		<manifest:file-entry manifest:full-path="py/schalter.py" 
+
+	<manifest:file-entry manifest:full-path="Addons.xcu" 
+		manifest:media-type="application/vnd.sun.star.configuration-data"/>
+
+	<manifest:file-entry manifest:full-path="py/schalter.py" 
 		manifest:media-type="application/vnd.sun.star.uno-component;type=Python"/>	
 		
+		
+	<!--  SIDEBAR -->	
+		
+	<manifest:file-entry manifest:full-path="factory/Sidebar.xcu" 
+		manifest:media-type="application/vnd.sun.star.configuration-data"/>
+		
+	<manifest:file-entry manifest:full-path="factory/Dialog_Sidebar.xcu" 
+		manifest:media-type="application/vnd.sun.star.configuration-data"/>
+		
+	<manifest:file-entry manifest:full-path="factory/Factory_Sidebar.xcu" 
+		manifest:media-type="application/vnd.sun.star.configuration-data"/>
+		
+	<manifest:file-entry manifest:full-path="factory/ProtocolHandler.xcu" 
+		manifest:media-type="application/vnd.sun.star.configuration-data"/>
 		
 </manifest:manifest>

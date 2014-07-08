@@ -40,7 +40,7 @@ class Export():
                 self.erzeuge_exportfenster()
                 
         except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            self.mb.Mitteilungen.nachricht('Export.export '+ str(e),"warningbox")
             tb()
 
 

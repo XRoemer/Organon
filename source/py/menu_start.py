@@ -12,7 +12,7 @@ platform = sys.platform
 
 class Menu_Start():
     
-    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,debugX):
+    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,dict_sb,debugX):
         
         global debug
         debug = debugX
@@ -43,6 +43,7 @@ class Menu_Start():
         self.LANG = self.lade_Modul_Language()
         self.path_to_extension = path_to_extension
         self.win = win
+        self.dict_sb = dict_sb
         
         dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
       
@@ -66,12 +67,12 @@ class Menu_Start():
         self.dialog.addControl('Hauptfeld_aussen',self.cont)  
 
 
-        Attr = (150,60,120,142,'Hauptfeld_aussen', 0)    
+        Attr = (150,60,120,153,'Hauptfeld_aussen', 0)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control, model = self.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
         
-        model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/organon icon.png' 
+        model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/organon icon_120.png' 
         model.Border = False   
         model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
         self.cont.addControl('Hauptfeld_aussen',control)  
@@ -120,7 +121,7 @@ class Menu_Start():
             else:
                 import menu_bar
                 
-            self.Menu_Bar = menu_bar.Menu_Bar(self.pd,self.dialog,self.ctx,self.tabs,self.path_to_extension,self.win,debug)
+            self.Menu_Bar = menu_bar.Menu_Bar(self.pd,self.dialog,self.ctx,self.tabs,self.path_to_extension,self.win,self.dict_sb,debug)
             self.Menu_Bar.erzeuge_Menu()
         except:
             tb()    

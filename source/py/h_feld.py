@@ -17,14 +17,14 @@ class Main_Container():
         
         
     def start(self):
-        if self.mb.debug: print(self.mb.debug_time(),'start')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld start')
 
         self.erzeuge_Navigations_Hauptfeld()  
         self.erzeuge_Scrollbar(self.dialog,self.ctx)
 
         
     def erzeuge_Navigations_Hauptfeld(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Navigations_Hauptfeld')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld erzeuge_Navigations_Hauptfeld')
         # Das aeussere Hauptfeld wird fuers Scrollen benoetigt. Das innere und eigentliche
         # Hauptfeld scrollt dann in diesem Hauptfeld_aussen
 
@@ -50,7 +50,7 @@ class Main_Container():
 
   
     def erzeuge_Verzeichniseintrag(self,eintrag,class_Zeilen_Listener,index=0):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Verzeichniseintrag')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld erzeuge_Verzeichniseintrag')
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
 
@@ -165,7 +165,7 @@ class Main_Container():
         return index  
      
     def erzeuge_Scrollbar(self,dialog,ctx):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Scrollbar')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld erzeuge_Scrollbar')
         
         nav_cont_aussen = dialog.getControl('Hauptfeld_aussen')
         nav_cont = nav_cont_aussen.getControl('Hauptfeld')
@@ -195,7 +195,7 @@ class Main_Container():
         control.addAdjustmentListener(listener) 
         
     def korrigiere_scrollbar(self):
-        if self.mb.debug: print(self.mb.debug_time(),'korrigiere_scrollbar')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld korrigiere_scrollbar')
         
         dialog = self.mb.dialog
         #SB = dialog.getControl('ScrollBar')
@@ -220,7 +220,7 @@ class Main_Container():
     def erzeuge_neue_Zeile(self,ordner_oder_datei):
         
         #self.mb.timer_start = self.mb.time.clock()
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Zeile')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld erzeuge_neue_Zeile')
         
         if self.mb.selektierte_zeile == None:       
             self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
@@ -260,6 +260,7 @@ class Main_Container():
                 # neue Zeile / neuer XML Eintrag
                 self.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
+                self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal)
                             
                 # neue Datei / neuen Bereich anlegen           
                 # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
@@ -297,7 +298,7 @@ class Main_Container():
 
     def leere_Papierkorb(self):
         #self.mb.timer_start = self.mb.time.clock()
-        if self.mb.debug: print(self.mb.debug_time(),'leere_Papierkorb')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld leere_Papierkorb')
         try:
             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
             
@@ -355,7 +356,7 @@ class Main_Container():
         
                 
     def erneuere_selektierungen(self,selektierter_ist_im_papierkorb):
-        if self.mb.debug: print(self.mb.debug_time(),'erneuere_selektierungen')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld erneuere_selektierungen')
         zeile_Papierkorb = self.mb.Hauptfeld.getControl(self.mb.Papierkorb)
         textfeld_Papierkorb = zeile_Papierkorb.getControl('textfeld')
         icon_Papierkorb = zeile_Papierkorb.getControl('icon')
@@ -374,7 +375,7 @@ class Main_Container():
             
 
     def loesche_Bereiche_und_Dateien(self,papierkorb_inhalt1,papierkorb_inhalt):
-        if self.mb.debug: print(self.mb.debug_time(),'loesche_Bereiche_und_Dateien')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld loesche_Bereiche_und_Dateien')
 
         for inhalt in papierkorb_inhalt1:
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = inhalt
@@ -393,11 +394,9 @@ class Main_Container():
                     sections = self.mb.doc.TextSections
                     sec = sections.getByName(bereichsname) 
                     
-                    
-#                     # neu TEST  ########
-#                     SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-#                     sec.setPropertyValue('FileLink',SFLink)
-                    
+                    # loesche Sidebareintrag
+                    self.mb.class_Sidebar.loesche_dict_sb_content_eintrag(ordinal)
+                                        
                     # loesche eventuell vorhandene Kind Bereiche
                     ch_sections = []
                     def get_childs(childs):
@@ -436,7 +435,7 @@ class Main_Container():
                 tb()
         
     def erneuere_dict_bereiche(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erneuere_dict_bereiche')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld erneuere_dict_bereiche')
         sections = self.mb.doc.TextSections
 
         tree = self.mb.xml_tree
@@ -520,6 +519,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     
             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
             self.mb.selektierte_Zeile_alt = zeile
+            self.mb.class_Sidebar.passe_sb_an(zeile)
             
             # Bei Doppelclick Zeileneintrag bearbeiten
             if ev.Buttons == MB_LEFT:   
@@ -811,7 +811,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
            
     def zeilen_neu_ordnen(self,source,target,action):
         #self.mb.timer_start = self.mb.time.clock()
-        if self.mb.debug: print(self.mb.debug_time(),'zeilen_neu_ordnen')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld zeilen_neu_ordnen')
         
         if action != 'gescheitert':
             if 'vorNachfolger' in action:
@@ -821,21 +821,21 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 else:  
                     eintraege = self.xml_neu_ordnen(source,target,action)
                     self.hf_neu_ordnen(eintraege)
-                    if self.mb.debug: print(self.mb.debug_time(),'nach hf')
+                    if self.mb.debug: print(self.mb.debug_time(),'h_feld nach hf')
                     
             else:  
                 eintraege = self.xml_neu_ordnen(source,target,action)
                 self.hf_neu_ordnen(eintraege)
-                if self.mb.debug: print(self.mb.debug_time(),'nach hf')
+                if self.mb.debug: print(self.mb.debug_time(),'h_feld nach hf')
                 
             Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-            if self.mb.debug: print(self.mb.debug_time(),'xml_tree.write')
+            if self.mb.debug: print(self.mb.debug_time(),'h_feld xml_tree.write')
             self.mb.xml_tree.write(Path)
             
                 
  
     def hf_neu_ordnen(self,eintraege): 
-        if self.mb.debug: print(self.mb.debug_time(),'hf_neu_ordnen')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld hf_neu_ordnen')
         
         tree = self.mb.xml_tree
         root = tree.getroot()
@@ -895,7 +895,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         
     def xml_neu_ordnen(self,source,target,action):
-        if self.mb.debug: print(self.mb.debug_time(),'xml_neu_ordnen')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld xml_neu_ordnen')
         
         tree = self.mb.xml_tree
         root = tree.getroot()
@@ -941,7 +941,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
    
             
     def schalte_sichtbarkeit_des_hf(self,selbst,selbst_xml,zustand,zeige_projektordner = False):
-        if self.mb.debug: print(self.mb.debug_time(),'schalte_sichtbarkeit_des_hf')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld schalte_sichtbarkeit_des_hf')
         
         tree = self.mb.xml_tree
         root = tree.getroot()
@@ -992,7 +992,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         
     def verlinke_Bereiche(self,sections):
-        if self.mb.debug: print(self.mb.debug_time(),'verlinke_Bereiche')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld verlinke_Bereiche')
         
         # langsame und sichere Loesung: es werden alle Bereiche neu verlinkt, 
         # nicht nur die verschobenen
@@ -1034,7 +1034,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         
     def schalte_sichtbarkeit_der_Bereiche(self):
-        if self.mb.debug: print(self.mb.debug_time(),'schalte_sichtbarkeit_der_Bereiche')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld schalte_sichtbarkeit_der_Bereiche')
         try:
             # Der VC Listener wird von IsVisible ausgeloest,
             # daher wird er vorher ab- und hinterher wieder angeschaltet
@@ -1111,9 +1111,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
         except:
             tb()
-        
+    
+    
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
-        if self.mb.debug: print(self.mb.debug_time(),'schalte_sichtbarkeit_des_ersten_Bereichs')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld schalte_sichtbarkeit_des_ersten_Bereichs')
    
         # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
@@ -1230,7 +1231,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         cur.setString('')
         
     def update_dict_zeilen_posY(self):
-        if self.mb.debug: print(self.mb.debug_time(),'update_dict_zeilen_posY')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld update_dict_zeilen_posY')
         
         tree = self.mb.xml_tree
         root = tree.getroot()
@@ -1250,7 +1251,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         
     def positioniere_elemente_im_baum_neu(self):
-        if self.mb.debug: print(self.mb.debug_time(),'positioniere_elemente_im_baum_neu')
+        if self.mb.debug: print(self.mb.debug_time(),'h_feld positioniere_elemente_im_baum_neu')
         
         tree = self.mb.xml_tree
         root = tree.getroot()

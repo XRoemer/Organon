@@ -34,7 +34,7 @@ class ImportX():
                 self.erzeuge_importfenster()
                 
         except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            self.mb.Mitteilungen.nachricht('ImportX ' + str(e),"warningbox")
             tb()
 
  
@@ -942,7 +942,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.class_Projekt.selektiere_ersten_Bereich()
                         
         except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            self.mb.Mitteilungen.nachricht('lade_Projekt '+ str(e),"warningbox")
             tb()
  
     

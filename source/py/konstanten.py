@@ -4,6 +4,7 @@ Color_MenuBar_Container = 13027014 #16777215 #weiss
 MENU_DIALOG_FARBE = 14804725#13884141 #305099 # blau
 
 Breite_Menu_DropDown_Eintraege = 150
+BREITE_DROPDOWN_OPTIONEN = 220
 Hoehe_Menu_DropDown_Eintraege = 180
 Abstand = 10
 Breite_Menu_DropDown_Container = Breite_Menu_DropDown_Eintraege + Abstand

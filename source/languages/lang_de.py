@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
+# Menubar
 OPTIONS = 'Optionen'
+BEARBEITEN_M = 'Bearbeiten'
 FILE = 'Datei'
 TITEL = 'Titel'
 PAPIERKORB = 'Papierkorb'
@@ -16,7 +17,8 @@ INSERT_DIR = u'Neuen Ordner einfügen'
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen, bevor Sie ein neues Projekt \
 beginnen oder laden. Menüleiste: Organon>open/close'
 ZEIGE_TEXTBEREICHE = 'Zeige Textbereiche'
-
+SICHTBARE_TAGS_BAUMANSICHT = 'Sichtbare Tags in der Baumansicht'
+SICHTBARE_TAGS_SEITENLEISTE = 'Sichtbare Tags in der Sidebar'
 
 SPEICHERORT = 'Speicherort'
 FORMATIERUNG = 'Formatierung'
@@ -129,6 +131,35 @@ Wollen Sie den Vorgang fortsetzen?
 
 '''
 
+
+###### SIDEBAR  #######
+
+
+SYNOPSIS = 'Synopsis'
+NOTIZEN = 'Notizen'
+BILDER = 'Bilder'
+ALLGEMEIN = 'Allgemein'
+CHARAKTERE = 'Charaktere'
+ORTE = 'Orte'
+OBJEKTE = 'Objekte'
+ZEIT = 'Zeit'
+BENUTZER1 = 'Benutzer 1'
+BENUTZER2 = 'Benutzer 2'
+BENUTZER3 = 'Benutzer 3'
+
+GROESSE_TEXT_BOX = u'Größe Text Box'
+HOEHE = u'Höhe'
+BREITE = 'Breite'
+
+EINSTELLUNGEN_TAGS_GENERAL = u'Lösch-Einstellungen für Tags: Allgemein.'
+TAGS_IM_GES_DOK_LOESCHEN = u'Tag wird im gesamten Dokument gelöscht.'
+TAGS_IN_AKT_DAT_LOESCHEN = u'Tag wird nur in der aktuellen Datei gelöscht.'
+TAG_LOESCHEN = u'Entfernt Tag'
+TAG_HINZUFUEGEN = u'Klicken um Tag hinzuzufügen'
+ENTER_NEW_TAG = 'Geben Sie einen neuen Tag ein und klicken Sie danach in das Dokument.'
+IN_PROJEKTORDNER_IMPORTIEREN = u'Das ausgesuchte Bild wird in den Projektordner importiert.'
+BILD_EINFUEGEN = u'Bild einfügen'
+BILD_LOESCHEN = u'Bild löschen'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

@@ -71,10 +71,14 @@ class Projekt():
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
                 #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
+                self.mb.class_Sidebar.lege_dict_sb_content_an()
+                self.mb.class_Sidebar.lade_sidebar()
+                self.mb.class_Sidebar.speicher_sidebar_dict()
+                
                 self.mb.use_UM_Listener = True
                 
         except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            self.mb.Mitteilungen.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
             tb()
 
                         
@@ -93,7 +97,9 @@ class Projekt():
         pProjekt =  os.path.join(pOrganon , '%s.organon' % self.mb.projekt_name)
         pFiles =    os.path.join(pProjekt , 'Files')
         pOdts =     os.path.join(pFiles , 'odt')
+        pImages =   os.path.join(pFiles , 'Images')
         pSettings = os.path.join(pProjekt , 'Settings')
+        
         
         self.mb.pfade.update({'home':pHome}) 
         self.mb.pfade.update({'projekt':pProjekt})      
@@ -101,6 +107,7 @@ class Projekt():
         self.mb.pfade.update({'files':pFiles})
         self.mb.pfade.update({'odts':pOdts})
         self.mb.pfade.update({'settings':pSettings}) 
+        self.mb.pfade.update({'images':pImages}) 
 
     
     def lade_settings(self):
@@ -110,7 +117,6 @@ class Projekt():
 
         pfad = os.path.join(self.mb.pfade['settings'],'import_settings.txt')
         self.mb.settings_imp = eval(open(pfad).read())
-        #self.mb.settings_imp['url_ord'] = u'file:///C:/Users/Homer/Desktop/Organon%20total/01wacht%20-%20Kopie'
         
         pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
         self.mb.settings_proj = eval(open(pfad).read())
@@ -132,6 +138,9 @@ class Projekt():
         # Organon/<Projekt Name>/Files
         if not os.path.exists(pfade['odts']):
             os.makedirs(pfade['odts'])   
+        # Organon/<Projekt Name>/Files
+        if not os.path.exists(pfade['images']):
+            os.makedirs(pfade['images'])  
         # Organon/<Projekt Name>/Settings
         if not os.path.exists(pfade['settings']):
             os.makedirs(pfade['settings'])
@@ -471,7 +480,7 @@ class Projekt():
 
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
-        if self.mb.debug: print(self.mb.debug_time(),'lade_Projekt')
+        if self.mb.debug: print(self.mb.debug_time(),'projects lade_Projekt')
         
         if self.pruefe_auf_geladenes_organon_projekt():
             return
@@ -503,10 +512,11 @@ class Projekt():
         try:
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
-            self.lade_settings()      
-            self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
-               
+            self.lade_settings()  
             Eintraege = self.lese_xml_datei()
+            self.mb.class_Version.pruefe_version()
+
+            self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Zeile
@@ -527,11 +537,13 @@ class Projekt():
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
             
+            self.mb.class_Sidebar.lade_sidebar_dict()
+            self.mb.class_Sidebar.lade_sidebar()
             self.selektiere_ersten_Bereich()
             self.mb.use_UM_Listener = True
              
         except Exception as e:
-            self.mb.Mitteilungen.nachricht(str(e),"warningbox")
+            self.mb.Mitteilungen.nachricht('lade_Projekt ' + str(e),"warningbox")
             tb()
         
     def pruefe_auf_geladenes_organon_projekt(self):
@@ -549,18 +561,22 @@ class Projekt():
         
       
     def erzeuge_Projekt_xml_tree(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Projekt_xml_tree')
+        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_Projekt_xml_tree')
         
         et = self.mb.ET    
-        prj_name = self.mb.projekt_name.replace(' ','_')   
+        #prj_name = self.mb.projekt_name.replace(' ','_')   
         root = et.Element('Projekt')
         tree = et.ElementTree(root)
         self.mb.xml_tree = tree
         root.attrib['Name'] = 'root'
+        root.attrib['kommender_Eintrag'] = self.mb.kommender_Eintrag
+        # Version fuer eventuelle Kompabilitaetspruefung speichern
+        # wird nur an dieser Stelle verwendet
+        root.attrib['Programmversion'] = self.mb.programm_version
            
                        
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Eintraege_und_Bereiche')
+        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_Eintraege_und_Bereiche')
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
         CB.starte_oOO()
@@ -609,7 +625,7 @@ class Projekt():
 
 
     def erzeuge_Eintraege_und_Bereiche2(self,Eintraege):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_Eintraege_und_Bereiche2')
+        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_Eintraege_und_Bereiche2')
 
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
@@ -667,7 +683,7 @@ class Projekt():
     
                    
     def erzeuge_dict_ordner(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_dict_ordner')
+        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_dict_ordner')
 
         tree = self.mb.xml_tree
         root = tree.getroot()
@@ -705,7 +721,7 @@ class Projekt():
 
 
     def lese_xml_datei(self):
-        if self.mb.debug: print(self.mb.debug_time(),'lese_xml_datei')
+        if self.mb.debug: print(self.mb.debug_time(),'projects lese_xml_datei')
 
         pfad = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')      
         self.mb.xml_tree = self.mb.ET.parse(pfad)
@@ -741,7 +757,7 @@ class Projekt():
         self.mb.selektierte_Zeile_alt = textfeld 
         
     def erzeuge_proj_Settings(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_proj_Settings')
+        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_proj_Settings')
         
         settings_proj = {
             'tag1' : 1, 
@@ -877,26 +893,17 @@ class Projekt():
     def test(self):
         print('test')
 
-
-        
-        
-                    
-        
         try:
             pass
-            
-#             oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
-#             self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool
-            #self.mb.current_Contr.ViewSettings.ShowTextBoundaries = oBool
-                
-                
-        except :
+        
+        except:
             tb()
-            
         pd()
 
 
 
+
+################   TABS im Trieview   ###################
 # win = self.mb.win
 # tabs = self.mb.tabs
 # #tab = tabs.insertTab()
@@ -923,7 +930,7 @@ class Projekt():
 # tabs.setTabProps(id, (v2,))
 # #tabs.setPropertyValue('Title','WER')
 # tabs.activateTab(id)     
-
+#########################################################
     
 def erzeuge_Fenster(mb):
     
