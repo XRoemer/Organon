@@ -2,6 +2,20 @@
 
 import unohelper
 
+'''
+PFADE:
+
+extern gespeichert:
+alle in Sidebar,export_settings,import_settings: FileURL
+ // pfade.txt in OO...uno_packages ... Organon: SystemPath
+
+
+intern:
+mb.path_to_extension,dict mb.pfade, mb.projekt_path : SystemPath
+
+'''
+
+
 class Projekt():
     
     def __init__(self,mb,pydevBrk):
@@ -786,7 +800,7 @@ class Projekt():
             'einz_dat' : 0,
             'ordner_strukt' : 0,
             'typ' : 'writer8',
-            'speicherort' : self.mb.pfade['projekt'].encode("utf-8"),
+            'speicherort' : uno.systemPathToFileUrl(self.mb.pfade['projekt'].encode("utf-8")),
             
             # Trenner
             'ordnertitel': 1,

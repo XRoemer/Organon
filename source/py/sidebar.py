@@ -440,7 +440,7 @@ class Sidebar():
             
         except:
             tb()
-            pd()
+            #pd()
     
 
     def berechne_bildgroesse(self,model,hoehe):
@@ -454,7 +454,7 @@ class Sidebar():
             
         except:
             tb()
-        pd()
+        #pd()
 
     def dict_sb_zuruecksetzen(self):
         if self.mb.debug: print(self.mb.debug_time(),'sidebar dict_sb_zuruecksetzen')
@@ -794,7 +794,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                     self.mb.dict_sb_content['tags'][kat].remove(tag_eintrag)    
         except:
             tb()
-            pd()
+            #pd()
 
     def loesche_vorkommen_in_selektierter_datei(self,tag,tag_eintrag,ordinal):
         if self.mb.debug: print(self.mb.debug_time(),'sidebar loesche_vorkommen_in_selektierter_datei')

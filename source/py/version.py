@@ -16,7 +16,7 @@ class Version():
             version = self.mb.xml_tree.getroot().attrib['Programmversion']
         else:
             version = 0
-        
+
         if version == 0:
             self.an_080b_anpassen()
         
@@ -35,6 +35,8 @@ class Version():
             
         # Die fehlende sidebar_content.pkl wird beim Projektstart automatisch erzeugt.
         
+        # Das dict wurde faelschlich als SystemPath erzeugt
+        self.mb.settings_exp['speicherort'] = ''
         
         
         

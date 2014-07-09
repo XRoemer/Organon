@@ -1,21 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <description xmlns="http://openoffice.org/extensions/description/2006"
 							xmlns:xlink="http://www.w3.org/1999/xlink"
-							xmlns:d="http://openoffice.org/extensions/description/2006">
-							
+							xmlns:d="http://openoffice.org/extensions/description/2006"
+							xmlns:l="http://libreoffice.org/extensions/description/2011">
 		<identifier value="xaver.roemers.organon" />
 		<version value="0.8.0b" />
-
+		
 		<dependencies>
 				<d:OpenOffice.org-minimal-version value="3.4" d:name="OpenOffice.org 3.4" />
 		</dependencies>
+		
+	<!--	<dependencies>
+				<OpenOffice.org-minimal-version value="4.0" d:name="Apache OpenOffice"/>
+		</dependencies> -->
+		
+	<!--	<dependencies>
+				<l:LibreOffice-minimal-version value="4.0" d:name="LibreOffice.org 4.0" />
+		</dependencies> -->
 		
 		<display-name>
 				<name lang="de">Organon</name>
 		</display-name>
 		
 		<icon>
-			<default xlink:href="img/organon_icon_gedreht_36.png" />
+			<default xlink:href="img/organon icon_48.png" />
 		</icon>
 		
 		<registration>

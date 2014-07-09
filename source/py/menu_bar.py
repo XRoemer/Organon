@@ -494,7 +494,7 @@ class Menu_Bar():
             window.setPosSize(0,0,0,y,8)
         except:
             tb()
-            pd()
+            #pd()
     
     def erzeuge_Menu_DropDown_Eintraege_Bearbeiten(self,window,cont):
             

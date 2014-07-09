@@ -1089,7 +1089,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         self.mb.settings_exp['speicherort'] = filepath
         self.model.Label = uno.fileUrlToSystemPath(filepath)
-
+        
             
         
 class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):

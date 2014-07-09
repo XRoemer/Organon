@@ -2,7 +2,7 @@
 
 Organon is a organisation and navigation-tool for writer (LibreOffice and OpenOffice).
 
-Organon creates a navigation-tree for folders and files. 
+Organon creates a navigation-tree and sidebar with tagging possibilities for folders and files. 
 
 It's possible to:
 
@@ -23,7 +23,7 @@ WARNING:         This is still a beta version.
 Click 'Add' in Tools/Extension Manager and choose the saved 'organon.oxt'. Accept the licence and restart LO/OO.
 
 	Usage
-For a detailed description read 'Description.odt'.	
+For a detailed description start the manual after installation.
 
 
 
@@ -56,7 +56,7 @@ WARNUNG:	Dies ist eine Beta-Version.
 Unter Extras/Extension Manager auf hinzufügen klicken und die organon.oxt Datei auswählen. Lizenzvertrag akzeptieren und Office schließen und neu starten.
 
  	Bedienung
-Lesen Sie für eine ausführlichere Beschreibung die 'Anleitung.odt'.
+Öffnen Sie für eine ausführlichere Beschreibung das Handbuch nach der Installation
 
 
 

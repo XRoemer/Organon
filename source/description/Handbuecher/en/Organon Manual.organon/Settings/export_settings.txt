@@ -3,7 +3,7 @@
  'einz_dat': 0,
  'ordnertitel': 1,
  'sichtbar': 0,
- 'speicherort': 'C:\\Users\\Homer\\Documents\\organon projekte\\Organon Manual.organon',
+ 'speicherort': '',
  'anz_drunter': 2,
  'hoehe_auswahlfenster': 200,
  'format_dat': 1,
