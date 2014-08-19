@@ -16,6 +16,7 @@ mb.path_to_extension,dict mb.pfade, mb.projekt_path : SystemPath
 '''
 
 
+
 class Projekt():
     
     def __init__(self,mb,pydevBrk):
@@ -61,7 +62,7 @@ class Projekt():
                             shutil.rmtree(self.mb.pfade['projekt'])
                         except:
                             # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
-                            pass
+                            tb()
                   
             if geglueckt:
                 
@@ -73,15 +74,17 @@ class Projekt():
                 self.mb.class_Bereiche.leere_Dokument()        
                 self.mb.class_Hauptfeld.start()             
                 Eintraege = self.beispieleintraege2()
-                self.erzeuge_Projekt_xml_tree()
+                
+                self.erzeuge_Projekt_xml_tree() 
+                self.mb.class_Bereiche.erzeuge_leere_datei()               
                 self.erzeuge_Eintraege_und_Bereiche(Eintraege)
                 
                 Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-                self.mb.xml_tree.write(Path1)
+                self.mb.props[T.AB].xml_tree.write(Path1)
                 
                 self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
                 
-                self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
+                self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
                 #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
@@ -89,7 +92,10 @@ class Projekt():
                 self.mb.class_Sidebar.lade_sidebar()
                 self.mb.class_Sidebar.speicher_sidebar_dict()
                 
+                self.mb.class_Hauptfeld.korrigiere_scrollbar()
+                
                 self.mb.use_UM_Listener = True
+
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
@@ -113,6 +119,7 @@ class Projekt():
         pOdts =     os.path.join(pFiles , 'odt')
         pImages =   os.path.join(pFiles , 'Images')
         pSettings = os.path.join(pProjekt , 'Settings')
+        pTabs =     os.path.join(pSettings , 'Tabs')
         
         
         self.mb.pfade.update({'home':pHome}) 
@@ -122,6 +129,7 @@ class Projekt():
         self.mb.pfade.update({'odts':pOdts})
         self.mb.pfade.update({'settings':pSettings}) 
         self.mb.pfade.update({'images':pImages}) 
+        self.mb.pfade.update({'tabs':pTabs}) 
 
     
     def lade_settings(self):
@@ -158,6 +166,9 @@ class Projekt():
         # Organon/<Projekt Name>/Settings
         if not os.path.exists(pfade['settings']):
             os.makedirs(pfade['settings'])
+        # Organon/<Projekt Name>/Settings/Tags
+        if not os.path.exists(pfade['tabs']):
+            os.makedirs(pfade['tabs'])
 
         # Datei anlegen, die bei lade_Projekt angesprochen werden soll
         path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
@@ -220,7 +231,8 @@ class Projekt():
             try:
                 modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
             except:
-                modelU.Label = '-' 
+                #modelU.Label = '-' 
+                modelU.Label = self.mb.speicherort_last_proj
         else:
             modelU.Label = '-' 
         
@@ -494,7 +506,7 @@ class Projekt():
 
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
-        if self.mb.debug: print(self.mb.debug_time(),'projects lade_Projekt')
+        if self.mb.debug: log(eval(insp))
         
         if self.pruefe_auf_geladenes_organon_projekt():
             return
@@ -528,13 +540,14 @@ class Projekt():
             self.mb.class_Bereiche.leere_Dokument() 
             self.lade_settings()  
             Eintraege = self.lese_xml_datei()
+
             self.mb.class_Version.pruefe_version()
 
-            self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
+            self.mb.props[T.AB].Hauptfeld = self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld(self.mb.dialog) 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Zeile
-            self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
+            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
@@ -551,11 +564,14 @@ class Projekt():
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
             
+            self.mb.class_Tabs.lade_tabs()
+            
             self.mb.class_Sidebar.lade_sidebar_dict()
             self.mb.class_Sidebar.lade_sidebar()
             self.selektiere_ersten_Bereich()
-            self.mb.use_UM_Listener = True
-             
+            self.mb.use_UM_Listener = True    
+
+            
         except Exception as e:
             self.mb.Mitteilungen.nachricht('lade_Projekt ' + str(e),"warningbox")
             tb()
@@ -565,7 +581,7 @@ class Projekt():
         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
         #self.mb.entferne_alle_listener() 
-        if len(self.mb.dict_bereiche) == 0:
+        if len(self.mb.props[T.AB].dict_bereiche) == 0:
             return False
         else:
 #         if has_prop:
@@ -575,22 +591,23 @@ class Projekt():
         
       
     def erzeuge_Projekt_xml_tree(self):
-        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_Projekt_xml_tree')
+        if self.mb.debug: log(eval(insp))
         
         et = self.mb.ET    
         #prj_name = self.mb.projekt_name.replace(' ','_')   
         root = et.Element('Projekt')
         tree = et.ElementTree(root)
-        self.mb.xml_tree = tree
+        self.mb.props[T.AB].xml_tree = tree
         root.attrib['Name'] = 'root'
-        root.attrib['kommender_Eintrag'] = self.mb.kommender_Eintrag
+        root.attrib['kommender_Eintrag'] = self.mb.props[T.AB].kommender_Eintrag
         # Version fuer eventuelle Kompabilitaetspruefung speichern
         # wird nur an dieser Stelle verwendet
         root.attrib['Programmversion'] = self.mb.programm_version
            
-                       
+
+                           
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege):
-        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_Eintraege_und_Bereiche')
+        if self.mb.debug: log(eval(insp))
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
         CB.starte_oOO()
@@ -609,8 +626,8 @@ class Projekt():
 
             if sicht == 'ja':
                 # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
-                self.mb.dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
+                self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
+                self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
             # Bereiche   
             inhalt = name
@@ -628,18 +645,31 @@ class Projekt():
             
             index2 += 1
         
-        self.mb.dict_bereiche.update({'Bereichsname':Bereichsname_dict})
-        self.mb.dict_bereiche.update({'ordinal':ordinal_dict})
-        self.mb.dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
-
+        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
+        self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
+        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
+        
+        self.erzeuge_helfer_bereich()
         CB.loesche_leeren_Textbereich_am_Ende()  
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
         CB.schliesse_oOO()
         self.erzeuge_dict_ordner()
 
+    def erzeuge_helfer_bereich(self):
+        
+        newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
+        newSection.setName('Organon_Sec_Helfer')
+        
+        text = self.mb.doc.Text
+        textSectionCursor = text.createTextCursor()
+        textSectionCursor.gotoEnd(False)
+        
+        text.insertTextContent(textSectionCursor, newSection, False)
+        newSection.IsVisible = False
+        
+        self.mb.sec_helfer = newSection
 
     def erzeuge_Eintraege_und_Bereiche2(self,Eintraege):
-        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_Eintraege_und_Bereiche2')
+        if self.mb.debug: log(eval(insp))
 
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
@@ -662,8 +692,8 @@ class Projekt():
             
             if sicht == 'ja':
                 # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
-                self.mb.dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                self.mb.sichtbare_bereiche.append('OrganonSec'+str(index2))
+                self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
+                self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
             # Bereiche   
             path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)
@@ -686,24 +716,22 @@ class Projekt():
             
             index2 += 1
 
-        self.mb.dict_bereiche.update({'Bereichsname':Bereichsname_dict})
-        self.mb.dict_bereiche.update({'ordinal':ordinal_dict})
-        self.mb.dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
+        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
+        self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
+        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
         
-         
+        self.erzeuge_helfer_bereich()
         CB.loesche_leeren_Textbereich_am_Ende() 
-       
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)         
-    
+           
                    
     def erzeuge_dict_ordner(self):
-        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_dict_ordner')
+        if self.mb.debug: log(eval(insp))
 
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
         
         ordner = []
-        self.mb.dict_ordner = {}
+        self.mb.props[T.AB].dict_ordner = {}
         
         alle_eintraege = root.findall('.//')
         
@@ -720,28 +748,29 @@ class Projekt():
         
         def get_tree_info(elem, dict,tag,helfer):
             helfer.append(elem.tag)
-            # hier wird self.mb.dict_ordner geschrieben
+            # hier wird self.mb.props[T.AB].dict_ordner geschrieben
             dict[tag] = helfer
-            if elem.attrib['Zustand'] == 'auf':
+            if elem.attrib['Zustand'] == 'auf' or elem.attrib['Art'] == 'waste':
                 for child in list(elem):
                     get_tree_info(child, dict,tag,helfer)
+
         
-        
-        # Fuer alle Ordner eine Liste ihrer Kinder erstellen -> self.mb.dict_ordner       
-        for tag in ordner:
+        # Fuer alle Ordner eine Liste ihrer Kinder erstellen -> self.mb.props[T.AB].dict_ordner       
+        for tag in sorted(ordner):
             dir = root.find('.//'+tag)
             helfer = []
-            get_tree_info(dir,self.mb.dict_ordner,tag,helfer)
+            get_tree_info(dir,self.mb.props[T.AB].dict_ordner,tag,helfer)
+        
 
 
     def lese_xml_datei(self):
-        if self.mb.debug: print(self.mb.debug_time(),'projects lese_xml_datei')
+        if self.mb.debug: log(eval(insp))
 
         pfad = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')      
-        self.mb.xml_tree = self.mb.ET.parse(pfad)
-        root = self.mb.xml_tree.getroot()
-        
-        self.mb.kommender_Eintrag = int(root.attrib['kommender_Eintrag'])
+        self.mb.props[T.AB].xml_tree = self.mb.ET.parse(pfad)
+        root = self.mb.props[T.AB].xml_tree.getroot()
+
+        self.mb.props[T.AB].kommender_Eintrag = int(root.attrib['kommender_Eintrag'])
         
         Elements = root.findall('.//')       
         Eintraege = []
@@ -762,16 +791,16 @@ class Projekt():
             Eintraege.append((ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3))
             
         return Eintraege
-    
+   
     def selektiere_ersten_Bereich(self):
         
-        ordinal = self.mb.dict_bereiche['Bereichsname-ordinal']['OrganonSec0']
-        zeile = self.mb.Hauptfeld.getControl(ordinal)
+        ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal']['OrganonSec0']
+        zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
         textfeld = zeile.getControl('textfeld')
-        self.mb.selektierte_Zeile_alt = textfeld 
+        self.mb.props[T.AB].selektierte_zeile_alt = textfeld 
         
     def erzeuge_proj_Settings(self):
-        if self.mb.debug: print(self.mb.debug_time(),'projects erzeuge_proj_Settings')
+        if self.mb.debug: log(eval(insp))
         
         settings_proj = {
             'tag1' : 1, 
@@ -787,7 +816,7 @@ class Projekt():
     
     
     def erzeuge_export_Settings(self):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_export_Settings')
+        if self.mb.debug: log(eval(insp))
         
         settings_exp = {
             # Export Dialog
@@ -800,7 +829,8 @@ class Projekt():
             'einz_dat' : 0,
             'ordner_strukt' : 0,
             'typ' : 'writer8',
-            'speicherort' : uno.systemPathToFileUrl(self.mb.pfade['projekt'].encode("utf-8")),
+            # .encode("utf-8") <- wird das in der folgenden Zeile gebraucht?
+            'speicherort' : uno.systemPathToFileUrl(self.mb.pfade['projekt']),
             
             # Trenner
             'ordnertitel': 1,
@@ -827,6 +857,7 @@ class Projekt():
     
     
     def erzeuge_import_Settings(self):
+        if self.mb.debug: log(eval(insp))
         
         Settings = {'imp_dat' : '1',
                 'ord_strukt' : '1',
@@ -877,20 +908,22 @@ class Projekt():
         return Eintraege
 
     def beispieleintraege2(self):
-            
-            Eintraege = [#('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
-                    ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
-                    ('nr1','nr0',lang.TITEL,1,'pg','-','ja','leer','leer','leer'),
-                    ('nr2','nr0',lang.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
-                    ('nr3','nr2',lang.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
-                    ('nr4','nr2',lang.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
-                    ('nr5','root',lang.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
-            
-            return Eintraege
+        if self.mb.debug: log(eval(insp))
+        
+        Eintraege = [#('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
+                ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
+                ('nr1','nr0',lang.TITEL,1,'pg','-','ja','leer','leer','leer'),
+                ('nr2','nr0',lang.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr3','nr2',lang.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
+                ('nr4','nr2',lang.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
+                ('nr5','root',lang.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
+        
+        return Eintraege
         
         
     def get_flags(self,x):
-                
+        if self.mb.debug: log(eval(insp))
+              
         x_bin_rev = bin(x).split('0b')[1][::-1]
 
         flags = []
@@ -905,48 +938,18 @@ class Projekt():
     
        
     def test(self):
-        print('test')
 
         try:
-            pass
-        
+            pass         
+
         except:
             tb()
+            
         pd()
-
-
-
-
-################   TABS im Trieview   ###################
-# win = self.mb.win
-# tabs = self.mb.tabs
-# #tab = tabs.insertTab()
-# #tabs.getPropertyByName('Title')
-# pass
-# 
-# from com.sun.star.beans import NamedValue
-# dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
-# id = tabs.insertTab() # Create new tab, return value is tab id
-# # Valid properties are: 
-# # Title, ToolTip, PageURL, EventHdl, Image, Disabled.
-# v1 = NamedValue("PageURL", dialog1)
-# v2 = NamedValue("Title", "KEUNER")
-# #v3 = NamedValue("EventHdl", factory.CWHandler)
-# tabs.setTabProps(id, (v1, v2))
-# tabs.activateTab(id) 
-# #v2 = NamedValue("Title", "Keuner")
-# #             tabs.setTabProps(id, (v1, v2))
-# #             #tabs.removeTab(id) 
-# 
-# id = 1
-# props = tabs.getTabProps(1)
-# props[1].Value = 'Keuner2'
-# tabs.setTabProps(id, (v2,))
-# #tabs.setPropertyValue('Title','WER')
-# tabs.activateTab(id)     
-#########################################################
+        
     
 def erzeuge_Fenster(mb):
+    if self.mb.debug: log(eval(insp))
     
     try:
         # HAUPTFENSTER    
@@ -994,7 +997,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
         
         if os.path.exists(pfad):            
-            with codecs.open( pfad, "r","utf-8") as file:
+            with codecs_open( pfad, "r","utf-8") as file:
                 filepath = file.read() 
 
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
@@ -1063,7 +1066,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
         
         if os.path.exists(pfad):            
-            with codecs.open( pfad, "r","utf-8") as file:
+            with codecs_open( pfad, "r","utf-8") as file:
                 filepath = file.read() 
             self.mb.projekt_path = filepath
             
@@ -1116,9 +1119,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         try:
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
-            prop.Value = True                
-            #print(URL)
-            
+            prop.Value = True                            
             
             prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop2.Name = 'FilterName'

@@ -409,17 +409,19 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
     
             if set['sichtbar']:
                 sections = []
-                for sec_name in self.mb.sichtbare_bereiche:
+                for sec_name in self.mb.props['Projekt'].sichtbare_bereiche:
                     sections.append(sec_name)
                     
             if set['eigene_ausw']:
                 sects = [] 
                 for sec_name in sections:
-                    if 'OrganonSec' in sec_name:  
-                        sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
-                        if sec_ordinal in set['ausgewaehlte']:
-                            if set['ausgewaehlte'][sec_ordinal][1] == 1:
-                                sects.append(sec_name)
+                    if 'OrganonSec' in sec_name: 
+                        # Abfrage, ob sec in Tab
+                        if sec_name in self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal']: 
+                            sec_ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][sec_name]
+                            if sec_ordinal in set['ausgewaehlte']:
+                                if set['ausgewaehlte'][sec_ordinal][1] == 1:
+                                    sects.append(sec_name)
                 sections = sects
             
             anz_sections = len(sections)
@@ -443,30 +445,30 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                      
                     cur.gotoEnd(False)
                     
-                    sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
+                    sec_ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][sec_name]
                     
-                    if sec_ordinal == self.mb.Papierkorb:
+                    if sec_ordinal == self.mb.props[T.AB].Papierkorb:
                         break  
                     
                     
                     if set['trenner']:
                     
                         if set['seitenumbruch_ord']:
-                            if sec_ordinal in self.mb.dict_ordner:
+                            if sec_ordinal in self.mb.props[T.AB].dict_ordner:
                                 from com.sun.star.style.BreakType import PAGE_BEFORE
                                 cur.BreakType = PAGE_BEFORE
                                 text.insertControlCharacter(cur, 0, True)
                                 
                         if set['seitenumbruch_dat']:
-                            if sec_ordinal not in self.mb.dict_ordner:
+                            if sec_ordinal not in self.mb.props[T.AB].dict_ordner:
                                 from com.sun.star.style.BreakType import PAGE_BEFORE
                                 cur.BreakType = PAGE_BEFORE
                                 text.insertControlCharacter(cur, 0, True)   
                         
                         if set['ordnertitel']:
-                            if sec_ordinal in self.mb.dict_ordner:
+                            if sec_ordinal in self.mb.props[T.AB].dict_ordner:
                                 
-                                contr = self.mb.Hauptfeld.getControl(sec_ordinal)
+                                contr = self.mb.props[T.AB].Hauptfeld.getControl(sec_ordinal)
                                 tf = contr.getControl('textfeld')
                                 titel = tf.Model.Text
                                 
@@ -485,9 +487,9 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                                 
                         
                         if set['dateititel']:
-                            if sec_ordinal not in self.mb.dict_ordner:
+                            if sec_ordinal not in self.mb.props[T.AB].dict_ordner:
                                 
-                                contr = self.mb.Hauptfeld.getControl(sec_ordinal)
+                                contr = self.mb.props[T.AB].Hauptfeld.getControl(sec_ordinal)
                                 tf = contr.getControl('textfeld')
                                 titel = tf.Model.Text
                                 
@@ -508,7 +510,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     cur.gotoEnd(False)
                     cur.gotoEndOfParagraph(False)
     
-                    fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
+                    fl = self.mb.props[T.AB].dict_bereiche['Bereichsname'][sec_name]
                     link = uno.systemPathToFileUrl(fl)
                     
                     SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
@@ -580,208 +582,213 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         
         
     def exp_in_einzel_dat(self):
-        
-        set = self.mb.settings_exp
-        st_ind = self.mb.current_Contr.Frame.createStatusIndicator()    
-        
-        
-        # selektiert alle Bereiche
-        sections = self.mb.doc.TextSections.ElementNames
-        
-        # selektiert nur die sichtbaren Bereiche
-        if set['sichtbar']:
-            sections = []
-            for sec_name in self.mb.sichtbare_bereiche:
-                sections.append(sec_name)
-        
-        if set['eigene_ausw']:
-            sects = [] 
-            for sec_name in sections:
-                if 'OrganonSec' in sec_name:  
-                    sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
-                    if sec_ordinal in set['ausgewaehlte']:
-                        if set['ausgewaehlte'][sec_ordinal][1] == 1:
-                            sects.append(sec_name)
-            sections = sects
-        
-        if len(sections) < 1:
-            self.mb.Mitteilungen.nachricht(lang.NICHTS_AUSGEWAEHLT,"infobox")
 
-        
-        # pruefen, ob speicherordner existiert; Namen aendern
-        speicherort = decode_utf(self.mb.settings_exp['speicherort'])
-        speicherordner = os.path.join(uno.fileUrlToSystemPath(speicherort), self.mb.projekt_name)
-        if os.path.exists(speicherordner):
-            speicherordner = self.pruefe_dateiexistenz(speicherordner)
-        
-        
-        def berechne_tree():
-             
-            tree2 = copy.deepcopy(self.mb.xml_tree)
-            root2 = tree2.getroot()
+        try:
+            set = self.mb.settings_exp
+            st_ind = self.mb.current_Contr.Frame.createStatusIndicator()    
             
-            all = root2.findall('.//')
             
-            for el in all:
-                parent = root2.find('.//'+el.tag+'/..')
-                doppelte = parent.findall("./*[@Name='%s']" %el.attrib['Name'])
-                
-                if len(doppelte) > 1:
-                    for i in range(len(doppelte)-1):
-                        elem = doppelte[i+1]
-                        elem.attrib['Name'] = elem.attrib['Name'] + '(%s)' %i
-                        
-            return tree2
-         
-         
-        # Pfade zum Speichern in Ordnerstruktur berechnen        
-        if set['ordner_strukt']:
+            # selektiert alle Bereiche
+            sections = self.mb.doc.TextSections.ElementNames
+            
+            # selektiert nur die sichtbaren Bereiche
+            if set['sichtbar']:
+                sections = []
+                for sec_name in self.mb.props['Projekt'].sichtbare_bereiche:
+                    sections.append(sec_name)
+            
+            if set['eigene_ausw']:
+                sects = [] 
+                for sec_name in sections:
+                    if 'OrganonSec' in sec_name:  
+                        # Abfrage, ob sec in Tab
+                        if sec_name in self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal']:
+                            sec_ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][sec_name]
+                            if sec_ordinal in set['ausgewaehlte']:
+                                if set['ausgewaehlte'][sec_ordinal][1] == 1:
+                                    sects.append(sec_name)
 
-            tree = berechne_tree()
-            root = tree.getroot()
+                sections = sects
             
-            baum = []
-            self.mb.class_XML.get_tree_info(root,baum)
-
-            pfade = {}
-            dict_baum = {}
-
-            for eintrag in baum:
-                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag  
-                dict_baum.update({ordinal:(parent,name,lvl,art,zustand,sicht)})
+            if len(sections) < 1:
+                self.mb.Mitteilungen.nachricht(lang.NICHTS_AUSGEWAEHLT,"infobox")
+    
             
-            def suche_parent(ord_kind):
-                ord_parent = dict_baum[ord_kind][0]
-                return ord_parent
+            # pruefen, ob speicherordner existiert; Namen aendern
+            speicherort = decode_utf(self.mb.settings_exp['speicherort'])
+            speicherordner = os.path.join(uno.fileUrlToSystemPath(speicherort), self.mb.projekt_name)
+            if os.path.exists(speicherordner):
+                speicherordner = self.pruefe_dateiexistenz(speicherordner)
             
-            for eintrag in baum:
-                pfad2 = speicherordner
-                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-
-                ordner = []
-                ord = ordinal
-                for i in range(int(lvl)-1):
-                    ord = suche_parent(ord)
-                    ordner.append(dict_baum[ord][1])
-                
-                ordner.reverse()  
-
-                for ordn in ordner:
-                    pfad2 = os.path.join(pfad2, ordn)
-                    
-                pfad2 = os.path.join(pfad2, dict_baum[ordinal][1])
-                if art in ('dir'):
-                    pfad2 = os.path.join(pfad2, name)
-                    
-                pfade.update({ordinal:(name,pfad2,art)})
-        
-        
-        # Statusindicator
-        anz_sections = len(sections)
-        st_ind.start(lang.EXPORT_BITTE_WARTEN,anz_sections)
-        zaehler = 0
-        
-        
-        while zaehler < anz_sections:
-             
-            self.mb.class_Bereiche.starte_oOO()
-            oOO = self.mb.class_Bereiche.oOO
-            cur = oOO.Text.createTextCursor()
-            text = oOO.Text
             
-#             # entferne OrgInnerSec
-#             if True:
-#                 #cur.goLeft(1,False)
-#                 cur.TextSection.dispose()
-                
-            # Speichern     
-            for i in range(3):
-                
-                if zaehler  > len(sections) - 1:  
-                    break
+            def berechne_tree():
                  
-                sec_name = sections[zaehler]
+                tree2 = copy.deepcopy(self.mb.props[T.AB].xml_tree)
+                root2 = tree2.getroot()
+                
+                all = root2.findall('.//')
+                
+                for el in all:
+                    parent = root2.find('.//'+el.tag+'/..')
+                    doppelte = parent.findall("./*[@Name='%s']" %el.attrib['Name'])
+                    
+                    if len(doppelte) > 1:
+                        for i in range(len(doppelte)-1):
+                            elem = doppelte[i+1]
+                            elem.attrib['Name'] = elem.attrib['Name'] + '(%s)' %i
+                            
+                return tree2
+             
+             
+            # Pfade zum Speichern in Ordnerstruktur berechnen        
+            if set['ordner_strukt']:
+    
+                tree = berechne_tree()
+                root = tree.getroot()
+                
+                baum = []
+                self.mb.class_XML.get_tree_info(root,baum)
+    
+                pfade = {}
+                dict_baum = {}
+    
+                for eintrag in baum:
+                    ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag  
+                    dict_baum.update({ordinal:(parent,name,lvl,art,zustand,sicht)})
+                
+                def suche_parent(ord_kind):
+                    ord_parent = dict_baum[ord_kind][0]
+                    return ord_parent
+                
+                for eintrag in baum:
+                    pfad2 = speicherordner
+                    ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
+    
+                    ordner = []
+                    ord = ordinal
+                    for i in range(int(lvl)-1):
+                        ord = suche_parent(ord)
+                        ordner.append(dict_baum[ord][1])
+                    
+                    ordner.reverse()  
+    
+                    for ordn in ordner:
+                        pfad2 = os.path.join(pfad2, ordn)
+                        
+                    pfad2 = os.path.join(pfad2, dict_baum[ordinal][1])
+                    if art in ('dir'):
+                        pfad2 = os.path.join(pfad2, name)
+                        
+                    pfade.update({ordinal:(name,pfad2,art)})
+            
+            
+            # Statusindicator
+            anz_sections = len(sections)
+            st_ind.start(lang.EXPORT_BITTE_WARTEN,anz_sections)
+            zaehler = 0
+            
+            
+            while zaehler < anz_sections:
                  
-                if 'OrganonSec' in sec_name:  
+                self.mb.class_Bereiche.starte_oOO()
+                oOO = self.mb.class_Bereiche.oOO
+                cur = oOO.Text.createTextCursor()
+                text = oOO.Text
+                
+    #             # entferne OrgInnerSec
+    #             if True:
+    #                 #cur.goLeft(1,False)
+    #                 cur.TextSection.dispose()
+                    
+                # Speichern     
+                for i in range(3):
+                    
+                    if zaehler  > len(sections) - 1:  
+                        break
                      
-                    zaehler += 1       
+                    sec_name = sections[zaehler]
                      
-                    sec_ordinal = self.mb.dict_bereiche['Bereichsname-ordinal'][sec_name]
-                    if sec_ordinal == self.mb.Papierkorb:
-                        break  
-                    
-                    # evt vorhandene Sections loeschen, die mit dem Cursor nicht erreicht werden
-                    for el_n in range(oOO.TextSections.Count):
-                        el = oOO.TextSections.getByIndex(0)
-                        el.dispose()
-
-                    cur.gotoStart(False)
-                    cur.gotoEnd(True)
-                    cur.setString('')
-                    
-                    
-                    fl = self.mb.dict_bereiche['Bereichsname'][sec_name]
-                    link = uno.systemPathToFileUrl(fl)
-                    
-                    SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-                    SFLink.FilterName = 'writer8'
-                    SFLink.FileURL = link
-                                    
-                    newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-                    newSection.setPropertyValue('FileLink',SFLink)
-                    
-                  
-                    oOO.Text.insertTextContent(cur,newSection,False)                   
-                    
-                    # Den durch Organon angelegten Textbereich wieder loeschen
-                    cur.gotoRange(newSection.Anchor,False)  
-                    orgSec = cur.TextSection
-                    while orgSec.ParentSection.Name != 'TextSection':
-                        orgSec = orgSec.ParentSection
-                    orgSec.dispose()
-                    # das durch dispose entstandene Leerzeichen loeschen
-                    cur.gotoEnd(False)
-                    cur.goLeft(1,True)
-                    cur.setString('')
+                    if 'OrganonSec' in sec_name:  
+                         
+                        zaehler += 1       
+                         
+                        sec_ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][sec_name]
+                        if sec_ordinal == self.mb.props[T.AB].Papierkorb:
+                            break  
                         
-                    oOO.Text.removeTextContent(newSection)
-                    
-                    
-                    contr = self.mb.Hauptfeld.getControl(sec_ordinal)
-                    tf = contr.getControl('textfeld')
-                    titel = tf.Model.Text
-                     
-                    if not set['ordner_strukt']:
-                        pfad = os.path.join(speicherordner, titel)
-                    else:
-                        pfad = pfade[sec_ordinal][1]
+                        # evt vorhandene Sections loeschen, die mit dem Cursor nicht erreicht werden
+                        for el_n in range(oOO.TextSections.Count):
+                            el = oOO.TextSections.getByIndex(0)
+                            el.dispose()
+    
+                        cur.gotoStart(False)
+                        cur.gotoEnd(True)
+                        cur.setString('')
                         
-                    # Prop fuer Filter erstellen    
-                    filters = self.mb.filters_export
-                    filter = [(f,filters[f]) for f in filters if f == set['typ']]
-                    filterName = filter[0][0]
-                    extension = '.' + filter[0][1][1][0] 
-                    
-                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-                    prop.Name = 'FilterName'
-                    prop.Value = filterName
-                    
-                    # pruefen, ob datei existiert; Namen aendern       
-                    if os.path.exists(pfad+extension):
-                        pfad = self.pruefe_dateiexistenz(pfad,extension)
                         
-                    path = pfad + extension 
-                    path2 = uno.systemPathToFileUrl(path)  
-                    oOO.storeToURL(path2,(prop,))
-                    
-                    
-                # unterbricht while Schleife, wenn nur Trenner und keine keine OrganonSec mehr uebrig sind 
-                if self.teste_auf_verbliebene_bereiche(sections[zaehler::]):
-                    zaehler = anz_sections
-                     
-            self.mb.class_Bereiche.schliesse_oOO()    
-            st_ind.setValue(zaehler)
-
+                        fl = self.mb.props[T.AB].dict_bereiche['Bereichsname'][sec_name]
+                        link = uno.systemPathToFileUrl(fl)
+                        
+                        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                        SFLink.FilterName = 'writer8'
+                        SFLink.FileURL = link
+                                        
+                        newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+                        newSection.setPropertyValue('FileLink',SFLink)
+                        
+                      
+                        oOO.Text.insertTextContent(cur,newSection,False)                   
+                        
+                        # Den durch Organon angelegten Textbereich wieder loeschen
+                        cur.gotoRange(newSection.Anchor,False)  
+                        orgSec = cur.TextSection
+                        while orgSec.ParentSection.Name != 'TextSection':
+                            orgSec = orgSec.ParentSection
+                        orgSec.dispose()
+                        # das durch dispose entstandene Leerzeichen loeschen
+                        cur.gotoEnd(False)
+                        cur.goLeft(1,True)
+                        cur.setString('')
+                            
+                        oOO.Text.removeTextContent(newSection)
+                        
+                        
+                        contr = self.mb.props[T.AB].Hauptfeld.getControl(sec_ordinal)
+                        tf = contr.getControl('textfeld')
+                        titel = tf.Model.Text
+                         
+                        if not set['ordner_strukt']:
+                            pfad = os.path.join(speicherordner, titel)
+                        else:
+                            pfad = pfade[sec_ordinal][1]
+                            
+                        # Prop fuer Filter erstellen    
+                        filters = self.mb.filters_export
+                        filter = [(f,filters[f]) for f in filters if f == set['typ']]
+                        filterName = filter[0][0]
+                        extension = '.' + filter[0][1][1][0] 
+                        
+                        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                        prop.Name = 'FilterName'
+                        prop.Value = filterName
+                        
+                        # pruefen, ob datei existiert; Namen aendern       
+                        if os.path.exists(pfad+extension):
+                            pfad = self.pruefe_dateiexistenz(pfad,extension)
+                            
+                        path = pfad + extension 
+                        path2 = uno.systemPathToFileUrl(path)  
+                        oOO.storeToURL(path2,(prop,))
+                        
+                        
+                    # unterbricht while Schleife, wenn nur Trenner und keine keine OrganonSec mehr uebrig sind 
+                    if self.teste_auf_verbliebene_bereiche(sections[zaehler::]):
+                        zaehler = anz_sections
+                         
+                self.mb.class_Bereiche.schliesse_oOO()    
+                st_ind.setValue(zaehler)
+        except:
+            tb()
         st_ind.end()  
 
 
@@ -1187,7 +1194,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         # Dict von alten Eintraegen bereinigen
         eintr = []
         for ordinal in set['ausgewaehlte']:
-            if ordinal not in self.mb.dict_bereiche['ordinal']:
+            if ordinal not in self.mb.props[T.AB].dict_bereiche['ordinal']:
                 eintr.append(ordinal)
         for ord in eintr:
             del set['ausgewaehlte'][ord]
@@ -1249,7 +1256,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         set = self.mb.settings_exp
         
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
         
         baum = []
@@ -1352,9 +1359,9 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
             set['ausgewaehlte'].update({ordinal:(titel,state)})
 
             if set['auswahl']:
-                if ordinal in self.mb.dict_ordner:
+                if ordinal in self.mb.props[T.AB].dict_ordner:
                     
-                    tree = self.mb.xml_tree
+                    tree = self.mb.props[T.AB].xml_tree
                     root = tree.getroot()
                     C_XML = self.mb.class_XML
                     ord_xml = root.find('.//'+ordinal)
@@ -1369,10 +1376,10 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
                         ordinale.append(eintr[0])
                     
                     for ord in ordinale:
-                        if ord != self.mb.Papierkorb:
+                        if ord != self.mb.props[T.AB].Papierkorb:
                             control = self.fenster_cont.getControl(ord)
                             control.Model.State = state
-                            zeile = self.mb.Hauptfeld.getControl(ord)
+                            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ord)
                             titel = zeile.getControl('textfeld').Text
                             set['ausgewaehlte'].update({ord:(titel,state)}) 
 

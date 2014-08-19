@@ -12,15 +12,15 @@ class Funktionen():
         pd = pdk
         
     def projektordner_ausklappen(self):
-        if self.mb.debug: print(self.mb.debug_time(),'projektordner_ausklappen')
+        if self.mb.debug: log(eval(insp))
         
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
 
         xml_projekt = root.find(".//*[@Name='%s']" % self.mb.projekt_name)
         alle_elem = xml_projekt.findall('.//')
 
-        projekt_zeile = self.mb.Hauptfeld.getControl(xml_projekt.tag)
+        projekt_zeile = self.mb.props[T.AB].Hauptfeld.getControl(xml_projekt.tag)
         icon = projekt_zeile.getControl('icon')
         icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
         
@@ -28,7 +28,7 @@ class Funktionen():
             zeile.attrib['Sicht'] = 'ja'
             if zeile.attrib['Art'] in ('dir','prj'):
                 zeile.attrib['Zustand'] = 'auf'
-                hf_zeile = self.mb.Hauptfeld.getControl(zeile.tag)
+                hf_zeile = self.mb.props[T.AB].Hauptfeld.getControl(zeile.tag)
                 icon = hf_zeile.getControl('icon')
                 icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
                 
@@ -38,7 +38,7 @@ class Funktionen():
         self.mb.class_Hauptfeld.korrigiere_scrollbar()    
         
         Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
-        self.mb.xml_tree.write(Path)
+        self.mb.props[T.AB].xml_tree.write(Path)
 
        
     def erzeuge_Tag1_Container(self,ev):
@@ -57,10 +57,10 @@ class Funktionen():
         fenster_cont.addMouseListener(listener) 
         listener.ob = fenster  
         
-        self.erzeuge_Menu_DropDown_Eintraege_Datei(fenster, fenster_cont,ev.Source)
+        self.erzeuge_ListBox_Tag1(fenster, fenster_cont,ev.Source)
 
     
-    def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont,source):
+    def erzeuge_ListBox_Tag1(self,window,cont,source):
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 4 ,  4 , 
                                        KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
@@ -144,7 +144,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         self.source.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
         # tag1 in xml datei einfuegen und speichern
         ord_source = self.source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
         source_xml = root.find('.//'+ord_source)
         source_xml.attrib['Tag1'] = sel

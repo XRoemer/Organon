@@ -2,7 +2,7 @@
 
 # Menubar
 OPTIONS = 'Options'
-BEARBEITEN_M = 'Create'
+BEARBEITEN_M = 'Edit'
 FILE = 'File'
 TITEL = 'Titel'
 PAPIERKORB = 'Waste Bin'
@@ -36,6 +36,10 @@ NEUES_TEMPLATE = u'New Template created in:'
 
 NEW_DOC = 'New Document'
 NEW_DIR = 'New Folder'
+NEUER_TAB = 'New Tab'
+SCHLIESSE_TAB = u'Close active Tab'
+TAB_SCHLIESSEN = u'Do you really want to close the tab "%s" ?'
+TAB_EXISTIERT_SCHON = u'The tab name already exists.'
 UNFOLD_PROJ_DIR = 'Unfold Project Folder'
 SHOW_TAG1 = 'Show Tag 1'
 SHOW_TAG2 = 'Show Tag 2'
@@ -48,6 +52,7 @@ KEIN_NAME = "Enter a Project Name   "
 KEIN_SPEICHERORT = "Select a Folder   "
 DOUBLE_PROJ_NAME = "The name you entered is the same as the one of the current document. That doesn't work."
 PROJ_EXISTS = "The project already exists. Should it be overwritten?"
+KANN_NICHT_VERSCHOBEN_WERDEN = u"%s can't be moved to the waste bin, as it's still opened in the tab '%s'." 
 
 ZEILE_AUSWAEHLEN = 'Choose a row beneath which the new content should be inserted    '
 ERZEUGE_NEUE_ZEILE = '                    creating row, please wait!                   '
@@ -157,6 +162,22 @@ ENTER_NEW_TAG = 'Enter new tag and click into document window.'
 IN_PROJEKTORDNER_IMPORTIEREN = u'The selected image will be imported to the project-folder.'
 BILD_EINFUEGEN = 'Insert Image'
 BILD_LOESCHEN = 'Delete Image'
+
+
+###### TABS ######
+ERZEUGE_NEUEN_TAB_AUS = 'Create new Tab from:'
+MEHRFACHE_AUSWAHL = u'multiple selection is possible:'
+TAG_DATE = 'tag date (sidebar)'
+EIGENE_AUSWAHL = 'own selection'
+TAGS_SEITENLEISTE = 'tags sidebar'
+TAGS_BAUMANSICHT = 'tags treeview'
+SUCHE = 'search'
+TABNAME = 'tab name:'
+TAB_HELP_TEXT = u'\u039B'+ u' (AND): Only files, which hold all tags, will be added. \
+\rV (OR): Files, which keep at least one tag, will be added.'
+TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (AND): Only files, which hold all tags, will be added. \
+\rV (OR): Files, which keep at least one tag, will be added. \r(not implemented yet)'
+AUSGEWAEHLTE = u'Selected'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

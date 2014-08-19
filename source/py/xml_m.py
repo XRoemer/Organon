@@ -15,7 +15,7 @@ class XML_Methoden():
         
         
         if not self.selbstaufruf:
-            if self.mb.debug: print(self.mb.debug_time(),'get_tree_info')
+            if self.mb.debug: log(eval(insp))
             self.selbstaufruf = True
             
         if elem.attrib['Name'] != 'root':
@@ -27,10 +27,10 @@ class XML_Methoden():
              
     
     def erzeuge_XML_Eintrag(self,eintrag):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_XML_Eintrag')
-        
+        if self.mb.debug: log(eval(insp))
+
         # erzeugt den XML Eintrag fuer ein neues Standard Dokument
-        tree = self.mb.xml_tree 
+        tree = self.mb.props[T.AB].xml_tree 
         root = tree.getroot()
         et = self.mb.ET             
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
@@ -51,16 +51,16 @@ class XML_Methoden():
         el.attrib['Tag2'] = tag2
         el.attrib['Tag3'] = tag3
                     
-        self.mb.kommender_Eintrag += 1
-        root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
+        self.mb.props[T.AB].kommender_Eintrag += 1
+        root.attrib['kommender_Eintrag'] = str(self.mb.props[T.AB].kommender_Eintrag)
        
        
 
           
     def in_Ordner_einfuegen(self,source,target):
-        if self.mb.debug: print(self.mb.debug_time(),'in_Ordner_einfuegen')
+        if self.mb.debug: log(eval(insp))
         
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
         # wird zum ersten Eintrag im Ordner
         source = root.find('.//'+source)
@@ -77,9 +77,9 @@ class XML_Methoden():
         
      
     def drueber_einfuegen(self,source,target):
-        if self.mb.debug: print(self.mb.debug_time(),'drueber_einfuegen')
+        if self.mb.debug: log(eval(insp))
         
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
         # nur fuer das allererste Element
         source = root.find('.//'+source)
@@ -96,9 +96,9 @@ class XML_Methoden():
         
      
     def vor_Nachfolger_einfuegen(self,source,nachfolger):  
-        if self.mb.debug: print(self.mb.debug_time(),'vor_Nachfolger_einfuegen')  
+        if self.mb.debug: log(eval(insp))
   
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
         source = root.find('.//'+source)
         nachfolger = root.find('.//'+nachfolger)
@@ -117,9 +117,9 @@ class XML_Methoden():
         
      
     def drunter_einfuegen(self,source,target):
-        if self.mb.debug: print(self.mb.debug_time(),'drunter_einfuegen')  
+        if self.mb.debug: log(eval(insp))
     
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()       
         source = root.find('.//'+source)
         target = root.find('.//'+target)
@@ -139,9 +139,9 @@ class XML_Methoden():
 
      
     def in_Papierkorb_einfuegen(self,source,target):
-        if self.mb.debug: print(self.mb.debug_time(),'in_Papierkorb_einfuegen')  
+        if self.mb.debug: log(eval(insp))
         
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
         # wird zum ersten Eintrag im Ordner
         source = root.find('.//'+source)
@@ -159,7 +159,7 @@ class XML_Methoden():
      
     def xmlLevel_und_hfPosition_anpassen(self,root,source):
         #return
-        if self.mb.debug: print(self.mb.debug_time(),'xmlLevel_und_hfPosition_anpassen') 
+        if self.mb.debug: log(eval(insp))
          
         eintr = []
         self.get_tree_info(root,eintr)
@@ -180,7 +180,7 @@ class XML_Methoden():
             elem.attrib['Lvl'] = str(lvl)  
             lvl2 = int(lvl)
             # Alle Zeilen X neu positionieren
-            zeile = self.mb.Hauptfeld.getControl(ordinal)
+            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
             text = zeile.getControl('textfeld')
             icon = zeile.getControl('icon')
             

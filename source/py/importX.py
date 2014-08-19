@@ -20,7 +20,11 @@ class ImportX():
     def importX(self):
         
         try:
-        
+            
+            if T.AB != 'Projekt':
+                self.mb.Mitteilungen.nachricht('Import to tab is not implemented yet.',"infobox")
+                return
+                
             if self.mb.filters_import == None:
                 self.erzeuge_filter()
             
@@ -408,7 +412,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         zeile_nr,zeile_pfad = self.erzeuge_neue_Zeile()
         
         ordinal_neuer_Eintrag = 'nr'+str(zeile_nr)
-        bereichsname = self.mb.dict_bereiche['ordinal'][ordinal_neuer_Eintrag]
+        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal_neuer_Eintrag]
         sections = self.mb.doc.TextSections
         neuer_Bereich = sections.getByName(bereichsname) 
                             
@@ -430,13 +434,13 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         self.oOO.storeToURL(Path2,(prop3,))
         self.oOO.close(False)
         
-        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+        #SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
         SFLink = neuer_Bereich.FileLink
          
         neuer_Bereich.setPropertyValue('FileLink',SFLink)
         
         # zeilenname der neuen Datei setzen
-        zeile_hf = self.mb.Hauptfeld.getControl('nr'+str(zeile_nr))
+        zeile_hf = self.mb.props[T.AB].Hauptfeld.getControl('nr'+str(zeile_nr))
         zeile_textfeld = zeile_hf.getControl('textfeld')
 
         link_quelle1 = uno.fileUrlToSystemPath(url_dat)
@@ -446,7 +450,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
         zeile_textfeld.Model.Text = name2
         
-        tree = self.mb.xml_tree
+        tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot() 
         
         xml_elem = root.find('.//'+ ordinal_neuer_Eintrag)
@@ -454,6 +458,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
         tree.write(Path)
+        
+        self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal_neuer_Eintrag)
         
         return ordinal_neuer_Eintrag,bereichsname
             
@@ -508,17 +514,17 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     def erzeuge_neue_Zeile(self):
         
         self.mb.timer_start = self.mb.time.clock()
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_neue_Zeile Import')
+        if self.mb.debug: log(eval(insp))
         
-        if self.mb.selektierte_zeile == None:       
+        if self.mb.props[T.AB].selektierte_zeile == None:       
             self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
             return None
         else:
                         
-            ord_sel_zeile = self.mb.selektierte_zeile.AccessibleName
+            ord_sel_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
             
             # XML TREE
-            tree = self.mb.xml_tree
+            tree = self.mb.props[T.AB].xml_tree
             root = tree.getroot()
             xml_sel_zeile = root.find('.//'+ord_sel_zeile)
             
@@ -559,7 +565,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     
     def erzeuge_bereich3(self,i,path,sicht):
-        if self.mb.debug: print(self.mb.debug_time(),'erzeuge_bereich3')
+        if self.mb.debug: log(eval(insp))
         
         nr = str(i) 
         
@@ -600,7 +606,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.fuege_importXml_in_xml_ein(importXml)
             
             path = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-            self.mb.xml_tree.write(path)
+            self.mb.props[T.AB].xml_tree.write(path)
             
             self.neue_Dateien_erzeugen(importXml,links_und_filter)
             
@@ -656,14 +662,16 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.oOO.storeToURL(pfad2,(prop3,))
             self.oOO.close(False)
             
+            self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ord)
+            
             StatusIndicator.end()
 
  
     def fuege_importXml_in_xml_ein(self,importXml):
-        root = self.mb.xml_tree.getroot()
+        root = self.mb.props[T.AB].xml_tree.getroot()
         
-        name_selek_zeile = self.mb.selektierte_zeile.AccessibleName
-        xml_selekt_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile)
+        name_selek_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        xml_selekt_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile)
         
         parent = root.find('.//'+xml_selekt_zeile.tag+'/..')
         
@@ -694,16 +702,16 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 return None,None,False
             
                     
-        ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-        self.mb.kommender_Eintrag += 1
+        ordinal_neuer_Eintrag = 'nr%s' %self.mb.props[T.AB].kommender_Eintrag
+        self.mb.props[T.AB].kommender_Eintrag += 1
 
         et = self.mb.ET
         root_xml = et.Element(ordinal_neuer_Eintrag)
         tree_xml = et.ElementTree(root_xml)
         
-        name_selek_zeile = self.mb.selektierte_zeile.AccessibleName
-        xml_selekt_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile)
-        parent_sel_zeile = self.mb.xml_tree.getroot().find('.//'+name_selek_zeile+'/..')
+        name_selek_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        xml_selekt_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile)
+        parent_sel_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile+'/..')
         lvl = int(xml_selekt_zeile.attrib['Lvl'])
         
         # Der Hauptordner
@@ -717,8 +725,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             for eintr in Verzeichnis:
                 File,Pfad,Ordner,filt = eintr
                 
-                ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-                self.mb.kommender_Eintrag += 1
+                ordinal_neuer_Eintrag = 'nr%s' %self.mb.props[T.AB].kommender_Eintrag
+                self.mb.props[T.AB].kommender_Eintrag += 1
                 
                 element = et.SubElement(root_xml,ordinal_neuer_Eintrag)
                 
@@ -729,8 +737,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 file_url = uno.systemPathToFileUrl(Pfad)
                 url_links.update({ordinal_neuer_Eintrag:(file_url,None)})
                 
-            root = self.mb.xml_tree.getroot()
-            root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
+            root = self.mb.props[T.AB].xml_tree.getroot()
+            root.attrib['kommender_Eintrag'] = str(self.mb.props[T.AB].kommender_Eintrag)
             
             return root_xml,url_links,True                    
             
@@ -747,8 +755,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                         x = elem.find(o)
                         if x == None:
                             
-                            ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-                            self.mb.kommender_Eintrag += 1
+                            ordinal_neuer_Eintrag = 'nr%s' %self.mb.props[T.AB].kommender_Eintrag
+                            self.mb.props[T.AB].kommender_Eintrag += 1
                             
                             url_links.update({ordinal_neuer_Eintrag:("private:factory/swriter",None)})
                             name = unescape_xml(o)
@@ -764,8 +772,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 
                 #print('schreibe Datei',File,'in Ordner',o) 
                 file_url = uno.systemPathToFileUrl(Pfad)
-                ordinal_neuer_Eintrag = 'nr%s' %self.mb.kommender_Eintrag
-                self.mb.kommender_Eintrag += 1
+                ordinal_neuer_Eintrag = 'nr%s' %self.mb.props[T.AB].kommender_Eintrag
+                self.mb.props[T.AB].kommender_Eintrag += 1
                 url_links.update({ordinal_neuer_Eintrag:(file_url,filt)})
 
                 et.SubElement(elem,ordinal_neuer_Eintrag)
@@ -783,8 +791,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     for child in list(elemen):
                         child.attrib['Parent'] = elemen.tag
 
-            root = self.mb.xml_tree.getroot()
-            root.attrib['kommender_Eintrag'] = str(self.mb.kommender_Eintrag)
+            root = self.mb.props[T.AB].xml_tree.getroot()
+            root.attrib['kommender_Eintrag'] = str(self.mb.props[T.AB].kommender_Eintrag)
             
             return root_xml,url_links,True
 
@@ -792,9 +800,14 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
             
     def setze_attribute(self,element,name,art,level,parent):
-
+        
+        if art == 'dir':
+            zustand = 'auf'
+        else:
+            zustand = '-'
+        
         element.attrib['Name'] = name
-        element.attrib['Zustand'] = 'auf'
+        element.attrib['Zustand'] = zustand
         element.attrib['Sicht'] = 'ja'
         element.attrib['Parent'] = parent.tag
         element.attrib['Lvl'] = str(level)
@@ -915,20 +928,20 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
          
             
     def lade_Projekt(self,filepicker = True):
-        if self.mb.debug: print(self.mb.debug_time(),'lade_Projekt (importX)')
+        if self.mb.debug: log(eval(insp))
 
         try:
             self.leere_hf()
             self.mb.class_Projekt.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
             self.mb.class_Projekt.lade_settings()      
-            self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld() 
+            self.mb.props[T.AB].Hauptfeld = self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld(self.mb.dialog) 
                
             Eintraege = self.mb.class_Projekt.lese_xml_datei()
             self.mb.class_Projekt.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Zeile
-            self.mb.selektierte_zeile = self.mb.Hauptfeld.getByIdentifier(0).AccessibleContext
+            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    

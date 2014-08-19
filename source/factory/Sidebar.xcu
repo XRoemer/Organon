@@ -205,7 +205,7 @@
 		  <node oor:name="Tags_characters" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
 			  <value xml:lang="en-US">Tags: Characters</value>
-			  <value xml:lang="de">Tags: Charaktere</value>
+			  <value xml:lang="de">Tags: Personen</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
 			  <value>Tags_characters</value>

@@ -5,9 +5,11 @@ Organon legt Textdateien in einem Verzeichnisbaum an.
 Texte/Verzeichnisse können:
 
 - per Drag and Drop verschoben werden
-- mit Tags versehen werden
+- mit Tags in der Baumansicht versehen werden
+- mit Tags in der Seitenleiste versehen werden
 - ex- und
 - importiert werden
+- in Tabs organisiert werden
 
 Bei Auswahl eines Ordners oder einer Datei springt Organon an die entsprechende Textstelle. 
 

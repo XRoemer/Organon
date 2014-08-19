@@ -1,25 +1,23 @@
 
 # -*- coding: utf-8 -*-
 import sys
-import traceback
+from traceback import print_exc as tb
 import uno
 import unohelper
-
+from os import path as PATH
 
 ####################################################
                 # DEBUGGING #
 ####################################################
 
-
 debug = False
 
-tb = traceback.print_exc
 platform = sys.platform
 
 if debug:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
-        pyPath = '/home/xgr/Arbeitsordner/organon/py'
+        pyPath = '/home/xgr/workspace/organonEclipse/py'
         sys.path.append(pyPath)
 
 
@@ -40,12 +38,19 @@ pd = pydevBrk
 #pydevBrk()
 
 
+
+
+
 ####################################################
                 # SIDEBAR #
 ####################################################
 
 
-dict_sb = {'sichtbare':['empty_project'],'controls':{},'erzeuge_sb_layout':None,'test':None}
+dict_sb = {'sichtbare':['empty_project'],
+           'controls':{},
+           'erzeuge_sb_layout':None,
+           'optionsfenster':None,
+           'sb_closed':None}
 
 
 from com.sun.star.ui import XUIElementFactory
@@ -92,6 +97,7 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
                 if dict_sb['erzeuge_sb_layout'] != None:
                     erzeuge_sb_layout = dict_sb['erzeuge_sb_layout']
                     erzeuge_sb_layout(cmd,'factory')
+                    dict_sb['sb_closed'] = False
 
                 return xUIElement
             else:
@@ -100,8 +106,8 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
                 return None
             
         except Exception as e:
-            print('createUIElement '+e)
-            pd()
+            print('createUIElement '+ str(e))
+            #pd()
             tb()
        
 g_ImplementationHelper = unohelper.ImplementationHelper()
@@ -153,7 +159,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
 
             path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
             
-            start_main(pydevBrk,window,ctx,tabs,path_to_extension,win,debug)  
+            start_main(pydevBrk,window,ctx,tabs,path_to_extension,win,debug,self)  
             
             return win 
         except Exception as e:
@@ -233,7 +239,10 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         pass
     
 
-def start_main(pd,window,ctx,tabs,path_to_extension,win,debug):
+dict_sb.update({'CWHandler':ContainerWindowHandler(uno.getComponentContext())})
+
+
+def start_main(pd,window,ctx,tabs,path_to_extension,win,debug,factory):
 
     dialog = window
         
@@ -243,7 +252,7 @@ def start_main(pd,window,ctx,tabs,path_to_extension,win,debug):
     else:
         import menu_start
 
-    Menu_Start = menu_start.Menu_Start(pd,dialog,ctx,tabs,path_to_extension,win,dict_sb,debug)
+    Menu_Start = menu_start.Menu_Start(pd,dialog,ctx,tabs,path_to_extension,win,dict_sb,debug,factory)
     Menu_Start.erzeuge_Startmenu()
 
 
@@ -299,6 +308,7 @@ class XUIPanel( unohelper.Base,  XSidebarPanel, XUIElement, XToolPanel, XCompone
     
     # XComponent
     def dispose(self):
+        dict_sb['sb_closed'] = True
         pass
      
     def addEventListener(self, ev): pass
@@ -341,9 +351,8 @@ class Sidebar_Options_Dispatcher(unohelper.Base,XDispatch,XDispatchProvider):
     def queryDispatch(self,featureURL,frameName,searchFlag):
         return self
     def dispatch(self,featureURL,*args):
-        test = dict_sb['test']
-        test(featureURL.Path)
-        #self.do_something(featureURL)
+        optionsfenster = dict_sb['optionsfenster']
+        optionsfenster(featureURL.Path)
     def addStatusListener(self,listener,featureURL):
         #print('addStatusListener', featureURL.Path)
         return
@@ -351,17 +360,6 @@ class Sidebar_Options_Dispatcher(unohelper.Base,XDispatch,XDispatchProvider):
         #print('removeStatusListener', featureURL.Path)
         return
     
-    def do_something(self,featureURL):
-
-        ctx = uno.getComponentContext()
-        desktop = ctx.ServiceManager.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-        doc = desktop.getCurrentComponent() 
-        text = doc.Text
-        
-        cur = text.createTextCursor()
-        cur.gotoEnd(False)
-        t = 'Hello from your command ' + featureURL.Path
-        text.insertString(cur,t,False)    
 
         
         

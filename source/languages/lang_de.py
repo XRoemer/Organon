@@ -35,6 +35,10 @@ NEUES_TEMPLATE = u'Neue Vorlage erstellt in:'
 
 NEW_DOC = 'Neues Dokument'
 NEW_DIR = 'Neuer Ordner'
+NEUER_TAB = 'Neuer Tab'
+SCHLIESSE_TAB = u'Schließe aktiven Tab'
+TAB_SCHLIESSEN = u'Soll der Tab "%s" wirklich geschlossen werden?'
+TAB_EXISTIERT_SCHON = u'Der Tabname existiert schon.'
 UNFOLD_PROJ_DIR = 'Projektordner ausklappen'
 SHOW_TAG1 = 'zeige Tag 1'
 SHOW_TAG2 = 'zeige Tag 2'
@@ -47,7 +51,7 @@ KEIN_NAME = 'Sie haben noch keinen Namen eingegeben.'
 KEIN_SPEICHERORT = 'Sie haben noch keinen Speicherort ausgesucht.'
 DOUBLE_PROJ_NAME = u'Das Projekt soll den gleichen Namen wie das zur Zeit geöffnete Dokument erhalten. Das funktioniert nicht.'
 PROJ_EXISTS = u'Das Projekt existiert schon. Soll es gelöscht und überschrieben werden?'
-
+KANN_NICHT_VERSCHOBEN_WERDEN = u'%s kann nicht in den Papierkorb verschoben werden, da die Datei noch im Tab "%s" geöffnet ist.' 
 
 ZEILE_AUSWAEHLEN = u'Wählen Sie bitte erst eine Zeile aus, unter der eingefügt werden soll    '
 ERZEUGE_NEUE_ZEILE = '                    erzeuge neue Zeile, bitte warten!                   '
@@ -139,7 +143,7 @@ SYNOPSIS = 'Synopsis'
 NOTIZEN = 'Notizen'
 BILDER = 'Bilder'
 ALLGEMEIN = 'Allgemein'
-CHARAKTERE = 'Charaktere'
+CHARAKTERE = 'Personen'
 ORTE = 'Orte'
 OBJEKTE = 'Objekte'
 ZEIT = 'Zeit'
@@ -160,6 +164,22 @@ ENTER_NEW_TAG = 'Geben Sie einen neuen Tag ein und klicken Sie danach in das Dok
 IN_PROJEKTORDNER_IMPORTIEREN = u'Das ausgesuchte Bild wird in den Projektordner importiert.'
 BILD_EINFUEGEN = u'Bild einfügen'
 BILD_LOESCHEN = u'Bild löschen'
+
+
+###### TABS ######
+ERZEUGE_NEUEN_TAB_AUS = 'Erzeuge neuen Tab aus:'
+MEHRFACHE_AUSWAHL = u'Mehrfachauswahl möglich:'
+TAG_DATE = 'Tag Date (Sidebar)'
+EIGENE_AUSWAHL = 'Eigene Auswahl'
+TAGS_SEITENLEISTE = 'Tags Seitenleiste'
+TAGS_BAUMANSICHT = 'Tags Baumansicht'
+SUCHE = 'Suche'
+TABNAME = 'Tabname:'
+TAB_HELP_TEXT = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt. \
+\rV (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt.'
+TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt. \
+\rV (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt. \r(noch nicht implementiert)'
+AUSGEWAEHLTE = u'Ausgewählte'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

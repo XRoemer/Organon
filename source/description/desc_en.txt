@@ -5,8 +5,9 @@ Organon creates a navigation-tree for folders and files
 It's possible to:
 
 - use drag and drop
-- create tags
+- create tags in treeview and sidebar
 - import and export files
+- organize the project in tabs
 
-While working within the text, Organon points to the place of the text in the navigation-tree. 
+While working within folders Organon keeps the reference to the edited file in the navigation-tree. 
 

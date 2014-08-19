@@ -12,7 +12,7 @@ platform = sys.platform
 
 class Menu_Start():
     
-    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,dict_sb,debugX):
+    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,dict_sb,debugX,factory):
         
         global debug
         debug = debugX
@@ -23,7 +23,7 @@ class Menu_Start():
         self.pd = pdk
         global pd
         pd = pdk
-        
+
         if 'LibreOffice' in sys.executable:
             self.programm = 'LibreOffice'
         elif 'OpenOffice' in sys.executable:
@@ -33,6 +33,7 @@ class Menu_Start():
             self.programm = 'LibreOffice'
          
         # Konstanten
+        self.factory = factory
         self.dialog = dialog
         self.ctx = ctx
         self.smgr = self.ctx.ServiceManager
@@ -47,14 +48,17 @@ class Menu_Start():
         
         dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
       
-
+        
+        
+        
+        
     def erzeuge_Startmenu(self):
         try:
             self.erzeuge_Buttons()
         except:
-            tb()
-        
-    
+            tb() 
+ 
+         
     def erzeuge_Buttons(self):
             
         # Hauptfeld_Aussen
@@ -120,8 +124,22 @@ class Menu_Start():
                 menu_bar = load_reload_modul(modul,pyPath,self)  # gleichbedeutend mit: import menu_bar
             else:
                 import menu_bar
-                
-            self.Menu_Bar = menu_bar.Menu_Bar(self.pd,self.dialog,self.ctx,self.tabs,self.path_to_extension,self.win,self.dict_sb,debug)
+            
+            
+            args = (self.pd,
+                    self.dialog,
+                    self.ctx,
+                    self.tabs,
+                    self.path_to_extension,
+                    self.win,
+                    self.dict_sb,
+                    debug,
+                    self.factory,
+                    self,
+                    )
+            
+            self.module_mb = menu_bar
+            self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu()
         except:
             tb()    
@@ -159,7 +177,7 @@ class Menu_Start():
         global pyPath
         pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
         if platform == 'linux':
-            pyPath = '/home/xgr/Arbeitsordner/organon/py'
+            pyPath = '/home/xgr/workspace/organonEclipse/py'
             sys.path.append(pyPath)
     
    
@@ -242,7 +260,6 @@ def load_reload_modul(modul,pyPath,mb):
         if pyPath not in sys.path:
             sys.path.append(pyPath)
 
-        #print('lade:',modul)
         exec('import '+ modul)
         del(sys.modules[modul])
         try:
@@ -254,7 +271,7 @@ def load_reload_modul(modul,pyPath,mb):
 
                 path_menu = __file__.split(__name__)
                 pfad = path_menu[0] + modul + '.pyc'
-                #print(path)
+
                 try:
                     remove(pfad)
                 except:
