@@ -22,7 +22,7 @@ class Version():
         if self.version == 0:
             self.an_080b_anpassen()
         if self.version == '0.8.0b':
-            self.an_089b_anpassen()
+            self.an_090b_anpassen()
         
     def an_080b_anpassen(self):
         if self.mb.debug: log(eval(insp))
@@ -42,13 +42,13 @@ class Version():
         self.mb.settings_exp['speicherort'] = ''
         self.version = '0.8.0b'
         
-    def an_089b_anpassen(self):
+    def an_090b_anpassen(self):
         if self.mb.debug: log(eval(insp))
         
         if not os.path.exists(pfade['tabs']):
             os.makedirs(pfade['tabs'])
         self.mb.class_Bereiche.erzeuge_leere_datei()
-        self.version = '0.8.9b'
+        self.version = '0.9.0b'
         
         
         
