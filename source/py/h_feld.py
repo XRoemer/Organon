@@ -17,14 +17,14 @@ class Main_Container():
         
         
     def start(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         self.mb.props[T.AB].Hauptfeld = self.erzeuge_Navigations_Hauptfeld(self.mb.dialog)  
         self.erzeuge_Scrollbar(self.dialog,self.ctx)
 
         
     def erzeuge_Navigations_Hauptfeld(self,win):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         # Das aeussere Hauptfeld wird fuers Scrollen benoetigt. Das innere und eigentliche
         # Hauptfeld scrollt dann in diesem Hauptfeld_aussen
 
@@ -50,7 +50,7 @@ class Main_Container():
 
   
     def erzeuge_Verzeichniseintrag(self,eintrag,class_Zeilen_Listener,index=0,tab_name = 'Projekt'):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
 
@@ -165,7 +165,7 @@ class Main_Container():
         return index  
      
     def erzeuge_Scrollbar(self,win,ctx):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         nav_cont_aussen = win.getControl('Hauptfeld_aussen')
         nav_cont = nav_cont_aussen.getControl('Hauptfeld')
@@ -195,7 +195,7 @@ class Main_Container():
         control.addAdjustmentListener(listener) 
         
     def korrigiere_scrollbar(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         #print(T.AB,self.mb.active_tab_id)
         active_tab = self.mb.active_tab_id
         win = self.mb.tabs[active_tab][0]
@@ -229,7 +229,7 @@ class Main_Container():
     def erzeuge_neue_Zeile(self,ordner_oder_datei):
         
         #self.mb.timer_start = self.mb.time.clock()
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
             self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
@@ -307,7 +307,7 @@ class Main_Container():
 
     def leere_Papierkorb(self, ist_tab = False):
 
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         try:
             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
             
@@ -377,7 +377,7 @@ class Main_Container():
             tb()
                 
     def erneuere_selektierungen(self,selektierter_ist_im_papierkorb):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         zeile_Papierkorb = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].Papierkorb)
         textfeld_Papierkorb = zeile_Papierkorb.getControl('textfeld')
@@ -397,7 +397,7 @@ class Main_Container():
             
 
     def loesche_Bereiche_und_Dateien(self,papierkorb_inhalt1,papierkorb_inhalt):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         for inhalt in papierkorb_inhalt1:
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = inhalt
@@ -457,7 +457,7 @@ class Main_Container():
                 tb()
         
     def erneuere_dict_bereiche(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         sections = self.mb.doc.TextSections
 
@@ -835,7 +835,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
  
            
     def zeilen_neu_ordnen(self,source,target,action):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         if action != 'gescheitert':
 
@@ -865,7 +865,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
                 
     def wird_datei_in_papierkorb_verschoben(self,source,target):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         try:
             if T.AB != 'Projekt':
                 return True
@@ -880,13 +880,13 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             
             
-            for ord in ordinale:
+            for ordn in ordinale:
                 for tab in self.mb.props:
                     if tab != 'Projekt':
-                        if ord in self.mb.props[tab].dict_bereiche['ordinal']:
+                        if ordn in self.mb.props[tab].dict_bereiche['ordinal']:
                             
                             root = self.mb.props[tab].xml_tree.getroot()
-                            dateiname = root.find('.//'+ord).attrib['Name']
+                            dateiname = root.find('.//'+ordn).attrib['Name']
                             
                             # lang.KEIN_NAME
                              
@@ -898,7 +898,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return True
         
     def hf_neu_ordnen(self,eintraege): 
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
@@ -958,7 +958,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         
     def xml_neu_ordnen(self,source,target,action):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
@@ -1004,7 +1004,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
    
             
     def schalte_sichtbarkeit_des_hf(self,selbst,selbst_xml,zustand,zeige_projektordner = False):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
@@ -1055,7 +1055,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         
     def verlinke_Bereiche(self,sections):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         # langsame und sichere Loesung: es werden alle Bereiche neu verlinkt, 
         # nicht nur die verschobenen
@@ -1110,7 +1110,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return dict
         
     def schalte_sichtbarkeit_der_Bereiche(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         try:
             # Der VC Listener wird von IsVisible ausgeloest,
@@ -1200,7 +1200,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
     
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
    
         # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
@@ -1230,7 +1230,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
 
     def verlinke_Sektion(self,name,bereich):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         dict_filelinks = self.get_links()
         
@@ -1388,7 +1388,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         trenner.IsVisible = False
         
     def update_dict_zeilen_posY(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
@@ -1408,7 +1408,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         
     def positioniere_elemente_im_baum_neu(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()

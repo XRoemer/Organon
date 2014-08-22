@@ -15,7 +15,7 @@ class XML_Methoden():
         
         
         if not self.selbstaufruf:
-            if self.mb.debug: log(eval(insp))
+            if self.mb.debug: log(inspect.stack)
             self.selbstaufruf = True
             
         if elem.attrib['Name'] != 'root':
@@ -27,7 +27,7 @@ class XML_Methoden():
              
     
     def erzeuge_XML_Eintrag(self,eintrag):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         # erzeugt den XML Eintrag fuer ein neues Standard Dokument
         tree = self.mb.props[T.AB].xml_tree 
@@ -58,7 +58,7 @@ class XML_Methoden():
 
           
     def in_Ordner_einfuegen(self,source,target):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
@@ -77,7 +77,7 @@ class XML_Methoden():
         
      
     def drueber_einfuegen(self,source,target):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
@@ -96,7 +96,7 @@ class XML_Methoden():
         
      
     def vor_Nachfolger_einfuegen(self,source,nachfolger):  
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
   
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
@@ -117,7 +117,7 @@ class XML_Methoden():
         
      
     def drunter_einfuegen(self,source,target):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
     
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()       
@@ -139,7 +139,7 @@ class XML_Methoden():
 
      
     def in_Papierkorb_einfuegen(self,source,target):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
@@ -159,7 +159,7 @@ class XML_Methoden():
      
     def xmlLevel_und_hfPosition_anpassen(self,root,source):
         #return
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
          
         eintr = []
         self.get_tree_info(root,eintr)

@@ -19,6 +19,7 @@ beginnen oder laden. Menüleiste: Organon>open/close'
 ZEIGE_TEXTBEREICHE = 'Zeige Textbereiche'
 SICHTBARE_TAGS_BAUMANSICHT = 'Sichtbare Tags in der Baumansicht'
 SICHTBARE_TAGS_SEITENLEISTE = 'Sichtbare Tags in der Sidebar'
+BACKUP = u'Backup erzeugen'
 
 SPEICHERORT = 'Speicherort'
 FORMATIERUNG = 'Formatierung'
@@ -87,6 +88,9 @@ SEITENUMBRUCH_DAT = 'Seitenumbruch vor Datei'
 ORDNER_CLICK = u'Klick auf Ordner wählt Untereintraege aus'
 NICHTS_AUSGEWAEHLT = u'Es sind keine Dateien zum Export ausgewählt'
 EXPORT_BITTE_WARTEN = 'Exportiere. Bitte warten.'
+ORDNER_EXISTIERT_SCHON = u'Der Ordner enthält bereits eine Datei oder einen Ordner %s.organon'
+NEW_PROJECT2 = 'neues Projekt'
+PROJEKT_NAMEN_EINGEBEN = u'Geben Sie einen Namen für das Projekt an.'
 
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'

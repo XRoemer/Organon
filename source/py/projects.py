@@ -287,7 +287,7 @@ class Projekt():
             user_styles = self.mb.user_styles
         controlLBF2.addItems(user_styles,0)
         modelLBF2.Dropdown = True
-        #index = style_names.index(set['style_ord'])
+        #index = style_names.index(sett['style_ord'])
         #modelLBF.SelectedItems = index,
         modelLBF2.SelectedItems = 0,
         
@@ -335,7 +335,7 @@ class Projekt():
         templates = ('Minimal','Standard','Maximum')
         controlTempL.addItems(templates,0)
         modelTempL.Dropdown = True
-        #index = style_names.index(set['style_ord'])
+        #index = style_names.index(sett['style_ord'])
         #modelLBF.SelectedItems = index,
         modelTempL.SelectedItems = 0,
         controlTempL.Enable = False
@@ -506,7 +506,7 @@ class Projekt():
 
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         if self.pruefe_auf_geladenes_organon_projekt():
             return
@@ -514,7 +514,7 @@ class Projekt():
         if filepicker:
             Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
             Filepicker.appendFilter('Organon Project','*.organon')
-            #filter = Filepicker.getCurrentFilter()
+            #ofilter = Filepicker.getCurrentFilter()
             Filepicker.execute()
             # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
 
@@ -591,7 +591,7 @@ class Projekt():
         
       
     def erzeuge_Projekt_xml_tree(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         et = self.mb.ET    
         #prj_name = self.mb.projekt_name.replace(' ','_')   
@@ -607,7 +607,7 @@ class Projekt():
 
                            
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
         CB.starte_oOO()
@@ -669,7 +669,7 @@ class Projekt():
         self.mb.sec_helfer = newSection
 
     def erzeuge_Eintraege_und_Bereiche2(self,Eintraege):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         CB = self.mb.class_Bereiche
         CB.leere_Dokument()    ################################  rausnehmen
@@ -725,7 +725,7 @@ class Projekt():
            
                    
     def erzeuge_dict_ordner(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
@@ -764,7 +764,7 @@ class Projekt():
 
 
     def lese_xml_datei(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         pfad = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')      
         self.mb.props[T.AB].xml_tree = self.mb.ET.parse(pfad)
@@ -800,7 +800,7 @@ class Projekt():
         self.mb.props[T.AB].selektierte_zeile_alt = textfeld 
         
     def erzeuge_proj_Settings(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         settings_proj = {
             'tag1' : 1, 
@@ -816,7 +816,7 @@ class Projekt():
     
     
     def erzeuge_export_Settings(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         settings_exp = {
             # Export Dialog
@@ -831,6 +831,7 @@ class Projekt():
             'typ' : 'writer8',
             # .encode("utf-8") <- wird das in der folgenden Zeile gebraucht?
             'speicherort' : uno.systemPathToFileUrl(self.mb.pfade['projekt']),
+            'neues_proj' : 0,
             
             # Trenner
             'ordnertitel': 1,
@@ -857,7 +858,7 @@ class Projekt():
     
     
     def erzeuge_import_Settings(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         Settings = {'imp_dat' : '1',
                 'ord_strukt' : '1',
@@ -908,7 +909,7 @@ class Projekt():
         return Eintraege
 
     def beispieleintraege2(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         Eintraege = [#('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
                 ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
@@ -922,7 +923,7 @@ class Projekt():
         
         
     def get_flags(self,x):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
               
         x_bin_rev = bin(x).split('0b')[1][::-1]
 
@@ -940,8 +941,13 @@ class Projekt():
     def test(self):
 
         try:
-            pass         
+            pass
 
+            lt = time.localtime()
+            t = time.strftime("%d.%m.%Y__%H.%M.%S", lt)
+            print(t)
+            
+                
         except:
             tb()
             
@@ -949,7 +955,7 @@ class Projekt():
         
     
 def erzeuge_Fenster(mb):
-    if self.mb.debug: log(eval(insp))
+    if self.mb.debug: log(inspect.stack)
     
     try:
         # HAUPTFENSTER    

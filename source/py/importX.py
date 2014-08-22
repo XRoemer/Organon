@@ -487,7 +487,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         except:
             tb()
     
-    def kapsel_in_Bereich(self,oOO,ord):
+    def kapsel_in_Bereich(self,oOO,ordn):
         
         cur = oOO.Text.createTextCursor()
         cur.gotoEnd(False)
@@ -505,7 +505,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         cur.goRight(1,True)
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-        newSection.setName('OrgInnerSec'+ord)
+        newSection.setName('OrgInnerSec'+ordn)
         
         oOO.Text.insertTextContent(cur,newSection,True)
         
@@ -514,7 +514,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     def erzeuge_neue_Zeile(self):
         
         self.mb.timer_start = self.mb.time.clock()
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
             self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
@@ -565,7 +565,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     
     def erzeuge_bereich3(self,i,path,sicht):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         nr = str(i) 
         
@@ -628,7 +628,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         anzahl_links = len(links_und_filter)
         index = 1
 
-        for ord,link_filt in links_und_filter.items():
+        for ordn,link_filt in links_und_filter.items():
             
             link,filt = link_filt
             
@@ -650,19 +650,19 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.oOO = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
 
             self.entferne_links(self.oOO)
-            self.kapsel_in_Bereich(self.oOO,ord)
+            self.kapsel_in_Bereich(self.oOO,ordn)
             
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop3.Name = 'FilterName'
             prop3.Value = 'writer8'
             
-            pfad = os.path.join(speicherordner,ord +'.odt')
+            pfad = os.path.join(speicherordner,ordn +'.odt')
             pfad2 = uno.systemPathToFileUrl(pfad)
             
             self.oOO.storeToURL(pfad2,(prop3,))
             self.oOO.close(False)
             
-            self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ord)
+            self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordn)
             
             StatusIndicator.end()
 
@@ -853,8 +853,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         # Vorsortierung, um nicht fuer jede Datei deep scan durchzufuehren
         filterendungen = self.get_filter_endungen()
 
-        def find_parents(ord,AusgangsOrdner,Liste):
-            drueber = os.path.dirname(ord)
+        def find_parents(ordn,AusgangsOrdner,Liste):
+            drueber = os.path.dirname(ordn)
             uebergeordneter = os.path.split(drueber)[1]
             
             if uebergeordneter != AusgangsOrdner:
@@ -928,7 +928,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
          
             
     def lade_Projekt(self,filepicker = True):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         try:
             self.leere_hf()

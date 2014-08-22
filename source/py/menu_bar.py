@@ -15,7 +15,7 @@ import inspect
 
 platform = sys.platform
 
-insp = 'inspect.stack'
+
 
 class Menu_Bar():
     
@@ -39,7 +39,7 @@ class Menu_Bar():
         
         IMPORTS = ('uno','unohelper','sys','os','ElementTree','time',
                    'codecs_open','math_floor','re','tb','platform','KONST',
-                   'pd','copy','Props','T','log','insp','inspect')
+                   'pd','copy','Props','T','log','inspect')
         
         if 'LibreOffice' in sys.executable:
             self.programm = 'LibreOffice'
@@ -370,7 +370,9 @@ class Menu_Bar():
                 lang.NEW_DIR,
                 '---------',
                 lang.EXPORT_2, 
-                lang.IMPORT_2)
+                lang.IMPORT_2,
+                '---------',
+                lang.BACKUP)
         
         control.addItems(items, 0)
         model.BackgroundColor = KONST.MENU_DIALOG_FARBE
@@ -616,14 +618,44 @@ class Menu_Bar():
             tb()      
             
     def leere_Papierkorb(self):
-        self.class_Hauptfeld.leere_Papierkorb()                  
-
+        self.class_Hauptfeld.leere_Papierkorb()   
+        
+    def erzeuge_Backup(self):
+        
+        try:
+            pfad_zu_backup_ordner = os.path.join(self.pfade['projekt'],'Backups')
+            if not os.path.exists(pfad_zu_backup_ordner):
+                os.makedirs(pfad_zu_backup_ordner)
+            
+            lt = time.localtime()
+            t = time.strftime(" %d.%m.%Y  %H.%M.%S", lt)
+            
+            neuer_projekt_name = self.projekt_name + t
+            pfad_zu_neuem_ordner = os.path.join(pfad_zu_backup_ordner,neuer_projekt_name)
+            
+            tree = self.props['Projekt'].xml_tree
+            root = tree.getroot()
+            
+            all_elements = root.findall('.//')
+            ordinale = []
+            
+            for el in all_elements:
+                ordinale.append(el.tag)        
+        
+            self.class_Export.kopiere_projekt(neuer_projekt_name,pfad_zu_neuem_ordner,
+                                                 ordinale,tree,self.dict_sb_content,True)  
+            os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')  
+            self.Mitteilungen.nachricht('Backup erzeugt unter: %s' %pfad_zu_neuem_ordner+'.organon', "infobox")           
+        except:
+            tb()
+            
+            
     def debug_time(self):
         zeit = "%0.2f" %(self.time.clock()-self.timer_start)
         return zeit
 
     def entferne_alle_listener(self):
-        if debug: log(eval(insp))
+        if debug: log(inspect.stack)
         
         #return
         self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener) 
@@ -685,13 +717,13 @@ class Menu_Bar():
         return oWindow,cont
      
     def loesche_undo_Aktionen(self):
-        if debug: log(eval(insp))
+        if debug: log(inspect.stack)
         
         undoMgr = self.doc.UndoManager
         undoMgr.reset()
         
     def speicher_settings(self,dateiname,eintraege):
-        if debug: log(eval(insp))
+        if debug: log(inspect.stack)
         
         path = os.path.join(self.pfade['settings'],dateiname)
         imp = str(eintraege).replace(',',',\n')
@@ -1020,7 +1052,7 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
         
     # XItemListener    
     def itemStateChanged(self, ev):  
-        if self.mb.debug: log(eval(insp))      
+        if self.mb.debug: log(inspect.stack)      
         sel = ev.value.Source.Items[ev.value.Selected]
         
         #print('self.mb.bereich_wurde_bearbeitet',self.mb.bereich_wurde_bearbeitet)
@@ -1061,6 +1093,9 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
             self.do()
             import webbrowser
             webbrowser.open('https://github.com/XRoemer/Organon')
+        elif sel == self.mb.lang.BACKUP:
+            self.do()
+            self.mb.erzeuge_Backup()
 
         self.mb.bereich_wurde_bearbeitet = False
         self.mb.loesche_undo_Aktionen()
@@ -1078,18 +1113,18 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
     # XItemListener    
     def itemStateChanged(self, ev):        
         try:
-            set = self.mb.settings_proj
+            sett = self.mb.settings_proj
             
             if self.model.State == 1:
-                set['tag1'] = 1
+                sett['tag1'] = 1
             else:
-                set['tag1'] = 0
+                sett['tag1'] = 0
             
-            if not set['tag1']:
-                set['tag1'] = 0
+            if not sett['tag1']:
+                sett['tag1'] = 0
                 self.mache_tag1_sichtbar(False)
             else:
-                set['tag1'] = 1
+                sett['tag1'] = 1
                 self.mache_tag1_sichtbar(True) 
             
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
@@ -1350,17 +1385,17 @@ from com.sun.star.view import XSelectionChangeListener
 class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
     
     def __init__(self,mb):
-        if debug: log(eval(insp))
+        if debug: log(inspect.stack)
         self.mb = mb
         self.ts_old = 'nicht vorhanden'
         self.mb.selbstruf = False
         
     def disposing(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         return False
     
     def selectionChanged(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         try:
             if self.mb.selbstruf:
@@ -1486,7 +1521,7 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
         #print('windowShown')
     
     def windowHidden(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         try:                
             if not self.mb.tab_umgeschaltet:  

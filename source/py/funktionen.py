@@ -12,7 +12,7 @@ class Funktionen():
         pd = pdk
         
     def projektordner_ausklappen(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()

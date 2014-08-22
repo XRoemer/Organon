@@ -20,7 +20,7 @@ class Bereiche():
     
     
     def starte_oOO(self,URL=None):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
          
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = 'Hidden'
@@ -39,12 +39,12 @@ class Bereiche():
         
         
     def schliesse_oOO(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         self.oOO.close(False)
         
     
     def erzeuge_neue_Datei(self,i,inhalt):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         nr = str(i) 
 
@@ -75,7 +75,7 @@ class Bereiche():
         return Path1
     
     def erzeuge_neue_Datei2(self,i,inhalt):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         try:
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
@@ -119,7 +119,7 @@ class Bereiche():
     
     
     def erzeuge_leere_datei(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
          
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = 'Hidden'
@@ -134,7 +134,7 @@ class Bereiche():
         dokument.close(False)
         
     def leere_Dokument(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         text = self.doc.Text        
         try:
@@ -153,7 +153,7 @@ class Bereiche():
             #if self.mb.debug: print('Dokument ist schon leer')
                      
     def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         nr = str(i) 
         
@@ -185,7 +185,7 @@ class Bereiche():
         
     
     def erzeuge_bereich2(self,i,sicht):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         nr = str(i) 
 
@@ -228,7 +228,7 @@ class Bereiche():
 
 
     def loesche_leeren_Textbereich_am_Ende(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         text = self.doc.Text
         sections = self.doc.TextSections
@@ -240,7 +240,7 @@ class Bereiche():
        
                        
 #     def verlinke_bereiche(self,quellbereich_name,zielbereich_name):
-#         if self.mb.debug: log(eval(insp))
+#         if self.mb.debug: log(inspect.stack)
 #         
 #         sections = self.doc.TextSections
 #         
@@ -263,7 +263,7 @@ class Bereiche():
             if self.mb.anleitung_geladen:
                 return
             
-            if self.mb.debug: log(eval(insp))
+            if self.mb.debug: log(inspect.stack)
             
             self.verlinkte_Bilder_einbetten(self.mb.doc)
             projekt_path = self.mb.doc.URL
@@ -292,7 +292,8 @@ class Bereiche():
             self.mb.bereich_wurde_bearbeitet = False
 
     def verlinkte_Bilder_einbetten(self,doc):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
+        
         self.mb.selbstruf = True
         
         bilder = self.mb.doc.GraphicObjects
@@ -303,7 +304,7 @@ class Bereiche():
             if 'vnd.sun.star.GraphicObject' not in bild.GraphicURL:
                 # Wenn die Grafik nicht gespeichert werden kann,
                 # (weil noch nicht geladen oder User hat zu frueh weitergeklickt)
-                # muesste sie eigentlich bei der naechsten �nderung
+                # muesste sie eigentlich bei der naechsten Aenderung
                 # im Bereich gespeichert werden
                 try:
                     bitmap.insertByName( "TempI"+str(i), bild.GraphicURL )

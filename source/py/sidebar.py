@@ -69,7 +69,7 @@ class Sidebar():
     
     
     def lade_sidebar(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         if 'empty_project' in self.mb.dict_sb['sichtbare']:
             self.mb.dict_sb['sichtbare'].remove('empty_project')
@@ -78,7 +78,7 @@ class Sidebar():
               
       
     def passe_sb_an(self,textbereich):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         ordinal = textbereich.Context.Model.Text
         
@@ -87,7 +87,7 @@ class Sidebar():
 
     
     def lege_dict_sb_content_an(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:
             sb_panels = self.sb_panels_tup
@@ -126,7 +126,7 @@ class Sidebar():
             tb()
     
     def lege_dict_sb_content_ordinal_an(self,ordinal):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         sb_panels = self.sb_panels_tup
         tags = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
@@ -141,7 +141,7 @@ class Sidebar():
                 self.mb.dict_sb_content['ordinal'][ordinal].update({panel:''})
     
     def loesche_dict_sb_content_eintrag(self,ordinal):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         bildUrl = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
         del(self.mb.dict_sb_content['ordinal'][ordinal])
@@ -158,7 +158,7 @@ class Sidebar():
         
         
     def speicher_sidebar_dict(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
         with open(pfad, 'wb') as f:
@@ -166,7 +166,7 @@ class Sidebar():
 
 
     def lade_sidebar_dict(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
         
@@ -199,7 +199,7 @@ class Sidebar():
         
         
     def ueberpruefe_dict_sb_content(self,backup_exists):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         fehlende = []
 
         for ordinal in list(self.mb.props[T.AB].dict_bereiche['ordinal']):
@@ -214,7 +214,7 @@ class Sidebar():
                   
     
     def lade_Backup(self,fehlende = 'all'): 
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         pfad_Backup = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl.Backup')
         
@@ -243,7 +243,7 @@ class Sidebar():
          
        
     def erzeuge_dict_sb_content_Backup(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
         pfad_Backup = pfad + '.Backup'
@@ -251,7 +251,7 @@ class Sidebar():
         copy2(pfad, pfad_Backup)
         
     def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
                 
         if xUIElement_name == 'empty_project':
             return
@@ -462,7 +462,7 @@ class Sidebar():
         #pd()
     
     def dict_sb_zuruecksetzen(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         self.mb.dict_sb['sichtbare']  = ['empty_project'] 
         self.mb.dict_sb['controls'] = {}
@@ -476,7 +476,7 @@ class Sidebar():
     
     
     def optionsfenster(self,cmd):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         loc_x = self.mb.dict_sb['controls'][cmd][0].Window.Peer.AccessibleContext.LocationOnScreen.X
         loc_y = self.mb.dict_sb['controls'][cmd][0].Window.Peer.AccessibleContext.LocationOnScreen.Y
@@ -490,7 +490,7 @@ class Sidebar():
         
             
     def optionsfenster_images(self,loc_x,loc_y):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         win,cont = self.mb.erzeuge_Dialog_Container((loc_x - 20,loc_y,350,110))
  
@@ -517,7 +517,7 @@ class Sidebar():
         
             
     def optionsfenster_synopsis_notes(self,cmd,loc_x,loc_y):  
-        if self.mb.debug: log(eval(insp))  
+        if self.mb.debug: log(inspect.stack)  
         
         win,cont = self.mb.erzeuge_Dialog_Container((loc_x - 20,loc_y,150,80))
         
@@ -558,7 +558,7 @@ class Sidebar():
     
         
     def optionsfenster_tags_general(self,loc_x,loc_y):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         win,cont = self.mb.erzeuge_Dialog_Container((loc_x - 20,loc_y,350,80))
         try:
@@ -778,7 +778,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
 
         
     def pruefe_vorkommen_in_anderen_eintraegen(self,tag,tag_eintrag):  
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         for ordinal in self.mb.dict_sb_content['ordinal']:
             if tag_eintrag in self.mb.dict_sb_content['ordinal'][ordinal]['Tags_general']:
@@ -786,7 +786,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         return False
     
     def loesche_vorkommen_in_allen_eintraegen(self,tag,tag_eintrag): 
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tags_kat = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
         
@@ -805,7 +805,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
             #pd()
 
     def loesche_vorkommen_in_selektierter_datei(self,tag,tag_eintrag,ordinal):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tags_kat = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
        
@@ -821,7 +821,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                     
     
     def loeschen(self,tag,ordinal,tag_eintrag,dict_sb_content): 
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         if tag != 'Tags_general':
             dict_sb_content['ordinal'][ordinal][tag].remove(tag_eintrag)
@@ -846,7 +846,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
      
      
     def hinzufuegen(self,tag,ordinal,tag_eintrag,dict_sb_content): 
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         if tag != 'Tags_general':
             dict_sb_content['ordinal'][ordinal][tag].append(tag_eintrag)

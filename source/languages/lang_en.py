@@ -19,6 +19,7 @@ Close Organon, before you start or load another project. Menubar: Organon>open/c
 ZEIGE_TEXTBEREICHE = 'Show Textsections'
 SICHTBARE_TAGS_BAUMANSICHT = 'Visible Tags in Treeview'
 SICHTBARE_TAGS_SEITENLEISTE = 'Visible Tags in Sidebar'
+BACKUP = u'Create Backup'
 
 
 SPEICHERORT = 'Storage Location'
@@ -88,6 +89,9 @@ SEITENUMBRUCH_DAT = 'Pagebreak before File'
 ORDNER_CLICK = 'Click on Folder selects Folder Entry'      
 NICHTS_AUSGEWAEHLT = u'No Files for Export are selected'
 EXPORT_BITTE_WARTEN = 'Export. Please wait.'
+ORDNER_EXISTIERT_SCHON = 'The folder already contains a file/directory %s.organon'
+NEW_PROJECT2 = 'new Project'
+PROJEKT_NAMEN_EINGEBEN = 'Enter a name for the new project.'
 
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'

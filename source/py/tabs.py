@@ -25,7 +25,7 @@ class Tabs():
 
     
     def erzeuge_neuen_tab(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
             
         tab_auswahl = self.mb.props[T.AB].tab_auswahl
         
@@ -105,7 +105,7 @@ class Tabs():
             return True
     
     def lade_tabs(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
                                    
         try:
             
@@ -135,7 +135,7 @@ class Tabs():
 
     
     def lade_tab_Eintraege(self,tab_name):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
 
         pfad = os.path.join(self.mb.pfade['tabs'], tab_name+'.xml')      
         self.mb.props[tab_name].xml_tree = self.mb.ET.parse(pfad)
@@ -164,7 +164,7 @@ class Tabs():
         return Eintraege
     
     def get_gespeicherte_tabs(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tab_ordner = self.mb.pfade['tabs']
         tab_names = []
@@ -176,13 +176,13 @@ class Tabs():
         return tab_names
     
     def setze_selektierte_zeile(self,ordinal):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)        
         self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext
     
     def get_ordinale_seitenleiste(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:
 
@@ -230,25 +230,25 @@ class Tabs():
         return sorted(ordinale)
     
     def get_ordinale_baumansicht(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         ordinale = []
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
-        all = root.findall('.//')
+        all_el = root.findall('.//')
 
         tab_auswahl = self.mb.props[T.AB].tab_auswahl
         ausgew_icons = tab_auswahl.baumansicht_tags
         
-        for eintrag in all:
+        for eintrag in all_el:
             if eintrag.attrib['Tag1'] in ausgew_icons:
                 ordinale.append(eintrag.tag)
 
         return ordinale
     
     def get_ordinale_eigene_auswahl(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         ordinale = []
 
@@ -261,7 +261,7 @@ class Tabs():
     
     
     def erzeuge_Fenster(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         LANG = self.mb.lang
         
@@ -522,7 +522,7 @@ class Tabs():
         
     
     def erzeuge_props(self,tab_name):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         x = Props()
         self.mb.props.update({tab_name :x})
@@ -540,7 +540,7 @@ class Tabs():
         
  
     def erzeuge_Eintraege(self,tab_name,ordinale):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         # hier sollen die Ergebnisse von Suche oder Tags erzeugt werden
         
@@ -587,7 +587,7 @@ class Tabs():
 
     
     def sortiere_ordinale(self,ordinale):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         props = self.mb.props['Projekt']
         root = props.xml_tree.getroot()
@@ -595,14 +595,14 @@ class Tabs():
 
         sorted_ordinals = []
         
-        for ord in all_ordinals:
-            if ord in ordinale:
-                sorted_ordinals.append(ord)
+        for ordn in all_ordinals:
+            if ordn in ordinale:
+                sorted_ordinals.append(ordn)
 
         return sorted_ordinals
         
     def erzeuge_tab_XML_Eintrag(self,eintrag,tab_name):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[tab_name].xml_tree
         root = tree.getroot()
@@ -631,7 +631,7 @@ class Tabs():
  
     
     def erzeuge_Hauptfeld(self,win,tab_name,Eintraege):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:
             self.mb.props[tab_name].Hauptfeld = self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld(win)  
@@ -643,7 +643,7 @@ class Tabs():
 
         
     def get_tab(self,tab_name):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:
             
@@ -672,7 +672,7 @@ class Tabs():
        
     
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege,tab_name):
-        if self.mb.debug: log(eval(insp))        
+        if self.mb.debug: log(inspect.stack)        
         
         Bereichsname_dict = {}
         ordinal_dict = {}
@@ -710,7 +710,7 @@ class Tabs():
     
     
     def erzeuge_Menu(self,win,tab_id):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:             
             self.listener = Menu_Kopf_Listener(self) 
@@ -1044,7 +1044,7 @@ class Tabs():
  
  
     def entferne_alle_listener(self,win):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         #return
         win.removeWindowListener(self.mb.w_listener)
@@ -1056,7 +1056,7 @@ class Tabs():
 #         self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
         
     def schliesse_Tab(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:
             # Frage: Soll Tab wirklich geschlossen werden?
@@ -1127,7 +1127,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         main_win.getControl('txt_Suche').Model.Label = ev.Source.Text
         
     def get_fenster_position(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         par_win = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext
         x = par_win.LocationOnScreen.X + par_win.Size.Width + 20
@@ -1135,7 +1135,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         return x,y
 
     def erzeuge_tag_auswahl_baumansicht(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         x,y = self.get_fenster_position(ev)
         posSize = (x,y,220,400)
@@ -1159,7 +1159,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             
        
     def erzeuge_ListBox_Tag1(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         # alle Punkte
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 120, 10, KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
@@ -1202,7 +1202,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     
         
     def erzeuge_tag_auswahl_seitenleiste(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         try:
 
@@ -1276,7 +1276,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             tb()
         
     def erstelle_auswahl_dict(self,ev):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         main_win = ev.Source.Context
 
@@ -1318,7 +1318,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             return True
     
     def get_baumansicht_icons(self):
-        if self.mb.debug: log(eval(insp))
+        if self.mb.debug: log(inspect.stack)
         
         container = self.fenster_cont.getControl('icons_Baumansicht')
         ausgew_icons = []
@@ -1356,15 +1356,15 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         posSize = x,y,400,600
         
         lang = self.mb.lang
-        set = self.mb.settings_exp
+        sett = self.mb.settings_exp
  
         # Dict von alten Eintraegen bereinigen
         eintr = []
-        for ordinal in set['ausgewaehlte']:
+        for ordinal in sett['ausgewaehlte']:
             if ordinal not in self.mb.props[T.AB].dict_bereiche['ordinal']:
                 eintr.append(ordinal)
-        for ord in eintr:
-            del set['ausgewaehlte'][ord]
+        for ordn in eintr:
+            del sett['ausgewaehlte'][ordn]
 
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         # Listener um Position zu bestimmen
@@ -1417,7 +1417,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
     def erzeuge_auswahl(self,fenster_cont):
         try:
-            set = self.mb.settings_exp
+            sett = self.mb.settings_exp
             lang = self.mb.lang
             
             tree = self.mb.props[T.AB].xml_tree
@@ -1446,7 +1446,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             fenster_cont.addControl('ausw', control)
             
             control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20,y ,20,20,(),() )  
-            control.State = set['auswahl']
+            control.State = sett['auswahl']
             control.ActionCommand = 'untereintraege_auswaehlen'
             control.addActionListener(listener)
             fenster_cont.addControl('Titel', control)
@@ -1477,8 +1477,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20*int(lvl),y ,20,20,(),() )  
                 control.addActionListener(listener)
                 control.ActionCommand = ordinal+'xxx'+name
-                if ordinal in set['ausgewaehlte']:
-                    model.State = set['ausgewaehlte'][ordinal][1]
+                if ordinal in sett['ausgewaehlte']:
+                    model.State = sett['ausgewaehlte'][ordinal][1]
                 fenster_cont.addControl(ordinal, control)
                 
                 y += 20 
@@ -1785,18 +1785,18 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
     def itemStateChanged(self, ev):  
 
         try:
-            set = self.mb.settings_proj
+            sett = self.mb.settings_proj
              
             if self.model.State == 1:
-                set['tag1'] = 1
+                sett['tag1'] = 1
             else:
-                set['tag1'] = 0
+                sett['tag1'] = 0
              
-            if not set['tag1']:
-                set['tag1'] = 0
+            if not sett['tag1']:
+                sett['tag1'] = 0
                 self.mache_tag1_sichtbar(False)
             else:
-                set['tag1'] = 1
+                sett['tag1'] = 1
                 self.mache_tag1_sichtbar(True) 
              
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
@@ -1895,16 +1895,16 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):
 
-        set = self.mb.settings_exp
+        sett = self.mb.settings_exp
         if ev.ActionCommand == 'untereintraege_auswaehlen':
-            set['auswahl'] = self.toggle(set['auswahl'])
+            sett['auswahl'] = self.toggle(sett['auswahl'])
             self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 
         else:
             ordinal,titel = ev.ActionCommand.split('xxx')
             state = ev.Source.Model.State
-            set['ausgewaehlte'].update({ordinal:(titel,state)})
+            sett['ausgewaehlte'].update({ordinal:(titel,state)})
 
-            if set['auswahl']:
+            if sett['auswahl']:
                 if ordinal in self.mb.props[T.AB].dict_ordner:
                     
                     tree = self.mb.props[T.AB].xml_tree
@@ -1921,13 +1921,13 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
                     for eintr in eintraege:
                         ordinale.append(eintr[0])
                     
-                    for ord in ordinale:
-                        if ord != self.mb.props[T.AB].Papierkorb:
-                            control = self.fenster_cont.getControl(ord)
+                    for ordn in ordinale:
+                        if ordn != self.mb.props[T.AB].Papierkorb:
+                            control = self.fenster_cont.getControl(ordn)
                             control.Model.State = state
-                            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ord)
+                            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordn)
                             titel = zeile.getControl('textfeld').Text
-                            set['ausgewaehlte'].update({ord:(titel,state)}) 
+                            sett['ausgewaehlte'].update({ordn:(titel,state)}) 
 
 
     def toggle(self,wert):   
