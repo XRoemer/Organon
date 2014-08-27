@@ -96,8 +96,9 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
 
                 if dict_sb['erzeuge_sb_layout'] != None:
                     erzeuge_sb_layout = dict_sb['erzeuge_sb_layout']
-                    erzeuge_sb_layout(cmd,'factory')
                     dict_sb['sb_closed'] = False
+                    erzeuge_sb_layout(cmd,'factory')
+                    
 
                 return xUIElement
             else:

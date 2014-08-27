@@ -17,7 +17,7 @@ class Version():
         if self.mb.debug: log(inspect.stack)
         if 'Programmversion' in self.mb.props[T.AB].xml_tree.getroot().attrib:
             self.version = self.mb.props[T.AB].xml_tree.getroot().attrib['Programmversion']
-        
+
 
         if self.version == 0:
             self.an_080b_anpassen()
@@ -25,6 +25,8 @@ class Version():
             self.an_090b_anpassen()
         if self.version in ('0.9.0b'):
             self.an_091b_anpassen()
+        if self.version in ('0.9.1b'):
+            self.an_092b_anpassen()
             
         self.neue_programmversion_eintragen()
         
@@ -65,6 +67,32 @@ class Version():
         if self.mb.debug: log(inspect.stack)
         self.mb.settings_exp.update({'neues_proj':0})
         self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp)  
+        
+    def an_092b_anpassen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        # Tags_time in den Sidebar dict eintragen
+        try:
+            from pickle import load as pickle_load
+            pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
+            with open(pfad, 'rb') as f:
+                self.mb.dict_sb_content =  pickle_load(f)
+            
+            dict_sb_content = self.mb.dict_sb_content
+            
+            dict = {}
+            dict.update({'zeit':None})
+            dict.update({'datum':None})
+            
+            for ordn in dict_sb_content['ordinal']:
+                if dict_sb_content['ordinal'][ordn]['Tags_time'] == '':
+                    self.mb.dict_sb_content['ordinal'][ordn]['Tags_time'] = dict
+            
+            self.mb.class_Sidebar.speicher_sidebar_dict()
+        except:
+            tb()
+        
+        
         
         
         

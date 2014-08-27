@@ -294,7 +294,8 @@ class Main_Container():
             except:
                 tb()
             StatusIndicator.end()
-
+            
+            return nr
             
             
     def kontrolle(self):
@@ -1109,7 +1110,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     dict.update({sec.FileLink.FileURL:sec.Name})
         return dict
         
-    def schalte_sichtbarkeit_der_Bereiche(self):
+    def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal = None):
         if self.mb.debug: log(inspect.stack)
 
         try:
@@ -1117,7 +1118,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             # daher wird er vorher ab- und hinterher wieder angeschaltet
             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
             try:
-                zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName
+                if zeilenordinal == None:
+                    zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName
             except:
                 return
                         

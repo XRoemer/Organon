@@ -257,7 +257,7 @@ class Bereiche():
 #         zielbereich.setPropertyValue('FileLink',SFLink)
         
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
-        
+
         if self.mb.props[T.AB].tastatureingabe == True and bereichsname != None:
             # Damit das Handbuch nicht geaendert wird:
             if self.mb.anleitung_geladen:

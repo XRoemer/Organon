@@ -970,7 +970,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         
         except Exception as e:
             self.mb.Mitteilungen.nachricht('exp_in_neues_proj ' + str(e),"warningbox")
-            
+            tb()
     
     def et_und_ordinale_berechnen(self,sections,projektname):
         if self.mb.debug: log(inspect.stack)
@@ -1004,15 +1004,16 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         # hoechsten Lvl berechnen
         lvl = 0
         for ordner in alle_ordner:
-            if ordner.attrib['Lvl'] > lvl:
-                lvl = ordner.attrib['Lvl']
+            if int(ordner.attrib['Lvl']) > lvl:
+                lvl = int(ordner.attrib['Lvl'])
 
         # alle Ordner, die nicht mehr im ET vorkommen und kein Kind mehr haben, loeschen
         # Schleife nach lvl von hoch nach niedrig durchlaufen
         for l in reversed(range(int(lvl)+1)):
             ordner_lvl = root.findall(".//*[@Art='dir'][@Lvl='%s']" %l)
             for o_lvl in ordner_lvl:
-                if len(o_lvl._children) == 0:
+                childs = list(c for c in o_lvl)
+                if len(childs) == 0:
                     parent = root.find('.//'+o_lvl.tag+'/..')
                     child = root.find('.//'+o_lvl.tag)
                     parent.remove(child)

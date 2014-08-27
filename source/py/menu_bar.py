@@ -119,6 +119,10 @@ class Menu_Bar():
         self.undo_mgr_listener      = Undo_Manager_Listener(self)
         self.tab_listener           = Tab_Listener(self)
         
+        self.Listener = {}
+        self.Listener.update({'Menu_Kopf_Listener':Menu_Kopf_Listener(self)})
+        self.Listener.update({'Menu_Kopf_Listener2':Menu_Kopf_Listener2(self)})
+        
         self.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
         self.dialog.addWindowListener(self.w_listener)
         self.tabsX.addTabListener(self.tab_listener)
@@ -182,72 +186,72 @@ class Menu_Bar():
                 version = ext[1]
         return version
     
-    def erzeuge_Menu(self):
+    def erzeuge_Menu(self,win):
         try:             
             listener = Menu_Kopf_Listener(self) 
             listener2 = Menu_Kopf_Listener2(self) 
-            self.erzeuge_MenuBar_Container()
+            self.erzeuge_MenuBar_Container(win)
             
-            self.erzeuge_Menu_Kopf_Datei(listener)
-            self.erzeuge_Menu_Kopf_Bearbeiten(listener)
-            self.erzeuge_Menu_Kopf_Optionen(listener)
+            self.erzeuge_Menu_Kopf_Datei(listener,win)
+            self.erzeuge_Menu_Kopf_Bearbeiten(listener,win)
+            self.erzeuge_Menu_Kopf_Optionen(listener,win)
             
             if debug:
-                self.erzeuge_Menu_Kopf_Test(listener)
-            
-            self.erzeuge_Menu_neuer_Ordner(listener2)
-            self.erzeuge_Menu_Kopf_neues_Dokument(listener2)
-            self.erzeuge_Menu_Kopf_Papierkorb_leeren(listener2)
+                self.erzeuge_Menu_Kopf_Test(listener,win)
+            if T.AB == 'Projekt':
+                self.erzeuge_Menu_neuer_Ordner(listener2,win)
+                self.erzeuge_Menu_Kopf_neues_Dokument(listener2,win)
+            self.erzeuge_Menu_Kopf_Papierkorb_leeren(listener2,win)
             
         except Exception as e:
                 self.Mitteilungen.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 tb()
 
     
-    def erzeuge_MenuBar_Container(self):
+    def erzeuge_MenuBar_Container(self,win):
         menuB_control, menuB_model = self.createControl(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
         menuB_model.BackgroundColor = KONST.Color_MenuBar_Container
          
-        self.dialog.addControl('Organon_Menu_Bar', menuB_control)
+        win.addControl('Organon_Menu_Bar', menuB_control)
 
 
-    def erzeuge_Menu_Kopf_Datei(self,listener):
+    def erzeuge_Menu_Kopf_Datei(self,listener,win):
         control, model = self.createControl(self.ctx, "FixedText", 0, 2, 35, 20, (), ())           
-        model.Label = self.lang.FILE           
+        model.Label = self.lang.FILE  
         control.addMouseListener(listener)
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
+        MenuBarCont = win.getControl('Organon_Menu_Bar') 
         MenuBarCont.addControl('Datei', control)
         
         
-    def erzeuge_Menu_Kopf_Bearbeiten(self,listener):
+    def erzeuge_Menu_Kopf_Bearbeiten(self,listener,win):
         control, model = self.createControl(self.ctx, "FixedText", 37, 2, 60, 20, (), ())           
         model.Label = self.lang.BEARBEITEN_M             
         control.addMouseListener(listener)
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar') 
+        MenuBarCont = win.getControl('Organon_Menu_Bar') 
         MenuBarCont.addControl('Bearbeiten', control)
     
     
-    def erzeuge_Menu_Kopf_Optionen(self,listener):         
+    def erzeuge_Menu_Kopf_Optionen(self,listener,win):         
         control, model = self.createControl(self.ctx, "FixedText", 100, 2, 55, 20, (), ())           
         model.Label = self.lang.OPTIONS           
         control.addMouseListener(listener)
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar')      
+        MenuBarCont = win.getControl('Organon_Menu_Bar')      
         MenuBarCont.addControl('Optionen', control)
         
         
-    def erzeuge_Menu_Kopf_Test(self,listener):
+    def erzeuge_Menu_Kopf_Test(self,listener,win):
         control, model = self.createControl(self.ctx, "FixedText", 300, 2, 50, 20, (), ())           
         model.Label = 'Test'                     
         control.addMouseListener(listener) 
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar')   
+        MenuBarCont = win.getControl('Organon_Menu_Bar')   
         MenuBarCont.addControl('Projekt', control)
         
         
-    def erzeuge_Menu_neuer_Ordner(self,listener2):
+    def erzeuge_Menu_neuer_Ordner(self,listener2,win):
         control, model = self.createControl(self.ctx, "ImageControl", 170, 0, 20, 20, (), ())   
         model.ImageURL = KONST.IMG_ORDNER_NEU_24
         
@@ -255,11 +259,11 @@ class Menu_Bar():
         model.Border = 0                    
         control.addMouseListener(listener2) 
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar')     
+        MenuBarCont = win.getControl('Organon_Menu_Bar')     
         MenuBarCont.addControl('Ordner', control)
         
         
-    def erzeuge_Menu_Kopf_neues_Dokument(self,listener2):
+    def erzeuge_Menu_Kopf_neues_Dokument(self,listener2,win):
         control, model = self.createControl(self.ctx, "ImageControl", 190, 0, 20, 20, (), ())           
         model.ImageURL = KONST.IMG_DATEI_NEU_24
                     
@@ -267,18 +271,18 @@ class Menu_Bar():
         model.Border = 0                    
         control.addMouseListener(listener2) 
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar')   
+        MenuBarCont = win.getControl('Organon_Menu_Bar')   
         MenuBarCont.addControl('neues_Dokument', control)
   
         
-    def erzeuge_Menu_Kopf_Papierkorb_leeren(self,listener2):
+    def erzeuge_Menu_Kopf_Papierkorb_leeren(self,listener2,win):
         control, model = self.createControl(self.ctx, "ImageControl", 240, 0, 20, 20, (), ())           
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png'
         model.HelpText = self.lang.CLEAR_RECYCLE_BIN
         model.Border = 0                       
         control.addMouseListener(listener2) 
         
-        MenuBarCont = self.dialog.getControl('Organon_Menu_Bar')     
+        MenuBarCont = win.getControl('Organon_Menu_Bar')     
         MenuBarCont.addControl('Papierkorb_leeren', control)
 
 
@@ -373,6 +377,15 @@ class Menu_Bar():
                 lang.IMPORT_2,
                 '---------',
                 lang.BACKUP)
+        
+        if T.AB != 'Projekt':
+            
+            items = (
+                lang.EXPORT_2, 
+                lang.IMPORT_2,
+                '---------',
+                lang.BACKUP)
+            
         
         control.addItems(items, 0)
         model.BackgroundColor = KONST.MENU_DIALOG_FARBE
@@ -472,7 +485,7 @@ class Menu_Bar():
     
             y += 24
             
-            HOEHE_LISTBOX = 50
+            HOEHE_LISTBOX = 70
             # ListBox
             control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.BREITE_DROPDOWN_OPTIONEN-20, 
                                             HOEHE_LISTBOX, (), ())   
@@ -481,7 +494,8 @@ class Menu_Bar():
             items = (  
                       self.lang.ZEIGE_TEXTBEREICHE,
                      '-------',
-                     'Homepage')
+                     'Homepage',
+                     'Feedback')
             
             control.addItems(items, 0)
             model.BackgroundColor = KONST.MENU_DIALOG_FARBE
@@ -509,11 +523,20 @@ class Menu_Bar():
                                         KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
         control.setMultipleMode(False)
         
-        items = ( self.lang.UNFOLD_PROJ_DIR, 
+        items = (  
                   self.lang.NEUER_TAB,
-                  self.lang.SCHLIESSE_TAB
+                  self.lang.SCHLIESSE_TAB,
+                  '---------',
+                  self.lang.TRENNE_TEXT,
+                  self.lang.UNFOLD_PROJ_DIR
                   )
-                  
+        if T.AB != 'Projekt':
+            items = (  
+                  self.lang.NEUER_TAB,
+                  self.lang.SCHLIESSE_TAB,
+                  '---------',
+                  self.lang.UNFOLD_PROJ_DIR
+                  )      
         
         control.addItems(items, 0)
         model.BackgroundColor = KONST.MENU_DIALOG_FARBE
@@ -845,7 +868,7 @@ class Log():
                 function = info[1][3]
                 modul = info[1][0].f_locals['self'].__class__.__name__
 
-                if modul in ('Sidebar','ViewCursor_Selection_Listener'):
+                if modul in ('ViewCursor_Selection_Listener'):
                     return
                 if function in ('verlinke_Sektion'):
                     return
@@ -854,7 +877,7 @@ class Log():
                     modul = modul[0:18]
                 
                 string = '%-7s %-18s %-40s %s( caller: %s )' %(self.debug_time(),modul,function,'',caller)
-                time.sleep(0.04)
+                #time.sleep(0.04)
                 print(string)
             
                 #self.do(function)
@@ -1093,9 +1116,17 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
             self.do()
             import webbrowser
             webbrowser.open('https://github.com/XRoemer/Organon')
+        elif sel == 'Feedback':
+            self.do()
+            import webbrowser
+            webbrowser.open('http://organon4office.wordpress.com/')
         elif sel == self.mb.lang.BACKUP:
             self.do()
             self.mb.erzeuge_Backup()
+        elif sel == self.mb.lang.TRENNE_TEXT:
+            self.do()
+            self.mb.class_Funktionen.teile_text()
+            
 
         self.mb.bereich_wurde_bearbeitet = False
         self.mb.loesche_undo_Aktionen()

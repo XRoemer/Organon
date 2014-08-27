@@ -140,7 +140,7 @@ class Menu_Start():
             
             self.module_mb = menu_bar
             self.Menu_Bar = menu_bar.Menu_Bar(args)
-            self.Menu_Bar.erzeuge_Menu()
+            self.Menu_Bar.erzeuge_Menu(self.dialog)
         except:
             tb()    
         

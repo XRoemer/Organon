@@ -179,6 +179,14 @@ class XML_Methoden():
             elem = root.find('.//'+ordinal)
             elem.attrib['Lvl'] = str(lvl)  
             lvl2 = int(lvl)
+            
+            par = root.find('.//'+ordinal+'/..')
+
+            if par.tag == T.AB:
+                elem.attrib['Parent'] = 'root'
+            else:
+                elem.attrib['Parent'] = par.tag
+            
             # Alle Zeilen X neu positionieren
             zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
             text = zeile.getControl('textfeld')

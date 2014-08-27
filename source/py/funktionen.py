@@ -95,6 +95,132 @@ class Funktionen():
         control.addItemListener(tag_item_listener)
         
         cont.addControl('Eintraege_Tag1', control)
+    
+    
+    def find_parent_section(self,sec):
+        
+        def find_parsection(section):
+            
+            if section == None:
+                # Diese Bedingung wird nur bei einem Fehler durchlaufen, dann naemlich
+                # wenn der Bereich 'OrgInnerSec' faelschlich umbenannt wurde.
+                # Diese Bedingung soll sicherstellen, dass die Funktion auf jeden Fall funktioniert
+                return self.parsection
+            
+            elif 'OrgInnerSec' not in section.Name:
+                find_parsection(section.ParentSection)
+            else:
+                self.parsection = section
+                
+        find_parsection(sec)
+        
+        return self.parsection
+        
+    def teile_text(self):
+        try:
+
+            zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName     
+            vc = self.mb.viewcursor
+            cur = self.mb.doc.Text.createTextCursor()
+            sec = vc.TextSection
+            
+            # parent section finden   
+            parsection = self.find_parent_section(sec)
+            
+            # Laenge des Textanfangs zaehlen
+            cur.gotoRange(vc,False)
+            cur.gotoRange(self.parsection.Anchor.Start,True)
+            
+            string = cur.String
+            s = string.replace('\n','') # Zeilenumbruech ausschliessen
+            textanfang_laenge = len(s)          
+
+            # sicherheitshalber alte Datei speichern
+            url_source = os.path.join(self.mb.pfade['odts'],zeilenordinal + '.odt')
+            URL_source = uno.systemPathToFileUrl(url_source)
+            
+            orga_sec_name_alt = self.mb.props['Projekt'].dict_bereiche['ordinal'][zeilenordinal]
+            self.mb.props[T.AB].tastatureingabe = True
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
+
+            # Ende in der getrennten Datei loeschen
+            cur.gotoRange(vc,False)
+            cur.gotoRange(self.parsection.Anchor.End,True)
+            cur.setString('')
+            
+            # erzeuge neue Zeile
+            nr_neue_zeile = self.mb.class_Hauptfeld.erzeuge_neue_Zeile('dokument')
+            ordinal_neue_zeile = 'nr'+ str(nr_neue_zeile)
+       
+            # neuen File erzeugen        
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+
+            url_target = os.path.join(self.mb.pfade['odts'],ordinal_neue_zeile + '.odt')
+            URL_target = uno.systemPathToFileUrl(url_target)
+            
+            new_doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL_source,'_blank',0,(prop,))
+            
+            # Sichtbarkeit schalten, damit OrgInnerSec erzeugt wird
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(ordinal_neue_zeile)
+                        
+            # OrgInnerSec der neuen Datei setzen
+            sec = new_doc.TextSections.getByName(parsection.Name)
+            orga_sec_name = self.mb.props['Projekt'].dict_bereiche['ordinal'][ordinal_neue_zeile]
+            orga_sec = self.mb.doc.TextSections.getByName(orga_sec_name)
+            orga_inner_sec_name = orga_sec.ChildSections[0].Name
+            
+            sec.setName(orga_inner_sec_name)
+            # Speichern
+            new_doc.storeToURL(URL_target,())
+            new_doc.close(False)
+
+            # File Link setzen, um Anzeige zu erneuern
+            sec = self.mb.doc.TextSections.getByName(orga_sec_name)
+            
+            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink.FileURL = ''
+            
+            SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink2.FileURL = sec.FileLink.FileURL
+            SFLink2.FilterName = 'writer8'
+    
+            sec.setPropertyValue('FileLink',SFLink)
+            sec.setPropertyValue('FileLink',SFLink2)
+            
+            # Anfang in der neuen datei loeschen
+            parsection = self.find_parent_section(sec)
+            vc.gotoRange(parsection.Anchor.Start,True)
+            vc.gotoStart(False)
+            vc.goRight(textanfang_laenge,True)
+            vc.setString('')
+                  
+            # Einstellungen, tags der alten Datei fuer neue uebernehmen
+            self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = self.mb.dict_sb_content['ordinal'][zeilenordinal]
+            
+            tree = self.mb.props['Projekt'].xml_tree
+            root = tree.getroot()
+            alt = root.find('.//'+zeilenordinal)
+            neu = root.find('.//'+ordinal_neue_zeile)
+            
+            neu.attrib['Tag1'] = alt.attrib['Tag1']
+            neu.attrib['Tag2'] = alt.attrib['Tag2']
+            neu.attrib['Tag3'] = alt.attrib['Tag3']
+            
+            
+            # nach Aenderung Speichern
+            self.mb.props[T.AB].tastatureingabe = True
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_target,orga_sec_name)
+            self.mb.props[T.AB].tastatureingabe = True
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
+            for tag in self.mb.dict_sb_content['sichtbare']:
+                self.mb.class_Sidebar.erzeuge_sb_layout(tag,'teile_text')
+
+        except:
+            tb()
+        
+        #pd()
 
 
      

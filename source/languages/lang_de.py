@@ -44,6 +44,9 @@ UNFOLD_PROJ_DIR = 'Projektordner ausklappen'
 SHOW_TAG1 = 'zeige Tag 1'
 SHOW_TAG2 = 'zeige Tag 2'
 SHOW_TAG3 = 'zeige Tag 3'
+TRENNE_TEXT = 'Teile Text'
+TRENNE_TEXT_Help = 'Teile Text an Cursorposition'
+
 CREATE_NEW_PROJECT = 'Neues Projekt anlegen'
 CANCEL = 'Abbrechen'
 OK = 'OK'
@@ -117,28 +120,6 @@ ERZEUGE_DATEI = 'erzeuge Datei %s von %s'
 NO_FILES = u'Es existieren keine Dateien mit dem ausgesuchten Filter im selektierten Ordner'
 IMP_FORTFAHREN = u'Es sollen %s Dateien importiert werden. Wollen Sie wirklich fortfahren?'
 
-OPENOFFICE_WARNING = u'''WARNUNG:
-
-OpenOffice wird durch den Gebrauch von Import und Export instabil und stürzt währenddessen oder danach häufig ab. 
-
-Die Import Funktion sollten Sie in bereits fortgeschrittenen Projekten nicht nutzen! (Da bleibt leider nur Copy and Paste.)
-
-Bei einem Absturz während des Exports oder danach, öffnen Sie Ihr Projekt wie gewohnt. \
-(Benutzen Sie nicht die automatische Wiederherstellung.)
-Ihre Daten bleiben unversehrt.
-
-
-In LibreOffice funktionieren Import und Export zuverlässig. 
-
-Projekte sind zwischen OpenOffice und LibreOffice austauschbar. \
-Wenn Sie OpenOffice und LibreOffice parallel installieren, sollten Sie bei einem der Programme den Schnellstarter abschalten.
-(Extras/Einstellungen/OpenOffice/Arbeitsspeicher/OpenOffice Schnellstart: Häkchen entfernen)
-
-
-Wollen Sie den Vorgang fortsetzen?
-
-'''
-
 
 ###### SIDEBAR  #######
 
@@ -168,12 +149,15 @@ ENTER_NEW_TAG = 'Geben Sie einen neuen Tag ein und klicken Sie danach in das Dok
 IN_PROJEKTORDNER_IMPORTIEREN = u'Das ausgesuchte Bild wird in den Projektordner importiert.'
 BILD_EINFUEGEN = u'Bild einfügen'
 BILD_LOESCHEN = u'Bild löschen'
+NUTZE_ZEIT = 'Zeitpunkt aktivieren'
+NUTZE_DATUM = 'Datum aktivieren'
+ZEIT2 = 'Zeit:'
+DATUM = 'Datum:'
 
 
 ###### TABS ######
 ERZEUGE_NEUEN_TAB_AUS = 'Erzeuge neuen Tab aus:'
-MEHRFACHE_AUSWAHL = u'Mehrfachauswahl möglich:'
-TAG_DATE = 'Tag Date (Sidebar)'
+MEHRFACHE_AUSWAHL = u'(Mehrfachauswahl möglich)'
 EIGENE_AUSWAHL = 'Eigene Auswahl'
 TAGS_SEITENLEISTE = 'Tags Seitenleiste'
 TAGS_BAUMANSICHT = 'Tags Baumansicht'
@@ -184,6 +168,11 @@ TAB_HELP_TEXT = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werde
 TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt. \
 \rV (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt. \r(noch nicht implementiert)'
 AUSGEWAEHLTE = u'Ausgewählte'
+ZEITLICH_ANORDNEN = 'zeitlich anordnen'
+UNAUSGEZEICHNETE = 'nicht ausgezeichnete Dateien einbeziehen'
+NUTZE_ZEIT  = 'nutze Zeit'
+NUTZE_DATUM = 'nutze Datum'
+NUTZE_ZEIT_UND_DATUM = 'nutze Zeit und Datum'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

@@ -6,7 +6,7 @@ from pickle import HIGHEST_PROTOCOL
 from pickle import load as pickle_load
 from pickle import dump as pickle_dump
 
-class Sidebar():
+class Sidebar(): 
     
     def __init__(self,mb,pdk):
         self.mb = mb        
@@ -109,17 +109,24 @@ class Sidebar():
                         dict_sb_content['ordinal'][ordinal].update({panel:[]})
                         if panel not in dict_sb_content['tags']:
                             dict_sb_content['tags'].update({panel:[]})
-                    else:
-                        dict_sb_content['ordinal'][ordinal].update({panel:''})
                         
-            
+                    else:
+                        if panel == 'Tags_time':
+                            dict = {}
+                            dict.update({'zeit':None})
+                            dict.update({'datum':None})
+                            dict_sb_content['ordinal'][ordinal].update({panel:dict})
+                            
+                        else:
+                            dict_sb_content['ordinal'][ordinal].update({panel:''})
+                        
             
             dict_sb_content.update({'einstellungen':{}})   
             dict_sb_content['einstellungen'].update({'hoehe_Synopsis':200})  
             dict_sb_content['einstellungen'].update({'breite_Synopsis':284}) 
             dict_sb_content['einstellungen'].update({'hoehe_Notes':200})   
             dict_sb_content['einstellungen'].update({'breite_Notes':284})
-            dict_sb_content['einstellungen'].update({'tags_general_loescht_im_ges_dok':0})        
+            dict_sb_content['einstellungen'].update({'tags_general_loescht_im_ges_dok':0})      
                     
             self.mb.dict_sb_content = dict_sb_content
         except:
@@ -138,7 +145,14 @@ class Sidebar():
             if panel in tags:
                 self.mb.dict_sb_content['ordinal'][ordinal].update({panel:[]})
             else:
-                self.mb.dict_sb_content['ordinal'][ordinal].update({panel:''})
+                if panel == 'Tags_time':
+                    dict = {}
+                    dict.update({'zeit':None})
+                    dict.update({'datum':None})
+                    self.mb.dict_sb_content['ordinal'][ordinal].update({panel:dict})
+                else:
+                    self.mb.dict_sb_content['ordinal'][ordinal].update({panel:''})
+
     
     def loesche_dict_sb_content_eintrag(self,ordinal):
         if self.mb.debug: log(inspect.stack)
@@ -200,9 +214,10 @@ class Sidebar():
         
     def ueberpruefe_dict_sb_content(self,backup_exists):
         if self.mb.debug: log(inspect.stack)
+        
         fehlende = []
 
-        for ordinal in list(self.mb.props[T.AB].dict_bereiche['ordinal']):
+        for ordinal in list(self.mb.props['Projekt'].dict_bereiche['ordinal']):
             if ordinal not in self.mb.dict_sb_content['ordinal']:
                 fehlende.append(ordinal)
                 
@@ -219,7 +234,7 @@ class Sidebar():
         pfad_Backup = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl.Backup')
         
         if fehlende == 'all':
-            fehlende = list(self.mb.props[T.AB].dict_bereiche['ordinal'])
+            fehlende = list(self.mb.props['Projekt'].dict_bereiche['ordinal'])
         
         try:
             with open(pfad, 'rb') as f:
@@ -228,12 +243,14 @@ class Sidebar():
             for f in fehlende:
                 self.lege_dict_sb_content_ordinal_an(f)
             return
-               
+        
+        helfer = fehlende[:]    
         for f in fehlende:
             if f in backup['ordinal']:
                 self.dict_sb_content['ordinal'].update(backup['ordinal'][f])
-                fehlende.remove(f)
-                
+                helfer.remove(f)
+        
+        fehlende = helfer      
         for f in fehlende:
             self.lege_dict_sb_content_ordinal_an(f)
                
@@ -252,7 +269,7 @@ class Sidebar():
         
     def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
         if self.mb.debug: log(inspect.stack)
-                
+           
         if xUIElement_name == 'empty_project':
             return
         if self.mb.dict_sb['sb_closed']:
@@ -358,7 +375,8 @@ class Sidebar():
                     panelWin.addControl('Remove_'+tag_eintrag, control) 
                     control.setActionCommand(xUIElement_name + SEP + ordinal + SEP + tag_eintrag + SEP + 'loeschen')
                     control.addActionListener(remove_or_add_button_listener)
-
+                    
+                    
                     y += height + 3
                 
                 
@@ -433,9 +451,65 @@ class Sidebar():
                 
                 
                 height += 20
-                
+               
             elif xUIElement_name == 'Tags_time':
-                height = 20
+            
+                if self.mb.language == 'de':
+                    date_format = 7
+                    time_format = 0
+                else:
+                    date_format = 8
+                    time_format = 2
+                
+                pos_y = 10
+                pos_x = 10
+                pos_x2 = 80
+                y = 20
+                
+                focus_listener = Tag_Time_Focus_Listener(self.mb)
+                
+                zeit = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['zeit']
+                if self.mb.programm == 'LibreOffice':
+                    zeit = self.in_time_struct_wandeln(zeit)
+                    
+                prop_names = ('Label',)
+                prop_values = (self.mb.lang.ZEIT2,)
+                control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
+                panelWin.addControl('Time', control)
+
+                prop_names = ('Time','TimeFormat','StrictFormat')
+                prop_values = (zeit,time_format,True)
+                control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x2, pos_y, 40, y, prop_names, prop_values)  
+                panelWin.addControl('Time', control)
+                
+                control.addFocusListener(focus_listener)
+                
+                pos_y += 30
+                
+                prop_names = ('Label',)
+                prop_values = (self.mb.lang.DATUM,)
+                control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
+                panelWin.addControl('Time', control)
+                
+                datum = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['datum'] 
+  
+                prop_names = ('Text',)
+                prop_values = (datum,)
+                control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x2, pos_y, 70, y, prop_names, prop_values)  
+                panelWin.addControl('Time', control)
+
+                control.addFocusListener(focus_listener)
+                
+                pos_y += 20
+                
+#                 prop_names = ('Date','DateFormat','Border','BackgroundColor','DateMin')
+#                 prop_values = (datum,3,0,KONST.MENU_DIALOG_FARBE,dateMin)
+#                 control, model = self.mb.createControl(self.mb.ctx, "DateField", pos_x2, pos_y, 284, y, prop_names, prop_values)  
+#                 panelWin.addControl('Time', control)
+#                 control.Enable = False                    
+                
+                height = 100
+           
                 
             xUIElement.height = height
             sb.requestLayout()
@@ -483,10 +557,11 @@ class Sidebar():
         
         if cmd in ('Synopsis','Notes'):
             self.optionsfenster_synopsis_notes(cmd,loc_x,loc_y)
-        if cmd =='Tags_general':
+        elif cmd =='Tags_general':
             self.optionsfenster_tags_general(loc_x,loc_y)
-        if cmd =='Images':
+        elif cmd =='Images':
             self.optionsfenster_images(loc_x,loc_y)
+
         
             
     def optionsfenster_images(self,loc_x,loc_y):
@@ -593,7 +668,69 @@ class Sidebar():
 
         except:
             tb()
+    def in_time_struct_wandeln(self,zeit):
+        
+        prop = uno.createUnoStruct("com.sun.star.util.Time")
+        
+        if zeit == None:
+            prop.Hours = 0
+            prop.Minutes = 0
+            prop.Seconds = 0
+            
+        else:
+            zeit_str = str(zeit)
+    
+            prop.Hours = int(zeit_str[0:2])
+            prop.Minutes = int(zeit_str[2:4])
+            prop.Seconds = int(zeit_str[4:6])
 
+        return prop
+    
+    def in_date_struct_wandeln(self,datum):
+        
+        prop = uno.createUnoStruct("com.sun.star.util.Date")
+        
+        if datum == None:
+            prop.Year = 0
+            prop.Month = 1
+            prop.Day = 1
+        else:
+            date_str = str(datum)
+
+            prop.Year = int(date_str[0:4])
+            prop.Month = int(date_str[4:6])
+            prop.Day = int(date_str[6:8])
+
+        return prop
+    def date_time_struct_nach_long_wandeln(self,prop,attribute):
+        
+        
+
+        if attribute == 'zeit':
+            stunden = self.pruefe_format(str(prop.Hours),2)
+            minuten = self.pruefe_format(str(prop.Minutes),2)
+            sekunden = self.pruefe_format(str(prop.Seconds),2)
+            nano = '00'
+            
+            value = int(stunden+minuten+sekunden+nano)
+        
+#         if attribute == 'datum':
+#             jahr = self.pruefe_format(str(prop.Year),4)
+#             monat = self.pruefe_format(str(prop.Month),2)
+#             tag = self.pruefe_format(str(prop.Day),2)
+#             
+#             value = int(jahr+monat+tag)
+        
+        return value
+        
+    def pruefe_format(self,value,length):
+        
+        if len(value) != length:
+            for i in range(length-len(value)):
+                value = '0' + value
+        return value
+    
+        
 from com.sun.star.awt import XTextListener
 class Options_Syn_Note_Text_Listener(unohelper.Base, XTextListener):
     def __init__(self,mb):
@@ -755,6 +892,71 @@ class Tags_Focus_Listener(unohelper.Base, XFocusListener):
 
     def disposing(self,ev):pass
 
+class Tag_Time_Focus_Listener(unohelper.Base, XFocusListener):
+    def __init__(self,mb):
+        self.mb = mb
+    
+    def focusGained(self,ev):
+        return False
+        
+    def focusLost(self,ev):
+        try:
+            ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+            
+            
+
+            if hasattr(ev.Source.Model, 'Time'):
+                attribute = 'zeit'
+                text = ev.Source.Model.Time
+
+                if self.mb.programm == 'LibreOffice':
+                    text = self.mb.class_Sidebar.date_time_struct_nach_long_wandeln(ev.Source.Model.Time,attribute)
+            else:
+                text = ev.Source.Model.Text
+                attribute = 'datum'
+                text = self.formatiere_datum(text)
+
+            self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time'][attribute] = text
+            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_time')
+
+        except:
+            tb()
+        
+    def disposing(self,ev):pass
+    
+    def formatiere_datum(self,datum):
+        gesplittet = datum.split('.')
+        
+        if len(gesplittet) != 3:
+            return None
+        
+        format_datum = 'de'
+        
+        if format_datum == 'de':
+            tag = gesplittet[0]
+            monat = gesplittet[1]
+            jahr = gesplittet[2]
+        
+        else:
+            tag = gesplittet[1]
+            monat = gesplittet[0]
+            jahr = gesplittet[2]
+        
+        
+        
+        if 0 in (len(jahr),len(tag),len(monat)):
+            return None
+        if len(tag)>2 or int(tag) < 1 or int(tag) > 31:
+            return None
+        if len(monat)>2 or int(monat) < 1 or int(monat) > 12:
+            return None
+        
+        if len(tag) == 1:
+            tag = '0'+tag
+        if len(monat) == 1:
+            monat = '0'+monat
+        
+        return '%s.%s.%s'%(tag, monat,jahr)
        
 class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
@@ -867,5 +1069,5 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         
         self.mb.class_Sidebar.erzeuge_sb_layout(tag,'sidebar')
         self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','sidebar')
-            
-            
+
+    

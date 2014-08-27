@@ -942,12 +942,13 @@ class Projekt():
 
         try:
             pass
-
-            lt = time.localtime()
-            t = time.strftime("%d.%m.%Y__%H.%M.%S", lt)
-            print(t)
+                    
+            x = [u'nr0', 'nr7', 'nr17', u'nr9', 'nr8', u'nr16', 'nr3', 'nr2', 'nr14', u'nr13', 'nr6', u'nr4']
             
-                
+            for i in x:
+                print(i)
+            
+            
         except:
             tb()
             

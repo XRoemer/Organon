@@ -45,6 +45,9 @@ UNFOLD_PROJ_DIR = 'Unfold Project Folder'
 SHOW_TAG1 = 'Show Tag 1'
 SHOW_TAG2 = 'Show Tag 2'
 SHOW_TAG3 = 'Show Tag 3'
+TRENNE_TEXT = 'Divide Text'
+TRENNE_TEXT_Help = 'Divide Text at Cursor Position'
+
 CREATE_NEW_PROJECT = 'Create New Project'
 CANCEL = 'Cancel'
 OK = 'OK'
@@ -118,26 +121,6 @@ ERZEUGE_DATEI = 'creating file %s/%s'
 NO_FILES = u'There are no files with the selected filter in the selcted folder'
 IMP_FORTFAHREN = u'%s files wil be imported. Do you want to continue?'
 
-OPENOFFICE_WARNING = u'''WARNING:
-
-By using the import- or export-function OpenOffice gets unstable. 
-OpenOffice might crash in irregular intervals. 
-
-You shouldn't use the import-function on already developed projects! (Use copy and paste instead.)
-
-After a crash during the export, open your project as usual. (Don't use the recovery.)
-Your files stay save.
-
-
-In LibreOffice import and export work reliable. Projects are exchangeable between OpenOffice and LibreOffice.
-If you install both OpenOffice and LibreOffice, you should disable the quickstarter.
-(Tools/Options/OpenOffice/Memory/OpenOffice Qickstarter)
-
-
-Do you want to continue?
-
-'''
-
 
 ###### SIDEBAR  #######
 
@@ -166,12 +149,15 @@ ENTER_NEW_TAG = 'Enter new tag and click into document window.'
 IN_PROJEKTORDNER_IMPORTIEREN = u'The selected image will be imported to the project-folder.'
 BILD_EINFUEGEN = 'Insert Image'
 BILD_LOESCHEN = 'Delete Image'
+NUTZE_ZEIT = 'Use Time'
+NUTZE_DATUM = 'Use Date'
+ZEIT = 'Time:'
+DATUM = 'Date:'
 
 
 ###### TABS ######
 ERZEUGE_NEUEN_TAB_AUS = 'Create new Tab from:'
-MEHRFACHE_AUSWAHL = u'multiple selection is possible:'
-TAG_DATE = 'tag date (sidebar)'
+MEHRFACHE_AUSWAHL = u'(multiple selection is possible)'
 EIGENE_AUSWAHL = 'own selection'
 TAGS_SEITENLEISTE = 'tags sidebar'
 TAGS_BAUMANSICHT = 'tags treeview'
@@ -182,6 +168,11 @@ TAB_HELP_TEXT = u'\u039B'+ u' (AND): Only files, which hold all tags, will be ad
 TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (AND): Only files, which hold all tags, will be added. \
 \rV (OR): Files, which keep at least one tag, will be added. \r(not implemented yet)'
 AUSGEWAEHLTE = u'Selected'
+ZEITLICH_ANORDNEN = 'sort by time tag'
+UNAUSGEZEICHNETE = 'use untagged files'
+NUTZE_ZEIT  = 'use time'
+NUTZE_DATUM = 'use date'
+NUTZE_ZEIT_UND_DATUM = 'use time and date'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"
