@@ -173,6 +173,7 @@ UNAUSGEZEICHNETE = 'nicht ausgezeichnete Dateien einbeziehen'
 NUTZE_ZEIT  = 'nutze Zeit'
 NUTZE_DATUM = 'nutze Datum'
 NUTZE_ZEIT_UND_DATUM = 'nutze Zeit und Datum'
+IMPORTIERE_IN_TAB = 'Importiere in Tab'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

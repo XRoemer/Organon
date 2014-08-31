@@ -151,7 +151,7 @@ BILD_EINFUEGEN = 'Insert Image'
 BILD_LOESCHEN = 'Delete Image'
 NUTZE_ZEIT = 'Use Time'
 NUTZE_DATUM = 'Use Date'
-ZEIT = 'Time:'
+ZEIT2 = 'Time:'
 DATUM = 'Date:'
 
 
@@ -173,6 +173,8 @@ UNAUSGEZEICHNETE = 'use untagged files'
 NUTZE_ZEIT  = 'use time'
 NUTZE_DATUM = 'use date'
 NUTZE_ZEIT_UND_DATUM = 'use time and date'
+IMPORTIERE_IN_TAB = 'Import to Tab'
+
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

@@ -80,7 +80,7 @@ class Projekt():
                 self.erzeuge_Eintraege_und_Bereiche(Eintraege)
                 
                 Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-                self.mb.props[T.AB].xml_tree.write(Path1)
+                self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path1)
                 
                 self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
                 
@@ -942,11 +942,15 @@ class Projekt():
 
         try:
             pass
-                    
-            x = [u'nr0', 'nr7', 'nr17', u'nr9', 'nr8', u'nr16', 'nr3', 'nr2', 'nr14', u'nr13', 'nr6', u'nr4']
+            frame = self.mb.current_Contr.Frame
+            dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
             
-            for i in x:
-                print(i)
+#             dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
+#             dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
+            print('tab', T.AB)
+            
+            props = self.mb.props
+            xml = props[T.AB].xml_tree
             
             
         except:

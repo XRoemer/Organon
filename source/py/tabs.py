@@ -14,17 +14,50 @@ class Tabs():
         self.mb = mb
         
     
-    def start(self):
+    def start(self,in_tab_einfuegen):
         
         try:
-            self.erzeuge_Fenster()            
+            if not in_tab_einfuegen:
+                self.berechne_ordinale_in_baum_und_tab(False)
+                self.erzeuge_Fenster(False)    
+            else:     
+                self.berechne_ordinale_in_baum_und_tab(True)
+                self.erzeuge_Fenster(True)    
         except:
             tb()
-
     
-    def erzeuge_neuen_tab(self):
-        if self.mb.debug: log(inspect.stack)
+    def berechne_ordinale_in_baum_und_tab(self,in_tab_einfuegen):
+
+        if in_tab_einfuegen:
+            tab = 'Projekt'
             
+            tree_tab = self.mb.props[T.AB].xml_tree
+            root_tab = tree_tab.getroot()
+            
+            baum_tab = []
+            self.mb.class_XML.get_tree_info(root_tab,baum_tab)
+            
+            self.im_tab_vorhandene = []
+            
+            # Ordinale eintragen
+            for t in baum_tab:
+                self.im_tab_vorhandene.append(t[0])
+            
+        else:
+            tab = T.AB
+            self.im_tab_vorhandene = []
+            
+            
+        tree = self.mb.props[tab].xml_tree
+        root = tree.getroot()
+        
+        self.baum = []
+        self.mb.class_XML.get_tree_info(root,self.baum)
+        
+    
+    def berechne_ordinal_nach_auswahl(self,in_tab_einfuegen):    
+        if self.mb.debug: log(inspect.stack)
+        
         tab_auswahl = self.mb.props[T.AB].tab_auswahl
         
         ordinale = []
@@ -32,55 +65,63 @@ class Tabs():
         ordinale_baumansicht = []
         ordinale_auswahl = []
         
-        try:
-            
-            if tab_auswahl.eigene_auswahl_use == 1:
-                ordinale_auswahl = self.get_ordinale_eigene_auswahl()
-            if tab_auswahl.seitenleiste_use == 1:
-                ordinale_seitenleiste = self.get_ordinale_seitenleiste()
-            if tab_auswahl.baumansicht_use == 1:
-                ordinale_baumansicht = self.get_ordinale_baumansicht()
-            if tab_auswahl.suche_use == 1:
-                pass
-            
-            
-            
-            ############# LOGIK ###############
-            # Alle Ordinale in list eintragen
-            
-            for ordi in ordinale_auswahl:
-                if ordi not in ordinale:
-                    ordinale.append(ordi)
-            for ordi in ordinale_seitenleiste:
-                if ordi not in ordinale:
-                    ordinale.append(ordi)
-            for ordi in ordinale_baumansicht:
-                if ordi not in ordinale:
-                    ordinale.append(ordi)
-            
-            helfer = ordinale[:]
-            
-            # Wenn Logik auf UND steht, alle im entsprechenden Tag 
-            # nicht vorhandeneOrdinale wieder loeschen  
-            if tab_auswahl.seitenleiste_log != 'V':
-                for ordin in ordinale:
-                    if ordin not in ordinale_seitenleiste:
-                        helfer.remove(ordin)
-            if tab_auswahl.baumansicht_log != 'V':
-                for ordi in ordinale:
-                    if ordi not in ordinale_baumansicht:
-                        helfer.remove(ordi)
-            
-            ordinale = helfer
-                             
-            if len(ordinale) == 0:
-                return
-             
-            # Ordinale sortieren 
-            ordinale = self.sortiere_ordinale(ordinale)
-            if tab_auswahl.zeitlich_anordnen == 1:
-                ordinale = self.sortiere_ordinale_zeitlich(ordinale,tab_auswahl)
+
        
+        if tab_auswahl.eigene_auswahl_use == 1:
+            ordinale_auswahl = self.get_ordinale_eigene_auswahl()
+        if tab_auswahl.seitenleiste_use == 1:
+            ordinale_seitenleiste = self.get_ordinale_seitenleiste(in_tab_einfuegen)
+        if tab_auswahl.baumansicht_use == 1:
+            ordinale_baumansicht = self.get_ordinale_baumansicht(in_tab_einfuegen)
+        if tab_auswahl.suche_use == 1:
+            pass
+        
+        
+        ############# LOGIK ###############
+        # Alle Ordinale in list eintragen
+        
+        for ordi in ordinale_auswahl:
+            if ordi not in ordinale:
+                ordinale.append(ordi)
+        for ordi in ordinale_seitenleiste:
+            if ordi not in ordinale:
+                ordinale.append(ordi)
+        for ordi in ordinale_baumansicht:
+            if ordi not in ordinale:
+                ordinale.append(ordi)
+        
+        helfer = ordinale[:]
+        
+        # Wenn Logik auf UND steht, alle im entsprechenden Tag 
+        # nicht vorhandeneOrdinale wieder loeschen  
+        if tab_auswahl.seitenleiste_log != 'V':
+            for ordin in ordinale:
+                if ordin not in ordinale_seitenleiste:
+                    helfer.remove(ordin)
+        if tab_auswahl.baumansicht_log != 'V':
+            for ordi in ordinale:
+                if ordi not in ordinale_baumansicht:
+                    helfer.remove(ordi)
+        
+        ordinale = helfer
+                         
+        if len(ordinale) == 0:
+            return []
+         
+        # Ordinale sortieren 
+        ordinale = self.sortiere_ordinale(ordinale)
+        if tab_auswahl.zeitlich_anordnen == 1:
+            ordinale = self.sortiere_ordinale_zeitlich(ordinale,tab_auswahl)
+       
+        return ordinale
+        
+    
+    def erzeuge_neuen_tab(self,ordinale):
+        if self.mb.debug: log(inspect.stack)
+
+        tab_auswahl = self.mb.props[T.AB].tab_auswahl
+        
+        try:
             
             tab_name = tab_auswahl.tab_name
             T.AB = tab_name
@@ -108,11 +149,48 @@ class Tabs():
              
             tree = self.mb.props[T.AB].xml_tree
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
-            tree.write(Path)
+            self.mb.tree_write(tree,Path)
         except:
             tb()
 
-    
+    def fuege_ausgewaehlte_in_tab_ein(self,ordinale):
+        if self.mb.debug: log(inspect.stack)
+
+        tab_name = copy.deepcopy(T.AB)
+        tab_xml = copy.deepcopy(self.mb.props[T.AB].xml_tree)
+        ord_selektierter = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        
+        self.schliesse_Tab(False)
+     
+        try:
+            
+            T.AB = tab_name
+             
+            self.erzeuge_props(tab_name)
+
+            Eintraege = self.erzeuge_neue_Eintraege_im_tab(tab_name,ordinale,tab_xml, ord_selektierter)        
+
+            self.mb.tab_umgeschaltet = True
+            self.mb.tab_id_old = self.mb.active_tab_id
+            win,tab_id = self.get_tab(tab_name)
+ 
+            self.mb.tabs.update({tab_id:(win,tab_name)})
+ 
+            self.mb.erzeuge_Menu(win)
+            self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
+            self.setze_selektierte_zeile('nr0')
+            self.mb.class_Hauptfeld.korrigiere_scrollbar()
+            
+            tree = self.mb.props[T.AB].xml_tree
+            Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
+            self.mb.tree_write(tree,Path)
+
+            self.mb.write_tab = False
+        except:
+            tb()
+            #pd()
+ 
+        
     def lade_tabs(self):
         if self.mb.debug: log(inspect.stack)
                                    
@@ -190,7 +268,7 @@ class Tabs():
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)        
         self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext
     
-    def get_ordinale_seitenleiste(self):
+    def get_ordinale_seitenleiste(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
         
         try:
@@ -204,7 +282,7 @@ class Tabs():
                 return ordinale
             
             alle_tag_eintraege = self.mb.dict_sb_content['ordinal']
-                                    
+
             if tab_auswahl.seitenleiste_log_tags == 'V':
                 # Alle Eintraege
                 UND = False
@@ -213,6 +291,10 @@ class Tabs():
                 UND = True
                         
             for tag_eintrag in alle_tag_eintraege:
+                if in_tab_einfuegen:
+                    if tag_eintrag not in self.im_tab_vorhandene:
+                        continue
+                    
                 tag_ist_drin = False
                 s_tag_ist_drin = []
                 
@@ -238,7 +320,7 @@ class Tabs():
 
         return sorted(ordinale)
     
-    def get_ordinale_baumansicht(self):
+    def get_ordinale_baumansicht(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
         
         ordinale = []
@@ -251,6 +333,9 @@ class Tabs():
         ausgew_icons = tab_auswahl.baumansicht_tags
         
         for eintrag in all_el:
+            if in_tab_einfuegen:
+                if eintrag.tag not in self.im_tab_vorhandene:
+                    continue
             if eintrag.attrib['Tag1'] in ausgew_icons:
                 ordinale.append(eintrag.tag)
 
@@ -269,16 +354,22 @@ class Tabs():
         return ordinale
     
     
-    def erzeuge_Fenster(self):
+    def erzeuge_Fenster(self,in_tab_einfuegen = False):
         if self.mb.debug: log(inspect.stack)
-        
+
         LANG = self.mb.lang
         
+        if in_tab_einfuegen:
+            hoehe = 640
+        else:
+            hoehe = 690
+        
+        
         posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-        posSize = (posSize_main.X + 20, posSize_main.Y + 20,310,670)
+        posSize = (posSize_main.X + 20, posSize_main.Y + 20,310,hoehe)
         win,cont = self.mb.erzeuge_Dialog_Container(posSize)
         
-        button_listener = Auswahl_Button_Listener(self.mb,win,cont)
+        button_listener = Auswahl_Button_Listener(self.mb,win,cont,in_tab_einfuegen)
 
         x1 = 10
         x2 = 280
@@ -292,8 +383,13 @@ class Tabs():
         y = 20
         
         
+        if in_tab_einfuegen:
+            Ueberschrift = LANG.IMPORTIERE_IN_TAB
+        else:
+            Ueberschrift = LANG.ERZEUGE_NEUEN_TAB_AUS
+        
         prop_names = ('Label',)
-        prop_values = (LANG.ERZEUGE_NEUEN_TAB_AUS,)
+        prop_values = (Ueberschrift,)
         control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 200, 20, prop_names, prop_values)  
         cont.addControl('Titel', control)
         model.FontWeight = 200.0
@@ -519,25 +615,32 @@ class Tabs():
         control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x1, y, 290, 20, (), ())  
         cont.addControl('Line', control)
         
-        y += 30
         
-        prop_names = ('Label',)
-        prop_values = (LANG.TABNAME,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 80, 20, prop_names, prop_values)  
-        cont.addControl('tab_name_eingabe', control)
-        
-        prop_names = ('Text',)
-        prop_values = ('Tab %s' %str(len(self.mb.tabs)+1),)
-        control, model = self.mb.createControl(self.mb.ctx, "Edit", x3, y, width2, 20, prop_names, prop_values) 
-        cont.addControl('tab_name', control)
+        if not in_tab_einfuegen:
+            y += 30
+            
+            prop_names = ('Label',)
+            prop_values = (LANG.TABNAME,)
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 80, 20, prop_names, prop_values)  
+            cont.addControl('tab_name_eingabe', control)
+            
+            y += 20
+            
+            prop_names = ('Text',)
+            prop_values = ('Tab %s' %str(len(self.mb.tabs)+1),)
+            control, model = self.mb.createControl(self.mb.ctx, "Edit", x3, y, width2, 20, prop_names, prop_values) 
+            cont.addControl('tab_name', control)
   
         y += 50
         
         prop_names = ('Label',)
         prop_values = (LANG.OK,)
         control, model = self.mb.createControl(self.mb.ctx, "Button", 210, y, width2, 30, prop_names, prop_values)  
-        control.addActionListener(button_listener)            
-        control.setActionCommand('ok')
+        control.addActionListener(button_listener)  
+        if in_tab_einfuegen:
+            control.setActionCommand('ok_tab')
+        else:          
+            control.setActionCommand('ok')
         cont.addControl('but_ok', control)
         
         
@@ -608,7 +711,74 @@ class Tabs():
 
         return Eintraege
         
+    def erzeuge_neue_Eintraege_im_tab(self,tab_name,neue_ordinale,tab_xml, ord_selektierter):
+        if self.mb.debug: log(inspect.stack)        
+             
+        xml_tree = self.mb.props['Projekt'].xml_tree
+        root = xml_tree.getroot()
+        root_tab = tab_xml.getroot()
+        
+        ordinale = []
+        self.mb.class_XML.get_tree_info(root_tab,ordinale)
+        
+        # wenn ord_selektierter ein Ordner ist,
+        # letzten Kindeintrag suchen und ord_selektierter neu setzen
+        suche = False
+        for ordn in ordinale:
+            if ordn[0] == ord_selektierter:
+                selekt_xml = root_tab.find('.//'+ord_selektierter)
+                
+                Kinder = []
+                self.mb.class_XML.get_tree_info(selekt_xml,Kinder)
+                
+                ord_selektierter = Kinder[len(Kinder)-1][0]
+                
+        
+        Eintraege = []
 
+        for ordi in ordinale:
+            
+            elem = root_tab.find('.//'+ordi[0])
+        
+            ordinal = elem.tag
+            name    = elem.attrib['Name']
+            art     = elem.attrib['Art']
+            lvl     = elem.attrib['Lvl']
+            parent  = elem.attrib['Parent']
+            zustand = elem.attrib['Zustand'] 
+            sicht   = elem.attrib['Sicht']
+            tag1   = elem.attrib['Tag1'] 
+            tag2   = elem.attrib['Tag2'] 
+            tag3   = elem.attrib['Tag3'] 
+            
+            eintrag = (ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3)
+            Eintraege.append(eintrag)      
+            self.erzeuge_tab_XML_Eintrag(eintrag,tab_name)
+            
+            if ordi[0] == ord_selektierter:
+                    
+                for o in neue_ordinale:
+            
+                    elem = root.find('.//'+ o)
+        
+                    ordinal = elem.tag
+                    name    = elem.attrib['Name']
+                    art     = elem.attrib['Art']
+                    lvl     = lvl
+                    parent  = ord_selektierter
+                    zustand = elem.attrib['Zustand'] 
+                    sicht   = 'ja'
+                    tag1   = elem.attrib['Tag1'] 
+                    tag2   = elem.attrib['Tag2'] 
+                    tag3   = elem.attrib['Tag3'] 
+                    
+                    eintrag = (ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3)
+                    Eintraege.append(eintrag)      
+                    self.erzeuge_tab_XML_Eintrag(eintrag,tab_name,parent,lvl)
+                
+
+        return Eintraege
+        
     
     def sortiere_ordinale(self,ordinale):
         if self.mb.debug: log(inspect.stack)
@@ -693,7 +863,7 @@ class Tabs():
         return sort_list
         
         
-    def erzeuge_tab_XML_Eintrag(self,eintrag,tab_name):
+    def erzeuge_tab_XML_Eintrag(self,eintrag,tab_name,parent_neu = None,lvl_neu = None):
         if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[tab_name].xml_tree
@@ -701,15 +871,24 @@ class Tabs():
         et = self.mb.ET             
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
         
-        if parent == 'root':
+        if parent_neu != None:
+            par = root.find('.//'+parent_neu+'/..')
+            lvl = lvl_neu
+            sicht = 'ja'
+            zustand = 'auf'
+        elif parent == 'root':
+            par = root
+        elif parent == 'Tabs':
             par = root
         else:
             par = root.find('.//'+parent)
+        
 
         el = et.SubElement(par,ordinal)
         el.attrib['Parent'] = parent
         el.attrib['Name'] = name
         el.attrib['Art'] = art
+        
         el.attrib['Lvl'] = str(lvl)
         el.attrib['Zustand'] = zustand
         el.attrib['Sicht'] = sicht
@@ -811,19 +990,20 @@ class Tabs():
 #         win.removeWindowListener(self.w_listener)
 #         self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
         
-    def schliesse_Tab(self):
+    def schliesse_Tab(self,abfrage = True):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            # Frage: Soll Tab wirklich geschlossen werden?
-            entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
-            # 3 = Nein oder Cancel, 2 = Ja
-            if entscheidung == 3:
-                return
-            #print('active tab id', self.mb.active_tab_id,self.mb.tabs[self.mb.active_tab_id][1])
-            if T.AB == 'Projekt':
-                self.mb.Mitteilungen.nachricht("Project tab can't be closed" ,"warningbox",16777216)
-                return
+            if abfrage:
+                # Frage: Soll Tab wirklich geschlossen werden?
+                entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
+                # 3 = Nein oder Cancel, 2 = Ja
+                if entscheidung == 3:
+                    return
+                #print('active tab id', self.mb.active_tab_id,self.mb.tabs[self.mb.active_tab_id][1])
+                if T.AB == 'Projekt':
+                    self.mb.Mitteilungen.nachricht("Project tab can't be closed" ,"warningbox",16777216)
+                    return
             
             # loesche tab listener
             win = self.mb.tabs[self.mb.active_tab_id][0]
@@ -851,10 +1031,11 @@ class Tabs():
 
 from com.sun.star.awt import XActionListener,XTextListener
 class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
-    def __init__(self,mb,win,fenster_cont):
+    def __init__(self,mb,win,fenster_cont,in_tab_einfuegen = False):
         self.mb = mb
         self.win = win
         self.fenster_cont = fenster_cont
+        self.in_tab_einfuegen = in_tab_einfuegen
         
     def actionPerformed(self,ev):
         if ev.ActionCommand == 'Tags Seitenleiste':
@@ -869,7 +1050,21 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 ok = self.pruefe_tab_namen()
                 if ok:
                     self.win.dispose()
-                    self.mb.class_Tabs.erzeuge_neuen_tab()
+                    ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(False)
+                    if ordinale == []:
+                        return
+                    self.mb.class_Tabs.erzeuge_neuen_tab(ordinale)
+            except:
+                tb()
+                
+        elif ev.ActionCommand == 'ok_tab':
+            try:
+                self.erstelle_auswahl_dict(ev)
+                self.win.dispose()
+                ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
+                if ordinale == []:
+                    return
+                self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
             except:
                 tb()
         elif ev.ActionCommand == 'V':
@@ -877,6 +1072,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 ev.Source.Model.Label = u'\u039B'
             else:
                 ev.Source.Model.Label = 'V'
+    
     
     def textChanged(self,ev):
         main_win = ev.Source.Context
@@ -1060,7 +1256,10 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         tab_auswahl.nutze_datum = main_win.getControl('z2').State
         tab_auswahl.nutze_zeit_und_datum = main_win.getControl('z3').State
         
-        tab_auswahl.tab_name = main_win.getControl('tab_name').Model.Text
+        if self.in_tab_einfuegen:
+            tab_auswahl.tab_name = T.AB
+        else:
+            tab_auswahl.tab_name = main_win.getControl('tab_name').Model.Text
         
     
     def pruefe_tab_namen(self):
@@ -1121,8 +1320,12 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         # Dict von alten Eintraegen bereinigen
         eintr = []
         for ordinal in sett['ausgewaehlte']:
-            if ordinal not in self.mb.props[T.AB].dict_bereiche['ordinal']:
+            if self.in_tab_einfuegen:
                 eintr.append(ordinal)
+            else:
+                if ordinal not in self.mb.props[T.AB].dict_bereiche['ordinal']:
+                    eintr.append(ordinal)
+                    
         for ordn in eintr:
             del sett['ausgewaehlte'][ordn]
 
@@ -1135,7 +1338,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
         fenster_cont.addControl('Huelle', control_innen)
         
-        y = self.erzeuge_auswahl(control_innen)
+        y = self.erzeuge_treeview(control_innen)
         control_innen.setPosSize(0, 0,0,y + 20,8)
 
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
@@ -1169,21 +1372,50 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             
             fenster_cont.addControl('ScrollBar',control)  
   
+    def berechne_eigene_auswahl(self):
+
+        if self.in_tab_einfuegen:
+            tab = 'Projekt'
+            
+            tree_tab = self.mb.props[T.AB].xml_tree
+            root_tab = tree_tab.getroot()
+            
+            baum_tab = []
+            self.mb.class_XML.get_tree_info(root_tab,baum_tab)
+            
+            im_tab_vorhandene = []
+            
+            # Ordinale eintragen
+            for t in baum_tab:
+                im_tab_vorhandene.append(t[0])
+            
+        else:
+            tab = T.AB
+            im_tab_vorhandene = []
+            
+            
+        tree = self.mb.props[tab].xml_tree
+        root = tree.getroot()
         
-    def erzeuge_auswahl(self,fenster_cont):
+        baum = []
+        self.mb.class_XML.get_tree_info(root,baum)
+        
+        return baum,im_tab_vorhandene
+        
+    def erzeuge_treeview(self,fenster_cont):
         try:
             sett = self.mb.settings_exp
             lang = self.mb.lang
-            
-            tree = self.mb.props[T.AB].xml_tree
-            root = tree.getroot()
-            
-            baum = []
-            self.mb.class_XML.get_tree_info(root,baum)
-            
+
+
+            #baum,im_tab_vorhandene = self.berechne_eigene_auswahl()
+            tabs = self.mb.class_Tabs
+            baum = tabs.baum
+            im_tab_vorhandene = tabs.im_tab_vorhandene
+
             y = 10
             x = 10
-    
+            
             listener = Auswahl_CheckBox_Listener(self.mb,fenster_cont)
             
             #Titel
@@ -1205,9 +1437,9 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             control.ActionCommand = 'untereintraege_auswaehlen'
             control.addActionListener(listener)
             fenster_cont.addControl('Titel', control)
-    
-            y += 30
             
+            y += 30
+
             for eintrag in baum:
     
                 ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
@@ -1215,11 +1447,21 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 if art == 'waste':
                     break
                 
-                control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40+20*int(lvl),y ,200,20,(),() )  
-                control.Text = name
-                fenster_cont.addControl('Titel', control)
+                # Checkbox
+                control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20*int(lvl),y ,20,20,(),() )  
+                control.ActionCommand = ordinal+'xxx'+name
                 
+                if ordinal in im_tab_vorhandene:
+                    control.Enable = False
+                    model.State = 0
+                else:
+                    control.addActionListener(listener)
+                    if ordinal in sett['ausgewaehlte']:
+                        model.State = sett['ausgewaehlte'][ordinal][1]
+                        
+                fenster_cont.addControl(ordinal, control)
                 
+                # Symbol
                 control, model = self.mb.createControl(self.mb.ctx,"ImageControl",x + 20+20*int(lvl),y ,16,16,(),() )  
                 model.Border = False
                 if art in ('dir','prj'):
@@ -1227,15 +1469,15 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 else:
                     model.ImageURL = 'private:graphicrepository/res/sx03150.png' 
                 fenster_cont.addControl('Titel', control)   
-                  
+                if ordinal in im_tab_vorhandene:
+                    control.Enable = False
                     
-                control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20*int(lvl),y ,20,20,(),() )  
-                control.addActionListener(listener)
-                control.ActionCommand = ordinal+'xxx'+name
-                if ordinal in sett['ausgewaehlte']:
-                    model.State = sett['ausgewaehlte'][ordinal][1]
-                fenster_cont.addControl(ordinal, control)
-                
+                # Name
+                control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40+20*int(lvl),y ,200,20,(),() )  
+                control.Text = name
+                fenster_cont.addControl('Titel', control)
+                if ordinal in im_tab_vorhandene:
+                    control.Enable = False
                 y += 20 
                 
             return y 
@@ -1394,6 +1636,7 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def actionPerformed(self,ev):
 
         sett = self.mb.settings_exp
+        
         if ev.ActionCommand == 'untereintraege_auswaehlen':
             sett['auswahl'] = self.toggle(sett['auswahl'])
             self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 

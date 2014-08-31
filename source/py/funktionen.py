@@ -38,7 +38,7 @@ class Funktionen():
         self.mb.class_Hauptfeld.korrigiere_scrollbar()    
         
         Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
-        self.mb.props[T.AB].xml_tree.write(Path)
+        self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
 
        
     def erzeuge_Tag1_Container(self,ev):
@@ -119,83 +119,96 @@ class Funktionen():
     def teile_text(self):
         try:
 
-            zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName     
+            zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName    
+            kommender_eintrag = self.mb.props['Projekt'].kommender_Eintrag
+            
+            url_source = os.path.join(self.mb.pfade['odts'],zeilenordinal + '.odt')
+            URL_source = uno.systemPathToFileUrl(url_source)
+            helfer_url = URL_source+'helfer'
+             
             vc = self.mb.viewcursor
-            cur = self.mb.doc.Text.createTextCursor()
+            cur_old = self.mb.doc.Text.createTextCursor()
             sec = vc.TextSection
+            text = self.mb.doc.Text
             
             # parent section finden   
             parsection = self.find_parent_section(sec)
             
-            # Laenge des Textanfangs zaehlen
-            cur.gotoRange(vc,False)
-            cur.gotoRange(self.parsection.Anchor.Start,True)
+            # Bookmark setzen
+            bm = self.mb.doc.createInstance('com.sun.star.text.Bookmark')
+            bm.Name = 'kompliziertkompliziert'            
+            text.insertTextContent(vc,bm,False)
             
-            string = cur.String
-            s = string.replace('\n','') # Zeilenumbruech ausschliessen
-            textanfang_laenge = len(s)          
-
-            # sicherheitshalber alte Datei speichern
-            url_source = os.path.join(self.mb.pfade['odts'],zeilenordinal + '.odt')
-            URL_source = uno.systemPathToFileUrl(url_source)
-            
+            # alte Datei in Helferdatei speichern
             orga_sec_name_alt = self.mb.props['Projekt'].dict_bereiche['ordinal'][zeilenordinal]
             self.mb.props[T.AB].tastatureingabe = True
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
-
-            # Ende in der getrennten Datei loeschen
-            cur.gotoRange(vc,False)
-            cur.gotoRange(self.parsection.Anchor.End,True)
-            cur.setString('')
-            
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(helfer_url,orga_sec_name_alt)
+             
             # erzeuge neue Zeile
             nr_neue_zeile = self.mb.class_Hauptfeld.erzeuge_neue_Zeile('dokument')
             ordinal_neue_zeile = 'nr'+ str(nr_neue_zeile)
        
-            # neuen File erzeugen        
+            # aktuelle datei unsichtbar oeffnen        
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
             prop.Value = True
 
             url_target = os.path.join(self.mb.pfade['odts'],ordinal_neue_zeile + '.odt')
             URL_target = uno.systemPathToFileUrl(url_target)
+               
+            doc_new = self.mb.doc.CurrentController.Frame.loadComponentFromURL(helfer_url,'_blank',0,(prop,))  
+            cur_new = doc_new.Text.createTextCursor()
             
-            new_doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL_source,'_blank',0,(prop,))
+            # OrgInnerSec umbenennen
+            new_OrgInnerSec_name = 'OrgInnerSec' + str(kommender_eintrag)
+            sec = doc_new.TextSections.getByName(parsection.Name)
+            sec.setName(new_OrgInnerSec_name)
             
-            # Sichtbarkeit schalten, damit OrgInnerSec erzeugt wird
+            # Textanfang und Bookmark in Datei loeschen 
+            bms = doc_new.Bookmarks
+            bm2 = bms.getByName('kompliziertkompliziert')
+            new_OrgInnerSec = doc_new.TextSections.getByName(new_OrgInnerSec_name)
+            
+            cur_new.gotoRange(bm2.Anchor,False)
+            cur_new.gotoRange(new_OrgInnerSec.Anchor.Start,True)
+            cur_new.setString('')
+            bm2.dispose()
+            
+            # alte datei ueber neue speichern
+            doc_new.storeToURL(URL_target,())
+            doc_new.close(False)
+            
+            # Helfer loeschen
+            os.remove(uno.fileUrlToSystemPath(helfer_url))
+            
+            # Ende in der getrennten Datei loeschen
+            cur_old.gotoRange(bm.Anchor,False)
+            cur_old.gotoRange(self.parsection.Anchor.End,True)
+            cur_old.setString('')
+            
+            # Bookmark wird von cursor geloescht
+            
+            # Sichtbarkeit schalten
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(ordinal_neue_zeile)
-                        
-            # OrgInnerSec der neuen Datei setzen
-            sec = new_doc.TextSections.getByName(parsection.Name)
-            orga_sec_name = self.mb.props['Projekt'].dict_bereiche['ordinal'][ordinal_neue_zeile]
-            orga_sec = self.mb.doc.TextSections.getByName(orga_sec_name)
-            orga_inner_sec_name = orga_sec.ChildSections[0].Name
             
-            sec.setName(orga_inner_sec_name)
-            # Speichern
-            new_doc.storeToURL(URL_target,())
-            new_doc.close(False)
-
+            # alte Datei speichern
+            orga_sec_name_alt = self.mb.props['Projekt'].dict_bereiche['ordinal'][zeilenordinal]
+            self.mb.props[T.AB].tastatureingabe = True
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
+            
             # File Link setzen, um Anzeige zu erneuern
-            sec = self.mb.doc.TextSections.getByName(orga_sec_name)
-            
+            sec = self.mb.doc.TextSections.getByName(new_OrgInnerSec_name)
+             
             SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
             SFLink.FileURL = ''
-            
+             
             SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
             SFLink2.FileURL = sec.FileLink.FileURL
             SFLink2.FilterName = 'writer8'
-    
+     
             sec.setPropertyValue('FileLink',SFLink)
             sec.setPropertyValue('FileLink',SFLink2)
-            
-            # Anfang in der neuen datei loeschen
-            parsection = self.find_parent_section(sec)
-            vc.gotoRange(parsection.Anchor.Start,True)
-            vc.gotoStart(False)
-            vc.goRight(textanfang_laenge,True)
-            vc.setString('')
-                  
+    
             # Einstellungen, tags der alten Datei fuer neue uebernehmen
             self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = self.mb.dict_sb_content['ordinal'][zeilenordinal]
             
@@ -208,20 +221,12 @@ class Funktionen():
             neu.attrib['Tag2'] = alt.attrib['Tag2']
             neu.attrib['Tag3'] = alt.attrib['Tag3']
             
-            
-            # nach Aenderung Speichern
-            self.mb.props[T.AB].tastatureingabe = True
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_target,orga_sec_name)
-            self.mb.props[T.AB].tastatureingabe = True
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
             for tag in self.mb.dict_sb_content['sichtbare']:
                 self.mb.class_Sidebar.erzeuge_sb_layout(tag,'teile_text')
 
-        except:
+        except Exception as e:
+            self.mb.Mitteilungen.nachricht('teile_text ' + str(e),"warningbox")
             tb()
-        
-        #pd()
-
 
      
 from com.sun.star.awt import XMouseListener,XItemListener
@@ -276,7 +281,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         source_xml.attrib['Tag1'] = sel
         
         Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
-        tree.write(Path)
+        self.mb.tree_write(tree,Path)
         
         self.window.dispose()
 

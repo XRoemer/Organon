@@ -27,7 +27,7 @@ class Version():
             self.an_091b_anpassen()
         if self.version in ('0.9.1b'):
             self.an_092b_anpassen()
-            
+        # an 093 muss nichts angepasst werden
         self.neue_programmversion_eintragen()
         
     def neue_programmversion_eintragen(self):
@@ -35,7 +35,7 @@ class Version():
         xml_root = self.mb.props[T.AB].xml_tree.getroot()
         xml_root.attrib['Programmversion'] = self.mb.programm_version
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        self.mb.props['Projekt'].xml_tree.write(Path)
+        self.mb.tree_write(self.mb.props['Projekt'].xml_tree,Path)
         
     def an_080b_anpassen(self):
         if self.mb.debug: log(inspect.stack)
@@ -44,7 +44,7 @@ class Version():
         xml_root = self.mb.props[T.AB].xml_tree.getroot()
         xml_root.attrib['Programmversion'] = self.mb.programm_version
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        self.mb.props['Projekt'].xml_tree.write(Path)
+        self.mb.tree_write(self.mb.props['Projekt'].xml_tree,Path)
         
         # Ordner Images in Programmordner/Files einfuegen
         if not os.path.exists(self.mb.pfade['images']):

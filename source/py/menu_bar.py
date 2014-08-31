@@ -72,6 +72,7 @@ class Menu_Bar():
         self.speicherort_last_proj = self.get_speicherort()
         self.projekt_name = None
         self.menu_start = menu_start
+        self.sec_helfer = None
 
         
         # Properties
@@ -135,17 +136,13 @@ class Menu_Bar():
             print('Debug = True')
             self.time = time
             self.timer_start = self.time.clock()
+            
+            
 
-
-        #pd()
 
 #         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
 
-        
-        
-        
-        
-    
+
            
        
     def get_doc(self):
@@ -382,7 +379,6 @@ class Menu_Bar():
             
             items = (
                 lang.EXPORT_2, 
-                lang.IMPORT_2,
                 '---------',
                 lang.BACKUP)
             
@@ -525,7 +521,6 @@ class Menu_Bar():
         
         items = (  
                   self.lang.NEUER_TAB,
-                  self.lang.SCHLIESSE_TAB,
                   '---------',
                   self.lang.TRENNE_TEXT,
                   self.lang.UNFOLD_PROJ_DIR
@@ -534,6 +529,7 @@ class Menu_Bar():
             items = (  
                   self.lang.NEUER_TAB,
                   self.lang.SCHLIESSE_TAB,
+                  self.lang.IMPORTIERE_IN_TAB,
                   '---------',
                   self.lang.UNFOLD_PROJ_DIR
                   )      
@@ -753,7 +749,16 @@ class Menu_Bar():
             
         with open(path , "w") as file:
             file.writelines(imp)
-            
+    
+    def tree_write(self,tree,pfad):  
+        if debug: log(inspect.stack) 
+        # diese Methode existiert, um alle Schreibvorgaenge
+        # des XML_trees kontrollieren zu koennen
+        tree.write(pfad)
+        if 'Element' in pfad:
+            print(pfad)
+        
+             
     def oeffne_dokument_in_neuem_fenster(self,URL):
         self.new_doc = self.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
             
@@ -877,7 +882,7 @@ class Log():
                     modul = modul[0:18]
                 
                 string = '%-7s %-18s %-40s %s( caller: %s )' %(self.debug_time(),modul,function,'',caller)
-                #time.sleep(0.04)
+                #time.sleep(0.05)
                 print(string)
             
                 #self.do(function)
@@ -1080,52 +1085,58 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
         
         #print('self.mb.bereich_wurde_bearbeitet',self.mb.bereich_wurde_bearbeitet)
         # hier evt. Abfrage, ob Bereich bearbeitet -> speichern
+
+        LANG = self.mb.lang
+        self.do()
         
-        if sel == self.mb.lang.NEW_PROJECT:
-            self.do()
+        if sel == LANG.NEW_PROJECT:
             self.mb.class_Projekt.erzeuge_neues_Projekt()
-        elif sel == self.mb.lang.OPEN_PROJECT:
-            self.do()
+            
+        elif sel == LANG.OPEN_PROJECT:
             self.mb.class_Projekt.lade_Projekt()
-        elif sel == self.mb.lang.NEW_DOC:
-            self.do()
+            
+        elif sel == LANG.NEW_DOC:
             self.mb.erzeuge_Zeile('dokument')
-        elif sel == self.mb.lang.NEW_DIR:
-            self.do()
+            
+        elif sel == LANG.NEW_DIR:
             self.mb.erzeuge_Zeile('Ordner')
-        elif sel == self.mb.lang.EXPORT_2:
-            self.do()
+            
+        elif sel == LANG.EXPORT_2:
             self.mb.class_Export.export()
-        elif sel == self.mb.lang.IMPORT_2:
-            self.do()
+            
+        elif sel == LANG.IMPORT_2:
             self.mb.class_Import.importX()
-        elif sel == self.mb.lang.UNFOLD_PROJ_DIR:
-            self.do()
+            
+        elif sel == LANG.UNFOLD_PROJ_DIR:
             self.mb.class_Funktionen.projektordner_ausklappen()
-        elif sel == self.mb.lang.NEUER_TAB:
-            self.do()
-            self.mb.class_Tabs.start()
-        elif sel == self.mb.lang.SCHLIESSE_TAB:
-            self.do()
+            
+        elif sel == LANG.NEUER_TAB:
+            self.mb.class_Tabs.start(False)
+            
+        elif sel == LANG.SCHLIESSE_TAB:
             self.mb.class_Tabs.schliesse_Tab()
-        elif sel == self.mb.lang.ZEIGE_TEXTBEREICHE:
-            self.do()
+            
+        elif sel == LANG.ZEIGE_TEXTBEREICHE:
             oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
-            self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool   
+            self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool  
+             
         elif sel == 'Homepage':
-            self.do()
             import webbrowser
             webbrowser.open('https://github.com/XRoemer/Organon')
+            
         elif sel == 'Feedback':
-            self.do()
             import webbrowser
             webbrowser.open('http://organon4office.wordpress.com/')
-        elif sel == self.mb.lang.BACKUP:
-            self.do()
+            
+        elif sel == LANG.BACKUP:
             self.mb.erzeuge_Backup()
-        elif sel == self.mb.lang.TRENNE_TEXT:
-            self.do()
+            
+        elif sel == LANG.TRENNE_TEXT:
             self.mb.class_Funktionen.teile_text()
+            
+        elif sel == LANG.IMPORTIERE_IN_TAB:
+            self.mb.class_Tabs.start(True)
+            
             
 
         self.mb.bereich_wurde_bearbeitet = False
@@ -1222,8 +1233,12 @@ class Tag_SB_Item_Listener(unohelper.Base, XItemListener):
             self.mb.dict_sb['sichtbare'].append(panels[name])
         else:
             self.mb.dict_sb['sichtbare'].remove(panels[name])
-
-
+        
+        try:
+            first_element = list(self.mb.dict_sb['controls'])[0]
+            self.mb.dict_sb['controls'][first_element][1].requestLayout()
+        except:
+            tb()
 
 
             
@@ -1281,6 +1296,8 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
         if self.mb.use_UM_Listener == False:
             return
         if ev.UndoActionTitle == self.mb.BEREICH_EINFUEGEN:
+            if self.mb.debug: log(inspect.stack)
+            
             if self.mb.doc.TextSections.Count == 0:
                 self.textbereiche = ()
             else:
@@ -1291,6 +1308,8 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
         if self.mb.use_UM_Listener == False:
             return
         if ev.UndoActionTitle == self.mb.BEREICH_EINFUEGEN:
+            if self.mb.debug: log(inspect.stack)
+            
             for tbe in self.mb.doc.TextSections.ElementNames:
                 if 'trenner' not in tbe:
                     if tbe not in self.textbereiche:
@@ -1309,6 +1328,7 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
     def disposing(self,ev):return False
     
     def bereich_in_OrganonSec_einfuegen(self,tbe):
+        if self.mb.debug: log(inspect.stack)
         
         text = self.mb.doc.Text
         vc = self.mb.viewcursor
@@ -1408,6 +1428,7 @@ class Key_Handler(unohelper.Base, XKeyHandler):
                     if 'OrganonSec' in sec:
                         anz_im_dok += 1
                 if anz_im_dok < anz_im_bereiche_dict:
+                    if self.mb.debug: log(inspect.stack)
                     self.mb.doc.UndoManager.undo()
         return False
 
@@ -1442,7 +1463,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
-
+                print('trenner')
                 if self.mb.props[T.AB].zuletzt_gedrueckte_taste == None:
                     try:
                         self.mb.viewcursor.goDown(1,False)

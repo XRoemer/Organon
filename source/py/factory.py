@@ -91,7 +91,7 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             
             if cmd in dict_sb['sichtbare']:
 
-                conts.update({cmd:(xUIElement,sidebar)})
+                conts.update({cmd:(xUIElement,sidebar,xParentWindow)})
                 dict_sb.update({'controls':conts})
 
                 if dict_sb['erzeuge_sb_layout'] != None:

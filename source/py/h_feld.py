@@ -12,7 +12,7 @@ class Main_Container():
         self.dialog = mb.dialog
         self.ctx = mb.ctx
         self.mb = mb
-        self.listenerDir = Dir_Listener(self.ctx,self.mb)
+        self.listener_treeview_symbol = TreeView_Symbol_Listener(self.ctx,self.mb)
         self.tag1_listener = Tag1_Listener(self.mb)
         
         
@@ -101,7 +101,7 @@ class Main_Container():
         control2, model2 = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
 
         if art == 'waste':
-            control2.addMouseListener(self.listenerDir)
+            control2.addMouseListener(self.listener_treeview_symbol)
             self.mb.props[T.AB].Papierkorb = ordinal
         
         if art == 'prj':
@@ -111,7 +111,7 @@ class Main_Container():
         # icons sind unter: C:\Program Files (x86)\LibreOffice 4\share\config ... \images\res
         # richtige Icons finden
         if art in ('dir','prj'):
-            control2.addMouseListener(self.listenerDir)
+            control2.addMouseListener(self.listener_treeview_symbol)
 
             if zustand == 'auf':
                 model2.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16 
@@ -306,13 +306,13 @@ class Main_Container():
             asd.append((i.tag,i.attrib['Lvl'],i.attrib['Sicht'],i))
 
 
-    def leere_Papierkorb(self, ist_tab = False):
+    def leere_Papierkorb(self):
 
         if self.mb.debug: log(inspect.stack)
         try:
-            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
+            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)            
             
-            if ist_tab:
+            if T.AB != 'Projekt':
                 ordinal = sorted(list(self.mb.props[T.AB].dict_bereiche['ordinal']))[0]
                 zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)        
                 self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext
@@ -348,18 +348,23 @@ class Main_Container():
             for verworfene in papierkorb_inhalt:
                 papierkorb_xml.remove(verworfene)
             
-            if ist_tab:
+            if T.AB != 'Projekt':
                 Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
             else:                    
                 Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-            tree.write(Path)
-    
+            self.mb.tree_write(tree,Path)
+            
+#             self.mb.selbstruf = True
+#             if selektierter_ist_im_papierkorb:
+#                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(self.mb.props[T.AB].Papierkorb)
+                
+            
             self.erneuere_selektierungen(selektierter_ist_im_papierkorb) 
     
             # loesche Bereich(e) und Datei(en)
-            if ist_tab == False:
+            if T.AB == 'Projekt':
                 self.loesche_Bereiche_und_Dateien(papierkorb_inhalt1,papierkorb_inhalt)
-            
+            #self.mb.selbstruf = False
 
            
             # XML,Ansicht und Dicts neu ordnen
@@ -404,7 +409,6 @@ class Main_Container():
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = inhalt
             
             try:
-            
                 if art != 'waste':
                     zahl = ordinal.split('nr')[1]
                     # loesche datei ordinal
@@ -432,14 +436,18 @@ class Main_Container():
                         
                     for child_sec in ch_sections:
                         child_sec.dispose()
-                                   
-                    textSectionCursor = self.mb.doc.Text.createTextCursorByRange(sec.Anchor)
-                    #textSectionCursor.gotoRange(sec.End,True)
-                    textSectionCursor.setString('')
-    
+                    
                     trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
+                    
+                    # Loesche Bereich
+                    sec.IsVisible = True          
+                    textSectionCursor = self.mb.doc.Text.createTextCursorByRange(sec.Anchor)
+                    textSectionCursor.setString('')
                     sec.dispose()
                     
+                    # sec_helfer wieder auf invisible setzen, damit er nicht geloescht wird
+                    self.mb.sec_helfer.IsVisible = False
+                                        
                     # Trenner loeschen
                     if trenner_name in self.mb.doc.TextSections.ElementNames:
                         trenner = self.mb.doc.TextSections.getByName(trenner_name)
@@ -447,15 +455,13 @@ class Main_Container():
                         trenner.dispose()
                         textSectionCursor.setString('')
                   
-                    textSectionCursor.gotoEnd(False)
                     while textSectionCursor.TextSection == None:
                         textSectionCursor.goLeft(1,True)
-                    #textSectionCursor.goLeft(1,True)
+                        
                     textSectionCursor.setString('')
-    
-                    
             except:
                 tb()
+        
         
     def erneuere_dict_bereiche(self):
         if self.mb.debug: log(inspect.stack)
@@ -629,7 +635,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             xml_elem.attrib['Name'] = ev.Source.Text
             
             Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-            tree.write(Path1)
+            self.mb.tree_write(tree,Path1)
         return False
 
     def mouseDragged(self,ev):
@@ -862,7 +868,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
             else:
                 Path = os.path.join(self.mb.pfade['tabs'] , T.AB + '.xml' )
-            self.mb.props[T.AB].xml_tree.write(Path)
+            self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
             
                 
     def wird_datei_in_papierkorb_verschoben(self,source,target):
@@ -1428,7 +1434,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
             
             
-class Dir_Listener (unohelper.Base, XMouseListener):
+class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
     
     def __init__(self,ctx,MenuBar):
         self.ctx = ctx
@@ -1439,7 +1445,10 @@ class Dir_Listener (unohelper.Base, XMouseListener):
 
     def mousePressed(self, ev):
         self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext
-
+        
+        if ev.Buttons == MB_RIGHT:
+            pass#pd()
+        
         if ev.Buttons == MB_LEFT:    
             if ev.ClickCount == 2: 
                 
@@ -1472,7 +1481,7 @@ class Dir_Listener (unohelper.Base, XMouseListener):
                        
                     #Path = self.mb.pfade['settings'] + '/ElementTree.xml' 
                     Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-                    tree.write(Path)
+                    self.mb.props[T.AB].xml_tree
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
                     self.mb.class_Hauptfeld.korrigiere_scrollbar()
                 except:
@@ -1493,10 +1502,9 @@ class Tag1_Listener (unohelper.Base, XMouseListener):
         self.mb = mb
         
     def mousePressed(self, ev):
-        
-        if ev.Buttons == MB_LEFT:    
-            if ev.ClickCount == 2: 
+        if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:    
                 self.mb.class_Funktionen.erzeuge_Tag1_Container(ev)
+                
     def mouseEntered(self,ev):
         return False
     def mouseExited(self,ev):

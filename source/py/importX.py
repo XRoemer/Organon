@@ -457,7 +457,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         xml_elem.attrib['Name'] = name2
 
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        tree.write(Path)
+        self.mb.tree_write(tree,Path)
         
         self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal_neuer_Eintrag)
         
@@ -606,7 +606,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.fuege_importXml_in_xml_ein(importXml)
             
             path = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-            self.mb.props[T.AB].xml_tree.write(path)
+            self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
             
             self.neue_Dateien_erzeugen(importXml,links_und_filter)
             

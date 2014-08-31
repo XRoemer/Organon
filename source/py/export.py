@@ -357,7 +357,7 @@ class Export():
                             root_xml = tree.getroot()
                             projekt_xml = root_xml.find(".//*[@Art='prj']")
                             projekt_xml.attrib['Name'] = neuer_projekt_name
-                        tree.write(z_pfad)
+                        self.mb.tree_write(tree,z_pfad)
                         continue
                     
                     elif f == 'sidebar_content.pkl': 
