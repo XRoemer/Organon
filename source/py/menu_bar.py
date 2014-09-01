@@ -181,6 +181,8 @@ class Menu_Bar():
         for ext in pip.ExtensionList:
             if ext[0] == 'xaver.roemers.organon':
                 version = ext[1]
+                
+        PL = pip.getPackageLocation('xaver.roemers.organon')
         return version
     
     def erzeuge_Menu(self,win):

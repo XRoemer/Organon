@@ -943,7 +943,7 @@ class Projekt():
         try:
             pass
             frame = self.mb.current_Contr.Frame
-            dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
+            PIP = self.mb.createUnoService("com.sun.star.deployment.PackageInformationProvider")
             
 #             dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
 #             dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
@@ -952,6 +952,11 @@ class Projekt():
             props = self.mb.props
             xml = props[T.AB].xml_tree
             
+            dict = self.mb.dict_sb_content
+            ordinale = []
+            
+            for d in dict['ordinal']:
+                ordinale.append((d,dict['ordinal'][d]['Tags_time']))
             
         except:
             tb()

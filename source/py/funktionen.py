@@ -210,7 +210,7 @@ class Funktionen():
             sec.setPropertyValue('FileLink',SFLink2)
     
             # Einstellungen, tags der alten Datei fuer neue uebernehmen
-            self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = self.mb.dict_sb_content['ordinal'][zeilenordinal]
+            self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = copy.deepcopy(self.mb.dict_sb_content['ordinal'][zeilenordinal])
             
             tree = self.mb.props['Projekt'].xml_tree
             root = tree.getroot()

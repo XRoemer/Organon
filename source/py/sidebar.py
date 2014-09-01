@@ -434,8 +434,7 @@ class Sidebar():
                 pos_y = 10
                 height = 200
                 
-                
-                
+
                 prop_names = ()
                 prop_values = ()
                 control, model = self.mb.createControl(self.mb.ctx, "ImageControl", 10, pos_y, 284, height, prop_names, prop_values)  
@@ -453,7 +452,12 @@ class Sidebar():
                 height += 20
                
             elif xUIElement_name == 'Tags_time':
-            
+                
+                try:
+                    Background_Color = xUIElement.Window.AccessibleContext.Background
+                except:
+                    Background_Color = 14804725
+                
                 if self.mb.language == 'de':
                     date_format = 7
                     time_format = 0
@@ -463,44 +467,60 @@ class Sidebar():
                 
                 pos_y = 10
                 pos_x = 10
-                pos_x2 = 80
+                pos_x2 = 65
+                pos_x3 = 170
                 y = 20
                 
-                focus_listener = Tag_Time_Focus_Listener(self.mb)
+                focus_listener = Tag_Time_Key_Listener(self.mb)
                 
                 zeit = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['zeit']
+                leere_zeit = None
                 if self.mb.programm == 'LibreOffice':
                     zeit = self.in_time_struct_wandeln(zeit)
+                    leere_zeit = self.in_time_struct_wandeln(leere_zeit)
                     
                 prop_names = ('Label',)
                 prop_values = (self.mb.lang.ZEIT2,)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
                 panelWin.addControl('Time', control)
+                
+                prop_names = ('Time','TimeFormat','StrictFormat','Border')
+                prop_values = (zeit,time_format,True,0)
+                control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x2, pos_y, 70, y, prop_names, prop_values)  
+                panelWin.addControl('Time', control)
+                model.BackgroundColor = Background_Color
+
 
                 prop_names = ('Time','TimeFormat','StrictFormat')
-                prop_values = (zeit,time_format,True)
-                control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x2, pos_y, 40, y, prop_names, prop_values)  
+                prop_values = (leere_zeit,time_format,True)
+                control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x3, pos_y, 60, y, prop_names, prop_values)  
                 panelWin.addControl('Time', control)
                 
-                control.addFocusListener(focus_listener)
+                control.addKeyListener(focus_listener)
+                
                 
                 pos_y += 30
                 
                 prop_names = ('Label',)
                 prop_values = (self.mb.lang.DATUM,)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
-                panelWin.addControl('Time', control)
+                panelWin.addControl('Datum_Label', control)
                 
                 datum = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['datum'] 
+                
+                prop_names = ('Label',)
+                prop_values = (datum,)
+                control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x2, pos_y, 70, y, prop_names, prop_values)  
+                panelWin.addControl('Time', control)
   
                 prop_names = ('Text',)
-                prop_values = (datum,)
-                control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x2, pos_y, 70, y, prop_names, prop_values)  
+                prop_values = ('',)
+                control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x3, pos_y, 60, y, prop_names, prop_values)  
                 panelWin.addControl('Time', control)
 
-                control.addFocusListener(focus_listener)
-                
-                pos_y += 20
+                control.addKeyListener(focus_listener)
+
+                #pos_y += 20
                 
 #                 prop_names = ('Date','DateFormat','Border','BackgroundColor','DateMin')
 #                 prop_values = (datum,3,0,KONST.MENU_DIALOG_FARBE,dateMin)
@@ -508,7 +528,7 @@ class Sidebar():
 #                 panelWin.addControl('Time', control)
 #                 control.Enable = False                    
                 
-                height = 100
+                height = 70
            
                 
             xUIElement.height = height
@@ -856,7 +876,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
         
 
 
-from com.sun.star.awt import XFocusListener
+from com.sun.star.awt import XFocusListener,XKeyListener
 class Tags_Focus_Listener(unohelper.Base, XFocusListener):
     def __init__(self,mb,tag):
         self.mb = mb
@@ -892,18 +912,26 @@ class Tags_Focus_Listener(unohelper.Base, XFocusListener):
 
     def disposing(self,ev):pass
 
-class Tag_Time_Focus_Listener(unohelper.Base, XFocusListener):
+
+    
+class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
     def __init__(self,mb):
         self.mb = mb
     
-    def focusGained(self,ev):
+    def keyPressed(self,ev):
+#         if ev.KeyCode == 1280:
+#             pd()
         return False
         
-    def focusLost(self,ev):
+    def keyReleased(self,ev):
+        
+        # 1280 = Return
+        if ev.KeyCode != 1280:
+            return False
+        
+        self.mb.doc.UndoManager.undo()
         try:
             ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
-            
-            
 
             if hasattr(ev.Source.Model, 'Time'):
                 attribute = 'zeit'
@@ -915,7 +943,8 @@ class Tag_Time_Focus_Listener(unohelper.Base, XFocusListener):
                 text = ev.Source.Model.Text
                 attribute = 'datum'
                 text = self.formatiere_datum(text)
-
+            
+            print(ordinal)
             self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time'][attribute] = text
             self.mb.class_Sidebar.erzeuge_sb_layout('Tags_time')
 
