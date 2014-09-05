@@ -6,25 +6,20 @@ import uno
 import unohelper
 from os import path as PATH
 
+
 ####################################################
                 # DEBUGGING #
 ####################################################
 
-debug = False
+load_reload = False
 
 platform = sys.platform
-
-if debug:
+        
+if load_reload:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
         pyPath = '/home/xgr/workspace/organonEclipse/py'
         sys.path.append(pyPath)
-
-
-from com.sun.star.lang import (XSingleComponentFactory, 
-    XServiceInfo)
-
-
 
 def pydevBrk():  
     # adjust your path 
@@ -37,8 +32,20 @@ def pydevBrk():
 pd = pydevBrk
 #pydevBrk()
 
-
-
+def load_logging(path_to_extension):
+    try:
+        if load_reload:
+            modul = 'log_organon'
+            log_organon = load_reload_modul(modul,pyPath)  
+        else:
+            import log_organon
+        
+        class_Log = log_organon.Log(path_to_extension,pd,tb)
+        debug = class_Log.debug
+        log1 = class_Log.log
+        return log1,class_Log,debug
+    except:
+        tb()
 
 
 ####################################################
@@ -58,7 +65,6 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
 
     def __init__( self, ctx ):
         self.ctx = ctx   
-
         
     def createUIElement(self,url,args):    
         cmd = url.split('/')[-1]
@@ -124,7 +130,7 @@ g_ImplementationHelper.addImplementation(
 ####################################################
 
 
-
+from com.sun.star.lang import XSingleComponentFactory
 class Factory(unohelper.Base, XSingleComponentFactory):
     """ This factory instantiate new window content. 
     Registration of this class have to be there under 
@@ -142,30 +148,34 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     
     def __init__(self, ctx, *args):
         self.ctx = ctx
-        if debug:print("factory init")
+        self.load_reload_modul = load_reload_modul
+        
+        global path_to_extension, log, debug, class_Log
+        
+        path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
+        debug = False
+        
+        print("factory init")
 
     def do(self):
         return
     
     def createInstanceWithArgumentsAndContext(self, args, ctx):
-        #if debug:print('createInstanceWithArgumentsAndContext in Factory')
+        
         try:
-            
             CWHandler = ContainerWindowHandler(ctx)
             self.CWHandler = CWHandler
             
             win,tabs = create_window(ctx,self)
-            
             window = self.CWHandler.window2
 
-            path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
-            
-            start_main(pydevBrk,window,ctx,tabs,path_to_extension,win,debug,self)  
+            start_main(window,ctx,tabs,path_to_extension,win,self)  
             
             return win 
+        
         except Exception as e:
             print('Factory '+e)
-            traceback.print_exc()
+            tb()
 
 
 
@@ -182,7 +192,6 @@ RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
 
 def create_window(ctx,factory):
-    #if debug: print('create_window')
 
     dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
 
@@ -209,15 +218,12 @@ from com.sun.star.awt import XWindowListener,XActionListener,XContainerWindowEve
 class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
     
     def __init__(self, ctx):
-        #if debug:print('init ContainerWindowHandler')
         self.ctx = ctx
         self.window2 = None
-        #pydevBrk()
     
     # XContainerWindowEventHandler
     def callHandlerMethod(self, window, obj, name):
-        #if debug:print('callHandlerMethod')
-        #pydevBrk()
+
         if name == "external_event":
             if obj == "initialize":
                 self.window2 = window
@@ -227,7 +233,6 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
         return "external_event",
     
     def _initialize(self, window):
-        #if debug:print('_initialize in ContainerWindowHandler')
 
         path_to_current = __file__.decode("utf-8")
         pyPath = path_to_current.split('factory.py')[0]
@@ -243,17 +248,36 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
 dict_sb.update({'CWHandler':ContainerWindowHandler(uno.getComponentContext())})
 
 
-def start_main(pd,window,ctx,tabs,path_to_extension,win,debug,factory):
+def start_main(window,ctx,tabs,path_to_extension,win,factory):
 
     dialog = window
         
-    if debug:
+    if load_reload:
         modul = 'menu_start'
         menu_start = load_reload_modul(modul,pyPath)  # gleichbedeutend mit: import menu_bar
     else:
         import menu_start
-
-    Menu_Start = menu_start.Menu_Start(pd,dialog,ctx,tabs,path_to_extension,win,dict_sb,debug,factory)
+        
+    try:
+        path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
+        log,class_Log,debug = load_logging(path_to_extension)
+    except:
+        tb()
+            
+    args = (pd,
+            dialog,
+            ctx,
+            tabs,
+            path_to_extension,
+            win,
+            dict_sb,
+            debug,
+            load_reload,
+            factory,
+            log,
+            class_Log)
+    
+    Menu_Start = menu_start.Menu_Start(args)
     Menu_Start.erzeuge_Startmenu()
 
 
@@ -370,9 +394,23 @@ g_ImplementationHelper.addImplementation(*Sidebar_Options_Dispatcher.get_imple()
 
 ############################ TOOLS ###############################################################
 
+# def get_office_name():
+#     
+#     frame = self.current_Contr.Frame
+#     if 'LibreOffice' in frame.Title:
+#         programm = 'LibreOffice'
+#     elif 'OpenOffice' in frame.Title:
+#         programm = 'OpenOffice'
+#     else:
+#         # Fuer Linux / OSX fehlt
+#         programm = 'LibreOffice'
+#     
+#     return programm
+
 def load_reload_modul(modul,pyPath):
     try:
-        sys.path.append(pyPath)
+        if pyPath not in sys.path:
+            sys.path.append(pyPath)
         
         exec('import '+ modul)
         del(sys.modules[modul])
@@ -394,4 +432,4 @@ def load_reload_modul(modul,pyPath):
         
         return eval(modul)
     except:
-        traceback.print_exc()
+        tb()

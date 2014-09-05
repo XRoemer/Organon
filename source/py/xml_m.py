@@ -12,7 +12,7 @@ class XML_Methoden():
         self.selbstaufruf = False  
                
     def get_tree_info(self,elem,eintr,index=0,parent = 'root'):
-        
+        if self.mb.debug: log(inspect.stack)
         
         if not self.selbstaufruf:
             if self.mb.debug: log(inspect.stack)
@@ -158,7 +158,6 @@ class XML_Methoden():
             
      
     def xmlLevel_und_hfPosition_anpassen(self,root,source):
-        #return
         if self.mb.debug: log(inspect.stack)
          
         eintr = []

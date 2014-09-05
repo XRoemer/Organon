@@ -33,7 +33,7 @@
 	
 			<node oor:name="OrganonsToolDeck" oor:op="replace">
 	    	    <prop oor:name="Title" oor:type="xs:string">
-            	   	<value xml:lang="en-US">ORGANON</value>
+            	   	<value xml:lang="en-GB">ORGANON</value>
 	            </prop>
 	            <prop oor:name="Id" oor:type="xs:string">
 	               	<value>OrganonsToolDeck</value>
@@ -54,7 +54,7 @@
 			
 			<node oor:name="empty_project" oor:op="replace">
 	        	<prop oor:name="Title" oor:type="xs:string">
-                	<value xml:lang="en-US">No project loaded</value>
+                	<value xml:lang="en-GB">No project loaded</value>
 					<value xml:lang="de">Kein Projekt geladen</value>
             	</prop>
             	<prop oor:name="Id" oor:type="xs:string">
@@ -86,7 +86,7 @@
         	
         	<node oor:name="Synopsis" oor:op="replace">
 	        	<prop oor:name="Title" oor:type="xs:string">
-                	<value xml:lang="en-US">Synopsis</value>
+                	<value xml:lang="en-GB">Synopsis</value>
 					<value xml:lang="de">Synopsis</value>
             	</prop>
             	<prop oor:name="Id" oor:type="xs:string">
@@ -118,7 +118,7 @@
 			
 		  <node oor:name="Notes" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Notes</value>
+			  <value xml:lang="en-GB">Notes</value>
 			  <value xml:lang="de">Notizen</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -146,7 +146,7 @@
 		  
 		  <node oor:name="Images" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Images</value>
+			  <value xml:lang="en-GB">Images</value>
 			  <value xml:lang="de">Bilder</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -176,7 +176,7 @@
 		  
 		  <node oor:name="Tags_general" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: General</value>
+			  <value xml:lang="en-GB">Tags: General</value>
 			  <value xml:lang="de">Tags: Allgemein</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -204,7 +204,7 @@
 		  
 		  <node oor:name="Tags_characters" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: Characters</value>
+			  <value xml:lang="en-GB">Tags: Characters</value>
 			  <value xml:lang="de">Tags: Personen</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -232,7 +232,7 @@
 			
 		  <node oor:name="Tags_locations" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: Locations</value>
+			  <value xml:lang="en-GB">Tags: Locations</value>
 			  <value xml:lang="de">Tags: Orte</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -260,7 +260,7 @@
 		  
 		  <node oor:name="Tags_objects" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: Objects</value>
+			  <value xml:lang="en-GB">Tags: Objects</value>
 			  <value xml:lang="de">Tags: Objekte</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -288,7 +288,7 @@
 		  
 		  <node oor:name="Tags_time" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: Time</value>
+			  <value xml:lang="en-GB">Tags: Time</value>
 			  <value xml:lang="de">Tags: Zeit</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -316,7 +316,7 @@
 		  
 		  <node oor:name="Tags_user1" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: User 1</value>
+			  <value xml:lang="en-GB">Tags: User 1</value>
 			  <value xml:lang="de">Tags: Benutzer 1</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -343,7 +343,7 @@
 		  
 		  <node oor:name="Tags_user2" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: User 2</value>
+			  <value xml:lang="en-GB">Tags: User 2</value>
 			  <value xml:lang="de">Tags: Benutzer 2</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -371,7 +371,7 @@
 		  
 		  <node oor:name="Tags_user3" oor:op="replace">
 			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en-US">Tags: User 3</value>
+			  <value xml:lang="en-GB">Tags: User 3</value>
 			  <value xml:lang="de">Tags: Benutzer 3</value>
 			</prop>
 			<prop oor:name="Id" oor:type="xs:string">
@@ -385,9 +385,9 @@
 				Writer, any, visible ;
 			  </value>
 			</prop>
-			<!--<prop oor:name="ImplementationURL" oor:type="xs:string">
+			<prop oor:name="ImplementationURL" oor:type="xs:string">
 			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_user3</value>
-			</prop>-->
+			</prop>
 			<prop oor:name="DefaultMenuCommand">
           			<value>org.apache.openoffice.Organon.sidebar:Tags_user3</value>
         	</prop>

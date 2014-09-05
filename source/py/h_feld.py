@@ -6,6 +6,8 @@ import unohelper
 class Main_Container():
     
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
         global pd
         pd = mb.pd
         
@@ -196,6 +198,7 @@ class Main_Container():
         
     def korrigiere_scrollbar(self):
         if self.mb.debug: log(inspect.stack)
+        
         #print(T.AB,self.mb.active_tab_id)
         active_tab = self.mb.active_tab_id
         win = self.mb.tabs[active_tab][0]
@@ -219,6 +222,8 @@ class Main_Container():
 
     
     def finde_falschen_bereich(self):
+        if self.mb.debug: log(inspect.stack)
+        
         sections = self.mb.doc.TextSections
         names = sections.ElementNames
         if 'Bereich1' in names:
@@ -227,8 +232,6 @@ class Main_Container():
 
     
     def erzeuge_neue_Zeile(self,ordner_oder_datei):
-        
-        #self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
@@ -292,13 +295,15 @@ class Main_Container():
                     self.mb.doc.unlockControllers()
 
             except:
-                tb()
+                if self.mb.debug: log(inspect.stack,tb())
             StatusIndicator.end()
             
             return nr
             
             
     def kontrolle(self):
+        if self.mb.debug: log(inspect.stack)
+        
         root2 = self.mb.props[T.AB].xml_tree.getroot()
         alle = root2.findall('.//')
         asd = []
@@ -307,8 +312,8 @@ class Main_Container():
 
 
     def leere_Papierkorb(self):
-
         if self.mb.debug: log(inspect.stack)
+        
         try:
             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)            
             
@@ -380,7 +385,7 @@ class Main_Container():
             self.korrigiere_scrollbar()
     
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
                 
     def erneuere_selektierungen(self,selektierter_ist_im_papierkorb):
         if self.mb.debug: log(inspect.stack)
@@ -460,7 +465,7 @@ class Main_Container():
                         
                     textSectionCursor.setString('')
             except:
-                tb()
+                if self.mb.debug: log(inspect.stack,tb())
         
         
     def erneuere_dict_bereiche(self):
@@ -501,7 +506,7 @@ from com.sun.star.awt.MouseButton import RIGHT as MB_RIGHT
 
 class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocusListener):
     def __init__(self,ctx,mb):
-        
+        if mb.debug: log(inspect.stack)
         self.pfeil = False
         self.ctx = ctx
         self.mb = mb
@@ -525,8 +530,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return False
     
     def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
-
+        
         try:
             # die gesamte Zeile, control (ordinal)
             self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext  
@@ -573,10 +580,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             return False
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
     def mouseReleased(self, ev):
-
+        if self.mb.debug: log(inspect.stack)
+        
         # Sichtbarkeit der Bereiche umschalten
         if self.dragged == False:  
             self.schalte_sichtbarkeit_der_Bereiche()
@@ -622,6 +630,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return False  
     
     def focusLost(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        
         # Bearbeitung des Zeileneintrags wieder ausschalten
         if self.edit_text == True:
 
@@ -639,6 +649,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return False
 
     def mouseDragged(self,ev):
+#         if self.mb.debug: log(inspect.stack)
+        
         # Papierkorb darf nicht verschoben werden
         ordinal = ev.Source.Context.AccessibleContext.AccessibleName
         if ordinal in (self.mb.props[T.AB].Papierkorb,self.mb.props[T.AB].Projektordner):
@@ -661,7 +673,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 ev.Source.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE 
                            
     def erzeuge_pfeil(self,X,Y,ev):
-       
+#         if self.mb.debug: log(inspect.stack)
+        
         try:        
             if self.pfeil == True:
                 if self.first_time == True:
@@ -797,9 +810,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                 self.Y = Y  
                     
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
                 
     def berechne_pos(self,Y):
+#         if self.mb.debug: log(inspect.stack)
         
         y = (math_floor(Y/KONST.ZEILENHOEHE)) 
         
@@ -873,6 +887,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 
     def wird_datei_in_papierkorb_verschoben(self,source,target):
         if self.mb.debug: log(inspect.stack)
+        
         try:
             if T.AB != 'Projekt':
                 return True
@@ -900,7 +915,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                             self.mb.Mitteilungen.nachricht(self.mb.lang.KANN_NICHT_VERSCHOBEN_WERDEN %(dateiname,tab),"warningbox")
                             return False
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
                     
         return True
         
@@ -1086,7 +1101,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             letzte_zeile = sections.getByIndex(sections.Count - 1)
             letzte_zeile.IsVisible = False   
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
                 
         for i in range (len(alle_Zeilen)):
             ordinal = alle_Zeilen[i].tag
@@ -1103,6 +1118,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)         
         
     def get_links(self):
+        if self.mb.debug: log(inspect.stack)
+        
         dict = {}
         sections = self.mb.doc.TextSections
         names = sections.ElementNames
@@ -1204,7 +1221,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
 
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
     
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
@@ -1254,24 +1271,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 sections = self.mb.doc.TextSections
                 names = sections.ElementNames                
                  
-                 
                 link = bereich.getPropertyValue('FileLink')
-#                 print('alt',link.FileURL)
-#                 print('neu',url_in_dict)
-                 
-                #child = 'None'
-                
-#                 sections = self.mb.doc.TextSections
-#                 names = sections.ElementNames
-#                 if 'Bereich1' in names:
-#                     print('Bereich ist drin')
-#                     pd()
                 
                 if url_in_dict in dict_filelinks:
-                    sec = sections.getByName(dict_filelinks[url_in_dict])
-#                     print(bereich.Name)
-#                     print(sec.Name,'besitzt gleichen Link')
-                    #child = sec.ChildSections[0].Name                        
+                    sec = sections.getByName(dict_filelinks[url_in_dict])                       
                     
                     empty_file = os.path.join(self.mb.pfade['odts'],'empty_file.odt')  
                     SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
@@ -1299,7 +1302,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 
 
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
 
     ## NUR ZU TESTZWECKEN ##
@@ -1332,12 +1335,16 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             print(child,'ist nicht in den Sections')
             
     def mache_Kind_Bereiche_sichtbar(self,sec):
+        if self.mb.debug: log(inspect.stack)
+        
         for kind in sec.ChildSections:
             kind.IsVisible = True
             if len(kind.ChildSections) > 0:
                 self.mache_Kind_Bereiche_sichtbar(kind)
     
     def zeige_Trenner(self,sec):  
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
              
@@ -1382,9 +1389,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             #pd() #newSection.setPropertyValue("ParaStyleName", 'Standard')
             return newSection
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
     def entferne_Trenner(self,sec):
+        if self.mb.debug: log(inspect.stack)
         
         #print('entferne', sec.Name)
         trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
@@ -1436,14 +1444,17 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
 class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
     
-    def __init__(self,ctx,MenuBar):
+    def __init__(self,ctx,mb):
+        if mb.debug: log(inspect.stack)
         self.ctx = ctx
-        self.mb = MenuBar
+        self.mb = mb
         
     def disposing(self,ev):
         return False
 
     def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        
         self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext
         
         if ev.Buttons == MB_RIGHT:
@@ -1485,7 +1496,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
                     self.mb.class_Hauptfeld.korrigiere_scrollbar()
                 except:
-                    tb()
+                    if self.mb.debug: log(inspect.stack,tb())
                 
             return False
         
@@ -1499,9 +1510,12 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
 class Tag1_Listener (unohelper.Base, XMouseListener):
     
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        
         if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:    
                 self.mb.class_Funktionen.erzeuge_Tag1_Container(ev)
                 

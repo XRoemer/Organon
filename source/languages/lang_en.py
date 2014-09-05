@@ -175,6 +175,12 @@ NUTZE_DATUM = 'use date'
 NUTZE_ZEIT_UND_DATUM = 'use time and date'
 IMPORTIERE_IN_TAB = 'Import to Tab'
 
+###### LOGGING ######
+LOGGING = 'Create Logfile'
+EINSTELLUNGEN_LOGDATEI = 'Logging Options'
+KONSOLENAUSGABE = 'Output to Console'
+LOGDATEI_ERZEUGEN = 'Create Logfile'
+ARGUMENTE_LOGGEN = 'Log Arguments'
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

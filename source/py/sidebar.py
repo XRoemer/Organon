@@ -9,6 +9,7 @@ from pickle import dump as pickle_dump
 class Sidebar(): 
     
     def __init__(self,mb,pdk):
+        if mb.debug: log(inspect.stack)
         self.mb = mb        
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
         self.mb.dict_sb['optionsfenster'] = self.optionsfenster
@@ -130,7 +131,7 @@ class Sidebar():
                     
             self.mb.dict_sb_content = dict_sb_content
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
     def lege_dict_sb_content_ordinal_an(self,ordinal):
         if self.mb.debug: log(inspect.stack)
@@ -445,7 +446,7 @@ class Sidebar():
                         breite = self.berechne_bildgroesse(model,height)
                         control.setPosSize(0,0,breite,0,4)
                 except:
-                    tb()
+                    if self.mb.debug: log(inspect.stack,tb())
                 
                 
                 
@@ -518,15 +519,7 @@ class Sidebar():
                 control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x3, pos_y, 60, y, prop_names, prop_values)  
                 panelWin.addControl('Time', control)
 
-                control.addKeyListener(focus_listener)
-
-                #pos_y += 20
-                
-#                 prop_names = ('Date','DateFormat','Border','BackgroundColor','DateMin')
-#                 prop_values = (datum,3,0,KONST.MENU_DIALOG_FARBE,dateMin)
-#                 control, model = self.mb.createControl(self.mb.ctx, "DateField", pos_x2, pos_y, 284, y, prop_names, prop_values)  
-#                 panelWin.addControl('Time', control)
-#                 control.Enable = False                    
+                control.addKeyListener(focus_listener)                 
                 
                 height = 70
            
@@ -538,11 +531,13 @@ class Sidebar():
             self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
             #pd()
     
 
     def berechne_bildgroesse(self,model,hoehe):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             HOEHE = model.Graphic.Size.Height
             BREITE = model.Graphic.Size.Width
@@ -552,7 +547,7 @@ class Sidebar():
             return BREITE
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         #pd()
     
     def dict_sb_zuruecksetzen(self):
@@ -564,6 +559,8 @@ class Sidebar():
     
     
     def toggle_sicht_sidebar(self):
+        if self.mb.debug: log(inspect.stack)
+        
         frame = self.mb.current_Contr.Frame
         dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
         dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
@@ -687,8 +684,10 @@ class Sidebar():
             control.addActionListener(listener)
 
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
+            
     def in_time_struct_wandeln(self,zeit):
+        if self.mb.debug: log(inspect.stack)
         
         prop = uno.createUnoStruct("com.sun.star.util.Time")
         
@@ -707,6 +706,7 @@ class Sidebar():
         return prop
     
     def in_date_struct_wandeln(self,datum):
+        if self.mb.debug: log(inspect.stack)
         
         prop = uno.createUnoStruct("com.sun.star.util.Date")
         
@@ -722,10 +722,10 @@ class Sidebar():
             prop.Day = int(date_str[6:8])
 
         return prop
+    
     def date_time_struct_nach_long_wandeln(self,prop,attribute):
+        if self.mb.debug: log(inspect.stack)
         
-        
-
         if attribute == 'zeit':
             stunden = self.pruefe_format(str(prop.Hours),2)
             minuten = self.pruefe_format(str(prop.Minutes),2)
@@ -744,6 +744,7 @@ class Sidebar():
         return value
         
     def pruefe_format(self,value,length):
+        if self.mb.debug: log(inspect.stack)
         
         if len(value) != length:
             for i in range(length-len(value)):
@@ -754,9 +755,11 @@ class Sidebar():
 from com.sun.star.awt import XTextListener
 class Options_Syn_Note_Text_Listener(unohelper.Base, XTextListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     def textChanged(self,ev):
+        if self.mb.debug: log(inspect.stack)
         
         if self.mb.lang.BREITE in ev.Source.AccessibleContext.AccessibleName:
             cmd1 = 'breite_'
@@ -776,16 +779,17 @@ class Options_Syn_Note_Text_Listener(unohelper.Base, XTextListener):
 from com.sun.star.beans import XPropertyChangeListener
 class Text_Change_Listener_Synopsis(unohelper.Base, XPropertyChangeListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     def propertyChange(self,ev):
         ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
         self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis'] = ev.NewValue
           
-    
-from com.sun.star.beans import XPropertyChangeListener
+          
 class Text_Change_Listener_Notizen(unohelper.Base, XPropertyChangeListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     def propertyChange(self,ev):
@@ -797,13 +801,14 @@ from com.sun.star.awt import XActionListener
 class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
     
     def __init__(self,mb,win = None):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.win = win
         
     def disposing(self,ev):return False
     
     def actionPerformed(self,ev):
-
+        if self.mb.debug: log(inspect.stack)
         # optionsfenster_tags_general
         if ev.ActionCommand in ('1','0'):
             self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] = int(ev.ActionCommand) 
@@ -817,6 +822,8 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
             self.bild_loeschen_a()
             
     def bild_einfuegen(self):
+        if self.mb.debug: log(inspect.stack)
+        
         self.win.dispose()
         
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
@@ -854,6 +861,8 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
 
             
     def bild_loeschen_a(self):
+        if self.mb.debug: log(inspect.stack)
+        
         ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
         old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
         self.mb.dict_sb_content['ordinal'][ordinal]['Images'] = ''
@@ -862,6 +871,8 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
         self.win.dispose()
 
     def bild_loeschen(self,old_image_path):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             vorhanden = False
             for ordinal in self.mb.dict_sb_content['ordinal']:
@@ -871,7 +882,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
             if not vorhanden:
                 os.remove(uno.fileUrlToSystemPath(old_image_path))
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
             
         
 
@@ -879,6 +890,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
 from com.sun.star.awt import XFocusListener,XKeyListener
 class Tags_Focus_Listener(unohelper.Base, XFocusListener):
     def __init__(self,mb,tag):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.tag = tag
     
@@ -887,6 +899,8 @@ class Tags_Focus_Listener(unohelper.Base, XFocusListener):
         
     def focusLost(self,ev):
         # Hinzufuegen neuer Tags
+        if self.mb.debug: log(inspect.stack)
+        
         ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
         new_tag = ev.Source.Model.Text
         if new_tag != '':
@@ -916,6 +930,7 @@ class Tags_Focus_Listener(unohelper.Base, XFocusListener):
     
 class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
     
     def keyPressed(self,ev):
@@ -924,10 +939,11 @@ class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
         return False
         
     def keyReleased(self,ev):
-        
         # 1280 = Return
         if ev.KeyCode != 1280:
             return False
+        # Nur bei Tasteneingabe Return loggen
+        if self.mb.debug: log(inspect.stack)
         
         self.mb.doc.UndoManager.undo()
         try:
@@ -949,11 +965,13 @@ class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
             self.mb.class_Sidebar.erzeuge_sb_layout('Tags_time')
 
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         
     def disposing(self,ev):pass
     
     def formatiere_datum(self,datum):
+        if self.mb.debug: log(inspect.stack)
+        
         gesplittet = datum.split('.')
         
         if len(gesplittet) != 3:
@@ -995,6 +1013,8 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         return False
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             tag,ordinal,tag_eintrag,aktion = ev.ActionCommand.split('_XYX_')
             dict_sb_content = self.mb.dict_sb_content
@@ -1005,7 +1025,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                 self.loeschen(tag,ordinal,tag_eintrag,dict_sb_content)
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
         
     def pruefe_vorkommen_in_anderen_eintraegen(self,tag,tag_eintrag):  
@@ -1032,7 +1052,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                 if tag_eintrag in self.mb.dict_sb_content['tags'][kat]:
                     self.mb.dict_sb_content['tags'][kat].remove(tag_eintrag)    
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
             #pd()
 
     def loesche_vorkommen_in_selektierter_datei(self,tag,tag_eintrag,ordinal):

@@ -175,5 +175,12 @@ NUTZE_DATUM = 'nutze Datum'
 NUTZE_ZEIT_UND_DATUM = 'nutze Zeit und Datum'
 IMPORTIERE_IN_TAB = 'Importiere in Tab'
 
+###### LOGGING ######
+LOGGING = 'Erzeuge Logdatei'
+EINSTELLUNGEN_LOGDATEI = 'Einstellungen Logdatei'
+KONSOLENAUSGABE = 'Konsolenausgabe'
+LOGDATEI_ERZEUGEN = 'Logdatei erzeugen'
+ARGUMENTE_LOGGEN = 'Argumente loggen'
+
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

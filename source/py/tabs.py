@@ -7,7 +7,8 @@ import unohelper
 class Tabs():
     
     def __init__(self,mb):
-
+        if mb.debug: log(inspect.stack)
+        
         global pd
         pd = mb.pd
 
@@ -15,7 +16,7 @@ class Tabs():
         
     
     def start(self,in_tab_einfuegen):
-        
+        if self.mb.debug: log(inspect.stack)
         try:
             if not in_tab_einfuegen:
                 self.berechne_ordinale_in_baum_und_tab(False)
@@ -24,10 +25,11 @@ class Tabs():
                 self.berechne_ordinale_in_baum_und_tab(True)
                 self.erzeuge_Fenster(True)    
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
     def berechne_ordinale_in_baum_und_tab(self,in_tab_einfuegen):
-
+        if self.mb.debug: log(inspect.stack)
+        
         if in_tab_einfuegen:
             tab = 'Projekt'
             
@@ -151,7 +153,7 @@ class Tabs():
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
             self.mb.tree_write(tree,Path)
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
     def fuege_ausgewaehlte_in_tab_ein(self,ordinale):
         if self.mb.debug: log(inspect.stack)
@@ -187,7 +189,7 @@ class Tabs():
 
             self.mb.write_tab = False
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
             #pd()
  
         
@@ -218,7 +220,7 @@ class Tabs():
                 self.mb.class_Hauptfeld.korrigiere_scrollbar()
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
     
     def lade_tab_Eintraege(self,tab_name):
@@ -316,7 +318,7 @@ class Tabs():
                 if tag_ist_drin:
                     ordinale.append(tag_eintrag)
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
         return sorted(ordinale)
     
@@ -910,7 +912,7 @@ class Tabs():
 
             self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name)    
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
         
     def get_tab(self,tab_name):
@@ -939,7 +941,7 @@ class Tabs():
             return win,tab_id              
   
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
        
     
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege,tab_name):
@@ -1024,7 +1026,7 @@ class Tabs():
             T.AB = 'Projekt'
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
 
  
@@ -1032,12 +1034,15 @@ class Tabs():
 from com.sun.star.awt import XActionListener,XTextListener
 class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     def __init__(self,mb,win,fenster_cont,in_tab_einfuegen = False):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.win = win
         self.fenster_cont = fenster_cont
         self.in_tab_einfuegen = in_tab_einfuegen
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         if ev.ActionCommand == 'Tags Seitenleiste':
             self.erzeuge_tag_auswahl_seitenleiste(ev)
         elif ev.ActionCommand == 'Tags Baumansicht':
@@ -1055,7 +1060,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                         return
                     self.mb.class_Tabs.erzeuge_neuen_tab(ordinale)
             except:
-                tb()
+                if self.mb.debug: log(inspect.stack,tb())
                 
         elif ev.ActionCommand == 'ok_tab':
             try:
@@ -1066,7 +1071,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     return
                 self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
             except:
-                tb()
+                if self.mb.debug: log(inspect.stack,tb())
+                
         elif ev.ActionCommand == 'V':
             if ev.Source.Model.Label == 'V':
                 ev.Source.Model.Label = u'\u039B'
@@ -1225,7 +1231,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 y += 25
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         
     def erstelle_auswahl_dict(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1263,7 +1269,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
     
     def pruefe_tab_namen(self):
-
+        if self.mb.debug: log(inspect.stack)
+        
         tab_auswahl = self.mb.props[T.AB].tab_auswahl
         tab_name = tab_auswahl.tab_name
         
@@ -1293,6 +1300,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     
     
     def erzeuge_eigene_auswahl(self,ev):
+        if self.mb.debug: log(inspect.stack)
         # das Fenster fuer die eigene Auswahl entspricht fast dem fuer die Auswahl beim Export.
         # -> der Code ist daher doppelt vorhanden und koennte vereinfacht werden
         #
@@ -1310,6 +1318,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
     
     def erzeuge_Fenster_fuer_eigene_Auswahl(self,ev):
+        if self.mb.debug: log(inspect.stack)
         
         x,y = self.get_fenster_position(ev)
         posSize = x,y,400,600
@@ -1345,7 +1354,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     
       
     def setze_hoehe_und_scrollbalken(self,y,y_desk,fenster,fenster_cont,control_innen):  
-        
+        if self.mb.debug: log(inspect.stack)
         
         if y < y_desk-20:
             fenster.setPosSize(0,0,0,y + 20,8) 
@@ -1373,7 +1382,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             fenster_cont.addControl('ScrollBar',control)  
   
     def berechne_eigene_auswahl(self):
-
+        if self.mb.debug: log(inspect.stack)
+        
         if self.in_tab_einfuegen:
             tab = 'Projekt'
             
@@ -1403,6 +1413,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         return baum,im_tab_vorhandene
         
     def erzeuge_treeview(self,fenster_cont):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             sett = self.mb.settings_exp
             lang = self.mb.lang
@@ -1482,13 +1494,14 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 
             return y 
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
             
 
 
 from com.sun.star.awt import XItemListener
 class Tag1_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb,win,lb_alle_icons,lb_ausgew_icons):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.win = win
         self.lb_alle_icons = lb_alle_icons
@@ -1496,6 +1509,8 @@ class Tag1_Listener(unohelper.Base, XItemListener):
         
     # XItemListener    
     def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
+        
         try: 
             container_baumansicht = self.win.getControl('icons_Baumansicht')
             item = ev.Source.Items[ev.Selected]
@@ -1537,12 +1552,13 @@ class Tag1_Listener(unohelper.Base, XItemListener):
                 x += 20
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
 
         
 class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,win,cont,controls,source):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.win = win
         self.cont = cont
@@ -1550,6 +1566,8 @@ class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
         self.source = source
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             txt_control = self.source.Context.getControl('txt_Seitenleiste')
                     
@@ -1576,9 +1594,11 @@ class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
                     txt_control.Model.Label = self.erzeuge_text()
                     
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
             
     def erzeuge_button(self,ActionCommand):
+        if self.mb.debug: log(inspect.stack)
+        
         ind = self.controls.index(ActionCommand)
         y = ind*30
                     
@@ -1592,6 +1612,8 @@ class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
         self.cont.addControl(ActionCommand+'button', control)
     
     def erzeuge_text(self):
+        if self.mb.debug: log(inspect.stack)
+        
         text = ''
                     
         for t in self.controls:
@@ -1612,7 +1634,8 @@ from com.sun.star.awt.MouseButton import LEFT as MB_LEFT
 from com.sun.star.awt import XAdjustmentListener
 class Auswahl_ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
     
-    def __init__(self,mb,fenster_cont):        
+    def __init__(self,mb,fenster_cont):  
+        if mb.debug: log(inspect.stack)      
         self.mb = mb
         self.fenster_cont = fenster_cont
         
@@ -1626,6 +1649,7 @@ class Auswahl_ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
             
 class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,fenster_cont):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.fenster_cont = fenster_cont
     
@@ -1634,7 +1658,8 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
 
         
     def actionPerformed(self,ev):
-
+        if self.mb.debug: log(inspect.stack)
+        
         sett = self.mb.settings_exp
         
         if ev.ActionCommand == 'untereintraege_auswaehlen':

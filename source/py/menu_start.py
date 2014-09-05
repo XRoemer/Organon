@@ -4,6 +4,7 @@ import unohelper
 import traceback
 import sys
 from os import walk,path,remove
+from inspect import stack as inspect_stack
 
 import konstanten as KONST
 
@@ -12,54 +13,75 @@ platform = sys.platform
 
 class Menu_Start():
     
-    def __init__(self,pdk,dialog,ctx,tabs,path_to_extension,win,dict_sb,debugX,factory):
+    def __init__(self,args):
         
-        global debug
+        (pdk,
+         dialog,
+         ctx,
+         tabs,
+         path_to_extension,
+         win,
+         dict_sb,
+         debugX,
+         load_reloadX,
+         factory,
+         logX,
+         class_LogX) = args
+        
+        global debug,log,class_Log,load_reload
         debug = debugX
-        if debug:
-            self.get_pyPath()
+        log = logX
+        class_Log = class_LogX
+        load_reload = load_reloadX
+        
+        if debug: log(inspect_stack)
+        
+        if load_reload:
+            self.get_pyPath()       
         
         self.win = win
         self.pd = pdk
         global pd
         pd = pdk
+        
+        try:
+             
+            # Konstanten
+            self.factory = factory
+            self.dialog = dialog
+            self.ctx = ctx
+            self.smgr = self.ctx.ServiceManager
+            self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
+            self.programm = self.get_office_name()
+            self.tabs = tabs
+            self.platform = sys.platform
+            self.language = None
+            self.LANG = self.lade_Modul_Language()
+            self.path_to_extension = path_to_extension
+            self.win = win
+            self.dict_sb = dict_sb
+            
+            dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        except:
+            tb()
+                
+    
+    def get_office_name(self):
+        if debug: log(inspect_stack)
+        frame = self.desktop.Frames.getByIndex(0)
 
-        if 'LibreOffice' in sys.executable:
-            self.programm = 'LibreOffice'
-        elif 'OpenOffice' in sys.executable:
-            self.programm = 'OpenOffice'
+        if 'LibreOffice' in frame.Title:
+            programm = 'LibreOffice'
+        elif 'OpenOffice' in frame.Title:
+            programm = 'OpenOffice'
         else:
             # Fuer Linux / OSX fehlt
-            self.programm = 'LibreOffice'
-         
-        # Konstanten
-        self.factory = factory
-        self.dialog = dialog
-        self.ctx = ctx
-        self.smgr = self.ctx.ServiceManager
-        self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
-        self.tabs = tabs
-        self.platform = sys.platform
-        self.language = None
-        self.LANG = self.lade_Modul_Language()
-        self.path_to_extension = path_to_extension
-        self.win = win
-        self.dict_sb = dict_sb
+            programm = 'LibreOffice'
         
-        dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
-      
-        
-        
-        
-        
+        return programm
+       
     def erzeuge_Startmenu(self):
-        try:
-            self.erzeuge_Buttons()
-        except:
-            tb() 
- 
-         
-    def erzeuge_Buttons(self):
+        if debug: log(inspect_stack)
             
         # Hauptfeld_Aussen
         Attr = (0,0,1000,1800,'Hauptfeld_aussen', 0)    
@@ -118,15 +140,17 @@ class Menu_Start():
 
     
     def erzeuge_Menu(self):
+        if debug: log(inspect_stack)
+        
         try:   
-            if debug:
+            if load_reload:
                 modul = 'menu_bar'
                 menu_bar = load_reload_modul(modul,pyPath,self)  # gleichbedeutend mit: import menu_bar
             else:
                 import menu_bar
             
             
-            args = (self.pd,
+            args = (pd,
                     self.dialog,
                     self.ctx,
                     self.tabs,
@@ -134,8 +158,11 @@ class Menu_Start():
                     self.win,
                     self.dict_sb,
                     debug,
+                    load_reload,
                     self.factory,
                     self,
+                    log,
+                    class_Log
                     )
             
             self.module_mb = menu_bar
@@ -146,6 +173,7 @@ class Menu_Start():
         
               
     def lade_Modul_Language(self):
+        if debug: log(inspect_stack)
         
         enum = self.desktop.Components.createEnumeration()
         comps = []
@@ -174,6 +202,8 @@ class Menu_Start():
         return lang
     
     def get_pyPath(self):
+        if debug: log(inspect_stack)
+        
         global pyPath
         pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
         if platform == 'linux':
@@ -205,6 +235,8 @@ class Menu_Listener (unohelper.Base, XActionListener):
         self.menu = menu
 
     def actionPerformed(self, ev):
+        if debug: log(inspect_stack)
+        
         try:
             if ev.ActionCommand == 'neues_projekt':
                 self.menu.cont.dispose()
@@ -226,8 +258,9 @@ class Menu_Listener (unohelper.Base, XActionListener):
             tb()
             
     def get_Org_description_path(self):
-        path_HB = path.join(self.menu.path_to_extension,'description','Handbuecher')
+        if debug: log(inspect_stack)
         
+        path_HB = path.join(self.menu.path_to_extension,'description','Handbuecher')
 
         ordner = []
         for (dirpath, dirnames, filenames) in walk(path_HB):

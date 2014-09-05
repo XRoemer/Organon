@@ -6,6 +6,8 @@ import unohelper
 class Export():
     
     def __init__(self,mb,pdk):
+        if mb.debug: log(inspect.stack)
+        
         self.mb = mb
         self.haupt_fenster = None
         self.trenner_fenster = None
@@ -37,7 +39,7 @@ class Export():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('Export.export '+ str(e),"warningbox")
-            tb()
+            print(tb())
 
 
     def erzeuge_exportfenster(self): 
@@ -408,10 +410,13 @@ def decode_utf(term):
 from com.sun.star.awt import XItemListener, XActionListener, XFocusListener    
 class ExportFilter_Item_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     # XItemListener    
-    def itemStateChanged(self, ev):        
+    def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
+              
         sel = ev.value.Source.Items[ev.value.Selected] 
         filters = self.mb.filters_export
 
@@ -426,12 +431,16 @@ class ExportFilter_Item_Listener(unohelper.Base, XItemListener):
 
 class Fenster_Export_Listener1(unohelper.Base, XItemListener):
     def __init__(self,mb,buttons,but_Auswahl):
+        if mb.debug: log(inspect.stack)
+        
         self.mb = mb
         self.buttons = buttons
         self.but_Auswahl = but_Auswahl
         
     # XItemListener    
-    def itemStateChanged(self, ev):     
+    def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
+           
         sett = self.mb.settings_exp   
         # um sich nicht selbst abzuwaehlen
         if ev.Source.State == 0:
@@ -465,6 +474,8 @@ class Fenster_Export_Listener1(unohelper.Base, XItemListener):
 class Fenster_Export_Listener2(unohelper.Base, XItemListener):
     
     def __init__(self,mb,buttons2,trenner):
+        if mb.debug: log(inspect.stack)
+        
         self.mb = mb
         self.buttons2 = buttons2
         self.trenner = trenner
@@ -534,10 +545,14 @@ class Fenster_Export_Listener2(unohelper.Base, XItemListener):
 
 class Export_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
         self.mb = mb
         self.feld_projekt_name = None
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         sett = self.mb.settings_exp
         
         sections = self.get_ausgewaehlte_bereiche()
@@ -757,7 +772,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             oOO.storeToURL(Path3,(prop,))
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         self.mb.class_Bereiche.schliesse_oOO()   
         st_ind.end() 
         
@@ -944,7 +959,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 self.mb.class_Bereiche.schliesse_oOO()    
                 st_ind.setValue(zaehler)
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         st_ind.end()  
 
 
@@ -1129,11 +1144,14 @@ from com.sun.star.lang import XEventListener
 class AB_Fenster_Dispose_Listener(unohelper.Base, XEventListener):
     # Listener um Position zu bestimmen
     def __init__(self,mb,cl_exp):
+        if mb.debug: log(inspect.stack)
+        
         self.mb = mb
         self.cl_exp = cl_exp
         
     def disposing(self,ev):
-
+        if self.mb.debug: log(inspect.stack)
+        
         if ev.Source.Model.Text == lang.TRENNER_TIT:
             self.cl_exp.trenner_fenster = None
         if ev.Source.Model.Text == lang.AUSWAHL:
@@ -1155,6 +1173,8 @@ class AB_Fenster_Dispose_Listener(unohelper.Base, XEventListener):
     
 class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,cl_exp,exp_fenster):
+        if mb.debug: log(inspect.stack)
+        
         self.mb = mb
         self.exp_fenster = exp_fenster
         self.cl_exp = cl_exp
@@ -1164,6 +1184,7 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
 
         
     def actionPerformed(self,ev):      
+        if self.mb.debug: log(inspect.stack)
         
         if self.cl_exp.trenner_fenster != None:
             return
@@ -1317,6 +1338,7 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
 
 class A_Trenner_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     def disposing(self,ev):
@@ -1324,6 +1346,8 @@ class A_Trenner_CheckBox_Listener(unohelper.Base, XActionListener):
 
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         sett = self.mb.settings_exp
         sett[ev.ActionCommand] = self.toggle(sett[ev.ActionCommand])
 
@@ -1336,6 +1360,7 @@ class A_Trenner_CheckBox_Listener(unohelper.Base, XActionListener):
 
 class A_TrennDatei_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,model):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.model = model
         
@@ -1344,7 +1369,8 @@ class A_TrennDatei_Button_Listener(unohelper.Base, XActionListener):
 
         
     def actionPerformed(self,ev):
-
+        if self.mb.debug: log(inspect.stack)
+        
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
         if self.mb.settings_exp['url'] != '':
             Filepicker.setDisplayDirectory(self.mb.settings_exp['url'])
@@ -1361,6 +1387,7 @@ class A_TrennDatei_Button_Listener(unohelper.Base, XActionListener):
 
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,model):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.model = model
         
@@ -1369,6 +1396,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
 
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
         
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
         Filepicker.setDisplayDirectory(self.mb.settings_exp['speicherort'])
@@ -1386,6 +1414,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
 class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb,cont_ord,cont_dat):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.cont_ord = cont_ord
         self.cont_dat = cont_dat
@@ -1396,6 +1425,8 @@ class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):
         
     # XItemListener    
     def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
+        
         if ev.Source == self.cont_ord:
             self.mb.settings_exp['style_ord'] = ev.Source.Items[ev.Selected] 
         elif ev.Source == self.cont_dat:
@@ -1408,6 +1439,7 @@ class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):
     
 class A_Anz_Leerzeilen_Focus_Listener(unohelper.Base, XFocusListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
     
     def disposing(self,ev):
@@ -1416,6 +1448,7 @@ class A_Anz_Leerzeilen_Focus_Listener(unohelper.Base, XFocusListener):
         
     # XItemListener    
     def focusLost(self, ev): 
+        if self.mb.debug: log(inspect.stack)
 
         if ev.Source.Model.Text.isdigit():
             self.mb.settings_exp['anz_drunter'] = int(ev.Source.Model.Text)
@@ -1460,14 +1493,15 @@ def berechne_pos(mb,cl_exp,exp_fenster,Rufer):
 
 class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,cl_exp,exp_fenster):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.exp_fenster = exp_fenster
         self.cl_exp = cl_exp
         
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
         
-    
         if self.cl_exp.auswahl_fenster != None:
             return
         
@@ -1626,6 +1660,7 @@ class B_Auswahl_ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
             
 class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,fenster_cont):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.fenster_cont = fenster_cont
     
@@ -1634,7 +1669,8 @@ class B_Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
 
         
     def actionPerformed(self,ev):
-
+        if self.mb.debug: log(inspect.stack)
+        
         sett = self.mb.settings_exp
         if ev.ActionCommand == 'untereintraege_auswaehlen':
             sett['auswahl'] = self.toggle(sett['auswahl'])

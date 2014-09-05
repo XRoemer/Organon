@@ -6,14 +6,14 @@ import unohelper
 class Bereiche():
     
     def __init__(self,mb):
-
+        if mb.debug: log(inspect.stack)
+        
         global pd
         pd = mb.pd
 
         # Konstanten
         self.mb = mb
         self.doc = mb.doc       
-        #self.viewcursor = mb.viewcursor
         
         # Klassen
         self.oOO = None
@@ -76,6 +76,7 @@ class Bereiche():
     
     def erzeuge_neue_Datei2(self,i,inhalt):
         if self.mb.debug: log(inspect.stack)
+        
         try:
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
@@ -115,7 +116,7 @@ class Bereiche():
             self.oOO.close(False)
 
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
     
     def erzeuge_leere_datei(self):
@@ -149,8 +150,8 @@ class Bereiche():
             cursor.gotoEnd(True)
             text.insertString( cursor, inhalt, True )
         except:
-            pass
-            #if self.mb.debug: print('Dokument ist schon leer')
+            print(tb())
+
                      
     def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
         if self.mb.debug: log(inspect.stack)
@@ -238,26 +239,10 @@ class Bereiche():
         cur.goLeft(1,True)
         cur.setString('')
        
-                       
-#     def verlinke_bereiche(self,quellbereich_name,zielbereich_name):
-#         if self.mb.debug: log(inspect.stack)
-#         
-#         sections = self.doc.TextSections
-#         
-#         for nr in range(sections.Count):            
-#             sec = sections.getByIndex(nr)
-#                 
-#         link_quelle = self.mb.props[T.AB].dict_bereiche['Bereichsname'][quellbereich_name]# <- der Link
-#         zielbereich = sections.getByName(zielbereich_name)
-# 
-#         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-#         SFLink.FileURL = link_quelle
-#         SFLink.FilterName = 'writer8'
-#         
-#         zielbereich.setPropertyValue('FileLink',SFLink)
         
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
-
+        if self.mb.debug: log(inspect.stack)
+        
         if self.mb.props[T.AB].tastatureingabe == True and bereichsname != None:
             # Damit das Handbuch nicht geaendert wird:
             if self.mb.anleitung_geladen:
@@ -316,7 +301,7 @@ class Bereiche():
                         pass
                     bitmap.removeByName( "TempI"+str(i) ) 
                 except:
-                    if self.mb.debug: print('insert unverlinkte bilder gescheitert')
+                    if self.mb.debug: log(inspect.stack,tb())
                 
         self.mb.selbstruf = False   
         

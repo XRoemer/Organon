@@ -20,6 +20,7 @@ mb.path_to_extension,dict mb.pfade, mb.projekt_path : SystemPath
 class Projekt():
     
     def __init__(self,mb,pydevBrk):
+        if mb.debug: log(inspect.stack)
         self.ctx = mb.ctx
         self.mb = mb
         
@@ -32,6 +33,8 @@ class Projekt():
         self.first_time = True
    
     def erzeuge_neues_Projekt(self):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             
             if self.pruefe_auf_geladenes_organon_projekt():
@@ -62,7 +65,7 @@ class Projekt():
                             shutil.rmtree(self.mb.pfade['projekt'])
                         except:
                             # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
-                            tb()
+                            if self.mb.debug: log(inspect.stack,tb())
                   
             if geglueckt:
                 
@@ -99,11 +102,12 @@ class Projekt():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
                         
     def setze_pfade(self): 
-  
+        if self.mb.debug: log(inspect.stack)
+        
         paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
         pHome = paths.Work_writable
         if sys.platform == 'linux':
@@ -133,7 +137,8 @@ class Projekt():
 
     
     def lade_settings(self):
-
+        if self.mb.debug: log(inspect.stack)
+        
         pfad = os.path.join(self.mb.pfade['settings'],'export_settings.txt')
         self.mb.settings_exp = eval(open(pfad).read())
 
@@ -145,397 +150,411 @@ class Projekt():
         
         
     def erzeuge_Ordner_Struktur(self):
+        if self.mb.debug: log(inspect.stack)
         
+        try:
         
-        pfade = self.mb.pfade
-        # Organon
-        if not os.path.exists(pfade['organon']):
-            os.makedirs(pfade['organon'])
-        # Organon/<Projekt Name>
-        if not os.path.exists(pfade['projekt']):
-            os.makedirs(pfade['projekt'])
-        # Organon/<Projekt Name>/Files
-        if not os.path.exists(pfade['files']):
-            os.makedirs(pfade['files'])
-        # Organon/<Projekt Name>/Files
-        if not os.path.exists(pfade['odts']):
-            os.makedirs(pfade['odts'])   
-        # Organon/<Projekt Name>/Files
-        if not os.path.exists(pfade['images']):
-            os.makedirs(pfade['images'])  
-        # Organon/<Projekt Name>/Settings
-        if not os.path.exists(pfade['settings']):
-            os.makedirs(pfade['settings'])
-        # Organon/<Projekt Name>/Settings/Tags
-        if not os.path.exists(pfade['tabs']):
-            os.makedirs(pfade['tabs'])
-
-        # Datei anlegen, die bei lade_Projekt angesprochen werden soll
-        path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
-        with open(path, "w") as file:
-            file.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
-             
-        # Setzen einer UserDefinedProperty um Projekt identifizieren zu koennen
-        UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
-        has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
-        if has_prop:
-            UD_properties.setPropertyValue('ProjektName',self.mb.projekt_name) 
-        else:
-            UD_properties.addProperty('ProjektName',1,self.mb.projekt_name) 
+            pfade = self.mb.pfade
+            # Organon
+            if not os.path.exists(pfade['organon']):
+                os.makedirs(pfade['organon'])
+            # Organon/<Projekt Name>
+            if not os.path.exists(pfade['projekt']):
+                os.makedirs(pfade['projekt'])
+            # Organon/<Projekt Name>/Files
+            if not os.path.exists(pfade['files']):
+                os.makedirs(pfade['files'])
+            # Organon/<Projekt Name>/Files
+            if not os.path.exists(pfade['odts']):
+                os.makedirs(pfade['odts'])   
+            # Organon/<Projekt Name>/Files
+            if not os.path.exists(pfade['images']):
+                os.makedirs(pfade['images'])  
+            # Organon/<Projekt Name>/Settings
+            if not os.path.exists(pfade['settings']):
+                os.makedirs(pfade['settings'])
+            # Organon/<Projekt Name>/Settings/Tags
+            if not os.path.exists(pfade['tabs']):
+                os.makedirs(pfade['tabs'])
+    
+            # Datei anlegen, die bei lade_Projekt angesprochen werden soll
+            path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
+            with open(path, "w") as file:
+                file.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
                  
-        # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
-        Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
-        Path2 = uno.systemPathToFileUrl(Path1)
-
-        self.mb.doc.storeAsURL(Path2,())   
+            # Setzen einer UserDefinedProperty um Projekt identifizieren zu koennen
+            UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
+            has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
+            if has_prop:
+                UD_properties.setPropertyValue('ProjektName',self.mb.projekt_name) 
+            else:
+                UD_properties.addProperty('ProjektName',1,self.mb.projekt_name) 
+                     
+            # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
+            Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
+            Path2 = uno.systemPathToFileUrl(Path1)
+    
+            self.mb.doc.storeAsURL(Path2,())  
+             
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
     
                        
     def dialog_neues_projekt_anlegen(self):
+        if self.mb.debug: log(inspect.stack)
         
-        y = 20
-        # Projektname eingeben
-        control, model = self.mb.createControl(self.ctx,"FixedText",25,y,250,20,(),() )  
-        model.Label = lang.ENTER_PROJ_NAME
-        model.FontWeight = 150
-        
-        y += 30
-        # Eingabefeld
-        control1, model1 = self.mb.createControl(self.ctx,"Edit",25,y,200,20,(),() ) 
-        
-        
-        
-        
-        y += 40
-        
-        # Trenner 
-        controlT3, model3 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() ) 
-        
-        
-        y += 40
-        # speicherort
-        controlP, modelP = self.mb.createControl(self.ctx,"FixedText",25,y + 3,120,20,(),() )  
-        modelP.Label = lang.SPEICHERORT
-        modelP.FontWeight = 150
-        
-        # waehlen 
-        controlW, modelW = self.mb.createControl(self.ctx,"Button",142,y,80,20,(),() )  
-        modelW.Label = lang.AUSWAHL 
-        controlW.setActionCommand(lang.WAEHLEN)
-        
-        y += 30
-        # url
-        controlU, modelU = self.mb.createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
-        if self.mb.speicherort_last_proj != None:
-            # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
-            # -> gespeicherten Pfad ueberpruefen!
-            try:
-                modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
-            except:
-                #modelU.Label = '-' 
-                modelU.Label = self.mb.speicherort_last_proj
-        else:
-            modelU.Label = '-' 
-        
-        listenerS = Speicherordner_Button_Listener(self.mb,modelU)
-        controlW.addActionListener(listenerS)
-        
-        y += 40
-        
-        # Trenner 
-        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
-        
-        
-        
-        
-        y += 40
-        # Formatierung
-        controlForm, modelForm = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
-        modelForm.Label = lang.FORMATIERUNG #lang.ENTER_PROJ_NAME
-        modelForm.FontWeight = 150
-        
-        
-        controlForm1, modelForm1 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() )  
-        modelForm1.Label = lang.TEMPLATE_WRITER
-        if not self.mb.settings_proj:
-            state = False
-        else:
-            state = self.mb.settings_proj['use_template'][0]
-        modelForm1.State = not state
-        
-
-        controlHelp, modelHelp = self.mb.createControl(self.ctx,"Button",350,y ,30,30,(),() )  
-        modelHelp.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
-        controlHelp.setActionCommand('formatierung')
-        
-        y += 25
-        
-        controlForm2, modelForm2 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() ) 
-        modelForm2.Label = lang.TEMPLATE_USER
-        modelForm2.State = state
-        
-        y += 25
-            # Liste der Formate
-        controlLBF2, modelLBF2 = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
-
-        self.mb.user_styles,pfade = self.get_user_styles()
-
-        if self.mb.user_styles == ():
-            user_styles = ('lang.NO_TEMPLATES',)
-            controlLBF2.Enable = False
-            controlForm2.Enable = False
-        else:
-            user_styles = self.mb.user_styles
-        controlLBF2.addItems(user_styles,0)
-        modelLBF2.Dropdown = True
-        #index = style_names.index(sett['style_ord'])
-        #modelLBF.SelectedItems = index,
-        modelLBF2.SelectedItems = 0,
-        
-        
-        # Trenner 
-        controlT5, modelT5 = self.mb.createControl(self.mb.ctx,"FixedLine",142,y+15 ,238,40,(),() )
-        
-        
-        y += 50
-        
-        controlFormLBF4, modelFormLBF4 = self.mb.createControl(self.ctx,"FixedText",142,y,300,20,(),() )  
-        modelFormLBF4.Label = lang.EIGENES_TEMPL_ERSTELLEN
-
-        
-        y += 25
-        
-        controlLBF5, modelLBF5 = self.mb.createControl(self.ctx,"FixedText",142,y,50,20,(),() )  
-        modelLBF5.Label = lang.NAME
-        
-        controlLBF6, modelLBF6 = self.mb.createControl(self.ctx,"Edit",222,y,158,20,(),() ) 
-        
-        
-        y += 25
-        
-        # waehlen 
-        controlER, modelER = self.mb.createControl(self.ctx,"Button",142,y ,80,20,(),() )  
-        modelER.Label = lang.ERSTELLEN
-        controlER.setActionCommand('vorlage_erstellen')
-        
-        
-        y += 40
-        
-        # Trenner 
-        controlT2, modelT2 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
-        
-        
-        y += 40
-        # Formatierung
-        controlTemp, modelTemp = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
-        modelTemp.Label = lang.TEMPLATE
-        modelTemp.FontWeight = 150
-        
-        
-        controlTempL, modelTempL = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
-        templates = ('Minimal','Standard','Maximum')
-        controlTempL.addItems(templates,0)
-        modelTempL.Dropdown = True
-        #index = style_names.index(sett['style_ord'])
-        #modelLBF.SelectedItems = index,
-        modelTempL.SelectedItems = 0,
-        controlTempL.Enable = False
-        
-        
-        controlHelpT, modelHelpT = self.mb.createControl(self.ctx,"Button",350,y - 10 ,30,30,(),() )  
-        modelHelpT.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
-        controlHelpT.setActionCommand('template')
-        
-        
-        y += 40
-        
-        # Trenner 
-        controlT4, modelT4 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
-        
-        
-        y += 40
-        x = 142
-        # ok button
-        control2, model2 = self.mb.createControl(self.ctx,"Button",x,y,80,30,(),() )  
-        model2.Label = lang.OK
-        control2.setActionCommand(lang.OK)
-        
-        # cancel button  
-        control3, model3 = self.mb.createControl(self.ctx,"Button",x + 120,y,80,30,(),() )  
-        model3.Label = lang.CANCEL
-        control3.setActionCommand(lang.CANCEL)
-        
+        try:
+            y = 20
+            # Projektname eingeben
+            control, model = self.mb.createControl(self.ctx,"FixedText",25,y,250,20,(),() )  
+            model.Label = lang.ENTER_PROJ_NAME
+            model.FontWeight = 150
+            
+            y += 30
+            # Eingabefeld
+            control1, model1 = self.mb.createControl(self.ctx,"Edit",25,y,200,20,(),() ) 
             
             
-        # HAUPTFENSTER    
-        smgr = self.mb.smgr
-        
-        # create the dialog model and set the properties
-        dialogModel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
-           
-        dialogModel.PositionX = 65
-        dialogModel.PositionY = 65
-        dialogModel.Width = 215 # if lang == en:195
-
-        dialogModel.Height = 320
-        dialogModel.Title = lang.CREATE_NEW_PROJECT
-                  
-        # create the dialog control and set the model
-        controlContainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
-        controlContainer.setModel(dialogModel);
-                 
-        # create a peer
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
-        controlContainer.setVisible(False);       
-        controlContainer.createPeer(toolkit, None);
-        # ENDE HAUPTFENSTER
-        
-        
-        
-        # LISTENER 1
-        listener = neues_Projekt_Dialog_Listener(self.mb,model1,modelLBF6,controlForm2,controlLBF2) 
-        control1.addKeyListener(listener) 
-        controlW.addActionListener(listener) 
-        controlER.addActionListener(listener) 
-        control2.addActionListener(listener) 
-        control3.addActionListener(listener) 
-        
-        
-        
-        # LISTENER 2 CheckBoxen
-        listenerCB = Neues_Projekt_CheckBox_Listener(self.mb,modelForm1,modelForm2,modelLBF2)
-        controlForm1.addActionListener(listenerCB)
-        controlForm1.ActionCommand = 'standard'
-        controlForm2.addActionListener(listenerCB)
-        controlForm2.ActionCommand = 'user'
-        controlLBF2.addItemListener(listenerCB)
-        
-        # LISTENER 3 Info
-        listener_info = Neues_Projekt_InfoButton_Listener(self.mb)
-        controlHelp.addActionListener(listener_info)
-        controlHelpT.addActionListener(listener_info)
-        
-        
-        
-        # CONTROLS HINZUFUEGEN
-        controlContainer.addControl('text',control)
-        controlContainer.addControl('name',control1)
-        
-        controlContainer.addControl('trenner',controlT3)
-        
-        controlContainer.addControl('projektordner',controlP)
-        controlContainer.addControl('waehlen',controlW)
-        controlContainer.addControl('url',controlU)
-        
-        
-        controlContainer.addControl('trenner',controlT)
-        
-        controlContainer.addControl('Form',controlForm)
-        controlContainer.addControl('Form1',controlForm1)       
-#         controlContainer.addControl('FormLBF',controlLBF)
-#         controlContainer.addControl('FormLBF1',controlLBF1)
-        
-        controlContainer.addControl('Help',controlHelp)
-        
-        controlContainer.addControl('Form2',controlForm2)       
-        controlContainer.addControl('FormLB2',controlLBF2)
-        controlContainer.addControl('FormLBF3',controlT5)
-        controlContainer.addControl('FormLBF4',controlFormLBF4)
-        controlContainer.addControl('FormLBF5',controlLBF5)
-        controlContainer.addControl('FormLBF6',controlLBF6)
-        controlContainer.addControl('FormLBF6',controlER)
-        
-        controlContainer.addControl('trenner',controlT2)
-        
-        controlContainer.addControl('template',controlTemp)        
-        controlContainer.addControl('templateL',controlTempL)
-        controlContainer.addControl('templateLH',controlHelpT)
-
-        
-        controlContainer.addControl('trenner',controlT4)
-        
-        controlContainer.addControl('button',control2)
-        controlContainer.addControl('button2',control3)
-        
-        controlContainer.addTopWindowListener(listener)
+            
+            
+            y += 40
+            
+            # Trenner 
+            controlT3, model3 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() ) 
+            
+            
+            y += 40
+            # speicherort
+            controlP, modelP = self.mb.createControl(self.ctx,"FixedText",25,y + 3,120,20,(),() )  
+            modelP.Label = lang.SPEICHERORT
+            modelP.FontWeight = 150
+            
+            # waehlen 
+            controlW, modelW = self.mb.createControl(self.ctx,"Button",142,y,80,20,(),() )  
+            modelW.Label = lang.AUSWAHL 
+            controlW.setActionCommand(lang.WAEHLEN)
+            
+            y += 30
+            # url
+            controlU, modelU = self.mb.createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
+            if self.mb.speicherort_last_proj != None:
+                # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
+                # -> gespeicherten Pfad ueberpruefen!
+                try:
+                    modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
+                except:
+                    #modelU.Label = '-' 
+                    modelU.Label = self.mb.speicherort_last_proj
+            else:
+                modelU.Label = '-' 
+            
+            listenerS = Speicherordner_Button_Listener(self.mb,modelU)
+            controlW.addActionListener(listenerS)
+            
+            y += 40
+            
+            # Trenner 
+            controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
+            
+            
+            
+            
+            y += 40
+            # Formatierung
+            controlForm, modelForm = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
+            modelForm.Label = lang.FORMATIERUNG #lang.ENTER_PROJ_NAME
+            modelForm.FontWeight = 150
+            
+            
+            controlForm1, modelForm1 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() )  
+            modelForm1.Label = lang.TEMPLATE_WRITER
+            if not self.mb.settings_proj:
+                state = False
+            else:
+                state = self.mb.settings_proj['use_template'][0]
+            modelForm1.State = not state
+            
     
-        geglueckt = controlContainer.execute()       
-        controlContainer.dispose() 
-
-        return geglueckt,model1.Text
+            controlHelp, modelHelp = self.mb.createControl(self.ctx,"Button",350,y ,30,30,(),() )  
+            modelHelp.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
+            controlHelp.setActionCommand('formatierung')
+            
+            y += 25
+            
+            controlForm2, modelForm2 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() ) 
+            modelForm2.Label = lang.TEMPLATE_USER
+            modelForm2.State = state
+            
+            y += 25
+                # Liste der Formate
+            controlLBF2, modelLBF2 = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
+    
+            self.mb.user_styles,pfade = self.get_user_styles()
+    
+            if self.mb.user_styles == ():
+                user_styles = ('lang.NO_TEMPLATES',)
+                controlLBF2.Enable = False
+                controlForm2.Enable = False
+            else:
+                user_styles = self.mb.user_styles
+            controlLBF2.addItems(user_styles,0)
+            modelLBF2.Dropdown = True
+            #index = style_names.index(sett['style_ord'])
+            #modelLBF.SelectedItems = index,
+            modelLBF2.SelectedItems = 0,
+            
+            
+            # Trenner 
+            controlT5, modelT5 = self.mb.createControl(self.mb.ctx,"FixedLine",142,y+15 ,238,40,(),() )
+            
+            
+            y += 50
+            
+            controlFormLBF4, modelFormLBF4 = self.mb.createControl(self.ctx,"FixedText",142,y,300,20,(),() )  
+            modelFormLBF4.Label = lang.EIGENES_TEMPL_ERSTELLEN
+    
+            
+            y += 25
+            
+            controlLBF5, modelLBF5 = self.mb.createControl(self.ctx,"FixedText",142,y,50,20,(),() )  
+            modelLBF5.Label = lang.NAME
+            
+            controlLBF6, modelLBF6 = self.mb.createControl(self.ctx,"Edit",222,y,158,20,(),() ) 
+            
+            
+            y += 25
+            
+            # waehlen 
+            controlER, modelER = self.mb.createControl(self.ctx,"Button",142,y ,80,20,(),() )  
+            modelER.Label = lang.ERSTELLEN
+            controlER.setActionCommand('vorlage_erstellen')
+            
+            
+            y += 40
+            
+            # Trenner 
+            controlT2, modelT2 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
+            
+            
+            y += 40
+            # Formatierung
+            controlTemp, modelTemp = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
+            modelTemp.Label = lang.TEMPLATE
+            modelTemp.FontWeight = 150
+            
+            
+            controlTempL, modelTempL = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
+            templates = ('Minimal','Standard','Maximum')
+            controlTempL.addItems(templates,0)
+            modelTempL.Dropdown = True
+            #index = style_names.index(sett['style_ord'])
+            #modelLBF.SelectedItems = index,
+            modelTempL.SelectedItems = 0,
+            controlTempL.Enable = False
+            
+            
+            controlHelpT, modelHelpT = self.mb.createControl(self.ctx,"Button",350,y - 10 ,30,30,(),() )  
+            modelHelpT.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
+            controlHelpT.setActionCommand('template')
+            
+            
+            y += 40
+            
+            # Trenner 
+            controlT4, modelT4 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
+            
+            
+            y += 40
+            x = 142
+            # ok button
+            control2, model2 = self.mb.createControl(self.ctx,"Button",x,y,80,30,(),() )  
+            model2.Label = lang.OK
+            control2.setActionCommand(lang.OK)
+            
+            # cancel button  
+            control3, model3 = self.mb.createControl(self.ctx,"Button",x + 120,y,80,30,(),() )  
+            model3.Label = lang.CANCEL
+            control3.setActionCommand(lang.CANCEL)
+            
+                
+                
+            # HAUPTFENSTER    
+            smgr = self.mb.smgr
+            
+            # create the dialog model and set the properties
+            dialogModel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
+               
+            dialogModel.PositionX = 65
+            dialogModel.PositionY = 65
+            dialogModel.Width = 215 # if lang == en:195
+    
+            dialogModel.Height = 320
+            dialogModel.Title = lang.CREATE_NEW_PROJECT
+                      
+            # create the dialog control and set the model
+            controlContainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
+            controlContainer.setModel(dialogModel);
+                     
+            # create a peer
+            toolkit = smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
+            controlContainer.setVisible(False);       
+            controlContainer.createPeer(toolkit, None);
+            # ENDE HAUPTFENSTER
+            
+            
+            
+            # LISTENER 1
+            listener = neues_Projekt_Dialog_Listener(self.mb,model1,modelLBF6,controlForm2,controlLBF2) 
+            control1.addKeyListener(listener) 
+            controlW.addActionListener(listener) 
+            controlER.addActionListener(listener) 
+            control2.addActionListener(listener) 
+            control3.addActionListener(listener) 
+            
+            
+            
+            # LISTENER 2 CheckBoxen
+            listenerCB = Neues_Projekt_CheckBox_Listener(self.mb,modelForm1,modelForm2,modelLBF2)
+            controlForm1.addActionListener(listenerCB)
+            controlForm1.ActionCommand = 'standard'
+            controlForm2.addActionListener(listenerCB)
+            controlForm2.ActionCommand = 'user'
+            controlLBF2.addItemListener(listenerCB)
+            
+            # LISTENER 3 Info
+            listener_info = Neues_Projekt_InfoButton_Listener(self.mb)
+            controlHelp.addActionListener(listener_info)
+            controlHelpT.addActionListener(listener_info)
+            
+            
+            
+            # CONTROLS HINZUFUEGEN
+            controlContainer.addControl('text',control)
+            controlContainer.addControl('name',control1)
+            
+            controlContainer.addControl('trenner',controlT3)
+            
+            controlContainer.addControl('projektordner',controlP)
+            controlContainer.addControl('waehlen',controlW)
+            controlContainer.addControl('url',controlU)
+            
+            
+            controlContainer.addControl('trenner',controlT)
+            
+            controlContainer.addControl('Form',controlForm)
+            controlContainer.addControl('Form1',controlForm1)       
+    #         controlContainer.addControl('FormLBF',controlLBF)
+    #         controlContainer.addControl('FormLBF1',controlLBF1)
+            
+            controlContainer.addControl('Help',controlHelp)
+            
+            controlContainer.addControl('Form2',controlForm2)       
+            controlContainer.addControl('FormLB2',controlLBF2)
+            controlContainer.addControl('FormLBF3',controlT5)
+            controlContainer.addControl('FormLBF4',controlFormLBF4)
+            controlContainer.addControl('FormLBF5',controlLBF5)
+            controlContainer.addControl('FormLBF6',controlLBF6)
+            controlContainer.addControl('FormLBF6',controlER)
+            
+            controlContainer.addControl('trenner',controlT2)
+            
+            controlContainer.addControl('template',controlTemp)        
+            controlContainer.addControl('templateL',controlTempL)
+            controlContainer.addControl('templateLH',controlHelpT)
+    
+            
+            controlContainer.addControl('trenner',controlT4)
+            
+            controlContainer.addControl('button',control2)
+            controlContainer.addControl('button2',control3)
+            
+            controlContainer.addTopWindowListener(listener)
+        
+            geglueckt = controlContainer.execute()       
+            controlContainer.dispose() 
+    
+            return geglueckt,model1.Text
+        
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
     
     
     def get_user_styles(self):
-        paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
-        template = paths.Template
-        if ';' in template:
-            template = template.split(';')
+        if self.mb.debug: log(inspect.stack)
         
-        if self.mb.programm == 'LibreOffice':
-            temp = []
-            for path in template:
-                if 'vnd.sun.star.expand' not in path:
-                    if ('/../') in path:
-                        t = ''.join(path.split('program/../'))
-                        temp.append(t)
-                    else:
-                        temp.append(path)
-                    
-            template = temp    
-
-        benutzervorlagen = []
-        pfade = []
-        for path in template:
-            if 'Roaming' in path:
-                self.mb.user_template_path = path
+        try:
+            paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
+            template = paths.Template
+            if ';' in template:
+                template = template.split(';')
             
-            if os.path.exists(uno.fileUrlToSystemPath(path)):
-                files = os.listdir(uno.fileUrlToSystemPath( path ))
-                for filename in files:
-                    
-                    pfad = os.path.join(uno.fileUrlToSystemPath(path),filename)
-                    erweiterung = os.path.splitext(pfad)[1]
-                    if erweiterung == '.ott':
-                        dateiname = os.path.split(pfad)[1]
-                        dateiname1 = dateiname.split(erweiterung)[0]
-                    
-                        benutzervorlagen.append(dateiname1)
-                        pfade.append(pfad)
-                    
-        self.mb.user_styles_pfade = tuple(pfade)
-        return tuple(benutzervorlagen),tuple(pfade)  
+            if self.mb.programm == 'LibreOffice':
+                temp = []
+                for path in template:
+                    if 'vnd.sun.star.expand' not in path:
+                        if ('/../') in path:
+                            t = ''.join(path.split('program/../'))
+                            temp.append(t)
+                        else:
+                            temp.append(path)
+                        
+                template = temp    
+    
+            benutzervorlagen = []
+            pfade = []
+            for path in template:
+                if 'Roaming' in path:
+                    self.mb.user_template_path = path
+                
+                if os.path.exists(uno.fileUrlToSystemPath(path)):
+                    files = os.listdir(uno.fileUrlToSystemPath( path ))
+                    for filename in files:
+                        
+                        pfad = os.path.join(uno.fileUrlToSystemPath(path),filename)
+                        erweiterung = os.path.splitext(pfad)[1]
+                        if erweiterung == '.ott':
+                            dateiname = os.path.split(pfad)[1]
+                            dateiname1 = dateiname.split(erweiterung)[0]
+                        
+                            benutzervorlagen.append(dateiname1)
+                            pfade.append(pfad)
+                        
+            self.mb.user_styles_pfade = tuple(pfade)
+            return tuple(benutzervorlagen),tuple(pfade)  
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
 
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
         if self.mb.debug: log(inspect.stack)
         
-        if self.pruefe_auf_geladenes_organon_projekt():
-            return
-
-        if filepicker:
-            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-            Filepicker.appendFilter('Organon Project','*.organon')
-            #ofilter = Filepicker.getCurrentFilter()
-            Filepicker.execute()
-            # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
-
-            if Filepicker.Files == '':
-                return
-
-            filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
-            
-        dateiname = os.path.basename(filepath)
-        dateiendung = os.path.splitext(filepath)[1]
-
-        # Wenn keine .organon Datei gewaehlt wurde
-        if dateiendung  != '.organon':
-            return
-        
-        self.mb.projekt_name = dateiname.split(dateiendung)[0]
-        proj = os.path.dirname(filepath) 
-        self.mb.projekt_path = os.path.dirname(proj)  
-    
-
         try:
+            if self.pruefe_auf_geladenes_organon_projekt():
+                return
+    
+            if filepicker:
+                Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
+                Filepicker.appendFilter('Organon Project','*.organon')
+                #ofilter = Filepicker.getCurrentFilter()
+                Filepicker.execute()
+                # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
+    
+                if Filepicker.Files == '':
+                    return
+    
+                filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
+                
+            dateiname = os.path.basename(filepath)
+            dateiendung = os.path.splitext(filepath)[1]
+    
+            # Wenn keine .organon Datei gewaehlt wurde
+            if dateiendung  != '.organon':
+                return
+            
+            self.mb.projekt_name = dateiname.split(dateiendung)[0]
+            proj = os.path.dirname(filepath) 
+            self.mb.projekt_path = os.path.dirname(proj)  
+    
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
             self.lade_settings()  
@@ -574,9 +593,11 @@ class Projekt():
             
         except Exception as e:
             self.mb.Mitteilungen.nachricht('lade_Projekt ' + str(e),"warningbox")
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         
     def pruefe_auf_geladenes_organon_projekt(self):
+        if self.mb.debug: log(inspect.stack)
+        
         # prueft, ob eine Organon Datei geladen ist
         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
@@ -608,53 +629,59 @@ class Projekt():
                            
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege):
         if self.mb.debug: log(inspect.stack)
-        CB = self.mb.class_Bereiche
-        CB.leere_Dokument()    ################################  rausnehmen
-        CB.starte_oOO()
         
-        Bereichsname_dict = {}
-        ordinal_dict = {}
-        Bereichsname_ord_dict = {}
-        index = 0
-        index2 = 0 
-        for eintrag in Eintraege:
-            # Navigation
-            ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
-                     
-            index = self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener,index)
-            self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)  
-
-            if sicht == 'ja':
-                # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
-                self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
+        try:
+            CB = self.mb.class_Bereiche
+            CB.leere_Dokument()    ################################  rausnehmen
+            CB.starte_oOO()
+            
+            Bereichsname_dict = {}
+            ordinal_dict = {}
+            Bereichsname_ord_dict = {}
+            index = 0
+            index2 = 0 
+            for eintrag in Eintraege:
+                # Navigation
+                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
+                         
+                index = self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener,index)
+                self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)  
+    
+                if sicht == 'ja':
+                    # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
+                    self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
+                    self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
+                    
+                # Bereiche   
+                inhalt = name
+                path = CB.erzeuge_neue_Datei(index2,inhalt)
+                path2 = uno.systemPathToFileUrl(path)
                 
-            # Bereiche   
-            inhalt = name
-            path = CB.erzeuge_neue_Datei(index2,inhalt)
-            path2 = uno.systemPathToFileUrl(path)
+                if art == 'waste':
+                    CB.erzeuge_bereich(index2,path2,sicht,True) 
+                else:
+                    CB.erzeuge_bereich(index2,path2,sicht) 
+    
+                Bereichsname_dict.update({'OrganonSec'+str(index2):path})
+                ordinal_dict.update({ordinal:'OrganonSec'+str(index2)})
+                Bereichsname_ord_dict.update({'OrganonSec'+str(index2):ordinal})
+                
+                index2 += 1
             
-            if art == 'waste':
-                CB.erzeuge_bereich(index2,path2,sicht,True) 
-            else:
-                CB.erzeuge_bereich(index2,path2,sicht) 
-
-            Bereichsname_dict.update({'OrganonSec'+str(index2):path})
-            ordinal_dict.update({ordinal:'OrganonSec'+str(index2)})
-            Bereichsname_ord_dict.update({'OrganonSec'+str(index2):ordinal})
+            self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
+            self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
+            self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
             
-            index2 += 1
+            self.erzeuge_helfer_bereich()
+            CB.loesche_leeren_Textbereich_am_Ende()  
+            CB.schliesse_oOO()
+            self.erzeuge_dict_ordner()
         
-        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
-        self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
-        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
-        
-        self.erzeuge_helfer_bereich()
-        CB.loesche_leeren_Textbereich_am_Ende()  
-        CB.schliesse_oOO()
-        self.erzeuge_dict_ordner()
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
 
     def erzeuge_helfer_bereich(self):
+        if self.mb.debug: log(inspect.stack)
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
         newSection.setName('Organon_Sec_Helfer')
@@ -672,7 +699,7 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
 
         CB = self.mb.class_Bereiche
-        CB.leere_Dokument()    ################################  rausnehmen
+        #CB.leere_Dokument()    ################################  rausnehmen
         
         self.erzeuge_dict_ordner()
         
@@ -793,6 +820,7 @@ class Projekt():
         return Eintraege
    
     def selektiere_ersten_Bereich(self):
+        if self.mb.debug: log(inspect.stack)
         
         ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal']['OrganonSec0']
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
@@ -939,30 +967,26 @@ class Projekt():
     
        
     def test(self):
-
+        x = 'wer'
         try:
             pass
-            frame = self.mb.current_Contr.Frame
-            PIP = self.mb.createUnoService("com.sun.star.deployment.PackageInformationProvider")
-            
-#             dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
-#             dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
-            print('tab', T.AB)
-            
-            props = self.mb.props
-            xml = props[T.AB].xml_tree
-            
-            dict = self.mb.dict_sb_content
-            ordinale = []
-            
-            for d in dict['ordinal']:
-                ordinale.append((d,dict['ordinal'][d]['Tags_time']))
-            
-        except:
-            tb()
-            
-        pd()
         
+            debug = self.mb.debug 
+            print(debug)
+            
+            A = 123456789
+            
+            self.testtest('WaldiWuz',A)
+        except:
+            x = tb()
+            print(x)
+        pd()
+
+    def testtest(self, Argument123,ArgumentABC):
+        if self.mb.debug: log(inspect.stack)
+        
+        erstesArg = Argument123
+        zweitesArg = ArgumentABC
     
 def erzeuge_Fenster(mb):
     if self.mb.debug: log(inspect.stack)
@@ -996,7 +1020,7 @@ def erzeuge_Fenster(mb):
         controlContainer.dispose() 
         return controlContainer
     except:
-        tb()
+        if self.mb.debug: log(inspect.stack,tb())
 
        
         
@@ -1004,33 +1028,45 @@ from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XIt
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     
     def __init__(self,mb,model):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.model = model
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            filepath = None
+            pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
+            
+            if os.path.exists(pfad):            
+                with codecs_open( pfad, "r","utf-8") as file:
+                    filepath = file.read() 
+    
+            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
+            if filepath != None:
+                Filepicker.setDisplayDirectory(filepath)
+            Filepicker.execute()
+            
+            if Filepicker.Directory == '':
+                return
+            
+            filepath = Filepicker.getDirectory()
+            
+            with open( pfad, "w") as file:
+                file.write(uno.fileUrlToSystemPath(filepath))
+            
+            self.mb.speicherort_last_proj = filepath
+            self.model.Label = uno.fileUrlToSystemPath(filepath)
+            
+            if self.mb.debug: log(inspect.stack,None,filepath)
+            
+        except:
+            if 'filepath' in locals():
+                if self.mb.debug: log(inspect.stack,tb(),filepath)
+            else:
+                if self.mb.debug: log(inspect.stack,tb())
         
-        filepath = None
-        pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
         
-        if os.path.exists(pfad):            
-            with codecs_open( pfad, "r","utf-8") as file:
-                filepath = file.read() 
-
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
-        if filepath != None:
-            Filepicker.setDisplayDirectory(filepath)
-        Filepicker.execute()
-        
-        if Filepicker.Directory == '':
-            return
-        
-        filepath = Filepicker.getDirectory()
-        
-        with open( pfad, "w") as file:
-            file.write(uno.fileUrlToSystemPath(filepath))
-        
-        self.mb.speicherort_last_proj = filepath
-        self.model.Label = uno.fileUrlToSystemPath(filepath)
         
     def disposing(self,ev):
         return False
@@ -1040,6 +1076,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
 from com.sun.star.awt.Key import RETURN
 class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowListener,XKeyListener): 
     def __init__(self,mb,model_proj_name,model_neue_vorl,control_CB,control_LB):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.model_proj_name = model_proj_name
         self.model_neue_vorl = model_neue_vorl
@@ -1047,21 +1084,28 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         self.control_LB = control_LB
         
     def actionPerformed(self,ev):
-        parent = ev.Source.AccessibleContext.AccessibleParent 
-        cmd = ev.ActionCommand  
-        if cmd == 'vorlage_erstellen':
-            self.vorlage_auswaehlen()
-        elif cmd == lang.WAEHLEN:
-            return
-        elif cmd == lang.CANCEL:
-            parent.endDialog(0)
-        elif self.model_proj_name.Text == '':
-            self.mb.Mitteilungen.nachricht(lang.KEIN_NAME,"warningbox")
-        elif self.mb.speicherort_last_proj == None:
-            self.mb.Mitteilungen.nachricht(lang.KEIN_SPEICHERORT,"warningbox")
-        elif cmd == lang.OK:
-            self.get_path()
-            parent.endDialog(1)
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            
+            parent = ev.Source.AccessibleContext.AccessibleParent 
+            cmd = ev.ActionCommand  
+            if cmd == 'vorlage_erstellen':
+                self.vorlage_auswaehlen()
+            elif cmd == lang.WAEHLEN:
+                return
+            elif cmd == lang.CANCEL:
+                parent.endDialog(0)
+            elif self.model_proj_name.Text == '':
+                self.mb.Mitteilungen.nachricht(lang.KEIN_NAME,"warningbox")
+            elif self.mb.speicherort_last_proj == None:
+                self.mb.Mitteilungen.nachricht(lang.KEIN_SPEICHERORT,"warningbox")
+            elif cmd == lang.OK:
+                self.get_path()
+                parent.endDialog(1)
+                
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
         
              
     def windowClosed(self,ev):
@@ -1077,17 +1121,22 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                 parent.endDialog(1)
 
     def get_path(self):
+        if self.mb.debug: log(inspect.stack)
         
-        filepath = None
-        pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
-        
-        if os.path.exists(pfad):            
-            with codecs_open( pfad, "r","utf-8") as file:
-                filepath = file.read() 
-            self.mb.projekt_path = filepath
+        try:
+            filepath = None
+            pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
+            
+            if os.path.exists(pfad):            
+                with codecs_open( pfad, "r","utf-8") as file:
+                    filepath = file.read() 
+                self.mb.projekt_path = filepath
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
             
     def vorlage_auswaehlen(self):        
-                    
+        if self.mb.debug: log(inspect.stack)
+        
         if self.model_neue_vorl.Text == '':
             self.mb.Mitteilungen.nachricht(lang.WARNUNG_NAME_TEMPLATE,"warningbox")
             return
@@ -1131,6 +1180,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
 
         
     def vorlage_erstellen(self,name,URL):
+        if self.mb.debug: log(inspect.stack)
         
         try:
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
@@ -1152,7 +1202,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
             newDoc.storeToURL(Path2,(prop2,))
             
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         newDoc.close(False)
         self.mb.Mitteilungen.nachricht(lang.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
         
@@ -1171,12 +1221,15 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         
 class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListener):
     def __init__(self,mb,modelStandard,modelUser,modelListBox):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.modelStandard = modelStandard
         self.modelUser = modelUser
         self.modelListBox = modelListBox
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         # um sich nicht selbst abzuwaehlen
         if ev.Source.State == 0:
             ev.Source.State = 1
@@ -1191,6 +1244,8 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
         
     
     def get_template_pfad(self):
+        if self.mb.debug: log(inspect.stack)
+        
         pfade = self.mb.user_styles_pfade
         gewaehlt = self.modelListBox.SelectedItems[0]
         pfad = pfade[gewaehlt]
@@ -1199,7 +1254,8 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
         
     
     def itemStateChanged(self, ev):  
-
+        if self.mb.debug: log(inspect.stack)
+        
         use,pfad = self.mb.settings_proj['use_template']
         self.mb.settings_proj['use_template'] = (use,self.get_template_pfad())
     
@@ -1210,9 +1266,12 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
 
 class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             if ev.ActionCommand == 'formatierung':
                 path = os.path.join(self.mb.path_to_extension,'languages','info_format_%s.odt' % self.mb.language)
@@ -1240,14 +1299,8 @@ class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
             viewSettings.ZoomValue = 100
             viewSettings.ShowRulers = False
             
-            
-            
-
-            
-            
-
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         #pd()
         
     def disposing(self,ev):

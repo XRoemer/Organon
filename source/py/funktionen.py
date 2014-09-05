@@ -6,6 +6,7 @@ import unohelper
 class Funktionen():
     
     def __init__(self,mb,pdk):
+        if mb.debug: log(inspect.stack)
         self.mb = mb        
         
         global pd
@@ -42,7 +43,8 @@ class Funktionen():
 
        
     def erzeuge_Tag1_Container(self,ev):
- 
+        if self.mb.debug: log(inspect.stack)
+        
         Width = KONST.BREITE_TAG1_CONTAINER
         Height = KONST.HOEHE_TAG1_CONTAINER
         X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X 
@@ -61,6 +63,8 @@ class Funktionen():
 
     
     def erzeuge_ListBox_Tag1(self,window,cont,source):
+        if self.mb.debug: log(inspect.stack)
+        
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 4 ,  4 , 
                                        KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
@@ -98,6 +102,7 @@ class Funktionen():
     
     
     def find_parent_section(self,sec):
+        if self.mb.debug: log(inspect.stack)
         
         def find_parsection(section):
             
@@ -117,6 +122,8 @@ class Funktionen():
         return self.parsection
         
     def teile_text(self):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
 
             zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName    
@@ -262,12 +269,14 @@ class Tag1_Container_Listener (unohelper.Base, XMouseListener):
              
 class Tag1_Item_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb,window,source):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.window = window
         self.source = source
         
     # XItemListener    
-    def itemStateChanged(self, ev):    
+    def itemStateChanged(self, ev):   
+        if self.mb.debug: log(inspect.stack) 
 
         sel = ev.value.Source.Items[ev.value.Selected]
 

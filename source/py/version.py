@@ -6,6 +6,7 @@ import unohelper
 class Version():
     
     def __init__(self,mb,pdk):
+        if mb.debug: log(inspect.stack)
         self.mb = mb        
         
         global pd
@@ -15,22 +16,29 @@ class Version():
         
     def pruefe_version(self):
         if self.mb.debug: log(inspect.stack)
-        if 'Programmversion' in self.mb.props[T.AB].xml_tree.getroot().attrib:
-            self.version = self.mb.props[T.AB].xml_tree.getroot().attrib['Programmversion']
-
-
-        if self.version == 0:
-            self.an_080b_anpassen()
-        if self.version in ('0.8.0b','0.8.1b'):
-            self.an_090b_anpassen()
-        if self.version in ('0.9.0b'):
-            self.an_091b_anpassen()
-        if self.version in ('0.9.1b'):
-            self.an_092b_anpassen()
-        # an 093 muss nichts angepasst werden
-        self.neue_programmversion_eintragen()
+        
+        try:
+            if 'Programmversion' in self.mb.props[T.AB].xml_tree.getroot().attrib:
+                self.version = self.mb.props[T.AB].xml_tree.getroot().attrib['Programmversion']
+    
+    
+            if self.version == 0:
+                self.an_080b_anpassen()
+            if self.version in ('0.8.0b','0.8.1b'):
+                self.an_090b_anpassen()
+            if self.version in ('0.9.0b'):
+                self.an_091b_anpassen()
+            if self.version in ('0.9.1b'):
+                self.an_092b_anpassen()
+            # an 093 muss nichts angepasst werden
+            self.neue_programmversion_eintragen()
+        
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
         
     def neue_programmversion_eintragen(self):
+        if self.mb.debug: log(inspect.stack)
+        
         # Programmversion in settings.xml einfuegen
         xml_root = self.mb.props[T.AB].xml_tree.getroot()
         xml_root.attrib['Programmversion'] = self.mb.programm_version
@@ -65,6 +73,7 @@ class Version():
     
     def an_091b_anpassen(self):
         if self.mb.debug: log(inspect.stack)
+        
         self.mb.settings_exp.update({'neues_proj':0})
         self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp)  
         
@@ -90,7 +99,7 @@ class Version():
             
             self.mb.class_Sidebar.speicher_sidebar_dict()
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
         
         
         

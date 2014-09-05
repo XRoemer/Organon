@@ -6,6 +6,7 @@ import unohelper
 class ImportX():
     
     def __init__(self,mb,pdk):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.fenster_import = None
         self.fenster_filter = None
@@ -18,7 +19,7 @@ class ImportX():
         
         
     def importX(self):
-        
+        if self.mb.debug: log(inspect.stack)
         try:
             
             if T.AB != 'Projekt':
@@ -43,6 +44,7 @@ class ImportX():
 
  
     def erzeuge_importfenster(self): 
+        if self.mb.debug: log(inspect.stack)
         
         breite = 400
         hoehe = 460
@@ -206,7 +208,8 @@ class ImportX():
     
     
     def get_flags(self,x):
-                
+        if self.mb.debug: log(inspect.stack)
+         
         x_bin_rev = bin(x).split('0b')[1][::-1]
 
         flags = []
@@ -221,7 +224,8 @@ class ImportX():
     
     
     def erzeuge_filter(self):
-
+        if self.mb.debug: log(inspect.stack)
+        
         typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
         FF = self.mb.createUnoService( "com.sun.star.document.FilterFactory" )
         FilterNames = FF.getElementNames()
@@ -302,6 +306,8 @@ class ImportX():
                         
                         
     def warning(self,mb):
+        if self.mb.debug: log(inspect.stack)
+        
         lang.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
         entscheidung = mb.Mitteilungen.nachricht(lang.IMPORT_WARNING,"warningbox",16777216)
         # 3 = Nein oder Cancel, 2 = Ja
@@ -350,11 +356,13 @@ from com.sun.star.lang import XEventListener
 class Fenster_Dispose_Listener(unohelper.Base, XEventListener):
     # Listener um Position zu bestimmen
     def __init__(self,mb,class_Import):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.class_Import = class_Import
         
     def disposing(self,ev):
-
+        if self.mb.debug: log(inspect.stack)
+        
         self.class_Import.fenster_import = None
 
         if self.class_Import.fenster_filter != None:
@@ -368,11 +376,14 @@ from com.sun.star.awt import XItemListener, XActionListener, XFocusListener
 class Import_Button_Listener(unohelper.Base, XActionListener):
     
     def __init__(self,mb,fenster):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.fenster = fenster
 
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         imp_set = self.mb.settings_imp
         try:
             if int(imp_set['imp_dat']) == 1:
@@ -404,10 +415,11 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     
                 self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
             
     def datei_importieren(self,typ,url_dat):
+        if self.mb.debug: log(inspect.stack)
         
         zeile_nr,zeile_pfad = self.erzeuge_neue_Zeile()
         
@@ -464,6 +476,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         return ordinal_neuer_Eintrag,bereichsname
             
     def entferne_links(self,oOO):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             self.mb.class_Bereiche.verlinkte_Bilder_einbetten(oOO)
             
@@ -485,9 +499,10 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                             if 'OrganonSec' in link.Name:
                                 link.Name = 'OldOrgSec'+link.Name.split('OrganonSec')[1]
         except:
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
     def kapsel_in_Bereich(self,oOO,ordn):
+        if self.mb.debug: log(inspect.stack)
         
         cur = oOO.Text.createTextCursor()
         cur.gotoEnd(False)
@@ -512,8 +527,6 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
             
     def erzeuge_neue_Zeile(self):
-        
-        self.mb.timer_start = self.mb.time.clock()
         if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
@@ -600,6 +613,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
  
     
     def ordner_importieren(self):
+        if self.mb.debug: log(inspect.stack)
+        
         importXml,links_und_filter,erfolg = self.erzeuge_elementTree()
         
         if erfolg:
@@ -616,6 +631,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
  
     def neue_Dateien_erzeugen(self,importXml,links_und_filter):
+        if self.mb.debug: log(inspect.stack)
         
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
         
@@ -668,6 +684,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
  
     def fuege_importXml_in_xml_ein(self,importXml):
+        if self.mb.debug: log(inspect.stack)
+        
         root = self.mb.props[T.AB].xml_tree.getroot()
         
         name_selek_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
@@ -681,6 +699,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     
     def erzeuge_elementTree(self):
+        if self.mb.debug: log(inspect.stack)
 
         imp_set = self.mb.settings_imp
         path = uno.fileUrlToSystemPath(imp_set['url_ord'])
@@ -800,6 +819,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
             
     def setze_attribute(self,element,name,art,level,parent):
+        if self.mb.debug: log(inspect.stack)
         
         if art == 'dir':
             zustand = 'auf'
@@ -819,6 +839,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
            
     def get_filter_endungen(self):
+        if self.mb.debug: log(inspect.stack)
+        
         imp_set = self.mb.settings_imp  
         filterendungen = []
 
@@ -849,7 +871,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
     
     def durchlaufe_ordner(self,path):
-
+        if self.mb.debug: log(inspect.stack)
+        
         # Vorsortierung, um nicht fuer jede Datei deep scan durchzufuehren
         filterendungen = self.get_filter_endungen()
 
@@ -895,7 +918,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
   
     def deep_scan(self,root,file):
-
+        if self.mb.debug: log(inspect.stack)
+        
         if int(self.mb.settings_imp['auswahl']) == 0:
             return True,None
         else:
@@ -960,6 +984,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
  
     
     def leere_hf(self):
+        if self.mb.debug: log(inspect.stack)
+        
         contr = self.mb.dialog.getControl('Hauptfeld_aussen') 
         contr.dispose()
         contr = self.mb.dialog.getControl('ScrollBar')
@@ -971,12 +997,15 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
 class Import_CheckBox_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb,buttons,but_Auswahl):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.buttons = buttons
         self.but_Auswahl = but_Auswahl
         
     # XItemListener    
-    def itemStateChanged(self, ev):        
+    def itemStateChanged(self, ev):   
+        if self.mb.debug: log(inspect.stack)
+             
         # um sich nicht selbst abzuwaehlen
         if ev.Source.State == 0:
             ev.Source.State = 1
@@ -985,12 +1014,15 @@ class Import_CheckBox_Listener(unohelper.Base, XItemListener):
 
 class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,model1,model2,contr_strukt):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.model1 = model1
         self.model2 = model2
         self.contr_strukt = contr_strukt
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         imp_set = self.mb.settings_imp
 
         if ev.ActionCommand == 'struktur':
@@ -1021,10 +1053,12 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
            
 class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,importfenster):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.importfenster = importfenster
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
 
         imp_set = self.mb.settings_imp  
         
@@ -1089,6 +1123,8 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         return False
     
     def get_flags(self,x):
+        if self.mb.debug: log(inspect.stack)
+        
         # Nur fuer OO
         x_bin_rev = bin(x).split('0b')[1][::-1]
 
@@ -1104,6 +1140,8 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
     
     
     def erzeuge_filter(self):
+        if self.mb.debug: log(inspect.stack)
+        
         # Nur fuer OO
         typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
         FF = self.mb.createUnoService( "com.sun.star.document.FilterFactory" )
@@ -1180,11 +1218,14 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
        
 class Filter_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,buttons,fenster):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.buttons = buttons
         self.fenster = fenster
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         imp_set = self.mb.settings_imp  
         imp_set[ev.ActionCommand] = self.buttons[ev.ActionCommand].State
         
@@ -1203,11 +1244,14 @@ class Filter_CheckBox_Listener(unohelper.Base, XActionListener):
         
 class Filter_CheckBox_Listener2(unohelper.Base, XActionListener):
     def __init__(self,mb,buttons):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.buttons = buttons
         self.state = False
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         imp_set = self.mb.settings_imp  
         cmd = ev.ActionCommand
 
@@ -1227,11 +1271,14 @@ class Filter_CheckBox_Listener2(unohelper.Base, XActionListener):
 class Auswahl_Button_Listener(unohelper.Base, XActionListener):
     
     def __init__(self,mb,model1,model2):
+        if mb.debug: log(inspect.stack)
         self.mb = mb
         self.model1 = model1
         self.model2 = model2
         
     def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
         imp_set = self.mb.settings_imp 
 
         if ev.ActionCommand == 'Datei':
