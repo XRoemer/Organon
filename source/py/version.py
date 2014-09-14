@@ -30,7 +30,7 @@ class Version():
                 self.an_091b_anpassen()
             if self.version in ('0.9.1b'):
                 self.an_092b_anpassen()
-            # an 093 muss nichts angepasst werden
+            # an 093, 094, 095  muss nichts angepasst werden
             self.neue_programmversion_eintragen()
         
         except:

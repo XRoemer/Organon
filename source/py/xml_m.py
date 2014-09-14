@@ -12,11 +12,11 @@ class XML_Methoden():
         self.selbstaufruf = False  
                
     def get_tree_info(self,elem,eintr,index=0,parent = 'root'):
-        if self.mb.debug: log(inspect.stack)
         
         if not self.selbstaufruf:
             if self.mb.debug: log(inspect.stack)
             self.selbstaufruf = True
+            
             
         if elem.attrib['Name'] != 'root':
             eintr.append((elem.tag,parent,elem.attrib['Name'],str(index-1),elem.attrib['Art'],

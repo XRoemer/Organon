@@ -41,6 +41,7 @@ def load_logging(path_to_extension):
             import log_organon
         
         class_Log = log_organon.Log(path_to_extension,pd,tb)
+        class_Log.load_reload = load_reload
         debug = class_Log.debug
         log1 = class_Log.log
         return log1,class_Log,debug
@@ -152,7 +153,8 @@ class Factory(unohelper.Base, XSingleComponentFactory):
         
         global path_to_extension, log, debug, class_Log
         
-        path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
+        #path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
+        path_to_extension = get_path_to_extension()
         debug = False
         
         print("factory init")
@@ -259,7 +261,7 @@ def start_main(window,ctx,tabs,path_to_extension,win,factory):
         import menu_start
         
     try:
-        path_to_extension = __file__.decode("utf-8").split('organon.oxt')[0] + 'organon.oxt'
+        path_to_extension = get_path_to_extension()
         log,class_Log,debug = load_logging(path_to_extension)
     except:
         tb()
@@ -393,6 +395,15 @@ g_ImplementationHelper.addImplementation(*Sidebar_Options_Dispatcher.get_imple()
     
 
 ############################ TOOLS ###############################################################
+
+def get_path_to_extension():
+    
+    ctx = uno.getComponentContext()
+    pip = ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")   
+    ploc = pip.getPackageLocation('xaver.roemers.organon')
+    pfad = uno.fileUrlToSystemPath(ploc)
+    
+    return pfad
 
 # def get_office_name():
 #     

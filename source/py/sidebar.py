@@ -269,13 +269,14 @@ class Sidebar():
         copy2(pfad, pfad_Backup)
         
     def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
-        if self.mb.debug: log(inspect.stack)
            
         if xUIElement_name == 'empty_project':
             return
         if self.mb.dict_sb['sb_closed']:
             return
-            
+        
+        if self.mb.debug: log(inspect.stack)
+        
         # Wenn die Sidebar noch nicht geoeffnet wurde,
         # sind noch keine Panels vorhanden
         if xUIElement_name not in self.mb.dict_sb['controls']:
@@ -532,7 +533,6 @@ class Sidebar():
             
         except:
             if self.mb.debug: log(inspect.stack,tb())
-            #pd()
     
 
     def berechne_bildgroesse(self,model,hoehe):
@@ -548,7 +548,6 @@ class Sidebar():
             
         except:
             if self.mb.debug: log(inspect.stack,tb())
-        #pd()
     
     def dict_sb_zuruecksetzen(self):
         if self.mb.debug: log(inspect.stack)
@@ -1053,7 +1052,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                     self.mb.dict_sb_content['tags'][kat].remove(tag_eintrag)    
         except:
             if self.mb.debug: log(inspect.stack,tb())
-            #pd()
+
 
     def loesche_vorkommen_in_selektierter_datei(self,tag,tag_eintrag,ordinal):
         if self.mb.debug: log(inspect.stack)

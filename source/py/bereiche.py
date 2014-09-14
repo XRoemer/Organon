@@ -150,7 +150,8 @@ class Bereiche():
             cursor.gotoEnd(True)
             text.insertString( cursor, inhalt, True )
         except:
-            print(tb())
+            pass
+            #print(tb())
 
                      
     def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
@@ -241,9 +242,12 @@ class Bereiche():
        
         
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
-        if self.mb.debug: log(inspect.stack)
+        
         
         if self.mb.props[T.AB].tastatureingabe == True and bereichsname != None:
+            # Nur loggen, falls tatsaechlich gespeichert wurde
+            if self.mb.debug: log(inspect.stack)
+            
             # Damit das Handbuch nicht geaendert wird:
             if self.mb.anleitung_geladen:
                 return

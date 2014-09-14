@@ -27,7 +27,8 @@ class Menu_Bar():
         ###### DEBUGGING ########
         global debug,log,load_reload
         debug = debugX
-        load_reload = load_reloadX   
+        load_reload = load_reloadX 
+        self.load_reload = load_reload  
         log = logX
         
         self.debug = debugX
@@ -114,7 +115,7 @@ class Menu_Bar():
         self.ET = ElementTree  
         self.Mitteilungen = Mitteilungen(self.ctx,self)
          
-        self.class_Hauptfeld,self.class_Zeilen_Listener = self.get_Klasse_Hauptfeld()
+        self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
         self.class_Projekt =    self.lade_modul('projects','.Projekt(self, pd)')   
         self.class_XML =        self.lade_modul('xml_m','.XML_Methoden(self,pd)')
         self.class_Funktionen = self.lade_modul('funktionen','.Funktionen(self, pd)')     
@@ -125,6 +126,8 @@ class Menu_Bar():
         self.class_Version =    self.lade_modul('version','.Version(self,pd)') 
         self.class_Tabs =       self.lade_modul('tabs','.Tabs(self)') 
         self.class_Log = class_LogX
+        
+        #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
         
         # Listener  
         self.VC_selection_listener  = ViewCursor_Selection_Listener(self)          
@@ -208,7 +211,6 @@ class Menu_Bar():
             if ext[0] == 'xaver.roemers.organon':
                 version = ext[1]
                 
-        #PL = pip.getPackageLocation('xaver.roemers.organon')
         return version
     
     def erzeuge_Menu(self,win):
@@ -232,7 +234,7 @@ class Menu_Bar():
             
         except Exception as e:
                 self.Mitteilungen.nachricht('erzeuge_Menu ' + str(e),"warningbox")
-                tb()
+                if self.mb.debug: log(inspect.stack,tb())
 
     
     def erzeuge_MenuBar_Container(self,win):
@@ -563,7 +565,6 @@ class Menu_Bar():
             window.setPosSize(0,0,0,y,8)
         except:
             if self.mb.debug: log(inspect.stack,tb())
-            #pd()
     
     def erzeuge_Menu_DropDown_Eintraege_Bearbeiten(self,window,cont):
         if self.debug: log(inspect.stack)
@@ -613,23 +614,23 @@ class Menu_Bar():
         else:
             return None
             
-    def get_Klasse_Hauptfeld(self):
+    def get_Klasse_Baumansicht(self):
         if self.debug: log(inspect.stack)
 
         if load_reload:
-            modul = 'h_feld'
-            h_feld = load_reload_modul(modul,pyPath,self)  
+            modul = 'baum'
+            baum = load_reload_modul(modul,pyPath,self)  
             
             for imp in IMPORTS:
-                exec('h_feld.%s=%s' %(imp,imp))
+                exec('baum.%s=%s' %(imp,imp))
         else: 
-            import h_feld   
+            import baum   
             
             for imp in IMPORTS:
-                exec('h_feld.%s=%s' %(imp,imp))
+                exec('baum.%s=%s' %(imp,imp))
                    
-        Klasse_Hauptfeld = h_feld.Main_Container(self)
-        Klasse_Zeilen_Listener = h_feld.Zeilen_Listener(self.ctx,self)
+        Klasse_Hauptfeld = baum.Baumansicht(self)
+        Klasse_Zeilen_Listener = baum.Zeilen_Listener(self.ctx,self)
         return Klasse_Hauptfeld,Klasse_Zeilen_Listener
 
     def lade_modul(self,modul,arg = None): 
@@ -659,7 +660,7 @@ class Menu_Bar():
                 else:
                     return eval(modul+arg)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            if self.debug: log(inspect.stack,tb())
      
   
     def lade_Modul_Language(self):
@@ -696,14 +697,14 @@ class Menu_Bar():
         if self.debug: log(inspect.stack)
         
         try:
-            self.class_Hauptfeld.erzeuge_neue_Zeile(ordner_oder_datei)    
+            self.class_Baumansicht.erzeuge_neue_Zeile(ordner_oder_datei)    
         except:
             if self.mb.debug: log(inspect.stack,tb())  
             
     def leere_Papierkorb(self):
         if self.debug: log(inspect.stack)
         
-        self.class_Hauptfeld.leere_Papierkorb()   
+        self.class_Baumansicht.leere_Papierkorb()   
         
     def erzeuge_Backup(self):
         if self.debug: log(inspect.stack)
@@ -719,7 +720,7 @@ class Menu_Bar():
             neuer_projekt_name = self.projekt_name + t
             pfad_zu_neuem_ordner = os.path.join(pfad_zu_backup_ordner,neuer_projekt_name)
             
-            tree = self.props['Projekt'].xml_tree
+            tree = copy.deepcopy(self.props['Projekt'].xml_tree)
             root = tree.getroot()
             
             all_elements = root.findall('.//')
@@ -823,10 +824,7 @@ class Menu_Bar():
         # diese Methode existiert, um alle Schreibvorgaenge
         # des XML_trees kontrollieren zu koennen
         tree.write(pfad)
-#         if 'Element' in pfad:
-#             print(pfad)
-        
-             
+
     def oeffne_dokument_in_neuem_fenster(self,URL):
         if self.debug: log(inspect.stack)
         
@@ -990,7 +988,6 @@ class Tab_Listener(unohelper.Base,XTabListener):
                     self.mb.class_Sidebar.passe_sb_an(self.mb.props[T.AB].selektierte_zeile_alt)
                     
              
-            #pd()        
             self.id_old = id
         except:
             if self.mb.debug: log(inspect.stack,tb())
@@ -1219,7 +1216,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         self.model = model
         
     # XItemListener    
-    def itemStateChanged(self, ev):    
+    def itemStateChangedBackup(self, ev):    
         if self.mb.debug: log(inspect.stack)
             
         try:
@@ -1240,54 +1237,70 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
         except:
             if self.mb.debug: log(inspect.stack,tb())
+            
+    # XItemListener    
+    def itemStateChanged(self, ev):    
+        if self.mb.debug: log(inspect.stack)
+            
+        try:
+            sett = self.mb.settings_proj
+            
+            sett['tag1'] = self.model.State
+            self.mache_tag1_sichtbar(self.model.State)
+            
+            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
     
     def mache_tag1_sichtbar(self,sichtbar):
         if self.mb.debug: log(inspect.stack)
-    
-        # alle Zeilen
-        controls_zeilen = self.mb.props[T.AB].Hauptfeld.Controls
-        tree = self.mb.props[T.AB].xml_tree
-        root = tree.getroot()
         
-        if not sichtbar:
-            for contr_zeile in controls_zeilen:
-                tag1_contr = contr_zeile.getControl('tag1')
-                text_contr = contr_zeile.getControl('textfeld')
-                posSizeX = text_contr.PosSize.X
-                
-                text_contr.setPosSize(posSizeX-16,0,0,0,1)
-
-                if self.mb.settings_proj['tag2']:
-                    tag2_contr = contr_zeile.getControl('tag2')
-                if self.mb.settings_proj['tag3']:
-                    tag3_contr = contr_zeile.getControl('tag3')
+        for tab_name in self.mb.props:
+        
+            # alle Zeilen
+            controls_zeilen = self.mb.props[tab_name].Hauptfeld.Controls
+            tree = self.mb.props[tab_name].xml_tree
+            root = tree.getroot()
+            
+            if not sichtbar:
+                for contr_zeile in controls_zeilen:
+                    tag1_contr = contr_zeile.getControl('tag1')
+                    text_contr = contr_zeile.getControl('textfeld')
+                    posSizeX = text_contr.PosSize.X
                     
-                tag1_contr.dispose()
-                
-        if sichtbar:
-            for contr_zeile in controls_zeilen:
-                text_contr = contr_zeile.getControl('textfeld')
-                text_posX = text_contr.PosSize.X
-                text_contr.setPosSize(text_posX + 16 ,0,0,0,1)                  
-
-                icon_contr = contr_zeile.getControl('icon')
-                icon_posX_end = icon_contr.PosSize.X + icon_contr.PosSize.Width 
-
-                Color__Container = 10202
-                Attr = (icon_posX_end,2,16,16,'egal', Color__Container)    
-                PosX,PosY,Width,Height,Name,Color = Attr
-
-                ord_zeile = contr_zeile.AccessibleContext.AccessibleName
-
-                zeile_xml = root.find('.//'+ord_zeile)
-                tag1 = zeile_xml.attrib['Tag1']
-
-                control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
-                model_tag1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % tag1
-                model_tag1.Border = 0
-                control_tag1.addMouseListener(self.mb.class_Hauptfeld.tag1_listener)
-
-                contr_zeile.addControl('tag1',control_tag1)
+                    text_contr.setPosSize(posSizeX-16,0,0,0,1)
+    
+                    if self.mb.settings_proj['tag2']:
+                        tag2_contr = contr_zeile.getControl('tag2')
+                    if self.mb.settings_proj['tag3']:
+                        tag3_contr = contr_zeile.getControl('tag3')
+                        
+                    tag1_contr.dispose()
+                    
+            if sichtbar:
+                for contr_zeile in controls_zeilen:
+                    text_contr = contr_zeile.getControl('textfeld')
+                    text_posX = text_contr.PosSize.X
+                    text_contr.setPosSize(text_posX + 16 ,0,0,0,1)                  
+    
+                    icon_contr = contr_zeile.getControl('icon')
+                    icon_posX_end = icon_contr.PosSize.X + icon_contr.PosSize.Width 
+    
+                    Color__Container = 10202
+                    Attr = (icon_posX_end,2,16,16,'egal', Color__Container)    
+                    PosX,PosY,Width,Height,Name,Color = Attr
+    
+                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
+    
+                    zeile_xml = root.find('.//'+ord_zeile)
+                    tag1 = zeile_xml.attrib['Tag1']
+    
+                    control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+                    model_tag1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % tag1
+                    model_tag1.Border = 0
+                    control_tag1.addMouseListener(self.mb.class_Baumansicht.tag1_listener)
+    
+                    contr_zeile.addControl('tag1',control_tag1)
 
 class Tag_SB_Item_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb):
@@ -1646,7 +1659,7 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
     def windowResized(self,ev):
         #print('windowResized')
         self.korrigiere_hoehe_des_scrollbalkens()
-        self.mb.class_Hauptfeld.korrigiere_scrollbar()
+        self.mb.class_Baumansicht.korrigiere_scrollbar()
     def windowMoved(self,ev):pass
         #print('windowMoved')
     def windowShown(self,ev):
@@ -1735,13 +1748,13 @@ def load_reload_modul(modul,pyPath,mb):
                 except:
                     pass
         except:
-            tb()
+            if mb.debug: log(inspect.stack,tb())
                             
         exec('import '+ modul)
 
         return eval(modul)
     except:
-        tb()
+        if mb.debug: log(inspect.stack,tb())
         
 
     

@@ -3,7 +3,7 @@
 import unohelper
 
 
-class Main_Container():
+class Baumansicht():
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
@@ -21,11 +21,11 @@ class Main_Container():
     def start(self):
         if self.mb.debug: log(inspect.stack)
 
-        self.mb.props[T.AB].Hauptfeld = self.erzeuge_Navigations_Hauptfeld(self.mb.dialog)  
+        self.mb.props[T.AB].Hauptfeld = self.erzeuge_Feld_Baumansicht(self.mb.dialog)  
         self.erzeuge_Scrollbar(self.dialog,self.ctx)
 
         
-    def erzeuge_Navigations_Hauptfeld(self,win):
+    def erzeuge_Feld_Baumansicht(self,win):
         if self.mb.debug: log(inspect.stack)
         # Das aeussere Hauptfeld wird fuers Scrollen benoetigt. Das innere und eigentliche
         # Hauptfeld scrollt dann in diesem Hauptfeld_aussen
@@ -51,7 +51,7 @@ class Main_Container():
         return control2
 
   
-    def erzeuge_Verzeichniseintrag(self,eintrag,class_Zeilen_Listener,index=0,tab_name = 'Projekt'):
+    def erzeuge_Zeile_in_der_Baumansicht(self,eintrag,class_Zeilen_Listener,index=0,tab_name = 'Projekt'):
         if self.mb.debug: log(inspect.stack)
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
@@ -174,7 +174,7 @@ class Main_Container():
           
         MenuBar = win.getControl('Organon_Menu_Bar')
         MBHoehe = MenuBar.PosSize.value.Height + MenuBar.PosSize.value.Y
-        NCHoehe = 0 #nav_cont.PosSize.value.Height
+        NCHoehe = 0 
         NCPosY  = nav_cont.PosSize.value.Y
         Y =  NCHoehe + NCPosY + MBHoehe
         Height = win.PosSize.value.Height - Y - 25
@@ -183,7 +183,6 @@ class Main_Container():
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control, model = self.mb.createControl(ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
-        #model.Name = 'ScrollBar_Hauptfeld'
         model.Orientation = 1
         model.LiveScroll = True        
         hoehe_Hauptfeld = nav_cont.Size.value.Height 
@@ -202,9 +201,7 @@ class Main_Container():
         #print(T.AB,self.mb.active_tab_id)
         active_tab = self.mb.active_tab_id
         win = self.mb.tabs[active_tab][0]
-        SB = win.getControl('ScrollBar')
-        #SB = self.mb.scrollbar
-        
+        SB = win.getControl('ScrollBar')        
         
         hoehe = sorted(list(self.mb.props[T.AB].dict_zeilen_posY))
         if hoehe != []:
@@ -222,6 +219,7 @@ class Main_Container():
 
     
     def finde_falschen_bereich(self):
+        # Nur fuers Debugging
         if self.mb.debug: log(inspect.stack)
         
         sections = self.mb.doc.TextSections
@@ -270,7 +268,7 @@ class Main_Container():
                 eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
                 
                 # neue Zeile / neuer XML Eintrag
-                self.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
+                self.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
                 self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal)
                             
@@ -520,7 +518,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         self.mb.props[T.AB].selektierte_zeile_alt = None
         self.dragged = False
-        
+                
+        # nur fuers logging
+        self.log_selbstruf = False
               
     def mouseMoved(self,ev):  
         return False
@@ -637,15 +637,31 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
             ev.Source.Model.ReadOnly = True 
             self.edit_text = False
-            # neuen Text in die xml Datei eintragen
-            tree = self.mb.props[T.AB].xml_tree
-            root = tree.getroot() 
+            # neuen Text in die xml Dateien eintragen
             zeile_ord = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
-            xml_elem = root.find('.//'+zeile_ord)
-            xml_elem.attrib['Name'] = ev.Source.Text
             
-            Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-            self.mb.tree_write(tree,Path1)
+            for tab_name in self.mb.props:
+                
+                tree = self.mb.props[tab_name].xml_tree
+                root = tree.getroot() 
+                
+                xml_elem = root.find('.//'+zeile_ord)
+                
+                if xml_elem != None:
+                
+                    xml_elem.attrib['Name'] = ev.Source.Text
+                    
+                    if tab_name == 'Projekt':
+                        Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
+                    else:
+                        Path1 = os.path.join(self.mb.pfade['tabs'],tab_name + '.xml')
+                        
+                    self.mb.tree_write(tree,Path1)
+                    
+                    # Textfeld in allen Tabs anpassen
+                    textfeld = self.mb.props[tab_name].Hauptfeld.getControl(zeile_ord).getControl('textfeld')
+                    textfeld.Model.Text = ev.Source.Text
+            
         return False
 
     def mouseDragged(self,ev):
@@ -706,9 +722,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
                     # Wenn Erster
                     elif ordinal == ord_erster:
-                        if zeileY < 12:
+                        if zeileY < 10:
                             ImageURL = KONST.IMAGE_PFEIL_HOCH
                             self.einfuegen = 'drueber'
+                        elif zeileY < 16:
+                            ImageURL = KONST.IMAGE_PFEIL_RECHTS
+                            self.einfuegen = 'inOrdnerEinfuegen'
                         else:
                             ImageURL = KONST.IMAGE_PFEIL_RUNTER
                             self.einfuegen = 'drunter'
@@ -810,7 +829,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                 self.Y = Y  
                     
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            # Der Fehler braucht nicht geloggt zu werden, da er 
+            # staendig und folgenlos auftritt
+            print(tb())
                 
     def berechne_pos(self,Y):
 #         if self.mb.debug: log(inspect.stack)
@@ -901,7 +922,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 ordinale = source,
             
             
-            
             for ordn in ordinale:
                 for tab in self.mb.props:
                     if tab != 'Projekt':
@@ -909,9 +929,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                             
                             root = self.mb.props[tab].xml_tree.getroot()
                             dateiname = root.find('.//'+ordn).attrib['Name']
-                            
-                            # lang.KEIN_NAME
-                             
+                                                         
                             self.mb.Mitteilungen.nachricht(self.mb.lang.KANN_NICHT_VERSCHOBEN_WERDEN %(dateiname,tab),"warningbox")
                             return False
         except:
@@ -1024,7 +1042,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return eintraege
         
    
-            
     def schalte_sichtbarkeit_des_hf(self,selbst,selbst_xml,zustand,zeige_projektordner = False):
         if self.mb.debug: log(inspect.stack)
         
@@ -1072,9 +1089,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
         self.positioniere_elemente_im_baum_neu()          
         self.update_dict_zeilen_posY() 
-        
-        
-        
+              
         
     def verlinke_Bereiche(self,sections):
         if self.mb.debug: log(inspect.stack)
@@ -1123,15 +1138,43 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         dict = {}
         sections = self.mb.doc.TextSections
         names = sections.ElementNames
-        
+         
         for name in names:
             if 'OrganonSec' in name:
                 sec = sections.getByName(name)
+
                 if sec.FileLink.FileURL != '':
-                    if sec.FileLink.FileURL in dict:
-                        pass#print('link ist schon vorhanden!!')
                     dict.update({sec.FileLink.FileURL:sec.Name})
+         
         return dict
+    
+    
+    def get_sections(self):
+        
+        dict = {}
+        sections = self.mb.doc.TextSections
+        names = sections.ElementNames
+
+        for name in names:
+            if 'OrganonSec' in name:
+                sec = sections.getByName(name)
+                dict.update({name:sec})
+        return dict
+    
+    
+    def get_links2(self,sections_uno):
+        if self.mb.debug: log(inspect.stack)
+ 
+        dict = {}
+        sections = self.mb.doc.TextSections
+        names = sections.ElementNames
+
+        for name in sections_uno:
+            sec = sections_uno[name]
+            dict.update({sec.FileLink.FileURL:sec.Name})
+     
+        return dict       
+        
         
     def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal = None):
         if self.mb.debug: log(inspect.stack)
@@ -1145,17 +1188,19 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName
             except:
                 return
-                        
+            
+            sections_uno = self.get_sections()
+                  
             # Ordner
             if zeilenordinal in self.mb.props[T.AB].dict_ordner:
                 zeilen_in_ordner_ordinal = self.mb.props[T.AB].dict_ordner[zeilenordinal]
-                #print('Ordner')
+
                 # alle Zeilen im Ordner einblenden
                 for z in zeilen_in_ordner_ordinal:
                     ordnereintrag_name = self.mb.props[T.AB].dict_bereiche['ordinal'][z]
                     z_in_ordner = self.mb.doc.TextSections.getByName(ordnereintrag_name)
-                    
-                    self.verlinke_Sektion(ordnereintrag_name,z_in_ordner)
+                        
+                    self.verlinke_Sektion(ordnereintrag_name,z_in_ordner,sections_uno)
                     
                     #print('blende ein:',z_in_ordner.Name)
                     z_in_ordner.IsVisible = True
@@ -1170,11 +1215,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                         else:
                             self.zeige_Trenner(z_in_ordner)
                         
-                            
                 # uebrige noch sichtbare ausblenden
                 sichtbare_bereiche = self.mb.props['Projekt'].sichtbare_bereiche
                 
-                for bereich in reversed(sichtbare_bereiche): 
+                for bereich in (sichtbare_bereiche): 
                     sec = self.mb.doc.TextSections.getByName(bereich)
                     bereich_ord = os.path.basename(sec.FileLink.FileURL).split('.')[0] 
                     
@@ -1196,7 +1240,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 self.mb.sec_helfer.IsVisible = True
                 selekt_bereich.IsVisible = False
                 
-                self.verlinke_Sektion(selekt_bereich_name,selekt_bereich)
+                self.verlinke_Sektion(selekt_bereich_name,selekt_bereich,sections_uno)
                 
                 self.mache_Kind_Bereiche_sichtbar(selekt_bereich)
                 self.entferne_Trenner(selekt_bereich)
@@ -1233,7 +1277,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         zeilenordinal =  self.mb.props[T.AB].selektierte_zeile.AccessibleName
         bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][zeilenordinal]
-
+        
+        sections_uno = self.get_sections()
+        
         # Ordner
         if zeilenordinal in self.mb.props[T.AB].dict_ordner:
             zeilen_in_ordner_ordinal = self.mb.props[T.AB].dict_ordner[zeilenordinal][0],
@@ -1242,7 +1288,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             for z in zeilen_in_ordner_ordinal:
                 ordnereintrag_name = self.mb.props[T.AB].dict_bereiche['ordinal'][z]
                 z_in_ordner = self.mb.doc.TextSections.getByName(ordnereintrag_name)
-                self.verlinke_Sektion(ordnereintrag_name,z_in_ordner)    
+                self.verlinke_Sektion(ordnereintrag_name,z_in_ordner,sections_uno)    
 
             # uebrige noch sichtbare ausblenden
             for bereich in self.mb.props['Projekt'].sichtbare_bereiche:                        
@@ -1254,11 +1300,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
 
-    def verlinke_Sektion(self,name,bereich):
+    def verlinke_Sektion(self,name,bereich,sections_uno):
         if self.mb.debug: log(inspect.stack)
         
-        dict_filelinks = self.get_links()
-        
+        dict_filelinks = self.get_links2(sections_uno)
+
         try:
             url_in_dict = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][name])
             url_sec = bereich.FileLink.FileURL
@@ -1282,7 +1328,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     sec.setPropertyValue('FileLink',SFLink2)
                     #print('link neu gesetzt ##############',sec.FileLink.FileURL)
 
-                    
+                # Fuer die Fehlersuche, falls ungewollt Bereiche erzeugt werden 
 #                 sections = self.mb.doc.TextSections
 #                 names = sections.ElementNames
 #                 if 'Bereich1' in names:
@@ -1294,13 +1340,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 if url_in_dict != bereich.FileLink.FileURL:
                     bereich.setPropertyValue('FileLink',SFLink)
                 
-                
-                sections = self.mb.doc.TextSections
-                names = sections.ElementNames
-                if len(names) == 0:
-                    return
-                
-
         except:
             if self.mb.debug: log(inspect.stack,tb())
     
@@ -1335,12 +1374,19 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             print(child,'ist nicht in den Sections')
             
     def mache_Kind_Bereiche_sichtbar(self,sec):
-        if self.mb.debug: log(inspect.stack)
+        # self.log_selbstruf: um mache_Kind_Bereiche_sichtbar nur
+        # 1x zu loggen
+        if not self.log_selbstruf:
+            if self.mb.debug: log(inspect.stack)
+        
+        self.log_selbstruf = True
         
         for kind in sec.ChildSections:
             kind.IsVisible = True
             if len(kind.ChildSections) > 0:
                 self.mache_Kind_Bereiche_sichtbar(kind)
+        
+        self.log_selbstruf = False
     
     def zeige_Trenner(self,sec):  
         if self.mb.debug: log(inspect.stack)
@@ -1458,7 +1504,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
         self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext
         
         if ev.Buttons == MB_RIGHT:
-            pass#pd()
+            pass
         
         if ev.Buttons == MB_LEFT:    
             if ev.ClickCount == 2: 
@@ -1494,7 +1540,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                     Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
                     self.mb.props[T.AB].xml_tree
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
-                    self.mb.class_Hauptfeld.korrigiere_scrollbar()
+                    self.mb.class_Baumansicht.korrigiere_scrollbar()
                 except:
                     if self.mb.debug: log(inspect.stack,tb())
                 

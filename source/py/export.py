@@ -39,7 +39,7 @@ class Export():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('Export.export '+ str(e),"warningbox")
-            print(tb())
+            if self.mb.debug: log(inspect.stack,tb())
 
 
     def erzeuge_exportfenster(self): 
@@ -395,7 +395,7 @@ class Export():
                       
         except Exception as e:
             self.mb.Mitteilungen.nachricht('kopiere_Projekt ' + str(e),"warningbox")
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
         
 
@@ -985,7 +985,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         
         except Exception as e:
             self.mb.Mitteilungen.nachricht('exp_in_neues_proj ' + str(e),"warningbox")
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
     
     def et_und_ordinale_berechnen(self,sections,projektname):
         if self.mb.debug: log(inspect.stack)

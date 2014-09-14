@@ -15,7 +15,8 @@ class Log():
         tb = tbX
         
         self.path_to_extension = path_to_extension
-        self.debug = False        
+        self.debug = False  
+        self.load_reload = False      
         self.timer_start = clock()
         
         # Default Debug Settings
@@ -73,7 +74,7 @@ class Log():
             
             line = file.readline()
             value = line.split('log_args=')[1].replace('\n','')
-            self.reload_modules = int(value)
+            self.log_args = int(value)
 
         return True
     
@@ -96,7 +97,7 @@ class Log():
         zeit = "%0.2f" %(clock()-self.timer_start)
         return zeit
     
-    def log(self,args,traceb = None,filepath = None):
+    def log(self,args,traceb = None,extras = None):
         
         try:
             info = args()
@@ -121,17 +122,22 @@ class Log():
 
             if modul in ('ViewCursor_Selection_Listener'):
                 return
+            
+            if self.load_reload:
+                if function in ('entferne_Trenner','mouseEntered','mouseExited'):
+                    return
+                #sleep(0.04)
 
             if len(modul) > 18:
                 modul = modul[0:18]
             
             if self.log_args:
-                string = '%-7s %-18s %-40s %s( caller: %-40s args: %s ' %(self.debug_time(),modul,function,'',call,argues)
+                string = '%-7s %-18s %-40s %s( caller: %-60s args: %s ' %(self.debug_time(),modul,function,'',call,argues)
             else:
                 string = '%-7s %-18s %-40s %s( caller: %s' %(self.debug_time(),modul,function,'',call)
             
             
-            #sleep(0.06)
+            
             print(string)
             
             
@@ -145,13 +151,19 @@ class Log():
                     with open(path , "a") as file:
                         file.write(traceb+'\r\n')
                 
-                if filepath != None:
-                    print(filepath)
+                if extras != None:
+                    print(extras)
                     with open(path , "a") as file:
-                        file.write(filepath+'\r\n')
+                        file.write(extras+'\r\n')
             
-        except:
-            print(tb())
+        except Exception as e:
+            try:
+                path = join(self.location_debug_file,'organon_log.txt')
+                with open(path , "a") as file:
+                    file.write(e +'\r\n')
+                print(e)
+            except:
+                pass
 
     def format_argues(self,argues):
         try:

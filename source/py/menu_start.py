@@ -63,7 +63,7 @@ class Menu_Start():
             
             dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
         except:
-            tb()
+            if debug: log(inspect.stack,tb())
                 
     
     def get_office_name(self):
@@ -169,7 +169,7 @@ class Menu_Start():
             self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu(self.dialog)
         except:
-            tb()    
+            if debug: log(inspect.stack,tb())    
         
               
     def lade_Modul_Language(self):
@@ -255,7 +255,7 @@ class Menu_Listener (unohelper.Base, XActionListener):
                 self.menu.Menu_Bar.class_Projekt.lade_Projekt(False,pfad)
                 self.menu.Menu_Bar.anleitung_geladen = True
         except:
-            tb()
+            if debug: log(inspect.stack,tb())
             
     def get_Org_description_path(self):
         if debug: log(inspect_stack)
@@ -310,13 +310,13 @@ def load_reload_modul(modul,pyPath,mb):
                 except:
                     pass
         except:
-            traceback.print_exc()
+            if debug: log(inspect.stack,tb())
                             
         exec('import '+ modul)
 
         return eval(modul)
     except:
-        traceback.print_exc()
+        if debug: log(inspect.stack,tb())
         
 
     

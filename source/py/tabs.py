@@ -142,7 +142,7 @@ class Tabs():
             self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
  
             self.setze_selektierte_zeile('nr0')
-            self.mb.class_Hauptfeld.korrigiere_scrollbar()
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             # zur Sicherung, damit der projekt xml nicht ueberschrieben wrd
             if T.AB == 'Projekt' or self.mb.active_tab_id == 1:
@@ -181,7 +181,7 @@ class Tabs():
             self.mb.erzeuge_Menu(win)
             self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
             self.setze_selektierte_zeile('nr0')
-            self.mb.class_Hauptfeld.korrigiere_scrollbar()
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             tree = self.mb.props[T.AB].xml_tree
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
@@ -190,7 +190,6 @@ class Tabs():
             self.mb.write_tab = False
         except:
             if self.mb.debug: log(inspect.stack,tb())
-            #pd()
  
         
     def lade_tabs(self):
@@ -217,7 +216,7 @@ class Tabs():
                 self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
                 
                 self.setze_selektierte_zeile('nr0')
-                self.mb.class_Hauptfeld.korrigiere_scrollbar()
+                self.mb.class_Baumansicht.korrigiere_scrollbar()
             
         except:
             if self.mb.debug: log(inspect.stack,tb())
@@ -294,7 +293,7 @@ class Tabs():
                         
             for tag_eintrag in alle_tag_eintraege:
                 if in_tab_einfuegen:
-                    if tag_eintrag not in self.im_tab_vorhandene:
+                    if tag_eintrag  in self.im_tab_vorhandene:
                         continue
                     
                 tag_ist_drin = False
@@ -327,7 +326,12 @@ class Tabs():
         
         ordinale = []
         
-        tree = self.mb.props[T.AB].xml_tree
+        if in_tab_einfuegen:
+            tab = 'Projekt'
+        else:
+            tab = T.AB
+        
+        tree = self.mb.props[tab].xml_tree
         root = tree.getroot()
         all_el = root.findall('.//')
 
@@ -336,7 +340,7 @@ class Tabs():
         
         for eintrag in all_el:
             if in_tab_einfuegen:
-                if eintrag.tag not in self.im_tab_vorhandene:
+                if eintrag.tag in self.im_tab_vorhandene:
                     continue
             if eintrag.attrib['Tag1'] in ausgew_icons:
                 ordinale.append(eintrag.tag)
@@ -713,7 +717,7 @@ class Tabs():
 
         return Eintraege
         
-    def erzeuge_neue_Eintraege_im_tab(self,tab_name,neue_ordinale,tab_xml, ord_selektierter):
+    def erzeuge_neue_Eintraege_im_tab(self,tab_name,neue_ordinale,tab_xml, ord_selekt):
         if self.mb.debug: log(inspect.stack)        
              
         xml_tree = self.mb.props['Projekt'].xml_tree
@@ -723,19 +727,28 @@ class Tabs():
         ordinale = []
         self.mb.class_XML.get_tree_info(root_tab,ordinale)
         
+        ord_selektierter = ord_selekt
+        selekt_xml = root_tab.find('.//'+ord_selekt)
+        ziel_xml = selekt_xml
+        
         # wenn ord_selektierter ein Ordner ist,
         # letzten Kindeintrag suchen und ord_selektierter neu setzen
         suche = False
         for ordn in ordinale:
             if ordn[0] == ord_selektierter:
-                selekt_xml = root_tab.find('.//'+ord_selektierter)
+                childs = list(selekt_xml)
+                # selektiert das letzte Kind eine Ebene tiefer,
+                # wenn selektierter ein Ordner ist
+                if childs != []:
+                    ziel_xml = childs[-1]
+
+                alle_Kinder = []
+                self.mb.class_XML.get_tree_info(selekt_xml,alle_Kinder)
+                # Selektiert das allerletzte Kind aller Unterordnereintraege
+                ord_selektierter = alle_Kinder[len(alle_Kinder)-1][0]
                 
-                Kinder = []
-                self.mb.class_XML.get_tree_info(selekt_xml,Kinder)
-                
-                ord_selektierter = Kinder[len(Kinder)-1][0]
-                
-        
+                break
+
         Eintraege = []
 
         for ordi in ordinale:
@@ -761,18 +774,18 @@ class Tabs():
                     
                 for o in neue_ordinale:
             
-                    elem = root.find('.//'+ o)
-        
-                    ordinal = elem.tag
-                    name    = elem.attrib['Name']
-                    art     = elem.attrib['Art']
-                    lvl     = lvl
-                    parent  = ord_selektierter
-                    zustand = elem.attrib['Zustand'] 
+                    elem2 = root.find('.//'+ o)
+
+                    ordinal = elem2.tag
+                    name    = elem2.attrib['Name']
+                    art     = elem2.attrib['Art']
+                    lvl     = ziel_xml.attrib['Lvl']
+                    parent  = ziel_xml.attrib['Parent']
+                    zustand = elem2.attrib['Zustand'] 
                     sicht   = 'ja'
-                    tag1   = elem.attrib['Tag1'] 
-                    tag2   = elem.attrib['Tag2'] 
-                    tag3   = elem.attrib['Tag3'] 
+                    tag1   = elem2.attrib['Tag1'] 
+                    tag2   = elem2.attrib['Tag2'] 
+                    tag3   = elem2.attrib['Tag3'] 
                     
                     eintrag = (ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3)
                     Eintraege.append(eintrag)      
@@ -874,7 +887,7 @@ class Tabs():
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
         
         if parent_neu != None:
-            par = root.find('.//'+parent_neu+'/..')
+            par = root.find('.//'+parent_neu)
             lvl = lvl_neu
             sicht = 'ja'
             zustand = 'auf'
@@ -907,8 +920,8 @@ class Tabs():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            self.mb.props[tab_name].Hauptfeld = self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld(win)  
-            self.mb.class_Hauptfeld.erzeuge_Scrollbar(win,self.mb.ctx)   
+            self.mb.props[tab_name].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(win)  
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(win,self.mb.ctx)   
 
             self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name)    
         except:
@@ -956,10 +969,10 @@ class Tabs():
         for eintrag in Eintraege:
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
                      
-            index = self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener,index,tab_name)
+            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,index,tab_name)
 
             if sicht == 'ja':
-                # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
+                # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                 self.mb.props[tab_name].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
                 self.mb.props[tab_name].sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
@@ -1067,6 +1080,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 self.erstelle_auswahl_dict(ev)
                 self.win.dispose()
                 ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
+                #ordinale =  self.schliesse_vorhandene_ordinale_aus(ordin)
                 if ordinale == []:
                     return
                 self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
@@ -1090,8 +1104,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         par_win = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext
         x = par_win.LocationOnScreen.X + par_win.Size.Width + 20
         y = par_win.LocationOnScreen.Y
-        return x,y
-
+        return x,y        
+        
     def erzeuge_tag_auswahl_baumansicht(self,ev):
         if self.mb.debug: log(inspect.stack)
         

@@ -75,7 +75,7 @@ class Projekt():
                 self.erzeuge_proj_Settings()
                           
                 self.mb.class_Bereiche.leere_Dokument()        
-                self.mb.class_Hauptfeld.start()             
+                self.mb.class_Baumansicht.start()             
                 Eintraege = self.beispieleintraege2()
                 
                 self.erzeuge_Projekt_xml_tree() 
@@ -95,7 +95,7 @@ class Projekt():
                 self.mb.class_Sidebar.lade_sidebar()
                 self.mb.class_Sidebar.speicher_sidebar_dict()
                 
-                self.mb.class_Hauptfeld.korrigiere_scrollbar()
+                self.mb.class_Baumansicht.korrigiere_scrollbar()
                 
                 self.mb.use_UM_Listener = True
 
@@ -562,15 +562,15 @@ class Projekt():
 
             self.mb.class_Version.pruefe_version()
 
-            self.mb.props[T.AB].Hauptfeld = self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld(self.mb.dialog) 
+            self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Zeile
             self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
-            self.mb.class_Hauptfeld.korrigiere_scrollbar()
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
             UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
@@ -644,11 +644,11 @@ class Projekt():
                 # Navigation
                 ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
                          
-                index = self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener,index)
+                index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,index)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)  
     
                 if sicht == 'ja':
-                    # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
+                    # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                     self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
                     self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
                     
@@ -715,10 +715,10 @@ class Projekt():
             # Navigation
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag   
                      
-            index = self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener,index)
+            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,index)
             
             if sicht == 'ja':
-                # index wird in erzeuge_Verzeichniseintrag bereits erhoeht, daher hier 1 abziehen
+                # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                 self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
                 self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
@@ -968,25 +968,18 @@ class Projekt():
        
     def test(self):
         x = 'wer'
-        try:
+        try: 
+            
+            
             pass
-        
-            debug = self.mb.debug 
-            print(debug)
+             
             
-            A = 123456789
-            
-            self.testtest('WaldiWuz',A)
         except:
-            x = tb()
-            print(x)
+            print(tb())
+            pd()
+            
         pd()
-
-    def testtest(self, Argument123,ArgumentABC):
-        if self.mb.debug: log(inspect.stack)
-        
-        erstesArg = Argument123
-        zweitesArg = ArgumentABC
+ 
     
 def erzeuge_Fenster(mb):
     if self.mb.debug: log(inspect.stack)
@@ -1306,5 +1299,5 @@ class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
     def disposing(self,ev):
         return False
         
-        
+   
         

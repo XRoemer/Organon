@@ -17,6 +17,8 @@ class ImportX():
         global lang
         lang = self.mb.lang
         
+        self.auszuschliessende_filter = ('BibTeX_Writer','LaTeX_Writer')
+        
         
     def importX(self):
         if self.mb.debug: log(inspect.stack)
@@ -40,7 +42,7 @@ class ImportX():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('ImportX ' + str(e),"warningbox")
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
 
  
     def erzeuge_importfenster(self): 
@@ -225,85 +227,89 @@ class ImportX():
     
     def erzeuge_filter(self):
         if self.mb.debug: log(inspect.stack)
-        
-        typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
-        FF = self.mb.createUnoService( "com.sun.star.document.FilterFactory" )
-        FilterNames = FF.getElementNames()
-        
-        # da in OO und LO die Positionen der Eintraege im MediaDescriptor verschieden sind,
-        # wird zuerst nach den richtigen Positionen gesucht
-        
-        fil = FF.getByName(FilterNames[0])
-        fil2 = typeDet.getByName(typeDet.ElementNames[0])
-
-        i = 0
-        
-        for fi in fil:
-            if fi.Name == 'UIName':
-                uiName_pos = i
-            elif fi.Name == 'Name':
-                name_pos = i
-            elif fi.Name == 'Type':
-                type_pos = i
-            elif fi.Name == 'DocumentService':
-                docSer_pos = i
-            elif fi.Name == 'Flags':
-                flags_pos = i
+        try:
+            typeDet = self.mb.createUnoService("com.sun.star.document.TypeDetection")
+            FF = self.mb.createUnoService( "com.sun.star.document.FilterFactory" )
+            FilterNames = FF.getElementNames()
+            
+            # da in OO und LO die Positionen der Eintraege im MediaDescriptor verschieden sind,
+            # wird zuerst nach den richtigen Positionen gesucht
+            
+            fil = FF.getByName(FilterNames[0])
+            fil2 = typeDet.getByName(typeDet.ElementNames[0])
+    
+            i = 0
+            
+            for fi in fil:
+                if fi.Name == 'UIName':
+                    uiName_pos = i
+                elif fi.Name == 'Name':
+                    name_pos = i
+                elif fi.Name == 'Type':
+                    type_pos = i
+                elif fi.Name == 'DocumentService':
+                    docSer_pos = i
+                elif fi.Name == 'Flags':
+                    flags_pos = i
+                    
+                i += 1          
+            
+            i = 0
+            
+            for fil in fil2:
+                if fil.Name == 'Extensions':
+                    extensions_pos = i
+                     
+                i += 1   
+    
+            def formatiere(term):
+                term = term.replace("'","")
+                term = term.replace('[','')
+                term = term.replace(']','')
+                term = term.replace(", "," (",1)
+                term = term.replace(",","")
+                term = term +')'
+                return term
+            
+            def formatiere2(term):
+                ter = []
+                for t in term:
+                    ter.append('*.'+str(t).replace("'",""))
+                return list(ter)
+            
+            
+            self.mb.filters_import = {}   
+            self.mb.filters_export = {}    
+            
+            
+            cont = self.mb.doc.getControllers()
+            for filt in FilterNames:
                 
-            i += 1          
-        
-        i = 0
-        
-        for fil in fil2:
-            if fil.Name == 'Extensions':
-                extensions_pos = i
-                 
-            i += 1   
-
-        def formatiere(term):
-            term = term.replace("'","")
-            term = term.replace('[','')
-            term = term.replace(']','')
-            term = term.replace(", "," (",1)
-            term = term.replace(",","")
-            term = term +')'
-            return term
-        
-        def formatiere2(term):
-            ter = []
-            for t in term:
-                ter.append('*.'+str(t).replace("'",""))
-            return list(ter)
-        
-        
-        self.mb.filters_import = {}   
-        self.mb.filters_export = {}    
-        
-        
-        cont = self.mb.doc.getControllers()
-        for filt in FilterNames:
-           
-            f = FF.getByName(filt)
-
-            if f[docSer_pos].Value == 'com.sun.star.text.TextDocument':
-                flags = self.get_flags(f[flags_pos].Value)
-
-                if 1 in flags or 2 in flags:
-                    uiName = f[uiName_pos].Value  
-                    filter_typeDet = typeDet.getByName(f[type_pos].Value)
-                    
-                    extensions = filter_typeDet[extensions_pos].Value
-                    label2 = formatiere2(extensions)
-                    label2.insert(0,str(uiName))
-                    
-                    if 1 in flags:
-                        # FilterName: Filter als Label, Extensions Endungen
-                        self.mb.filters_import.update({filt:(formatiere(str(label2)),extensions)})
-                    
-                    if 2 in flags:                        
-                        # FilterName: Filter als Label, Extensions Endungen
-                        self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
+                if filt in self.auszuschliessende_filter:
+                    continue
+                
+                f = FF.getByName(filt)
+    
+                if f[docSer_pos].Value == 'com.sun.star.text.TextDocument':
+                    flags = self.get_flags(f[flags_pos].Value)
+    
+                    if 1 in flags or 2 in flags:
+                        uiName = f[uiName_pos].Value  
+                        filter_typeDet = typeDet.getByName(f[type_pos].Value)
                         
+                        extensions = filter_typeDet[extensions_pos].Value
+                        label2 = formatiere2(extensions)
+                        label2.insert(0,str(uiName))
+                        
+                        if 1 in flags:
+                            # FilterName: Filter als Label, Extensions Endungen
+                            self.mb.filters_import.update({filt:(formatiere(str(label2)),extensions)})
+                        
+                        if 2 in flags:                        
+                            # FilterName: Filter als Label, Extensions Endungen
+                            self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
                         
     def warning(self,mb):
         if self.mb.debug: log(inspect.stack)
@@ -555,7 +561,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
             
             # neue Zeile / neuer XML Eintrag
-            self.mb.class_Hauptfeld.erzeuge_Verzeichniseintrag(eintrag,self.mb.class_Zeilen_Listener)
+            self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener)
             self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
                         
             # neue Datei / neuen Bereich anlegen           
@@ -621,7 +627,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.fuege_importXml_in_xml_ein(importXml)
             
             path = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-            self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
+            self.mb.tree_write(self.mb.props[T.AB].xml_tree,path)
             
             self.neue_Dateien_erzeugen(importXml,links_und_filter)
             
@@ -959,7 +965,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.class_Projekt.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
             self.mb.class_Projekt.lade_settings()      
-            self.mb.props[T.AB].Hauptfeld = self.mb.class_Hauptfeld.erzeuge_Navigations_Hauptfeld(self.mb.dialog) 
+            self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
                
             Eintraege = self.mb.class_Projekt.lese_xml_datei()
             self.mb.class_Projekt.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
@@ -968,8 +974,8 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Hauptfeld.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
-            self.mb.class_Hauptfeld.korrigiere_scrollbar()
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
                          
             # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
             Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
@@ -980,7 +986,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                         
         except Exception as e:
             self.mb.Mitteilungen.nachricht('lade_Projekt '+ str(e),"warningbox")
-            tb()
+            if self.mb.debug: log(inspect.stack,tb())
  
     
     def leere_hf(self):
