@@ -831,7 +831,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         except:
             # Der Fehler braucht nicht geloggt zu werden, da er 
             # staendig und folgenlos auftritt
-            print(tb())
+            pass #print(tb())
                 
     def berechne_pos(self,Y):
 #         if self.mb.debug: log(inspect.stack)
@@ -1189,6 +1189,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             except:
                 return
             
+            self.mb.sec_helfer2.IsVisible = True
+            self.mb.viewcursor.gotoStart(False)
+            
             sections_uno = self.get_sections()
                   
             # Ordner
@@ -1261,7 +1264,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 # Ansicht zu aktualisieren.
                 oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
                 self.mb.current_Contr.ViewSettings.ShowTextBoundaries = oBool
-
+            
+            self.mb.sec_helfer2.IsVisible = False
             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
 
         except:

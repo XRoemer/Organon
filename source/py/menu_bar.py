@@ -219,119 +219,76 @@ class Menu_Bar():
         try:             
             listener = Menu_Kopf_Listener(self) 
             listener2 = Menu_Kopf_Listener2(self) 
-            self.erzeuge_MenuBar_Container(win)
             
-            self.erzeuge_Menu_Kopf_Datei(listener,win)
-            self.erzeuge_Menu_Kopf_Bearbeiten(listener,win)
-            self.erzeuge_Menu_Kopf_Optionen(listener,win)
+            # CONTAINER
+            menuB_control, menuB_model = self.createControl(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
+            menuB_model.BackgroundColor = KONST.Color_MenuBar_Container
+    
+            win.addControl('Organon_Menu_Bar', menuB_control)
+        
             
+            Menueintraege = [
+                (self.lang.FILE,'a'),
+                (self.lang.BEARBEITEN_M,'a'),
+                (self.lang.OPTIONS,'a'),            
+                ('Ordner','b',KONST.IMG_ORDNER_NEU_24,self.lang.INSERT_DIR),
+                ('Datei','b',KONST.IMG_DATEI_NEU_24,self.lang.INSERT_DOC),
+                ('Papierkorb','b','vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png',self.lang.CLEAR_RECYCLE_BIN)
+                ]
+            
+            x = 0
+            
+            # SPRACHE
+            for eintrag in Menueintraege:
+                if eintrag[1] == 'a':
+            
+                    control, model = self.createControl(self.ctx, "FixedText", x, 2, 0, 20, (), ())           
+                    model.Label = eintrag[0]  
+                    control.addMouseListener(listener)
+                    breite = control.getPreferredSize().Width
+                    control.setPosSize(0,0,breite,0,4)
+                    
+                    menuB_control.addControl(eintrag[0], control)
+                    
+                    x += breite + 5
+                    
+            x += 15
+
+            # ICONS
+            for eintrag in Menueintraege:
+                if eintrag[1] == 'b':  
+                    
+                    if T.AB != 'Projekt':
+                        if eintrag[0] in ('Ordner','Datei'):
+                            x += 22
+                            continue 
+                        
+                    if eintrag[0] == 'Papierkorb':
+                        x += 20
+                        
+                    control, model = self.createControl(self.ctx, "ImageControl", x, 0, 20, 20, (), ())           
+                    model.ImageURL = eintrag[2]
+                    model.HelpText = eintrag[3]
+                    model.Border = 0                    
+                    control.addMouseListener(listener2) 
+                    
+                    menuB_control.addControl(eintrag[0], control)  
+                    
+                    x += 22
+            # TEST
             if load_reload:
-                self.erzeuge_Menu_Kopf_Test(listener,win)
-            if T.AB == 'Projekt':
-                self.erzeuge_Menu_neuer_Ordner(listener2,win)
-                self.erzeuge_Menu_Kopf_neues_Dokument(listener2,win)
-            self.erzeuge_Menu_Kopf_Papierkorb_leeren(listener2,win)
-            
+                control, model = self.createControl(self.ctx, "FixedText", x+30, 2, 50, 20, (), ())           
+                model.Label = 'Test'  
+                control.addMouseListener(listener)
+                
+                menuB_control.addControl('Test', control)
+
         except Exception as e:
                 self.Mitteilungen.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 if self.mb.debug: log(inspect.stack,tb())
-
-    
-    def erzeuge_MenuBar_Container(self,win):
-        if self.debug: log(inspect.stack)
-        
-        menuB_control, menuB_model = self.createControl(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
-        menuB_model.BackgroundColor = KONST.Color_MenuBar_Container
-         
-        win.addControl('Organon_Menu_Bar', menuB_control)
-
-
-    def erzeuge_Menu_Kopf_Datei(self,listener,win):
-        if self.debug: log(inspect.stack)
-        
-        control, model = self.createControl(self.ctx, "FixedText", 0, 2, 35, 20, (), ())           
-        model.Label = self.lang.FILE  
-        control.addMouseListener(listener)
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar') 
-        MenuBarCont.addControl('Datei', control)
-        
-        
-    def erzeuge_Menu_Kopf_Bearbeiten(self,listener,win):
-        if self.debug: log(inspect.stack)
-        
-        control, model = self.createControl(self.ctx, "FixedText", 37, 2, 60, 20, (), ())           
-        model.Label = self.lang.BEARBEITEN_M             
-        control.addMouseListener(listener)
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar') 
-        MenuBarCont.addControl('Bearbeiten', control)
-    
-    
-    def erzeuge_Menu_Kopf_Optionen(self,listener,win):
-        if self.debug: log(inspect.stack)
-                 
-        control, model = self.createControl(self.ctx, "FixedText", 100, 2, 55, 20, (), ())           
-        model.Label = self.lang.OPTIONS           
-        control.addMouseListener(listener)
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar')      
-        MenuBarCont.addControl('Optionen', control)
-        
-        
-    def erzeuge_Menu_Kopf_Test(self,listener,win):
-        if self.debug: log(inspect.stack)
-        
-        control, model = self.createControl(self.ctx, "FixedText", 300, 2, 50, 20, (), ())           
-        model.Label = 'Test'                     
-        control.addMouseListener(listener) 
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar')   
-        MenuBarCont.addControl('Projekt', control)
-        
-        
-    def erzeuge_Menu_neuer_Ordner(self,listener2,win):
-        if self.debug: log(inspect.stack)
-        
-        control, model = self.createControl(self.ctx, "ImageControl", 170, 0, 20, 20, (), ())   
-        model.ImageURL = KONST.IMG_ORDNER_NEU_24
-        
-        model.HelpText = self.lang.INSERT_DIR
-        model.Border = 0                    
-        control.addMouseListener(listener2) 
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar')     
-        MenuBarCont.addControl('Ordner', control)
-        
-        
-    def erzeuge_Menu_Kopf_neues_Dokument(self,listener2,win):
-        if self.debug: log(inspect.stack)
-        
-        control, model = self.createControl(self.ctx, "ImageControl", 190, 0, 20, 20, (), ())           
-        model.ImageURL = KONST.IMG_DATEI_NEU_24
-                    
-        model.HelpText = self.lang.INSERT_DOC
-        model.Border = 0                    
-        control.addMouseListener(listener2) 
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar')   
-        MenuBarCont.addControl('neues_Dokument', control)
   
-        
-    def erzeuge_Menu_Kopf_Papierkorb_leeren(self,listener2,win):
-        if self.debug: log(inspect.stack)
-        
-        control, model = self.createControl(self.ctx, "ImageControl", 240, 0, 20, 20, (), ())           
-        model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png'
-        model.HelpText = self.lang.CLEAR_RECYCLE_BIN
-        model.Border = 0                       
-        control.addMouseListener(listener2) 
-        
-        MenuBarCont = win.getControl('Organon_Menu_Bar')     
-        MenuBarCont.addControl('Papierkorb_leeren', control)
-
-
-    def erzeuge_Menu_DropDown_Container(self,ev,BREITE = KONST.Breite_Menu_DropDown_Container, HOEHE = KONST.Hoehe_Menu_DropDown_Container):
+  
+    def erzeuge_Menu_DropDown_Container(self,ev,BREITE,HOEHE):
         if self.debug: log(inspect.stack)
         
         smgr = self.smgr
@@ -346,10 +303,10 @@ class Menu_Bar():
         oWindowDesc.WindowServiceName = ""
         oWindowDesc.Parent = toolkit.getDesktopWindow()
         oWindowDesc.ParentIndex = -1
-        oWindowDesc.WindowAttributes = 32
-        
+        #oWindowDesc.WindowAttributes = 32
+
         # Set Window Attributes
-        gnDefaultWindowAttributes = 1   # + 16 + 32 + 64 + 128 
+        gnDefaultWindowAttributes = 1 + 512  # + 16 + 32 + 64 + 128 
     #         com_sun_star_awt_WindowAttribute_SHOW + \
     #         com_sun_star_awt_WindowAttribute_BORDER + \
     #         com_sun_star_awt_WindowAttribute_MOVEABLE + \
@@ -367,7 +324,7 @@ class Menu_Bar():
         oRect.Height = HOEHE
         
         oWindowDesc.Bounds = oRect
-        #pd()
+
         # specify the window attributes.
         oWindowDesc.WindowAttributes = gnDefaultWindowAttributes
         # create window
@@ -390,69 +347,75 @@ class Menu_Bar():
        
         oFrame.setComponent(cont, None)
         
-        # create Listener
-        listener = DropDown_Container_Listener(self)
-        cont.addMouseListener(listener) 
-        listener.ob = oWindow
-        Name = ev.value.Source.AccessibleContext.AccessibleName
+        # Listener fuers Dispose des Fensters
+        listener2 = DropDown_Container_Listener(self)
+        cont.addMouseListener(listener2) 
+        listener2.ob = oWindow
 
-        self.menu_fenster = oWindow
-
-        if Name == self.lang.FILE:
-            self.erzeuge_Menu_DropDown_Eintraege_Datei(oWindow, cont)
-        if Name == self.lang.BEARBEITEN_M:
-            self.erzeuge_Menu_DropDown_Eintraege_Bearbeiten(oWindow, cont)
-        if Name == self.lang.OPTIONS:
-            self.erzeuge_Menu_DropDown_Eintraege_Optionen(oWindow, cont)
-        return Name
+        return oWindow,cont
   
-    
-    def erzeuge_Menu_DropDown_Eintraege_Datei(self,window,cont):
-        if self.debug: log(inspect.stack)
         
+    def erzeuge_Menu_DropDown_Eintraege(self,items):
+        if self.debug: log(inspect.stack)
+
+        controls = []
+        SEPs = []
         lang = self.lang
-        control, model = self.createControl(self.ctx, "ListBox", 10 ,  10 , 
-                                        KONST.Breite_Menu_DropDown_Eintraege-6, 
-                                        KONST.Hoehe_Menu_DropDown_Eintraege +24, (), ()) 
-                                        # Die Hoehe wurde angepasst  
-        control.setMultipleMode(False)
         
-        items = (lang.NEW_PROJECT, 
-                lang.OPEN_PROJECT ,
-                '---------', 
-                lang.NEW_DOC, 
-                lang.NEW_DIR,
-                '---------',
-                lang.EXPORT_2, 
-                lang.IMPORT_2,
-                '---------',
-                lang.BACKUP,
-                lang.LOGGING)
+        xBreite = 0
+        y = 10
         
-        if T.AB != 'Projekt':
+        listener = Menu_Eintrag_Maus_Listener(self)
+        
+        for item in items:
             
-            items = (
-                lang.EXPORT_2, 
-                '---------',
-                lang.BACKUP,
-                lang.LOGGING)
-            
+            if item != 'SEP':
+                prop_names = ('Label',)
+                prop_values = (item,)
+                control, model = self.createControl(self.ctx, "FixedText", 30, y, 50,50, prop_names, prop_values)
+
+                prefSize = control.getPreferredSize()
+     
+                Hoehe = prefSize.Height 
+                Breite = prefSize.Width +10
+                control.setPosSize(0,0,Breite ,Hoehe,12)
+                
+                control.addMouseListener(listener)
+                
+                if xBreite < Breite:
+                    xBreite = Breite
+                    
+                y += Hoehe
+                
+            else:
+                
+                # Waagerechter Trenner
+                control, model = self.createControl(self.ctx, "FixedLine", 30, y, 50,10,(),())
+                model.TextColor = 0
+                model.TextLineColor = 0
+                SEPs.append(control)
+                y += 10
+
+            controls.append(control)
         
-        control.addItems(items, 0)
-        model.BackgroundColor = KONST.MENU_DIALOG_FARBE
-        model.Border = False
-        
-        cont.addControl('Eintraege_Datei', control)
-        
-        listener = DropDown_Item_Listener(self)  
-        listener.window = window    
-        control.addItemListener(listener)
-        
-    
-    def erzeuge_Menu_DropDown_Eintraege_Optionen(self,window,cont):
+        # Senkrechter Trenner
+        control, model = self.createControl(self.ctx, "FixedLine", 20, 10, 5,y -10 ,(),())
+        controls.append(control)
+        model.Orientation = 1
+
+        for sep in SEPs:
+            sep.setPosSize(0,0,xBreite ,0,4)
+
+        return controls,listener,y - 5,xBreite +20
+
+
+    def erzeuge_Menu_DropDown_Eintraege_Options(self,items):
         if self.debug: log(inspect.stack)
-        
         try:
+            controls = []
+            SEPs = []
+            lang = self.lang
+            
             if self.projekt_name != None:
                 tag1 = self.settings_proj['tag1']
                 tag2 = self.settings_proj['tag2']
@@ -461,146 +424,102 @@ class Menu_Bar():
                 tag1 = 0
                 tag2 = 0
                 tag3 = 0
-                
+        
+            xBreite = 0
             y = 10
             
-            # Titel Baumansicht
-            control, model = self.createControl(self.ctx, "FixedText", 10, y,KONST.BREITE_DROPDOWN_OPTIONEN-16, 30-6, (), ())   
-            model.Label = self.lang.SICHTBARE_TAGS_BAUMANSICHT
-            model.FontWeight = 200
-            cont.addControl('Titel_Baumansicht',control)
-            
-            y += 20
-            
-            # Tag1
-            control_tag1, model_tag1 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                      KONST.BREITE_DROPDOWN_OPTIONEN-6, 30-6, (), ())   
-            model_tag1.Label = self.lang.SHOW_TAG1
-            model_tag1.State = tag1
+            listener = Menu_Eintrag_Maus_Listener(self)
+            tag_TV_listener = DropDown_Tags_TV_Listener(self)
+            tag_SB_listener = DropDown_Tags_SB_Listener(self)
             
             
-            y += 16
-            
-            # Tag2
-            control_tag2, model_tag2 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                      KONST.BREITE_DROPDOWN_OPTIONEN-6, 30-6, (), ())   
-            model_tag2.Label = self.lang.SHOW_TAG2
-            control_tag2.Enable = False
-            model_tag2.State = tag2
-            
-            y += 16
+            for item in items:
                 
-            # Tag3
-            control_tag3, model_tag3 = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                      KONST.BREITE_DROPDOWN_OPTIONEN-6, 30-6, (), ())   
-            model_tag3.Label = self.lang.SHOW_TAG3
-            control_tag3.Enable = False
-            model_tag3.State = tag3
-                
-                
-            tag1_listener = Tag1_Item_Listener(self,model_tag1)
-            control_tag1.addItemListener(tag1_listener)
-            cont.addControl('Checkbox_Tag1', control_tag1)
-            cont.addControl('Checkbox_Tag2', control_tag2)
-            cont.addControl('Checkbox_Tag3', control_tag3)
-            
-            
-            y += 24
-            
-            
-            # Titel Sidebar
-            control, model = self.createControl(self.ctx, "FixedText", 10, y,KONST.BREITE_DROPDOWN_OPTIONEN-20, 30-6, (), ())   
-            model.Label = self.lang.SICHTBARE_TAGS_SEITENLEISTE
-            model.FontWeight = 200
-            cont.addControl('Titel_Baumansicht',control)
-    
-            y += 20
-            
-            
-            sb_panels_tup = self.class_Sidebar.sb_panels_tup
-            sb_panels1 = self.class_Sidebar.sb_panels1
-            # Tags Sidebar
-            
-            listener_SB = Tag_SB_Item_Listener(self)
-            
-            for panel in sb_panels_tup:
-            
-                control, model = self.createControl(self.ctx, "CheckBox", 10, y, 
-                                                          KONST.BREITE_DROPDOWN_OPTIONEN-20, 20, (), ())   
-                model.Label = sb_panels1[panel]
-                if panel in self.dict_sb['sichtbare']:
-                    model.State = True
+                if item[0] != 'SEP':
+                    prop_names = ('Label',)
+                    prop_values = (item[0],)
+                    control, model = self.createControl(self.ctx, "FixedText", 30, y, 50,50, prop_names, prop_values)
+                    # Image
+                    control_I, model_I = self.createControl(self.ctx, "ImageControl", 5, y, 16,16, (), ())
+                    model_I.Border = 0
+                    
+                    prefSize = control.getPreferredSize()
+         
+                    Hoehe = prefSize.Height 
+                    Breite = prefSize.Width +10
+                    control.setPosSize(0,0,Breite ,Hoehe,12)
+                    
+                    if item[1] == 'Ueberschrift':
+                        model.FontWeight = 150
+                        
+                        
+                    elif item[1] == '':
+                        control.addMouseListener(listener)
+                        
+                        
+                    elif item[1] == 'Tag_TV':
+                        
+                        control.addMouseListener(tag_TV_listener)
+
+                        if self.projekt_name != None:
+                            sett = self.settings_proj
+                            tag1,tag2,tag3 = sett['tag1'],sett['tag2'],sett['tag3']
+                        else:
+                            tag1,tag2,tag3 = 0,0,0
+
+                        if item[0] == lang.SHOW_TAG1 and tag1 == 1:
+                            model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
+                            
+                        # Tag2 + 3 noch nicht implementiert    
+                        elif item[0] == lang.SHOW_TAG2:# and tag2:
+                            #model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
+                            control.Enable = False
+                        elif item[0] == lang.SHOW_TAG3:# and tag3:
+                            #model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
+                            control.Enable = False
+                            
+                            
+                    elif item[1] == 'Tag_SB':
+                        
+                        control.addMouseListener(tag_SB_listener)
+                        
+                        panel = self.class_Sidebar.sb_panels2[item[0]]
+                        
+                        if panel in self.dict_sb['sichtbare']:
+                            model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
+                        
+                    else:
+                        control.addMouseListener(listener) 
+                    
+                    if xBreite < Breite:
+                        xBreite = Breite
+                        
+                    y += Hoehe
+                    
                 else:
-                    model.State = False
-                cont.addControl(panel, control)
-                control.addItemListener(listener_SB)
-                y += 16
+                    
+                    # Waagerechter Trenner
+                    control, model = self.createControl(self.ctx, "FixedLine", 30, y, 50,10,(),())
+                    model.TextColor = 0
+                    model.TextLineColor = 0
+                    SEPs.append(control)
+                    y += 10
     
-            y += 24
+                controls.append((control,item[0]))
+                controls.append((control_I,item[0]+'_icon'))
             
-            HOEHE_LISTBOX = 70
-            # ListBox
-            control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.BREITE_DROPDOWN_OPTIONEN-20, 
-                                            HOEHE_LISTBOX, (), ())   
-            control.setMultipleMode(False)
-            
-            items = (  
-                      self.lang.ZEIGE_TEXTBEREICHE,
-                     '-------',
-                     'Homepage',
-                     'Feedback')
-            
-            control.addItems(items, 0)
-            model.BackgroundColor = KONST.MENU_DIALOG_FARBE
-            model.Border = False
-            
-            cont.addControl('Eintraege_Optionen', control)
-            
-            listener = DropDown_Item_Listener(self)  
-            listener.window = window    
-            control.addItemListener(listener)  
-            
-            y += HOEHE_LISTBOX + 10
-            
-            window.setPosSize(0,0,0,y,8)
+            # Senkrechter Trenner
+            control, model = self.createControl(self.ctx, "FixedLine", 20, 10, 5,y -10 ,(),())
+            controls.append((control,''))
+            model.Orientation = 1
+    
+            for sep in SEPs:
+                sep.setPosSize(0,0,xBreite ,0,4)
+    
+            return controls,listener,y - 5,xBreite +20
         except:
             if self.mb.debug: log(inspect.stack,tb())
-    
-    def erzeuge_Menu_DropDown_Eintraege_Bearbeiten(self,window,cont):
-        if self.debug: log(inspect.stack)
-            
-        y = 10
-                
-        # ListBox
-        control, model = self.createControl(self.ctx, "ListBox", 10, y, KONST.Breite_Menu_DropDown_Eintraege-6, 
-                                        KONST.Hoehe_Menu_DropDown_Eintraege - 30, (), ())   
-        control.setMultipleMode(False)
-        
-        items = (  
-                  self.lang.NEUER_TAB,
-                  '---------',
-                  self.lang.TRENNE_TEXT,
-                  self.lang.UNFOLD_PROJ_DIR
-                  )
-        if T.AB != 'Projekt':
-            items = (  
-                  self.lang.NEUER_TAB,
-                  self.lang.SCHLIESSE_TAB,
-                  self.lang.IMPORTIERE_IN_TAB,
-                  '---------',
-                  self.lang.UNFOLD_PROJ_DIR
-                  )      
-        
-        control.addItems(items, 0)
-        model.BackgroundColor = KONST.MENU_DIALOG_FARBE
-        model.Border = False
-        
-        cont.addControl('Eintraege_Bearbeiten', control)
-        
-        listener = DropDown_Item_Listener(self)  
-        listener.window = window    
-        control.addItemListener(listener)  
-       
+     
     
     def get_speicherort(self):
         if self.debug: log(inspect.stack)
@@ -893,6 +812,73 @@ class Props():
         self.xml_tree = None
         
         self.tab_auswahl = Tab_Auswahl()
+        
+
+def menuEintraege(lang,menu):
+    
+    if menu == lang.FILE:
+        
+        items = (lang.NEW_PROJECT, 
+                lang.OPEN_PROJECT ,
+                'SEP', 
+                lang.NEW_DOC, 
+                lang.NEW_DIR,
+                'SEP',
+                lang.EXPORT_2, 
+                lang.IMPORT_2,
+                'SEP',
+                lang.BACKUP,
+                lang.LOGGING)
+        
+        if T.AB != 'Projekt':
+            items = (
+                lang.EXPORT_2, 
+                'SEP',
+                lang.BACKUP,
+                lang.LOGGING)
+            
+    elif menu == lang.BEARBEITEN_M:
+        items = (  
+            lang.NEUER_TAB,
+            'SEP',
+            lang.TRENNE_TEXT,
+            lang.UNFOLD_PROJ_DIR
+            )
+        if T.AB != 'Projekt':
+            items = (  
+                lang.NEUER_TAB,
+                lang.SCHLIESSE_TAB,
+                lang.IMPORTIERE_IN_TAB,
+                'SEP',
+                lang.UNFOLD_PROJ_DIR
+                )  
+             
+    elif menu == lang.OPTIONS:
+        items = ((lang.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
+            (lang.SHOW_TAG1,'Tag_TV'),
+            (lang.SHOW_TAG2,'Tag_TV'),
+            (lang.SHOW_TAG2,'Tag_TV'),
+            ('SEP',''),
+            (lang.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift'),
+            (lang.SYNOPSIS,'Tag_SB'),
+            (lang.NOTIZEN,'Tag_SB'),
+            (lang.BILDER,'Tag_SB'),
+            (lang.ALLGEMEIN,'Tag_SB'),
+            (lang.CHARAKTERE,'Tag_SB'),
+            (lang.ORTE,'Tag_SB'),
+            (lang.OBJEKTE,'Tag_SB'),
+            (lang.ZEIT,'Tag_SB'),
+            (lang.BENUTZER1,'Tag_SB'),
+            (lang.BENUTZER2,'Tag_SB'),
+            (lang.BENUTZER3,'Tag_SB'),
+            ('SEP',''),
+            (lang.ZEIGE_TEXTBEREICHE,''),
+            ('SEP',''),
+            ('Homepage',''),
+            ('Feedback',''),
+             )
+        
+    return items
 
 
 class Tab_Auswahl():
@@ -914,21 +900,13 @@ class Tab_Auswahl():
         
         self.suche_use = None
         self.suche_log = None
-        #self.seitenleiste_log_tags = None
         self.suche_term = None
         
         self.behalte_hierarchie_bei = None
         self.tab_name = None
         
         
-#     def do(self,*args):
-#         return
-#         sections = self.mb.doc.TextSections
-#         names = sections.ElementNames
-# 
-#         if args[0] == 'schalte_sichtbarkeit_der_Bereiche':
-#             pd()
-        
+       
 
 class Tab ():
     def __init__(self):
@@ -1011,26 +989,35 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
         self.mb = mb
         self.menu_Kopf_Eintrag = 'None'
         self.mb.geoeffnetesMenu = None
-        
+    
     def mousePressed(self, ev):
         if ev.Buttons == MB_LEFT:
             if self.mb.debug: log(inspect.stack)
             
-            if self.menu_Kopf_Eintrag == self.mb.lang.FILE:
-                BREITE = KONST.Breite_Menu_DropDown_Container
-                HOEHE = KONST.Hoehe_Menu_DropDown_Container +30
-                self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev,BREITE,HOEHE)
-            elif self.menu_Kopf_Eintrag == 'Test':
-                self.mb.Test()          
-            elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
-                BREITE = KONST.BREITE_DROPDOWN_OPTIONEN
-                self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev,BREITE)
-            elif self.menu_Kopf_Eintrag == self.mb.lang.BEARBEITEN_M:
-                self.mb.geoeffnetesMenu = self.mb.erzeuge_Menu_DropDown_Container(ev)
+            controls = []
+            lang = self.mb.lang
             
+            if self.menu_Kopf_Eintrag in (lang.BEARBEITEN_M,self.mb.lang.FILE):
+                items = menuEintraege(lang,self.menu_Kopf_Eintrag)
+                controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege(items)
+                oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
+                controls = list((x,'') for x in controls)
                 
-            self.mb.loesche_undo_Aktionen()
-            return False
+            elif self.menu_Kopf_Eintrag == 'Test':
+                self.mb.Test()   
+                       
+            elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
+                items = menuEintraege(lang,self.menu_Kopf_Eintrag)
+                controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege_Options(items)
+                oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
+            
+            self.mb.geoeffnetesMenu = self.menu_Kopf_Eintrag
+            listener.window = oWindow
+            self.mb.menu_fenster = oWindow 
+            
+            for c in controls:
+                cont.addControl(c[1],c[0])
+                
 
     def mouseEntered(self, ev):
         if self.mb.debug: log(inspect.stack)
@@ -1086,61 +1073,18 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
     def disposing(self,ev):
         return False
 
-class DropDown_Container_Listener (unohelper.Base, XMouseListener):
-        def __init__(self,mb):
-            if mb.debug: log(inspect.stack)
-            
-            self.ob = None
-            self.mb = mb
-           
-        def mousePressed(self, ev):
-            if self.mb.debug: log(inspect.stack)
-            
-            #print('mousePressed,DropDown_Container_Listener')  
-            if ev.Buttons == MB_LEFT:
-                return False
-       
-        def mouseExited(self, ev): 
-            if self.mb.debug: log(inspect.stack)
-            
-            #print('mouseExited')                      
-            if self.enthaelt_Punkt(ev):
-                pass
-            else:            
-                self.ob.dispose() 
-                self.mb.geoeffnetesMenu = None   
-            return False
-        
-        def enthaelt_Punkt(self, ev):
-            if self.mb.debug: log(inspect.stack)
-            
-            #print('enthaelt_Punkt') 
-            X = ev.value.X
-            Y = ev.value.Y
-            
-            XTrue = (0 <= X < ev.value.Source.Size.value.Width)
-            YTrue = (0 <= Y < ev.value.Source.Size.value.Height)
-            
-            if XTrue and YTrue:           
-                return True
-            else:
-                return False
-
-        def mouseEntered(self,ev):
-            return False
-    
-class DropDown_Item_Listener(unohelper.Base, XItemListener):
+class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
         self.window = None
         
-    # XItemListener    
-    def itemStateChanged(self, ev):  
-        if self.mb.debug: log(inspect.stack)      
-        sel = ev.value.Source.Items[ev.value.Selected]
-        
+    def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack)  
+
+        sel = ev.Source.Text
+
         #print('self.mb.bereich_wurde_bearbeitet',self.mb.bereich_wurde_bearbeitet)
         # hier evt. Abfrage, ob Bereich bearbeitet -> speichern
 
@@ -1198,55 +1142,99 @@ class DropDown_Item_Listener(unohelper.Base, XItemListener):
         elif sel == LANG.IMPORTIERE_IN_TAB:
             self.mb.class_Tabs.start(True)
             
-            
 
         self.mb.bereich_wurde_bearbeitet = False
         self.mb.loesche_undo_Aktionen()
         
     def do(self): 
+        if self.mb.debug: log(inspect.stack)
+
         self.window.dispose()
         self.mb.geoeffnetesMenu = None
 
+    def mouseExited(self,ev):
+        ev.value.Source.Model.FontWeight = 100
+        return False
+    def mouseEntered(self,ev):
+        ev.value.Source.Model.FontWeight = 150
+        return False
+    def mouseReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+    
+    
+class DropDown_Container_Listener (unohelper.Base, XMouseListener):
+        def __init__(self,mb):
+            if mb.debug: log(inspect.stack)
+            
+            self.ob = None
+            self.mb = mb
+           
+        def mousePressed(self, ev):
+            return False
+       
+        def mouseExited(self, ev): 
+            if self.mb.debug: log(inspect.stack)
+            
+            point = uno.createUnoStruct('com.sun.star.awt.Point')
+            point.X = ev.X
+            point.Y = ev.Y
 
-class Tag1_Item_Listener(unohelper.Base, XItemListener):
-    def __init__(self,mb,model):
+            enthaelt_Punkt = ev.Source.AccessibleContext.containsPoint(point)
+
+            if enthaelt_Punkt:
+                pass
+            else:    
+                pass        
+                self.ob.dispose() 
+                self.mb.geoeffnetesMenu = None   
+            return False
+        
+
+        def mouseEntered(self,ev):
+            return False
+        def mouseReleased(self,ev):
+            return False
+        def disposing(self,ev):
+            return False
+
+
+class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.model = model
-        
-    # XItemListener    
-    def itemStateChangedBackup(self, ev):    
+    
+    def mouseExited(self, ev):
+        ev.value.Source.Model.FontWeight = 100
+        return False
+    def mouseEntered(self,ev):
+        ev.value.Source.Model.FontWeight = 150
+        return False
+    def mouseReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+    def mousePressed(self, ev):   
         if self.mb.debug: log(inspect.stack)
             
         try:
+            text = ev.Source.Text
+            lang = self.mb.lang
             sett = self.mb.settings_proj
             
-            if self.model.State == 1:
-                sett['tag1'] = 1
-            else:
-                sett['tag1'] = 0
-            
-            if not sett['tag1']:
-                sett['tag1'] = 0
-                self.mache_tag1_sichtbar(False)
-            else:
-                sett['tag1'] = 1
-                self.mache_tag1_sichtbar(True) 
-            
-            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
-        except:
-            if self.mb.debug: log(inspect.stack,tb())
-            
-    # XItemListener    
-    def itemStateChanged(self, ev):    
-        if self.mb.debug: log(inspect.stack)
-            
-        try:
-            sett = self.mb.settings_proj
-            
-            sett['tag1'] = self.model.State
-            self.mache_tag1_sichtbar(self.model.State)
+            if text == lang.SHOW_TAG1:
+                
+                sett['tag1'] = not sett['tag1']
+                self.mache_tag1_sichtbar(sett['tag1'])
+                
+                ctrl = ev.Source.Context.getControl(lang.SHOW_TAG1+'_icon')
+                
+                if sett['tag1']:
+                    ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
+                else:
+                    ctrl.Model.ImageURL = '' 
             
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
         except:
@@ -1302,29 +1290,55 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
     
                     contr_zeile.addControl('tag1',control_tag1)
 
-class Tag_SB_Item_Listener(unohelper.Base, XItemListener):
+
+class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
-        
         self.mb = mb
-        
-    def itemStateChanged(self, ev):  
-        if self.mb.debug: log(inspect.stack)
-              
-        name = ev.Source.AccessibleContext.AccessibleName
-        state = ev.Source.State
-        
-        panels = self.mb.class_Sidebar.sb_panels2
-        if state == 1:
-            self.mb.dict_sb['sichtbare'].append(panels[name])
-        else:
-            self.mb.dict_sb['sichtbare'].remove(panels[name])
-        
+    def mouseExited(self, ev):
+        ev.value.Source.Model.FontWeight = 100
+        return False
+    def mouseEntered(self,ev):
+        ev.value.Source.Model.FontWeight = 150
+        return False
+    def mouseReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+    def mousePressed(self, ev):   
+        if self.mb.debug: log(inspect.stack)    
         try:
-            first_element = list(self.mb.dict_sb['controls'])[0]
-            self.mb.dict_sb['controls'][first_element][1].requestLayout()
+            name = ev.Source.Text
+            lang = self.mb.lang   
+            
+            ctrl = ev.Source.Context.getControl(name+'_icon') 
+            #state = ev.Source.State
+            
+            panels = self.mb.class_Sidebar.sb_panels2
+            if ctrl.Model.ImageURL == 'private:graphicrepository/svx/res/apply.png':
+                self.mb.dict_sb['sichtbare'].remove(panels[name])
+                ctrl.Model.ImageURL = '' 
+            else:
+                self.mb.dict_sb['sichtbare'].append(panels[name])
+                ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
+                
+    
+            # Wenn die Sidebar sichtbar ist, auf und zu schalten,
+            # um den Sidebar tag sichtbar zu machen 
+            try:
+                controls = self.mb.dict_sb['controls']
+                if controls != {}:
+                    okey = list(controls)[0]
+                    xParent = controls[okey][0].xParentWindow
+                    if xParent.isVisible():
+                        self.mb.class_Sidebar.schalte_sidebar_button()
+                        #pd()
+                        ev.Source.setFocus()
+            except:
+                if self.mb.debug: log(inspect.stack,tb()) 
+            
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            if self.mb.debug: log(inspect.stack,tb())   
 
 
             
@@ -1668,7 +1682,6 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
     
     def windowHidden(self,ev):
         if self.mb.debug: log(inspect.stack)
-
         try:                
             if not self.mb.tab_umgeschaltet:  
                 # speichern, wenn Organon beendet wird.
@@ -1684,7 +1697,6 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
                     self.mb.class_Sidebar.speicher_sidebar_dict()       
                     self.mb.class_Sidebar.dict_sb_zuruecksetzen()
                 
-                self.mb.class_Sidebar.toggle_sicht_sidebar()
                 self.mb.entferne_alle_listener() 
                 self.mb = None
             else:

@@ -173,7 +173,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
 
             start_main(window,ctx,tabs,path_to_extension,win,self)  
             
-            return win 
+            return win
         
         except Exception as e:
             print('Factory '+e)
@@ -183,8 +183,6 @@ class Factory(unohelper.Base, XSingleComponentFactory):
 
 #g_ImplementationHelper = unohelper.ImplementationHelper()
 g_ImplementationHelper.addImplementation(*Factory.get_imple())
-
-
 
 
 
@@ -379,6 +377,7 @@ class Sidebar_Options_Dispatcher(unohelper.Base,XDispatch,XDispatchProvider):
         return self
     def dispatch(self,featureURL,*args):
         optionsfenster = dict_sb['optionsfenster']
+        pd()
         optionsfenster(featureURL.Path)
     def addStatusListener(self,listener,featureURL):
         #print('addStatusListener', featureURL.Path)

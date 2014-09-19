@@ -932,7 +932,7 @@ class Tabs():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            
+
             tabsX = self.mb.tabsX
              
             from com.sun.star.beans import NamedValue
@@ -948,15 +948,30 @@ class Tabs():
               
             win = self.mb.factory.CWHandler.window2
             win.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
-            
+
             win.addWindowListener(self.mb.w_listener)
             
+            self.setMenuBar(win,self.mb.ctx)
+
             return win,tab_id              
   
         except:
             if self.mb.debug: log(inspect.stack,tb())
-       
-    
+            
+    def setMenuBar(self,window,ctx):
+        try:
+            smgr = ctx.ServiceManager
+            oMenuBar = smgr.createInstanceWithContext('com.sun.star.awt.MenuBar', ctx)
+            oPopUp = smgr.createInstanceWithContext("com.sun.star.awt.PopupMenu", ctx)
+            oMenuBar.insertItem(0, "First0", 4, 0)
+            oMenuBar.insertItem(1, "First1firlefanz", 4, 0)
+            oMenuBar.insertItem(2, "First2", 4, 0)
+            oMenuBar.insertItem(3, "First3zuckerhut", 4, 0)
+            oMenuBar.insertItem(4, "First4", 4, 0)
+            window.setMenuBar(oMenuBar)
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
+            
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege,tab_name):
         if self.mb.debug: log(inspect.stack)        
         

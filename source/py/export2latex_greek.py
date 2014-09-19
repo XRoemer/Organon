@@ -254,7 +254,7 @@ class ExportToLatex():
                     ausgewechselte.append(mitteil) 
                 
                 
-            pfad_a = pfad = os.path.join(self.path,'ausgewechselte.txt')
+            pfad_a = os.path.join(self.path,'ausgewechselte.txt')
             
             a2 = 10
             b = 15

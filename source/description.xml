@@ -4,11 +4,15 @@
 							xmlns:d="http://openoffice.org/extensions/description/2006"
 							xmlns:l="http://libreoffice.org/extensions/description/2011">
 		<identifier value="xaver.roemers.organon" />
-		<version value="0.9.5b" />
+		<version value="0.9.6b" />
 		
 		<dependencies>
 				<d:OpenOffice.org-minimal-version value="3.4" d:name="OpenOffice.org 3.4" />
 		</dependencies>
+		
+		<!--<update-information>
+			<src xlink:href="http://www.sprechduette.de/Organon/update.xml" />
+		</update-information> -->
 		
 	<!--	<dependencies>
 				<OpenOffice.org-minimal-version value="4.0" d:name="Apache OpenOffice"/>
@@ -25,17 +29,19 @@
 		<icon>
 			<default xlink:href="img/organon icon_48.png" />
 		</icon>
+
+		<extension-description>
+			<src xlink:href="description/desc_de.txt" lang="de" />
+			<src xlink:href="description/desc_en.txt" lang="en" /> 
+		</extension-description>
 		
 		<registration>
 			<simple-license accept-by="admin" suppress-on-update="true" >
 				<license-text xlink:href="registration/license_de-DE.txt" lang="de-DE" />
 				<license-text xlink:href="registration/license_en-GB.txt" lang="en-GB" />
+				
+				
+				
 			</simple-license>
 		</registration>
-		
-		<extension-description>
-			<src xlink:href="description/desc_de.txt" lang="de" />
-			<src xlink:href="description/desc_en.txt" lang="en" /> 
-		</extension-description>
-	
 </description>

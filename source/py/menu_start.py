@@ -89,7 +89,7 @@ class Menu_Start():
         
         self.cont, model1 = self.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
         model1.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
-                        
+
         self.dialog.addControl('Hauptfeld_aussen',self.cont)  
 
 

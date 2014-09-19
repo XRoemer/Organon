@@ -402,7 +402,6 @@ class Projekt():
             # ENDE HAUPTFENSTER
             
             
-            
             # LISTENER 1
             listener = neues_Projekt_Dialog_Listener(self.mb,model1,modelLBF6,controlForm2,controlLBF2) 
             control1.addKeyListener(listener) 
@@ -686,14 +685,30 @@ class Projekt():
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
         newSection.setName('Organon_Sec_Helfer')
         
+        newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
+        newSection2.setName('Organon_Sec_Helfer2')
+        
         text = self.mb.doc.Text
         textSectionCursor = text.createTextCursor()
-        textSectionCursor.gotoEnd(False)
         
+        # Helfer Section 1
+        textSectionCursor.gotoEnd(False)
         text.insertTextContent(textSectionCursor, newSection, False)
         newSection.IsVisible = False
         
+        # Helfer Section 2
+        textSectionCursor.gotoStart(False)
+        text.insertTextContent(textSectionCursor, newSection2, False)
+        newSection2.IsVisible = False
+        
+        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+        SFLink.FileURL = os.path.join(self.mb.pfade['odts'],'empty_file.odt')
+        newSection2.setPropertyValue('FileLink',SFLink)
+        
+        
         self.mb.sec_helfer = newSection
+        self.mb.sec_helfer2 = newSection2        
+        
 
     def erzeuge_Eintraege_und_Bereiche2(self,Eintraege):
         if self.mb.debug: log(inspect.stack)
@@ -939,7 +954,7 @@ class Projekt():
     def beispieleintraege2(self):
         if self.mb.debug: log(inspect.stack)
         
-        Eintraege = [#('nr0','root','Vorbemerkung',0,'pg','-','ja','leer','leer','leer'),
+        Eintraege = [
                 ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
                 ('nr1','nr0',lang.TITEL,1,'pg','-','ja','leer','leer','leer'),
                 ('nr2','nr0',lang.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
@@ -967,55 +982,19 @@ class Projekt():
     
        
     def test(self):
-        x = 'wer'
+
         try: 
             
-            
             pass
-             
+        
             
         except:
+            log(tb())
             print(tb())
-            pd()
             
         pd()
- 
-    
-def erzeuge_Fenster(mb):
-    if self.mb.debug: log(inspect.stack)
-    
-    try:
-        # HAUPTFENSTER    
-        smgr = mb.smgr
-        ctx = mb.ctx
         
-        # create the dialog model and set the properties
-        dialogModel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", ctx)
-           
-        dialogModel.PositionX = 65
-        dialogModel.PositionY = 65
-        dialogModel.Width = 215 # if lang == en:195
-    
-        dialogModel.Height = 320
-        dialogModel.Title = lang.CREATE_NEW_PROJECT
-                  
-        # create the dialog control and set the model
-        controlContainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx);
-        controlContainer.setModel(dialogModel);
-                 
-        # create a peer
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", ctx);       
-        controlContainer.setVisible(False);       
-        controlContainer.createPeer(toolkit, None);
-        # ENDE HAUPTFENSTER
         
-        geglueckt = controlContainer.execute()       
-        controlContainer.dispose() 
-        return controlContainer
-    except:
-        if self.mb.debug: log(inspect.stack,tb())
-
-       
         
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):

@@ -76,7 +76,7 @@ class Sidebar():
             self.mb.dict_sb['sichtbare'].remove('empty_project')
         
         self.mb.dict_sb['sichtbare'] = self.mb.dict_sb_content['sichtbare']
-              
+                      
       
     def passe_sb_an(self,textbereich):
         if self.mb.debug: log(inspect.stack)
@@ -123,10 +123,6 @@ class Sidebar():
                         
             
             dict_sb_content.update({'einstellungen':{}})   
-            dict_sb_content['einstellungen'].update({'hoehe_Synopsis':200})  
-            dict_sb_content['einstellungen'].update({'breite_Synopsis':284}) 
-            dict_sb_content['einstellungen'].update({'hoehe_Notes':200})   
-            dict_sb_content['einstellungen'].update({'breite_Notes':284})
             dict_sb_content['einstellungen'].update({'tags_general_loescht_im_ges_dok':0})      
                     
             self.mb.dict_sb_content = dict_sb_content
@@ -269,7 +265,7 @@ class Sidebar():
         copy2(pfad, pfad_Backup)
         
     def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
-           
+        
         if xUIElement_name == 'empty_project':
             return
         if self.mb.dict_sb['sb_closed']:
@@ -277,6 +273,7 @@ class Sidebar():
         
         if self.mb.debug: log(inspect.stack)
         
+                        
         # Wenn die Sidebar noch nicht geoeffnet wurde,
         # sind noch keine Panels vorhanden
         if xUIElement_name not in self.mb.dict_sb['controls']:
@@ -399,38 +396,49 @@ class Sidebar():
             elif xUIElement_name == 'Synopsis':
                 
                 pos_y = 10
-                height = self.mb.dict_sb_content['einstellungen']['hoehe_Synopsis']
-                width = self.mb.dict_sb_content['einstellungen']['breite_Synopsis']
+                height = 0 
+                width = 282 
                  
                 text = self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis']
                  
-                prop_names = ('MultiLine','Text')
-                prop_values = (True,text)
+                prop_names = ('MultiLine','Text','MaxTextLen')
+                prop_values = (True,text,5000)
                 control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
                 panelWin.addControl('Synopsis', control)
+                
+                mS = control.getMinimumSize()
+                hoehe = mS.Height + 44
+
+                control.setPosSize(0,0,0,hoehe,8)
                 
                 listener = Text_Change_Listener_Synopsis(self.mb)
                 model.addPropertyChangeListener('Text',listener)
                 
-                height += 20
+                height = hoehe + 20
                 
             elif xUIElement_name == 'Notes':
                 pos_y = 10
-                height = self.mb.dict_sb_content['einstellungen']['hoehe_Notes']
-                width = self.mb.dict_sb_content['einstellungen']['breite_Notes']
+                height = 0 
+                width = 282 
                  
                 text = self.mb.dict_sb_content['ordinal'][ordinal]['Notes']
                  
-                prop_names = ('MultiLine','Text')
-                prop_values = (True,text)
+                prop_names = ('MultiLine','Text','MaxTextLen')
+                prop_values = (True,text,5000)
                 control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
                 panelWin.addControl('Notes', control)
                 
+                mS = control.getMinimumSize()
+                hoehe = mS.Height + 44
+
+                control.setPosSize(0,0,0,hoehe,8)
+                
                 listener = Text_Change_Listener_Notizen(self.mb)
                 model.addPropertyChangeListener('Text',listener)
+
+                height = hoehe + 20
                 
-                height += 20
-                
+
                 
             elif xUIElement_name == 'Images':
                 pos_y = 10
@@ -528,13 +536,52 @@ class Sidebar():
             xUIElement.height = height
             sb.requestLayout()
             
+            
+            
             # zum Speichern und Wiederherstellen der sichtbaren Panels
             self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
             
         except:
             if self.mb.debug: log(inspect.stack,tb())
     
+    def berechne_edit_feld_groesse(self,control,model):
+        if self.mb.debug: log(inspect.stack)
+        
+        #pd()
+        
+        
+    
+    def schalte_sidebar_button(self):
+        if self.mb.debug: log(inspect.stack)
 
+        try:
+            controls = self.mb.dict_sb['controls']
+            okey = list(controls)[0]
+            window = controls[okey][0].window
+
+            a = window.AccessibleContext.AccessibleParent
+            b = a.AccessibleContext.AccessibleParent
+            c = b.AccessibleContext.AccessibleParent
+            d = c.AccessibleContext.AccessibleParent
+            e = d.AccessibleContext.AccessibleParent
+            
+            Seitenleiste_fenster = e.Windows[0]
+            self.mb.leiste = a
+
+            for window in Seitenleiste_fenster.Windows:
+                if window.AccessibleContext.AccessibleDescription == 'Organon':
+                    o_button = window
+                else:
+                    n_button = window
+ 
+            n_button.setState(True)
+            o_button.setState(True)
+
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
+
+        
+        
     def berechne_bildgroesse(self,model,hoehe):
         if self.mb.debug: log(inspect.stack)
         
@@ -559,21 +606,21 @@ class Sidebar():
     
     def toggle_sicht_sidebar(self):
         if self.mb.debug: log(inspect.stack)
-        
+        return
         frame = self.mb.current_Contr.Frame
         dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
         dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
-    
-    
+        print(dispatcher.dispatchFinished(dispatch))
+        
+       
+        
     def optionsfenster(self,cmd):
         if self.mb.debug: log(inspect.stack)
         
         loc_x = self.mb.dict_sb['controls'][cmd][0].Window.Peer.AccessibleContext.LocationOnScreen.X
         loc_y = self.mb.dict_sb['controls'][cmd][0].Window.Peer.AccessibleContext.LocationOnScreen.Y
-        
-        if cmd in ('Synopsis','Notes'):
-            self.optionsfenster_synopsis_notes(cmd,loc_x,loc_y)
-        elif cmd =='Tags_general':
+
+        if cmd =='Tags_general':
             self.optionsfenster_tags_general(loc_x,loc_y)
         elif cmd =='Images':
             self.optionsfenster_images(loc_x,loc_y)
@@ -606,48 +653,7 @@ class Sidebar():
         control.setActionCommand('bild_loeschen')
         control.addActionListener(listener)
         
-            
-    def optionsfenster_synopsis_notes(self,cmd,loc_x,loc_y):  
-        if self.mb.debug: log(inspect.stack)  
-        
-        win,cont = self.mb.erzeuge_Dialog_Container((loc_x - 20,loc_y,150,80))
-        
-        breite = self.mb.dict_sb_content['einstellungen']['breite_' + cmd]
-        hoehe = self.mb.dict_sb_content['einstellungen']['hoehe_' + cmd]
-        
-        
-        
-        prop_names = ('Label',)
-        prop_values = ('Size Text Box '+ cmd,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 120, 20, prop_names, prop_values)  
-        cont.addControl('Titel', control)
-        
-        prop_names = ('Label',)
-        prop_values = (self.mb.lang.BREITE,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 30, 45, 20, prop_names, prop_values)  
-        cont.addControl('NumericField', control)
-        
-        
-        prop_names = ('Value','StrictFormat','DecimalAccuracy','ValueMin')
-        prop_values = (breite,True,0,50)
-        control, model = self.mb.createControl(self.mb.ctx, "NumericField", 50, 30, 30, 16, prop_names, prop_values)  
-        cont.addControl('NumericField', control)
-        options_syn_note_text_listener = Options_Syn_Note_Text_Listener(self.mb)
-        control.addTextListener(options_syn_note_text_listener)
-        
-        prop_names = ('Label',)
-        prop_values = (self.mb.lang.HOEHE,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 50, 45, 20, prop_names, prop_values)  
-        cont.addControl('NumericField', control)
-        
-        
-        prop_names = ('Value','StrictFormat','DecimalAccuracy','ValueMin')
-        prop_values = (hoehe,True,0,50)
-        control, model = self.mb.createControl(self.mb.ctx, "NumericField", 50, 50, 30, 16, prop_names, prop_values)  
-        cont.addControl('NumericField', control)
-        control.addTextListener(options_syn_note_text_listener)
-    
-        
+               
     def optionsfenster_tags_general(self,loc_x,loc_y):
         if self.mb.debug: log(inspect.stack)
         
@@ -749,32 +755,8 @@ class Sidebar():
             for i in range(length-len(value)):
                 value = '0' + value
         return value
-    
-        
-from com.sun.star.awt import XTextListener
-class Options_Syn_Note_Text_Listener(unohelper.Base, XTextListener):
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
-        
-    def textChanged(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        
-        if self.mb.lang.BREITE in ev.Source.AccessibleContext.AccessibleName:
-            cmd1 = 'breite_'
-        else:
-            cmd1 = 'hoehe_'
-        
-        titel = ev.Source.Context.getControl('Titel').Text.split(' ')[-1]
-        
-        
-        value = int(ev.Source.Text)
-        
-        self.mb.dict_sb_content['einstellungen'][cmd1 + titel] = value
-        self.mb.class_Sidebar.erzeuge_sb_layout(titel,'options')
-            
-    
-    
+
+   
 from com.sun.star.beans import XPropertyChangeListener
 class Text_Change_Listener_Synopsis(unohelper.Base, XPropertyChangeListener):
     def __init__(self,mb):
@@ -790,11 +772,11 @@ class Text_Change_Listener_Notizen(unohelper.Base, XPropertyChangeListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        
+
     def propertyChange(self,ev):
         ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
         self.mb.dict_sb_content['ordinal'][ordinal]['Notes'] = ev.NewValue
-    
+
 
 from com.sun.star.awt import XActionListener
 class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
@@ -902,6 +884,7 @@ class Tags_Focus_Listener(unohelper.Base, XFocusListener):
         
         ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
         new_tag = ev.Source.Model.Text
+
         if new_tag != '':
             if new_tag not in self.mb.dict_sb_content['tags']['Tags_general']:
                 self.mb.dict_sb_content['tags']['Tags_general'].append(new_tag)

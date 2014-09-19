@@ -215,7 +215,9 @@ class Funktionen():
      
             sec.setPropertyValue('FileLink',SFLink)
             sec.setPropertyValue('FileLink',SFLink2)
-    
+            
+            vc.gotoStart(False)
+            
             # Einstellungen, tags der alten Datei fuer neue uebernehmen
             self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = copy.deepcopy(self.mb.dict_sb_content['ordinal'][zeilenordinal])
             
@@ -230,7 +232,7 @@ class Funktionen():
             
             for tag in self.mb.dict_sb_content['sichtbare']:
                 self.mb.class_Sidebar.erzeuge_sb_layout(tag,'teile_text')
-
+                
         except Exception as e:
             self.mb.Mitteilungen.nachricht('teile_text ' + str(e),"warningbox")
             if self.mb.debug: log(inspect.stack,tb())

@@ -120,8 +120,8 @@ class Log():
             function = info[1][3]
             modul = info[1][0].f_locals['self'].__class__.__name__
 
-            if modul in ('ViewCursor_Selection_Listener'):
-                return
+#             if modul in ('ViewCursor_Selection_Listener'):
+#                 return
             
             if self.load_reload:
                 if function in ('entferne_Trenner','mouseEntered','mouseExited'):

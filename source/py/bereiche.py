@@ -130,6 +130,25 @@ class Bereiche():
         
         dokument = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
         
+        text = dokument.Text
+        cur = text.createTextCursor()
+        cur.gotoStart(False)
+        cur.setPropertyValue('BreakType',6)
+        
+        from com.sun.star.text.ControlCharacter import PARAGRAPH_BREAK
+        
+        text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
+        text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
+        
+        enum = text.createEnumeration()
+        paras = []
+        while enum.hasMoreElements():
+            paras.append(enum.nextElement())
+            
+        for par in paras:
+            cur.gotoRange(par.Start,False)
+            cur.setPropertyValue('BreakType',4)
+        
         url = os.path.join(self.mb.pfade['odts'], 'empty_file.odt')
         dokument.storeToURL(uno.systemPathToFileUrl(url),())
         dokument.close(False)
