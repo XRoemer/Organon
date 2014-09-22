@@ -199,284 +199,215 @@ class Projekt():
         except:
             if self.mb.debug: log(inspect.stack,tb())
     
-                       
+    
     def dialog_neues_projekt_anlegen(self):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            y = 20
-            # Projektname eingeben
-            control, model = self.mb.createControl(self.ctx,"FixedText",25,y,250,20,(),() )  
-            model.Label = lang.ENTER_PROJ_NAME
-            model.FontWeight = 150
-            
-            y += 30
-            # Eingabefeld
-            control1, model1 = self.mb.createControl(self.ctx,"Edit",25,y,200,20,(),() ) 
-            
-            
-            
-            
-            y += 40
-            
-            # Trenner 
-            controlT3, model3 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() ) 
-            
-            
-            y += 40
-            # speicherort
-            controlP, modelP = self.mb.createControl(self.ctx,"FixedText",25,y + 3,120,20,(),() )  
-            modelP.Label = lang.SPEICHERORT
-            modelP.FontWeight = 150
-            
-            # waehlen 
-            controlW, modelW = self.mb.createControl(self.ctx,"Button",142,y,80,20,(),() )  
-            modelW.Label = lang.AUSWAHL 
-            controlW.setActionCommand(lang.WAEHLEN)
-            
-            y += 30
-            # url
-            controlU, modelU = self.mb.createControl(self.ctx,"FixedText",25,y,300,20,(),() ) 
+
             if self.mb.speicherort_last_proj != None:
                 # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
                 # -> gespeicherten Pfad ueberpruefen!
                 try:
-                    modelU.Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
+                    modelU_Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
                 except:
                     #modelU.Label = '-' 
-                    modelU.Label = self.mb.speicherort_last_proj
+                    modelU_Label = self.mb.speicherort_last_proj
             else:
-                modelU.Label = '-' 
+                modelU_Label = '-' 
             
-            listenerS = Speicherordner_Button_Listener(self.mb,modelU)
-            controlW.addActionListener(listenerS)
-            
-            y += 40
-            
-            # Trenner 
-            controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
-            
-            
-            
-            
-            y += 40
-            # Formatierung
-            controlForm, modelForm = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
-            modelForm.Label = lang.FORMATIERUNG #lang.ENTER_PROJ_NAME
-            modelForm.FontWeight = 150
-            
-            
-            controlForm1, modelForm1 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() )  
-            modelForm1.Label = lang.TEMPLATE_WRITER
+
+            modelForm1_Label = lang.TEMPLATE_WRITER
             if not self.mb.settings_proj:
-                state = False
+                state = 0#False
+                not_state = 1
             else:
-                state = self.mb.settings_proj['use_template'][0]
-            modelForm1.State = not state
+                if self.mb.settings_proj['use_template'][0]:
+                    state = 1
+                    not_state = 0
+                else:
+                    state = 0
+                    not_state = 1
+                    
+            modelForm1_State = not_state
+            modelForm2_State = state
             
-    
-            controlHelp, modelHelp = self.mb.createControl(self.ctx,"Button",350,y ,30,30,(),() )  
-            modelHelp.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
-            controlHelp.setActionCommand('formatierung')
-            
-            y += 25
-            
-            controlForm2, modelForm2 = self.mb.createControl(self.ctx,"CheckBox",125,y,200,20,(),() ) 
-            modelForm2.Label = lang.TEMPLATE_USER
-            modelForm2.State = state
-            
-            y += 25
-                # Liste der Formate
-            controlLBF2, modelLBF2 = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
-    
-            self.mb.user_styles,pfade = self.get_user_styles()
-    
             if self.mb.user_styles == ():
-                user_styles = ('lang.NO_TEMPLATES',)
-                controlLBF2.Enable = False
-                controlForm2.Enable = False
+                user_styles = (lang.NO_TEMPLATES,)
+                controlLBF2_Enable = 0
+                controlForm2_Enable = 0
             else:
                 user_styles = self.mb.user_styles
-            controlLBF2.addItems(user_styles,0)
-            modelLBF2.Dropdown = True
-            #index = style_names.index(sett['style_ord'])
-            #modelLBF.SelectedItems = index,
-            modelLBF2.SelectedItems = 0,
-            
-            
-            # Trenner 
-            controlT5, modelT5 = self.mb.createControl(self.mb.ctx,"FixedLine",142,y+15 ,238,40,(),() )
-            
-            
-            y += 50
-            
-            controlFormLBF4, modelFormLBF4 = self.mb.createControl(self.ctx,"FixedText",142,y,300,20,(),() )  
-            modelFormLBF4.Label = lang.EIGENES_TEMPL_ERSTELLEN
-    
-            
-            y += 25
-            
-            controlLBF5, modelLBF5 = self.mb.createControl(self.ctx,"FixedText",142,y,50,20,(),() )  
-            modelLBF5.Label = lang.NAME
-            
-            controlLBF6, modelLBF6 = self.mb.createControl(self.ctx,"Edit",222,y,158,20,(),() ) 
-            
-            
-            y += 25
-            
-            # waehlen 
-            controlER, modelER = self.mb.createControl(self.ctx,"Button",142,y ,80,20,(),() )  
-            modelER.Label = lang.ERSTELLEN
-            controlER.setActionCommand('vorlage_erstellen')
-            
-            
-            y += 40
-            
-            # Trenner 
-            controlT2, modelT2 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
-            
-            
-            y += 40
-            # Formatierung
-            controlTemp, modelTemp = self.mb.createControl(self.ctx,"FixedText",25,y,80,20,(),() )  
-            modelTemp.Label = lang.TEMPLATE
-            modelTemp.FontWeight = 150
-            
-            
-            controlTempL, modelTempL = self.mb.createControl(self.mb.ctx,"ListBox",142,y -3 ,80,20,(),() )  
+                controlLBF2_Enable = 1
+
+            self.mb.user_styles,pfade = self.get_user_styles()
             templates = ('Minimal','Standard','Maximum')
-            controlTempL.addItems(templates,0)
-            modelTempL.Dropdown = True
-            #index = style_names.index(sett['style_ord'])
-            #modelLBF.SelectedItems = index,
-            modelTempL.SelectedItems = 0,
-            controlTempL.Enable = False
             
+            # LISTENER
+            listenerS = Speicherordner_Button_Listener(self.mb)
+            listener = neues_Projekt_Dialog_Listener(self.mb) 
+            listenerCB = Neues_Projekt_CheckBox_Listener(self.mb)
+            listener_info = Neues_Projekt_InfoButton_Listener(self.mb)
+
+            y = 0
             
-            controlHelpT, modelHelpT = self.mb.createControl(self.ctx,"Button",350,y - 10 ,30,30,(),() )  
-            modelHelpT.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png'
-            controlHelpT.setActionCommand('template')
+            tab0 = tab0x = 25
+            tab1 = tab1x = 115
+            tab2 = tab2x = 0
+            tab3 = tab3x = 80
+            tab4 = tab4x = 130
             
+            tabs = [tab0,tab1,tab2,tab3,tab4]
             
-            y += 40
-            
-            # Trenner 
-            controlT4, modelT4 = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,360,40,(),() )  
-            
-            
-            y += 40
-            x = 142
-            # ok button
-            control2, model2 = self.mb.createControl(self.ctx,"Button",x,y,80,30,(),() )  
-            model2.Label = lang.OK
-            control2.setActionCommand(lang.OK)
-            
-            # cancel button  
-            control3, model3 = self.mb.createControl(self.ctx,"Button",x + 120,y,80,30,(),() )  
-            model3.Label = lang.CANCEL
-            control3.setActionCommand(lang.CANCEL)
-            
+            design = self.mb.class_Design
+            design.set_default(tabs)
+
                 
-                
+            controls = (
+            20,
+            ('control',"FixedText",         'tab0x',y,250,20,  ('Label','FontWeight'),(lang.ENTER_PROJ_NAME ,150),          {'addKeyListener':(listener)} ),
+            30,
+            ('control1',"Edit",             'tab0',y,200,20,   (),(),                                                       {} ) ,
+            30,
+            ('controlT3',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+            43,
+            ('controlP',"FixedText",        'tab0x',y,120,20,  ('Label','FontWeight'),(lang.SPEICHERORT,150),               {} ),  
+            0,
+            ('controlW',"Button",           'tab2x',y,80,20,   ('Label',),(lang.AUSWAHL,),                                  {'setActionCommand':lang.WAEHLEN,'addActionListener':(listenerS,listener)}),              
+            30,
+            ('controlU',"FixedText",        'tab0',y,300,20,   ('Label','State'),(modelU_Label,modelForm1_State),           {} ), 
+            30,
+            ('controlT',"FixedLine",        'tab0',y,360,40,   (),(),                                                       {} ), 
+            40,
+            ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(lang.FORMATIERUNG,150),              {} ),
+            0,  
+            ('controlForm1',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_WRITER,modelForm1_State),   {'setActionCommand':'standard','addActionListener':(listenerCB,)} ),
+            0,
+            ('controlHelp',"Button",        'tab4',y ,30,30,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)} ), 
+            25,
+            ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_USER,modelForm2_State),     {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
+            22,
+            ('controlLBF2',"ListBox",       'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'Enable':controlLBF2_Enable,'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
+            20,
+            ('controlT5',"FixedLine",       'tab2',y,238,40,   (),(),                                                       {} ),
+            50,
+            ('controlFormLBF4',"FixedText", 'tab2',y,300,20,   ('Label',),(lang.EIGENES_TEMPL_ERSTELLEN,),                  {} ), 
+            25,
+            ('controlLBF5',"FixedText",     'tab2',y,50,20,    ('Label',),(lang.NAME,),                                     {}),  
+            0,
+            ('controlLBF6',"Edit",          'tab3',y,130,20,   (),(),                                                       {} ),
+            25,
+            ('controlER',"Button",          'tab2x',y ,80,20,  ('Label',),(lang.ERSTELLEN,),                                {'setActionCommand':'vorlage_erstellen','addActionListener':(listener,)} ),  
+            30,
+            ('controlT2',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+            40,
+            ('controlTemp',"FixedText",     'tab0x',y,80,20,   ('Label',),(lang.TEMPLATE,),                                 {}) ,
+            -3,
+            ('controlTempL',"ListBox",      'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'addItems':templates,'Enable':False,'SelectedItems':0}) ,
+            -10,
+            ('controlHelpT',"Button",       'tab4',y,30,30,    ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)}  ),
+            30,
+            ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+            40,
+            ('control2',"Button",           'tab3',y,80,30,    ('Label',),(lang.OK,),                                       {'setActionCommand':lang.OK,'addActionListener':(listener,)} ) , 
+            0,
+#             ('control3',"Button",           tab2+120,y,80,30,('Label',),(lang.CANCEL,),                                  {'setActionCommand':lang.CANCEL,'addActionListener':(listener,)} )  
+            )
+            
+            
             # HAUPTFENSTER    
-            smgr = self.mb.smgr
-            
             # create the dialog model and set the properties
-            dialogModel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
-               
-            dialogModel.PositionX = 65
-            dialogModel.PositionY = 65
-            dialogModel.Width = 215 # if lang == en:195
-    
+            dialogModel = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
+            dialogModel.Width = 215 
             dialogModel.Height = 320
             dialogModel.Title = lang.CREATE_NEW_PROJECT
                       
             # create the dialog control and set the model
-            controlContainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
+            controlContainer = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
             controlContainer.setModel(dialogModel);
                      
             # create a peer
-            toolkit = smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
+            toolkit = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
             controlContainer.setVisible(False);       
             controlContainer.createPeer(toolkit, None);
             # ENDE HAUPTFENSTER
             
+
+            pos_y = 0
             
-            # LISTENER 1
-            listener = neues_Projekt_Dialog_Listener(self.mb,model1,modelLBF6,controlForm2,controlLBF2) 
-            control1.addKeyListener(listener) 
-            controlW.addActionListener(listener) 
-            controlER.addActionListener(listener) 
-            control2.addActionListener(listener) 
-            control3.addActionListener(listener) 
+            for ctrl in controls:
+                if isinstance(ctrl,int):
+                    pos_y += ctrl
+                else:
+                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
+                    pos_x = locals()[X]
+                    
+                    locals()[name],locals()[name.replace('control','model')] = self.mb.createControl(self.ctx,unoCtrl,pos_x,pos_y,width,height,prop_names,prop_values)
+                            
+                    if 'x' in X:
+                        w,h = self.mb.kalkuliere_und_setze_Control(locals()[name],'w')
+                        design.setze_tab(X,w)
+                    
+                    if 'setActionCommand' in extras:
+                        locals()[name].setActionCommand(extras['setActionCommand'])
+                    if 'addItems' in extras:
+                        locals()[name].addItems(extras['addItems'],0)
+                    if 'Enable' in extras:
+                        locals()[name].Enable = extras['Enable']
+                    if 'addActionListener' in extras:
+                        for l in extras['addActionListener']:
+                            locals()[name].addActionListener(l)
+                    if 'addKeyListener' in extras:
+                        locals()[name].addKeyListener(extras['addKeyListener'])
+                    if 'addItemListener' in extras:
+                        locals()[name].addItemListener(extras['addItemListener'])
+
+                    controlContainer.addControl(name,locals()[name])
             
+            # Tabs x-Position neu berechnen
+            design.kalkuliere_tabs()
+
+            for i in range(len(tabs)):
+                locals()['tab%sx'%i] = design.new_tabs['tab%sx'%(i)]                
             
+            for ctrl in controls:
+                if isinstance(ctrl,int):
+                    pass
+                else:
+                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl                    
+                    pos_x = design.new_tabs[X]
+                    
+                    # Sonderregeln
+                    if X == 'tab1':
+                        pos_x -= 15
+                    
+                    locals()[name].setPosSize(pos_x,0,0,0,1)
             
-            # LISTENER 2 CheckBoxen
-            listenerCB = Neues_Projekt_CheckBox_Listener(self.mb,modelForm1,modelForm2,modelLBF2)
-            controlForm1.addActionListener(listenerCB)
-            controlForm1.ActionCommand = 'standard'
-            controlForm2.addActionListener(listenerCB)
-            controlForm2.ActionCommand = 'user'
-            controlLBF2.addItemListener(listenerCB)
-            
-            # LISTENER 3 Info
-            listener_info = Neues_Projekt_InfoButton_Listener(self.mb)
-            controlHelp.addActionListener(listener_info)
-            controlHelpT.addActionListener(listener_info)
-            
-            
-            
-            # CONTROLS HINZUFUEGEN
-            controlContainer.addControl('text',control)
-            controlContainer.addControl('name',control1)
-            
-            controlContainer.addControl('trenner',controlT3)
-            
-            controlContainer.addControl('projektordner',controlP)
-            controlContainer.addControl('waehlen',controlW)
-            controlContainer.addControl('url',controlU)
-            
-            
-            controlContainer.addControl('trenner',controlT)
-            
-            controlContainer.addControl('Form',controlForm)
-            controlContainer.addControl('Form1',controlForm1)       
-    #         controlContainer.addControl('FormLBF',controlLBF)
-    #         controlContainer.addControl('FormLBF1',controlLBF1)
-            
-            controlContainer.addControl('Help',controlHelp)
-            
-            controlContainer.addControl('Form2',controlForm2)       
-            controlContainer.addControl('FormLB2',controlLBF2)
-            controlContainer.addControl('FormLBF3',controlT5)
-            controlContainer.addControl('FormLBF4',controlFormLBF4)
-            controlContainer.addControl('FormLBF5',controlLBF5)
-            controlContainer.addControl('FormLBF6',controlLBF6)
-            controlContainer.addControl('FormLBF6',controlER)
-            
-            controlContainer.addControl('trenner',controlT2)
-            
-            controlContainer.addControl('template',controlTemp)        
-            controlContainer.addControl('templateL',controlTempL)
-            controlContainer.addControl('templateLH',controlHelpT)
-    
-            
-            controlContainer.addControl('trenner',controlT4)
-            
-            controlContainer.addControl('button',control2)
-            controlContainer.addControl('button2',control3)
-            
+            controlContainer.setPosSize(0,0,400,pos_y + 50,12)
+
+            # UEBERGABE AN LISTENER
+            listenerS.control = locals()['controlU']
+            listener.model_proj_name = locals()['model1']
+            listener.model_neue_vorl = locals()['modelLBF6']
+            listener.control_CB = locals()['controlForm2']
+            listener.control_LB = locals()['controlLBF2']
+            listenerCB.modelStandard = locals()['modelForm1']
+            listenerCB.modelUser = locals()['modelForm2']
+            listenerCB.modelListBox = locals()['modelLBF2']
+
+
             controlContainer.addTopWindowListener(listener)
         
             geglueckt = controlContainer.execute()       
             controlContainer.dispose() 
     
-            return geglueckt,model1.Text
+            return geglueckt,locals()['model1'].Text
         
         except:
             if self.mb.debug: log(inspect.stack,tb())
-    
+
+                       
+   
     
     def get_user_styles(self):
         if self.mb.debug: log(inspect.stack)
@@ -999,10 +930,11 @@ class Projekt():
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     
-    def __init__(self,mb,model):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.model = model
+        self.model = None
+        self.control = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1028,7 +960,8 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 file.write(uno.fileUrlToSystemPath(filepath))
             
             self.mb.speicherort_last_proj = filepath
-            self.model.Label = uno.fileUrlToSystemPath(filepath)
+            self.control.Model.Label = uno.fileUrlToSystemPath(filepath)
+            self.mb.kalkuliere_und_setze_Control(self.control)
             
             if self.mb.debug: log(inspect.stack,None,filepath)
             
@@ -1047,13 +980,13 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
 
 from com.sun.star.awt.Key import RETURN
 class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowListener,XKeyListener): 
-    def __init__(self,mb,model_proj_name,model_neue_vorl,control_CB,control_LB):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.model_proj_name = model_proj_name
-        self.model_neue_vorl = model_neue_vorl
-        self.control_CB = control_CB
-        self.control_LB = control_LB
+        self.model_proj_name = None
+        self.model_neue_vorl = None
+        self.control_CB = None
+        self.control_LB = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1079,9 +1012,6 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         except:
             if self.mb.debug: log(inspect.stack,tb())
         
-             
-    def windowClosed(self,ev):
-        pass
             
     def keyPressed(self,ev):
         if ev.KeyCode == RETURN:
@@ -1179,25 +1109,37 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         self.mb.Mitteilungen.nachricht(lang.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
         
         # var DefaultTemplate = ((XDocumentPropertiesSupplier)oDoc).getDocumentProperties().TemplateURL;
+    
+    
+    def keyReleased(self,ev):
+        return False
+    
+    # XTopWindowListener
     def windowOpened(self,ev):
         return False
     def windowActivated(self,ev):
         return False
     def windowDeactivated(self,ev):
         return False
-    def keyReleased(self,ev):
+    def windowClosing(self,ev):
+        return False
+    def windowClosed(self,ev):
+        return False
+    def windowMinimized(self,ev):
+        return False
+    def windowNormalized(self,ev):
         return False
     def disposing(self,ev):
         return False
     
         
 class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListener):
-    def __init__(self,mb,modelStandard,modelUser,modelListBox):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.modelStandard = modelStandard
-        self.modelUser = modelUser
-        self.modelListBox = modelListBox
+        self.modelStandard = None
+        self.modelUser = None
+        self.modelListBox = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)

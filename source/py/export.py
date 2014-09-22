@@ -44,239 +44,145 @@ class Export():
 
     def erzeuge_exportfenster(self): 
         if self.mb.debug: log(inspect.stack)
-        
-        breite = 400
-        hoehe = 480
-        tab1 = 130
-        
-        sett = self.mb.settings_exp
-        
-        posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-        X = posSize_main.X +20
-        Y = posSize_main.Y +20
-        Width = breite
-        Height = hoehe
-        
-        posSize = X,Y,Width,Height
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-        fenster_cont.Model.Text = lang.EXPORT
-        listenerDis = AB_Fenster_Dispose_Listener(self.mb,self)
-        fenster_cont.addEventListener(listenerDis)
-        self.haupt_fenster = fenster
-        
-        y = 10
-        
-        # Titel
-        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
-        controlE.Text = lang.EXPORT
-        modelE.FontWeight = 200.0
-        fenster_cont.addControl('Titel', controlE)
-
-        # CheckBoxen
-        y += 40
-        
-        buttons = []
-        labels = (lang.ALLES,lang.SICHTBARE,lang.AUSWAHL)
-        
-        for label in labels:
-            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
-            model.Label = label
-            
-            if label == lang.ALLES:
-                control.State = sett['alles']
-            elif label == lang.SICHTBARE:
-                control.State = sett['sichtbar']
-            elif label == lang.AUSWAHL:
-                control.State = sett['eigene_ausw'] 
-                
-            fenster_cont.addControl(label, control)
-            buttons.append(control)
-            y += 20
-        
-        # Auswahl   
-        controlA, modelA = self.mb.createControl(self.mb.ctx,"Button",tab1,y - 25 ,70,20,(),() )  ###
-        controlA.Label = lang.AUSWAHL
-        if sett['alles'] or sett['sichtbar']:
-            controlA.Enable = False
-        fenster_cont.addControl('Auswahl', controlA)
-        
-        y += 20
-        
-        # Trenner -----------------------------------------------------------------------------
-        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
-        fenster_cont.addControl('Trenner', controlT)
-        
-        y += 40
-        
-        # text
-        controlex, modelex = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,150,20,(),() )  
-        controlex.Text = lang.EXPORTIEREN_ALS
-        modelex.FontWeight = 150.0
-        fenster_cont.addControl('Titel', controlex)
-        
-        y += 30
-        
-        # Exportoptionen
-        labels2 = (lang.EIN_DOKUMENT,lang.TRENNER,lang.EINZ_DATEIEN,lang.ORDNERSTRUKTUR,lang.NEW_PROJECT2)
-        buttons2= []
-        for label in labels2:
-            
-            x = 0
-            if label in (lang.ORDNERSTRUKTUR,lang.TRENNER):
-                x = 20
-                
-            control1, model1 = self.mb.createControl(self.mb.ctx,"CheckBox",20 + x,y,110,22,(),() )  
-            model1.Label = label
-            
-            if label == lang.EIN_DOKUMENT:
-                control1.State = sett['einz_dok']
-            elif label == lang.TRENNER:
-                control1.State = sett['trenner']
-                if sett['einz_dat'] or sett['neues_proj']:
-                    control1.Enable = False
-                else:
-                    control1.Enable = True
-            elif label == lang.EINZ_DATEIEN:
-                control1.State = sett['einz_dat']
-            elif label == lang.NEW_PROJECT2:
-                control1.State = sett['neues_proj']
-            elif label == lang.ORDNERSTRUKTUR:
-                control1.State = sett['ordner_strukt']
-                control1.setPosSize(0,0,200,0,4)
-                if sett['einz_dok'] or sett['neues_proj']:
-                    control1.Enable = False
-                else:
-                    control1.Enable = True
-                
-            fenster_cont.addControl(label, control1)
-            buttons2.append(control1)
-            y += 20
-            if label in (lang.ORDNERSTRUKTUR,lang.TRENNER,lang.NEW_PROJECT2):
-                y += 20
-        
-        
-        # Button Bearbeiten -> oeffnet Trennerfenster   
-        controlTr, modelTr = self.mb.createControl(self.mb.ctx,"Button",tab1,y - 145 ,70,20,(),() )  ###
-        controlTr.Label = lang.BEARBEITEN
-        if sett['trenner'] and sett['einz_dok']:
-            controlTr.Enable = True
-        else:
-            controlTr.Enable = False
-        fenster_cont.addControl('Bearbeiten', controlTr)
-        
-        
-        # Projektname   
-        controlPN, modelPN = self.mb.createControl(self.mb.ctx,"Edit",35,y - 25 ,165,20,(),() )  ###
-        modelPN.HelpText = lang.PROJEKT_NAMEN_EINGEBEN
-        if sett['einz_dat'] or sett['einz_dok']:
-            controlPN.Enable = False
-        else:
-            controlPN.Enable = True
-        fenster_cont.addControl('Projektname', controlPN)
-        
-        buttons2.append(controlPN)
-        
-        
-        y += 20
-
-        # Trenner ------------------------------------------------------------------------------
-        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
-        fenster_cont.addControl('Trenner', controlT)
-        
-        y += 40
-        
-        
-        
-        # Exportformat 
-        controlf, modelf = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
-        controlf.Text = lang.DATEITYP
-        fenster_cont.addControl('Typ', controlf)
-        modelf.FontWeight = 150.0
-        
-        # Liste der Formate
-        controlL, modelL = self.mb.createControl(self.mb.ctx,"ListBox",tab1,y ,250,20,(),() )  
-        #controlL.setMultipleMode(False)
-        filters = self.mb.filters_export
-        modelL.LineCount = 15
-        
-        
-        items = tuple(filters[x][0] for x in filters)
-
-        controlL.addItems(items,0)
-        modelL.Dropdown = True
-        s = [f for f in filters if f == sett['typ']]
-        sel = tuple(list(filters).index(f) for f in filters if f == sett['typ'])
-        sel2 = 0,
-        modelL.SelectedItems = sel
-
-        fenster_cont.addControl('Liste', controlL)
-        
-        f_listener = ExportFilter_Item_Listener(self.mb)
-        controlL.addItemListener(f_listener)
-    
-        
-        y += 40
-        
-        controlSO, modelSO = self.mb.createControl(self.mb.ctx,"FixedText",20 ,y,100,22,(),() )  
-        modelSO.Label = lang.SPEICHERORT
-        modelSO.FontWeight = 150.0
-        
-        fenster_cont.addControl('Dokument', controlSO)
-        
-        # Button
-        controlSD, modelSD = self.mb.createControl(self.mb.ctx,"Button",tab1,y-3,70,20,(),() )  ###
-        controlSD.Label = lang.WAEHLEN
-        controlSD.ActionCommand = 'speicherort'
-        fenster_cont.addControl('Dok', controlSD)
-        
-        y += 20
-        
-        controlFO, modelFO = self.mb.createControl(self.mb.ctx,"FixedText",20 ,y,500,22,(),() )  
-        modelFO.HelpText = 'URL'
-        #modelF.Border = True
-        label = decode_utf(sett['speicherort'])
         try:
-            l = uno.fileUrlToSystemPath(label)
+            breite = 400
+            hoehe = 530
+            tab1 = 130
+            
+            sett = self.mb.settings_exp
+            
+            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
+            X = posSize_main.X +20
+            Y = posSize_main.Y +20
+            Width = breite
+            Height = hoehe
+            
+            
+            posSize = X,Y,Width,Height
+            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
+            fenster_cont.Model.Text = lang.EXPORT
+            
+            
+            listenerDis = AB_Fenster_Dispose_Listener(self.mb,self)
+            listener = Speicherordner_Button_Listener(self.mb)
+            listener6 = Fenster_Export_Listener1(self.mb)
+            listener3 = B_Auswahl_Button_Listener(self.mb,self,fenster)
+            listener4 = Export_Button_Listener(self.mb)        
+            listener5 = A_Trenner_Button_Listener(self.mb,self,fenster)        
+            listener2 = Fenster_Export_Listener2(self.mb)
+            f_listener = ExportFilter_Item_Listener(self.mb)
+            
+            
+            fenster_cont.addEventListener(listenerDis)
+            self.haupt_fenster = fenster
+            
+            # FILTER
+            filters = self.mb.filters_export
+            filter_items = tuple(filters[x][0] for x in filters)
+            sel = tuple(list(filters).index(f) for f in filters if f == sett['typ'])
+
+            # SPEICHERORT
+            label_speicherort = decode_utf(sett['speicherort'])
+            try:
+                l = uno.fileUrlToSystemPath(label_speicherort)
+            except:
+                l = label_speicherort
+            label_speicherort = l
+            
+            y = 0
+            
+            controls = (
+                10,
+                ('controlE',"FixedText",        20,y ,50,20,    ('Label','FontWeight'),(lang.EXPORT ,150),                  {} ), 
+                30,
+                ('control_CB1',"CheckBox",      20,y,120,22,    ('Label','State'),(lang.ALLES ,sett['alles']),              {'addItemListener':(listener6)} ),    
+                20,                                                  
+                ('control_CB2',"CheckBox",      20,y,120,22,    ('Label','State'),(lang.SICHTBARE ,sett['sichtbar']),       {'addItemListener':(listener6)} ),  
+                20,
+                ('control_CB3',"CheckBox",      20,y,120,22,    ('Label','State'),(lang.AUSWAHL ,sett['eigene_ausw']),      {'addItemListener':(listener6)} ),  
+                -3,                                                      
+                ('controlA',"Button",           tab1,y-25,70,20,('Label',),(lang.AUSWAHL,),                                 {'Enable':not(sett['alles'] or sett['sichtbar']),'addActionListener':(listener3,)} ),
+                20,
+                ('controlT',"FixedLine",        20,y-10 ,breite-40,40,(),(),                                                {} ),        
+                40,
+                ('controlex',"FixedText",       20,y ,150,20,   ('Label','FontWeight'),(lang.EXPORTIEREN_ALS,150.0),        {} ),
+                30,  
+                ('controlcb1',"CheckBox",       20,y,110,22,    ('Label','State'),(lang.EIN_DOKUMENT,sett['einz_dok']),     {'addItemListener':(listener2)} ),  
+                20,
+                ('controlcb2',"CheckBox",       40,y,110,22,    ('Label','State'),(lang.TRENNER,sett['trenner']),           {'addItemListener':(listener2),'Enable':not(sett['einz_dat'] or sett['neues_proj']) } ),
+                -3,
+                ('controlTr',"Button",          tab1,y-145 ,70,20,    ('Label',),(lang.BEARBEITEN,),                        {'Enable':(sett['trenner'] and sett['einz_dok']),'addActionListener':(listener5,) } ),
+                40,
+                ('controlcb3',"CheckBox",       20,y,110,22,    ('Label','State'),(lang.EINZ_DATEIEN,sett['einz_dat']),     {'addItemListener':(listener2)} ),
+                20,
+                ('controlcb4',"CheckBox",       40,y,110,22,    ('Label','State'),(lang.ORDNERSTRUKTUR,sett['ordner_strukt']),     {'addItemListener':(listener2),'Enable':not(sett['einz_dok'] or sett['neues_proj']) } ),
+                30,
+                ('controlcb5',"CheckBox",       20,y,110,22,    ('Label','State'),(lang.NEW_PROJECT2,sett['neues_proj']),   {'addItemListener':(listener2)} ),
+                20,
+                ('controlPN',"Edit",            35,y ,100,20,    ('HelpText',),(lang.PROJEKT_NAMEN_EINGEBEN,),               {'Enable':not(sett['einz_dat'] or sett['einz_dok']) } ),
+                20,
+                ('controlT',"FixedLine",        20,y,breite-40,40,(),(),                                                    {} ),
+                40,
+                ('controlf',"FixedText",        20,y ,80,20,    ('Label','FontWeight'),(lang.DATEITYP,150),                 {} ),
+                0,
+                ('controlL',"ListBox",          tab1,y ,250,20,    ('LineCount','Dropdown'),(150,True), {'addItems':filter_items,'SelectedItems':sel,'addItemListener':(f_listener)} ),
+                40,
+                ('controlSO',"FixedText",       20,y ,80,20,    ('Label','FontWeight'),(lang.SPEICHERORT,150),              {} ),
+                0,
+                ('controlSD',"Button",          tab1,y-3,70,20,    ('Label',),(lang.WAEHLEN,),                              {'setActionCommand':'speicherort','addActionListener':(listener,)} ) ,
+                30,
+                ('controlFO',"FixedText",       20,y ,80,20,    ('HelpText','Label'),('URL',label_speicherort),             {} ),
+                60,
+                ('controlB',"Button",           breite -120 ,y,80,30,    ('Label',),(lang.EXPORTIEREN,),                 {'setActionCommand':'speicherort','addActionListener':(listener4,)} ) ,
+                )
+            
+            pos_y = 0
+            
+            for ctrl in controls:
+                if isinstance(ctrl,int):
+                    pos_y += ctrl
+                else:
+                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
+                    locals()[name],locals()[name.replace('control','model')] = self.mb.createControl(self.mb.ctx,unoCtrl,X,pos_y,width,height,prop_names,prop_values)
+                    
+                    if unoCtrl in ('FixedText','CheckBox','Button'):
+                        w,h = self.mb.kalkuliere_und_setze_Control(locals()[name],'w')
+
+                        
+                    if 'setActionCommand' in extras:
+                        locals()[name].setActionCommand(extras['setActionCommand'])
+                    if 'addItems' in extras:
+                        locals()[name].addItems(extras['addItems'],0)
+                    if 'Enable' in extras:
+                        locals()[name].Enable = extras['Enable']
+                    if 'addActionListener' in extras:
+                        for l in extras['addActionListener']:
+                            locals()[name].addActionListener(l)
+                    if 'addKeyListener' in extras:
+                        locals()[name].addKeyListener(extras['addKeyListener'])
+                    if 'addItemListener' in extras:
+                        locals()[name].addItemListener(extras['addItemListener'])                        
+                    if 'SelectedItems' in extras:
+                        locals()[name].Model.SelectedItems = extras['SelectedItems']
+    
+                    fenster_cont.addControl(name,locals()[name])
+                    
+        
+            
+            buttons = locals()['control_CB1'],locals()['control_CB2'],locals()['control_CB3']
+            listener6.buttons = buttons
+            buttons2 = locals()['controlcb1'],locals()['controlcb2'],locals()['controlcb3'],locals()['controlcb4'],locals()['controlcb5'],locals()['controlPN']
+            listener2.buttons2 = buttons2
+            listener2.trenner = locals()['controlTr']
+            listener6.but_Auswahl = locals()['controlA']
+            listener.model = locals()['modelFO']
+            listener4.feld_projekt_name = locals()['controlPN']
+    
         except:
-            l = label
-        modelFO.Label = l
-        fenster_cont.addControl('Speicherort', controlFO) 
-        
-        listener = Speicherordner_Button_Listener(self.mb,modelFO)
-        controlSD.addActionListener(listener)
+            if self.mb.debug: log(inspect.stack,tb())
+                
 
         
-        y += 60
-        
-        # Exportbutton
-        controlB, modelB = self.mb.createControl(self.mb.ctx,"Button",breite - 80 -20,y,80,30,(),() )  
-        controlB.Label = lang.EXPORTIEREN
-        fenster_cont.addControl('Export', controlB)
-        
-        fenster.setPosSize(0,0,0,y + 40,8)
-        
-        # Listener    
-        listener = Fenster_Export_Listener1(self.mb,buttons,controlA)
-        for cont in buttons:
-            cont.addItemListener(listener)
-        
-        listener3 = B_Auswahl_Button_Listener(self.mb,self,fenster)
-        controlA.addActionListener(listener3)
-        
-        listener4 = Export_Button_Listener(self.mb)
-        controlB.addActionListener(listener4)
-        
-        listener5 = A_Trenner_Button_Listener(self.mb,self,fenster)
-        controlTr.addActionListener(listener5)
-        
-        listener2 = Fenster_Export_Listener2(self.mb,buttons2,controlTr)
-        for cont in buttons2:
-            if cont != controlPN:
-                cont.addItemListener(listener2)
-            else:
-                listener4.feld_projekt_name = cont
-
-
     def kopiere_projekt(self,neuer_projekt_name,pfad_zu_neuem_ordner,
                         ordinale,tree,dict_sb_content_neu,backup = False):
         if self.mb.debug: log(inspect.stack)
@@ -407,6 +313,7 @@ def decode_utf(term):
         return term.decode('utf8')   
 
 
+
 from com.sun.star.awt import XItemListener, XActionListener, XFocusListener    
 class ExportFilter_Item_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb):
@@ -430,12 +337,12 @@ class ExportFilter_Item_Listener(unohelper.Base, XItemListener):
 
 
 class Fenster_Export_Listener1(unohelper.Base, XItemListener):
-    def __init__(self,mb,buttons,but_Auswahl):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.buttons = buttons
-        self.but_Auswahl = but_Auswahl
+        self.buttons = None
+        self.but_Auswahl = None
         
     # XItemListener    
     def itemStateChanged(self, ev):  
@@ -473,12 +380,12 @@ class Fenster_Export_Listener1(unohelper.Base, XItemListener):
               
 class Fenster_Export_Listener2(unohelper.Base, XItemListener):
     
-    def __init__(self,mb,buttons2,trenner):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.buttons2 = buttons2
-        self.trenner = trenner
+        self.buttons2 = None
+        self.trenner = None
         
 
     def itemStateChanged(self, ev):    
@@ -1386,10 +1293,10 @@ class A_TrennDatei_Button_Listener(unohelper.Base, XActionListener):
 
 
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb,model):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.model = model
+        self.model = None
         
     def disposing(self,ev):
         return False

@@ -74,6 +74,7 @@ class ImportX():
         controlE.Text = lang.IMPORT
         modelE.FontWeight = 200.0
         fenster_cont.addControl('Titel', controlE)
+        self.mb.kalkuliere_und_setze_Control(controlE,'w')
         
         y += 30
         
@@ -82,6 +83,7 @@ class ImportX():
         model1.State = int(imp_set['imp_dat'])
         control1.ActionCommand = 'model1'
         fenster_cont.addControl('ImportD', control1)
+        self.mb.kalkuliere_und_setze_Control(control1,'w')
         
         y += 30
         
@@ -90,7 +92,8 @@ class ImportX():
         model2.State = not int(imp_set['imp_dat'])
         control2.ActionCommand = 'model2'
         fenster_cont.addControl('ImportO', control2)
-
+        self.mb.kalkuliere_und_setze_Control(control2,'w')
+        
         y += 20
         
         control3, model3 = self.mb.createControl(self.mb.ctx,"CheckBox",40,y,180,22,(),() )  
@@ -99,7 +102,7 @@ class ImportX():
         control3.Enable = not int(imp_set['imp_dat'])
         control3.ActionCommand = 'struktur'
         fenster_cont.addControl('struktur', control3)
-        
+        self.mb.kalkuliere_und_setze_Control(control3,'w')
         
         # CheckBox Listener
         listenerA = Auswahl_CheckBox_Listener(self.mb,model1,model2,control3)
@@ -118,6 +121,7 @@ class ImportX():
         controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
         controlE.Text = lang.DATEIFILTER
         fenster_cont.addControl('Filter', controlE)
+        self.mb.kalkuliere_und_setze_Control(controlE,'w')
         
         buttons = {}
         filters = ('odt','doc','docx','rtf','txt')
@@ -142,11 +146,13 @@ class ImportX():
         model.State = imp_set['auswahl']   
         control.addActionListener(filter_CB_listener)                    
         fenster_cont.addControl('auswahl', control)      
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         
         control, model = self.mb.createControl(self.mb.ctx,"Button",180 + 16,y - 3*16  ,80,20,(),() )  ###
         control.Label = lang.AUSWAHL
         fenster_cont.addControl('Filter_Auswahl', control)  
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         filter_Ausw_B_listener = Filter_Auswahl_Button_Listener(self.mb,fenster)
         control.addActionListener(filter_Ausw_B_listener)  
@@ -164,6 +170,7 @@ class ImportX():
         controlA.Label = lang.DATEIAUSWAHL
         controlA.ActionCommand = 'Datei'
         fenster_cont.addControl('Auswahl', controlA) 
+        self.mb.kalkuliere_und_setze_Control(controlA,'w')
         
         y += 25
         
@@ -175,6 +182,7 @@ class ImportX():
             text = uno.fileUrlToSystemPath(decode_utf(text))
         controlE.Text = text
         fenster_cont.addControl('Filter', controlE)    
+        self.mb.kalkuliere_und_setze_Control(controlE,'w')
         
         y += 40   
         
@@ -182,6 +190,7 @@ class ImportX():
         controlA2.Label = lang.ORDNERAUSWAHL
         controlA2.ActionCommand = 'Ordner'
         fenster_cont.addControl('Auswahl2', controlA2)             
+        self.mb.kalkuliere_und_setze_Control(controlA2,'w')
         
         y += 25
         
@@ -198,14 +207,16 @@ class ImportX():
         controlA.addActionListener(listenerA2)
         controlA2.addActionListener(listenerA2)   
         
+        
         y += 60
         
         controlI, modelI = self.mb.createControl(self.mb.ctx,"Button",breite - 80 - 20,y  ,80,30,(),() )  ###
         controlI.Label = lang.IMPORTIEREN
         listener_imp = Import_Button_Listener(self.mb,fenster)
         controlI.addActionListener(listener_imp)
+        self.mb.kalkuliere_und_setze_Control(controlI,'w')
         fenster_cont.addControl('importieren', controlI) 
-
+        
         fenster.setPosSize(0,0,0,y + 40,8)
     
     
@@ -1197,7 +1208,10 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         cont = self.mb.doc.getControllers()
         for filt in FilterNames:
-        
+            
+            if filt in self.mb.class_Import.auszuschliessende_filter:
+                continue
+            
             f = FF.getByName(filt)
 
             if f[docSer_pos].Value == 'com.sun.star.text.TextDocument':

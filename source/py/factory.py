@@ -377,7 +377,6 @@ class Sidebar_Options_Dispatcher(unohelper.Base,XDispatch,XDispatchProvider):
         return self
     def dispatch(self,featureURL,*args):
         optionsfenster = dict_sb['optionsfenster']
-        pd()
         optionsfenster(featureURL.Path)
     def addStatusListener(self,listener,featureURL):
         #print('addStatusListener', featureURL.Path)

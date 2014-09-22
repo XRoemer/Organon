@@ -116,6 +116,8 @@ class Menu_Start():
         control.setActionCommand('neues_projekt')
         control.addActionListener(self.listener)
         model.Label = self.LANG.NEW_PROJECT
+        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+
         
         self.cont.addControl('Hauptfeld_aussen',control)  
         
@@ -125,7 +127,8 @@ class Menu_Start():
         control.setActionCommand('projekt_laden')
         control.addActionListener(self.listener)
         model.Label = self.LANG.OPEN_PROJECT
-          
+        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        
         self.cont.addControl('Hauptfeld_aussen',control) 
         
         
@@ -135,7 +138,8 @@ class Menu_Start():
         control.setActionCommand('anleitung_laden')
         control.addActionListener(self.listener)
         model.Label = self.LANG.LOAD_DESCRIPTION
-
+        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        
         self.cont.addControl('Hauptfeld_aussen',control) 
 
     

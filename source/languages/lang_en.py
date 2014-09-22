@@ -61,6 +61,9 @@ KANN_NICHT_VERSCHOBEN_WERDEN = u"%s can't be moved to the waste bin, as it's sti
 ZEILE_AUSWAEHLEN = 'Choose a row beneath which the new content should be inserted    '
 ERZEUGE_NEUE_ZEILE = '                    creating row, please wait!                   '
         
+## TREEVIEW
+ORDNER_AUSKLAPPEN = 'Unfold folder'
+IN_PAPIERKORB_VERSCHIEBEN = 'Move to Waste Bin'
 
 ## EXPORT SETTINGS
 EXPORT_2 = 'Export'
@@ -131,7 +134,7 @@ ALLGEMEIN = 'General'
 CHARAKTERE = 'Character'
 ORTE = 'Location'
 OBJEKTE = 'Objects'
-ZEIT = 'Date'
+ZEIT = 'Time'
 BENUTZER1 = 'User 1'
 BENUTZER2 = 'User 2'
 BENUTZER3 = 'User 3'

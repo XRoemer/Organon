@@ -12,14 +12,19 @@ class Funktionen():
         global pd
         pd = pdk
         
-    def projektordner_ausklappen(self):
+    def projektordner_ausklappen(self,ordinal = None):
         if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
+        
+        if ordinal == None:
+            xml_projekt = root.find(".//*[@Name='%s']" % self.mb.projekt_name)
+            alle_elem = xml_projekt.findall('.//')
+        else:
+            xml_projekt = root.find(".//%s" % ordinal)
+            alle_elem = xml_projekt.findall('.//')
 
-        xml_projekt = root.find(".//*[@Name='%s']" % self.mb.projekt_name)
-        alle_elem = xml_projekt.findall('.//')
 
         projekt_zeile = self.mb.props[T.AB].Hauptfeld.getControl(xml_projekt.tag)
         icon = projekt_zeile.getControl('icon')

@@ -381,7 +381,7 @@ class Tabs():
         x2 = 280
         x3 = 10
         x4 = 20
-        x5 = 140
+        x5 = 160
         
         width = 120
         width2 = 80
@@ -416,6 +416,7 @@ class Tabs():
         prop_values = (LANG.EIGENE_AUSWAHL,0)
         control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
         cont.addControl('Eigene_Auswahl_use', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         #control.Enable = False
         
         
@@ -425,6 +426,7 @@ class Tabs():
         cont.addControl('Eigene_Auswahl', control)
         control.addActionListener(button_listener) 
         control.setActionCommand('Eigene Auswahl')
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 30
         
@@ -455,6 +457,7 @@ class Tabs():
         prop_values = (LANG.TAGS_SEITENLEISTE,)
         control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
         cont.addControl('CB_Seitenleiste', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         
         prop_names = ('Label',)
@@ -463,6 +466,7 @@ class Tabs():
         control.addActionListener(button_listener) 
         control.setActionCommand('Tags Seitenleiste')
         cont.addControl('but2_Seitenleiste', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 30
         
@@ -482,6 +486,7 @@ class Tabs():
         
         
         
+        
         y += 30
         
         
@@ -498,9 +503,8 @@ class Tabs():
         control, model = self.mb.createControl(self.mb.ctx, "Button", x2, y- 2, 16, 16, prop_names, prop_values)  
         model.HelpText = LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED
         control.addActionListener(button_listener) 
-        control.setActionCommand('V')
-        cont.addControl('but1_Baumansicht', control)
-        
+        control.setActionCommand('V')  
+        cont.addControl('but1_Baumansicht', control)      
         
         
         prop_names = ('Label',)
@@ -508,6 +512,7 @@ class Tabs():
         control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
         cont.addControl('CB_Baumansicht', control)
         control.Enable = True
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         
         prop_names = ('Label',)
@@ -516,6 +521,7 @@ class Tabs():
         control.addActionListener(button_listener) 
         control.setActionCommand('Tags Baumansicht')
         cont.addControl('but2_Baumansicht', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 30        
         
@@ -550,6 +556,7 @@ class Tabs():
         control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
         cont.addControl('CB_Suche', control)
         control.Enable = False
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         
         prop_names = ('Label',)
@@ -582,6 +589,7 @@ class Tabs():
         prop_values = (LANG.ZEITLICH_ANORDNEN,)
         control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, 290, 20, prop_names, prop_values)  
         cont.addControl('Zeit', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 20
         
@@ -590,6 +598,7 @@ class Tabs():
         control, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
         cont.addControl('z1', control)
         control.State = 1
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 20
         
@@ -597,6 +606,7 @@ class Tabs():
         prop_values = (LANG.NUTZE_DATUM,)
         control, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
         cont.addControl('z2', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 20
         
@@ -604,6 +614,7 @@ class Tabs():
         prop_values = (LANG.NUTZE_ZEIT_UND_DATUM,)
         control, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
         cont.addControl('z3', control)
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
         y += 20
         
@@ -611,7 +622,7 @@ class Tabs():
         prop_values = (LANG.UNAUSGEZEICHNETE,)
         control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x4 + 7, y, 290, 20, prop_names, prop_values)  
         cont.addControl('Zeit2', control)
-        
+        self.mb.kalkuliere_und_setze_Control(control,'w')
         
 
    
@@ -629,6 +640,7 @@ class Tabs():
             prop_values = (LANG.TABNAME,)
             control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 80, 20, prop_names, prop_values)  
             cont.addControl('tab_name_eingabe', control)
+            self.mb.kalkuliere_und_setze_Control(control,'w')
             
             y += 20
             
@@ -636,7 +648,7 @@ class Tabs():
             prop_values = ('Tab %s' %str(len(self.mb.tabs)+1),)
             control, model = self.mb.createControl(self.mb.ctx, "Edit", x3, y, width2, 20, prop_names, prop_values) 
             cont.addControl('tab_name', control)
-  
+            
         y += 50
         
         prop_names = ('Label',)

@@ -310,12 +310,14 @@ class Sidebar():
                 y = 10
                 height = 20
                 
-                prop_names = ('HelpText',)
-                prop_values = (self.mb.lang.ENTER_NEW_TAG,)
+                prop_names = ('HelpText','MultiLine')
+                prop_values = (self.mb.lang.ENTER_NEW_TAG,True)
                 control, model = self.mb.createControl(ctx, "Edit", 170, y,100, height, prop_names, prop_values)
                 panelWin.addControl('Button', control) 
-                focus_listener = Tags_Focus_Listener(self.mb,xUIElement_name)
-                control.addFocusListener(focus_listener)
+
+                key_listener = Tags_Key_Listener(self.mb,xUIElement_name)
+                control.addKeyListener(key_listener)
+
                 
                 #y += height + 10
                 y_all_tags = y
@@ -869,22 +871,25 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
 
 
 from com.sun.star.awt import XFocusListener,XKeyListener
-class Tags_Focus_Listener(unohelper.Base, XFocusListener):
+class Tags_Key_Listener(unohelper.Base, XKeyListener):
     def __init__(self,mb,tag):
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.tag = tag
     
-    def focusGained(self,ev):
+    def keyPressed(self,ev):
         return False
         
-    def focusLost(self,ev):
+    def keyReleased(self,ev):
         # Hinzufuegen neuer Tags
         if self.mb.debug: log(inspect.stack)
         
+        if ev.KeyCode != 1280:
+            return
+        
         ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
-        new_tag = ev.Source.Model.Text
-
+        new_tag = ev.Source.Model.Text.replace('\n','')
+        
         if new_tag != '':
             if new_tag not in self.mb.dict_sb_content['tags']['Tags_general']:
                 self.mb.dict_sb_content['tags']['Tags_general'].append(new_tag)

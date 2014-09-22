@@ -101,9 +101,9 @@ class Baumansicht():
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control2, model2 = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
-
+        control2.addMouseListener(self.listener_treeview_symbol)
+        
         if art == 'waste':
-            control2.addMouseListener(self.listener_treeview_symbol)
             self.mb.props[T.AB].Papierkorb = ordinal
         
         if art == 'prj':
@@ -113,7 +113,6 @@ class Baumansicht():
         # icons sind unter: C:\Program Files (x86)\LibreOffice 4\share\config ... \images\res
         # richtige Icons finden
         if art in ('dir','prj'):
-            control2.addMouseListener(self.listener_treeview_symbol)
 
             if zustand == 'auf':
                 model2.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16 
@@ -197,19 +196,23 @@ class Baumansicht():
         
     def korrigiere_scrollbar(self):
         if self.mb.debug: log(inspect.stack)
-        
-        #print(T.AB,self.mb.active_tab_id)
+
         active_tab = self.mb.active_tab_id
         win = self.mb.tabs[active_tab][0]
         SB = win.getControl('ScrollBar')        
         
         hoehe = sorted(list(self.mb.props[T.AB].dict_zeilen_posY))
+
+        sb_hoehe = SB.Size.Height
+        baum_hoehe = hoehe[-1] + 20
         if hoehe != []:
-            max =  hoehe[-1] - (win.PosSize.Height - 100)
+            max =  baum_hoehe - (sb_hoehe) 
             if max > 0:
                 SB.Visible = True
-                SB.Maximum = max
-                
+                SB.LineIncrement = baum_hoehe/sb_hoehe*50
+                SB.BlockIncrement = 200
+                SB.Maximum =  baum_hoehe  
+                SB.VisibleSize = sb_hoehe - 40
             else:
                 SB.Maximum  = 1
                 SB.Visible = False
@@ -1506,16 +1509,21 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         
         self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext
+        selbst = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
         
+        if selbst in self.mb.props['Projekt'].dict_ordner:
+            ist_ordner = True
+        else:
+            ist_ordner = False
+
         if ev.Buttons == MB_RIGHT:
-            pass
+            self.menu_rightclick(ev,ist_ordner,selbst)
+
         
-        if ev.Buttons == MB_LEFT:    
+        if ev.Buttons == MB_LEFT and ist_ordner:    
             if ev.ClickCount == 2: 
                 
                 try:
-                    selbst = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
-                    
                     tree = self.mb.props[T.AB].xml_tree
                     root = tree.getroot()
                     selbst_xml = root.find('.//'+selbst)
@@ -1555,6 +1563,101 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
     def mouseExited(self,ev):
         return False
     def mouseEntered(self,ev):
+        return False
+    
+    def menu_rightclick(self,ev,ist_ordner,ordinal):
+        try:
+            
+           
+            papierkorb = self.mb.props[T.AB].Papierkorb
+            projektordner = self.mb.props[T.AB].Projektordner
+                
+                
+            
+            controls = []
+            maus_listener = Symbol_Popup_Mouse_Listener(self.mb)
+            
+            # IN PAPIERKORB VERSCHIEBEN
+            if ordinal not in(papierkorb,projektordner):
+                prop_names = ('Label',)
+                prop_values = (self.mb.lang.IN_PAPIERKORB_VERSCHIEBEN,)
+                control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 0,0, prop_names, prop_values)
+                control.addMouseListener(maus_listener)
+                controls.append(control)
+            
+            # PROJEKTORDNER AUSKLAPPEN
+            if ist_ordner:
+                if ordinal != papierkorb:
+                    prop_names = ('Label',)
+                    prop_values = (self.mb.lang.ORDNER_AUSKLAPPEN,)
+                    control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 0,0, prop_names, prop_values)
+                    control.addMouseListener(maus_listener)
+                    controls.append(control)
+                
+            x = 0
+            y = 0
+            
+            for ctrl in controls:
+                breite,hoehe = self.mb.kalkuliere_und_setze_Control(ctrl)
+                if breite > x:
+                    x = breite
+                
+                ctrl.setPosSize(30,y+5,breite+10,0,7)
+                y += hoehe
+            
+            if len(controls) == 0:
+                return
+            
+            # SEPERATOR
+            control, model = self.mb.createControl(self.mb.ctx, "FixedLine", 20, 5, 5,y,(),())
+            model.Orientation = 1
+            controls.append(control)
+            
+            BREITE = x
+            HOEHE = y
+            
+            win,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,BREITE+50,HOEHE+10,True)
+            posSize = win.PosSize
+            cont.Model.BorderColor = 16580864
+            
+            win.setPosSize(posSize.X - 5,posSize.Y - 20,0,0,3)
+            maus_listener.window = win
+            
+            for ctrl in controls:
+                cont.addControl(ctrl.Model.Label,ctrl)
+        except:
+            if self.mb.debug: log(inspect.stack,tb())
+            
+            
+class Symbol_Popup_Mouse_Listener (unohelper.Base, XMouseListener):
+    
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        self.window = None
+        
+    def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        label = ev.Source.Text
+
+        ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        
+        if label == self.mb.lang.ORDNER_AUSKLAPPEN:
+            self.mb.class_Funktionen.projektordner_ausklappen(ordinal)
+        
+        if label == self.mb.lang.IN_PAPIERKORB_VERSCHIEBEN:
+            papierkorb = self.mb.props[T.AB].Papierkorb
+            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+
+        self.window.dispose()
+                
+    def mouseEntered(self,ev):
+        ev.value.Source.Model.FontWeight = 150
+        return False
+    def mouseExited(self,ev):
+        ev.value.Source.Model.FontWeight = 100
+        return False
+    def disposing(self,ev):
         return False
 
 class Tag1_Listener (unohelper.Base, XMouseListener):

@@ -120,8 +120,8 @@ class Log():
             function = info[1][3]
             modul = info[1][0].f_locals['self'].__class__.__name__
 
-#             if modul in ('ViewCursor_Selection_Listener'):
-#                 return
+            if modul in ('ViewCursor_Selection_Listener'):
+                return
             
             if self.load_reload:
                 if function in ('entferne_Trenner','mouseEntered','mouseExited'):
@@ -144,17 +144,18 @@ class Log():
             if self.write_debug_file:
                 path = join(self.location_debug_file,'organon_log.txt')
                 with open(path , "a") as file:
-                    file.write(string+'\r\n')
+                    file.write(string+'\n')
                 
                 if traceb != None:
                     print(traceb)
                     with open(path , "a") as file:
+                        file.write('### ERROR ### \r\n')
                         file.write(traceb+'\r\n')
                 
                 if extras != None:
                     print(extras)
                     with open(path , "a") as file:
-                        file.write(extras+'\r\n')
+                        file.write(extras+'\r')
             
         except Exception as e:
             try:

@@ -126,6 +126,7 @@ class Menu_Bar():
         self.class_Version =    self.lade_modul('version','.Version(self,pd)') 
         self.class_Tabs =       self.lade_modul('tabs','.Tabs(self)') 
         self.class_Log = class_LogX
+        self.class_Design = Design()
         
         #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
         
@@ -134,7 +135,8 @@ class Menu_Bar():
         self.w_listener             = Dialog_Window_Listener(self)    
         self.undo_mgr_listener      = Undo_Manager_Listener(self)
         self.tab_listener           = Tab_Listener(self)
-        
+        #self.listener_top_window    = Top_Window_Listener(self)
+                                                         
         self.Listener = {}
         self.Listener.update({'Menu_Kopf_Listener':Menu_Kopf_Listener(self)})
         self.Listener.update({'Menu_Kopf_Listener2':Menu_Kopf_Listener2(self)})
@@ -288,7 +290,7 @@ class Menu_Bar():
                 if self.mb.debug: log(inspect.stack,tb())
   
   
-    def erzeuge_Menu_DropDown_Container(self,ev,BREITE,HOEHE):
+    def erzeuge_Menu_DropDown_Container(self,ev,BREITE,HOEHE,Border = False):
         if self.debug: log(inspect.stack)
         
         smgr = self.smgr
@@ -312,6 +314,9 @@ class Menu_Bar():
     #         com_sun_star_awt_WindowAttribute_MOVEABLE + \
     #         com_sun_star_awt_WindowAttribute_CLOSEABLE + \
     #         com_sun_star_awt_WindowAttribute_SIZEABLE
+    
+        if Border:
+            gnDefaultWindowAttributes = 1 + 16
           
         X = ev.Source.AccessibleContext.LocationOnScreen.value.X 
         Y = ev.Source.AccessibleContext.LocationOnScreen.value.Y + ev.Source.Size.value.Height
@@ -343,14 +348,13 @@ class Menu_Bar():
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
-        cont.setPosSize(0, 0, 0, 0, 15)
-       
+        #cont.setPosSize(0, 0, 0, 0, 15)
         oFrame.setComponent(cont, None)
         
         # Listener fuers Dispose des Fensters
-        listener2 = DropDown_Container_Listener(self)
-        cont.addMouseListener(listener2) 
-        listener2.ob = oWindow
+        listener = DropDown_Container_Listener(self)
+        cont.addMouseListener(listener) 
+        listener.ob = oWindow
 
         return oWindow,cont
   
@@ -676,6 +680,10 @@ class Menu_Bar():
         smgr = self.smgr
         
         X,Y,Width,Height = posSize
+        if X == None:
+            X = ev.Source.AccessibleContext.LocationOnScreen.value.X 
+        if Y == None:
+            Y = ev.Source.AccessibleContext.LocationOnScreen.value.Y + ev.Source.Size.value.Height
     
         toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
         oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
@@ -720,7 +728,7 @@ class Menu_Bar():
         #pd()
         oFrame.setComponent(cont, None)
         cont.Model.Text = 'Gabriel'
-
+        
         return oWindow,cont
      
     def loesche_undo_Aktionen(self):
@@ -765,6 +773,21 @@ class Menu_Bar():
         viewSettings.ZoomValue = 100
         viewSettings.ShowRulers = False
     
+    def kalkuliere_und_setze_Control(self,ctrl,h_or_w = None):
+        if self.debug: log(inspect.stack)
+        
+        prefSize = ctrl.getPreferredSize()
+        Hoehe = prefSize.Height 
+        Breite = prefSize.Width #+10
+        
+        if h_or_w == None:
+            ctrl.setPosSize(0,0,Breite,Hoehe,12)
+        elif h_or_w == 'h':
+            ctrl.setPosSize(0,0,0,Hoehe,8)
+        elif h_or_w == 'w':
+            ctrl.setPosSize(0,0,Breite,0,4)
+            
+        return Breite,Hoehe
     
     def get_pyPath(self):
         if self.debug: log(inspect.stack)
@@ -842,7 +865,8 @@ def menuEintraege(lang,menu):
             lang.NEUER_TAB,
             'SEP',
             lang.TRENNE_TEXT,
-            lang.UNFOLD_PROJ_DIR
+            lang.UNFOLD_PROJ_DIR,
+            lang.CLEAR_RECYCLE_BIN
             )
         if T.AB != 'Projekt':
             items = (  
@@ -850,7 +874,8 @@ def menuEintraege(lang,menu):
                 lang.SCHLIESSE_TAB,
                 lang.IMPORTIERE_IN_TAB,
                 'SEP',
-                lang.UNFOLD_PROJ_DIR
+                lang.UNFOLD_PROJ_DIR,
+                lang.CLEAR_RECYCLE_BIN
                 )  
              
     elif menu == lang.OPTIONS:
@@ -912,6 +937,66 @@ class Tab ():
     def __init__(self):
         if debug: log(inspect.stack)
         self.AB = 'Projekt'
+        
+
+class Design():
+    
+    def __init__(self):
+        if debug: log(inspect.stack)
+        
+        self.default_tab = {}
+        self.custom_tab = {}
+        self.tabs = {}
+        self.new_tabs = {}
+        
+    
+    def set_default(self,tabs):
+        if debug: log(inspect.stack)
+        
+        summe = 0
+        i = 0
+        for tab in tabs:
+            self.default_tab.update({'tab%sx'%(i):tab})
+            self.custom_tab.update({'tab%sx'%(i):0})
+            
+            summe = 0
+            for j in range(i+1):
+                summe += self.default_tab['tab%sx'%(j)]
+                
+            self.tabs.update({'tab%sx'%(i):summe})
+
+            i += 1
+    
+            
+    def setze_tab(self,tab_name,value):  
+        
+        for x in tab_name:
+            if x.isdigit():
+                break
+            
+        x = int(x)
+        
+        if self.custom_tab['tab%sx'%(x+1)] < value:
+            if value > self.default_tab['tab%sx'%(x+1)]:
+                self.custom_tab['tab%sx'%(x+1)] = value
+          
+            
+    def kalkuliere_tabs(self):
+        if debug: log(inspect.stack)
+        
+        self.new_tabs = {}
+        
+        for i in range(len(self.custom_tab)):
+            summe = 0
+            for j in range(i+1):
+                if self.custom_tab['tab%sx'%(j)] != 0:
+                    summe += self.custom_tab['tab%sx'%(j)]
+                else:
+                    summe += self.default_tab['tab%sx'%(j)]
+            self.new_tabs.update( {'tab%sx'%(i) : summe} )
+            self.new_tabs.update( {'tab%s'%(i) : summe} )
+
+
         
 from com.sun.star.awt import XTabListener
 class Tab_Listener(unohelper.Base,XTabListener):
@@ -1141,6 +1226,9 @@ class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
             
         elif sel == LANG.IMPORTIERE_IN_TAB:
             self.mb.class_Tabs.start(True)
+            
+        elif sel == self.mb.lang.CLEAR_RECYCLE_BIN:  
+            self.mb.leere_Papierkorb()
             
 
         self.mb.bereich_wurde_bearbeitet = False
@@ -1731,6 +1819,36 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
 
     def disposing(self,arg):
         return False
+
+
+# from com.sun.star.awt import XTopWindowListener
+# class Top_Window_Listener(unohelper.Base,XTopWindowListener): 
+#     def __init__(self,mb):
+#         if mb.debug: log(inspect.stack)
+#         self.mb = mb
+#         self.counter = 0
+#         
+#     # XTopWindowListener
+#     def windowOpened(self,ev):
+#         return False
+#     def windowActivated(self,ev):
+#         return False
+#     def windowDeactivated(self,ev):
+#         #if self.counter < 10:
+#         ev.Source.toFront()
+#         self.counter += 1
+#         return False
+#     def windowClosing(self,ev):
+#         return False
+#     def windowClosed(self,ev):
+#         self.counter = 0
+#         return False
+#     def windowMinimized(self,ev):
+#         return False
+#     def windowNormalized(self,ev):
+#         return False
+#     def disposing(self,ev):
+#         return False
 
     
 ################ TOOLS ################################################################

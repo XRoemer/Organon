@@ -60,7 +60,10 @@ KANN_NICHT_VERSCHOBEN_WERDEN = u'%s kann nicht in den Papierkorb verschoben werd
 ZEILE_AUSWAEHLEN = u'Wählen Sie bitte erst eine Zeile aus, unter der eingefügt werden soll    '
 ERZEUGE_NEUE_ZEILE = '                    erzeuge neue Zeile, bitte warten!                   '
         
-        
+## TREEVIEW
+ORDNER_AUSKLAPPEN = 'Ordner ausklappen'
+IN_PAPIERKORB_VERSCHIEBEN = 'In Papierkorb verschieben'
+       
 ## EXPORT SETTINGS
 EXPORT_2 = 'Export'
 EXPORT = 'EXPORT'
