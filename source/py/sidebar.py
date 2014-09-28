@@ -127,7 +127,7 @@ class Sidebar():
                     
             self.mb.dict_sb_content = dict_sb_content
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def lege_dict_sb_content_ordinal_an(self,ordinal):
         if self.mb.debug: log(inspect.stack)
@@ -171,10 +171,12 @@ class Sidebar():
     def speicher_sidebar_dict(self):
         if self.mb.debug: log(inspect.stack)
         
-        pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
-        with open(pfad, 'wb') as f:
-            pickle_dump(self.mb.dict_sb_content, f,2)
-
+        try:
+            pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
+            with open(pfad, 'wb') as f:
+                pickle_dump(self.mb.dict_sb_content, f,2)
+        except:
+            log(inspect.stack,tb())
 
     def lade_sidebar_dict(self):
         if self.mb.debug: log(inspect.stack)
@@ -186,21 +188,23 @@ class Sidebar():
         if os.path.exists(pfad):
             dict_exists = True
         if not os.path.exists(pfad+'.Backup'):
-            backup_exists = True
+            backup_exists = False
         
         
         try:  
             if dict_exists:          
                 with open(pfad, 'rb') as f:
                     self.mb.dict_sb_content =  pickle_load(f)
-                self.ueberpruefe_dict_sb_content(backup_exists)
+                self.ueberpruefe_dict_sb_content(not backup_exists)
                 
-            elif backup_exists:
+            elif not backup_exists:
                 self.lege_dict_sb_content_an()
                 self.lade_Backup()
         except:
+            log(inspect.stack,tb())
+            
             self.lege_dict_sb_content_an()
-            if backup_exists:
+            if not backup_exists:
                 self.lade_Backup()
             
         if not dict_exists:
@@ -217,16 +221,17 @@ class Sidebar():
         for ordinal in list(self.mb.props['Projekt'].dict_bereiche['ordinal']):
             if ordinal not in self.mb.dict_sb_content['ordinal']:
                 fehlende.append(ordinal)
-                
-        if backup_exists:
-            self.lade_Backup(fehlende)
-        else:
-            for f in fehlende:
-                self.lege_dict_sb_content_ordinal_an(f)
-                  
+
+        if len(fehlende) > 0:
+            if backup_exists:
+                self.lade_Backup(fehlende)
+            else:
+                for f in fehlende:
+                    self.lege_dict_sb_content_ordinal_an(f)
+                      
     
     def lade_Backup(self,fehlende = 'all'): 
-        if self.mb.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack,None,'### Attention ###, sidebar_content.pkl.backup loaded!')
         
         pfad_Backup = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl.Backup')
         
@@ -234,9 +239,11 @@ class Sidebar():
             fehlende = list(self.mb.props['Projekt'].dict_bereiche['ordinal'])
         
         try:
-            with open(pfad, 'rb') as f:
-                backup = pickle_load(pfad_Backup)
+            with open(pfad_Backup, 'rb') as f:
+                backup = pickle_load(f)
         except:
+            log(inspect.stack,tb())
+
             for f in fehlende:
                 self.lege_dict_sb_content_ordinal_an(f)
             return
@@ -244,7 +251,7 @@ class Sidebar():
         helfer = fehlende[:]    
         for f in fehlende:
             if f in backup['ordinal']:
-                self.dict_sb_content['ordinal'].update(backup['ordinal'][f])
+                self.mb.dict_sb_content['ordinal'].update(backup['ordinal'][f])
                 helfer.remove(f)
         
         fehlende = helfer      
@@ -270,7 +277,7 @@ class Sidebar():
             return
         if self.mb.dict_sb['sb_closed']:
             return
-        
+
         if self.mb.debug: log(inspect.stack)
         
                         
@@ -457,7 +464,7 @@ class Sidebar():
                         breite = self.berechne_bildgroesse(model,height)
                         control.setPosSize(0,0,breite,0,4)
                 except:
-                    if self.mb.debug: log(inspect.stack,tb())
+                    log(inspect.stack,tb())
                 
                 
                 
@@ -544,12 +551,7 @@ class Sidebar():
             self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
-    
-    def berechne_edit_feld_groesse(self,control,model):
-        if self.mb.debug: log(inspect.stack)
-        
-        #pd()
+            log(inspect.stack,tb())        
         
         
     
@@ -580,7 +582,7 @@ class Sidebar():
             o_button.setState(True)
 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
         
@@ -596,7 +598,7 @@ class Sidebar():
             return BREITE
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def dict_sb_zuruecksetzen(self):
         if self.mb.debug: log(inspect.stack)
@@ -604,17 +606,7 @@ class Sidebar():
         self.mb.dict_sb['sichtbare']  = ['empty_project'] 
         self.mb.dict_sb['controls'] = {}
         self.mb.dict_sb['erzeuge_Layout'] = None   
-    
-    
-    def toggle_sicht_sidebar(self):
-        if self.mb.debug: log(inspect.stack)
-        return
-        frame = self.mb.current_Contr.Frame
-        dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
-        dispatch = dispatcher.executeDispatch(frame, ".uno:Sidebar" , "", 0, ())
-        print(dispatcher.dispatchFinished(dispatch))
         
-       
         
     def optionsfenster(self,cmd):
         if self.mb.debug: log(inspect.stack)
@@ -626,8 +618,7 @@ class Sidebar():
             self.optionsfenster_tags_general(loc_x,loc_y)
         elif cmd =='Images':
             self.optionsfenster_images(loc_x,loc_y)
-
-        
+                   
             
     def optionsfenster_images(self,loc_x,loc_y):
         if self.mb.debug: log(inspect.stack)
@@ -691,7 +682,7 @@ class Sidebar():
             control.addActionListener(listener)
 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def in_time_struct_wandeln(self,zeit):
         if self.mb.debug: log(inspect.stack)
@@ -865,7 +856,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
             if not vorhanden:
                 os.remove(uno.fileUrlToSystemPath(old_image_path))
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
         
 
@@ -921,8 +912,6 @@ class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
         self.mb = mb
     
     def keyPressed(self,ev):
-#         if ev.KeyCode == 1280:
-#             pd()
         return False
         
     def keyReleased(self,ev):
@@ -947,12 +936,11 @@ class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
                 attribute = 'datum'
                 text = self.formatiere_datum(text)
             
-            print(ordinal)
             self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time'][attribute] = text
             self.mb.class_Sidebar.erzeuge_sb_layout('Tags_time')
 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         
     def disposing(self,ev):pass
     
@@ -1012,7 +1000,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                 self.loeschen(tag,ordinal,tag_eintrag,dict_sb_content)
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
     def pruefe_vorkommen_in_anderen_eintraegen(self,tag,tag_eintrag):  
@@ -1039,7 +1027,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                 if tag_eintrag in self.mb.dict_sb_content['tags'][kat]:
                     self.mb.dict_sb_content['tags'][kat].remove(tag_eintrag)    
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
 
     def loesche_vorkommen_in_selektierter_datei(self,tag,tag_eintrag,ordinal):

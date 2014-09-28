@@ -17,7 +17,7 @@ class ImportX():
         global lang
         lang = self.mb.lang
         
-        self.auszuschliessende_filter = ('BibTeX_Writer','LaTeX_Writer')
+        self.auszuschliessende_filter = ('org.openoffice.da.writer2bibtex','org.openoffice.da.writer2latex','BibTeX_Writer','LaTeX_Writer')
         
         
     def importX(self):
@@ -31,7 +31,6 @@ class ImportX():
             if self.mb.filters_import == None:
                 self.erzeuge_filter()
             
-            
             if self.fenster_import != None:
                 self.fenster_import.toFront()
                 
@@ -42,7 +41,7 @@ class ImportX():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('ImportX ' + str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
  
     def erzeuge_importfenster(self): 
@@ -221,7 +220,7 @@ class ImportX():
     
     
     def get_flags(self,x):
-        if self.mb.debug: log(inspect.stack)
+        #if self.mb.debug: log(inspect.stack)
          
         x_bin_rev = bin(x).split('0b')[1][::-1]
 
@@ -248,7 +247,7 @@ class ImportX():
             
             fil = FF.getByName(FilterNames[0])
             fil2 = typeDet.getByName(typeDet.ElementNames[0])
-    
+
             i = 0
             
             for fi in fil:
@@ -292,13 +291,11 @@ class ImportX():
             self.mb.filters_import = {}   
             self.mb.filters_export = {}    
             
-            
-            cont = self.mb.doc.getControllers()
             for filt in FilterNames:
-                
+
                 if filt in self.auszuschliessende_filter:
                     continue
-                
+
                 f = FF.getByName(filt)
     
                 if f[docSer_pos].Value == 'com.sun.star.text.TextDocument':
@@ -316,11 +313,15 @@ class ImportX():
                             # FilterName: Filter als Label, Extensions Endungen
                             self.mb.filters_import.update({filt:(formatiere(str(label2)),extensions)})
                         
-                        if 2 in flags:                        
+                        if 2 in flags:  
+                            if 'bib' in extensions:
+                                pd()
+#                             time.sleep(0.04)
+#                             print(extensions)                    
                             # FilterName: Filter als Label, Extensions Endungen
                             self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                         
     def warning(self,mb):
         if self.mb.debug: log(inspect.stack)
@@ -432,7 +433,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     
                 self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
             
     def datei_importieren(self,typ,url_dat):
@@ -516,7 +517,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                             if 'OrganonSec' in link.Name:
                                 link.Name = 'OldOrgSec'+link.Name.split('OrganonSec')[1]
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def kapsel_in_Bereich(self,oOO,ordn):
         if self.mb.debug: log(inspect.stack)
@@ -550,7 +551,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
             return None
         else:
-                        
+            
+            
+                      
             ord_sel_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
             
             # XML TREE
@@ -572,8 +575,15 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
             
             # neue Zeile / neuer XML Eintrag
-            self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener)
             self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
+            
+            if self.mb.settings_proj['tag3']:
+                gliederung = self.mb.class_Gliederung.rechne(tree)
+            else:
+                gliederung = None
+            
+            self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung)
+            
                         
             # neue Datei / neuen Bereich anlegen           
             # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
@@ -589,7 +599,16 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             action = 'drunter'  
             
             eintraege = self.mb.class_Zeilen_Listener.xml_neu_ordnen(source,target,action)
-            self.mb.class_Zeilen_Listener.hf_neu_ordnen(eintraege)
+            self.mb.class_Zeilen_Listener.posY_in_tv_anpassen(eintraege)
+            
+            # dict_ordner updaten
+            self.mb.class_Projekt.erzeuge_dict_ordner()
+
+            # Bereiche neu verlinken
+            sections = self.mb.doc.TextSections
+            self.mb.class_Zeilen_Listener.verlinke_Bereiche(sections)
+            # Sichtbarkeit der Bereiche umschalten
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche() 
 
             return nr,path    
         
@@ -997,7 +1016,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                         
         except Exception as e:
             self.mb.Mitteilungen.nachricht('lade_Projekt '+ str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
  
     
     def leere_hf(self):

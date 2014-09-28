@@ -39,7 +39,7 @@ class Export():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('Export.export '+ str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
 
     def erzeuge_exportfenster(self): 
@@ -179,7 +179,7 @@ class Export():
             listener4.feld_projekt_name = locals()['controlPN']
     
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                 
 
         
@@ -301,7 +301,7 @@ class Export():
                       
         except Exception as e:
             self.mb.Mitteilungen.nachricht('kopiere_Projekt ' + str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
 
@@ -679,7 +679,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             oOO.storeToURL(Path3,(prop,))
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         self.mb.class_Bereiche.schliesse_oOO()   
         st_ind.end() 
         
@@ -866,7 +866,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 self.mb.class_Bereiche.schliesse_oOO()    
                 st_ind.setValue(zaehler)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         st_ind.end()  
 
 
@@ -892,7 +892,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         
         except Exception as e:
             self.mb.Mitteilungen.nachricht('exp_in_neues_proj ' + str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def et_und_ordinale_berechnen(self,sections,projektname):
         if self.mb.debug: log(inspect.stack)
@@ -1092,20 +1092,28 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
         
     def actionPerformed(self,ev):      
         if self.mb.debug: log(inspect.stack)
-        
-        if self.cl_exp.trenner_fenster != None:
-            return
 
-        posSize = berechne_pos(self.mb,self.cl_exp,self.exp_fenster,'Trenner')
+        if self.cl_exp.trenner_fenster != None:
+            self.cl_exp.trenner_fenster.toFront()
+            return
+        self.oeffne_Trenner_fenster(ev)
+        
+    def oeffne_Trenner_fenster(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        
         
         sett = self.mb.settings_exp
-        cb_listener = A_Trenner_CheckBox_Listener(self.mb)        
-
+        cb_listener = A_Trenner_CheckBox_Listener(self.mb)      
+          
+        posSize = berechne_pos(self.mb,self.cl_exp,self.exp_fenster,'Trenner')
         posSize = posSize[0],posSize[1],320,360
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         fenster_cont.Model.Text = lang.TRENNER_TIT
+        
         listenerF = AB_Fenster_Dispose_Listener(self.mb,self.cl_exp)
         fenster_cont.addEventListener(listenerF)
+        
         self.cl_exp.trenner_fenster = fenster
 
         y = 10
@@ -1161,15 +1169,15 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
         controlF2.addActionListener(cb_listener)
         fenster_cont.addControl('Format2', controlF2)
         
-            # Liste der Formate
+        # Liste der Formate
         controlL2, modelL2 = self.mb.createControl(self.mb.ctx,"ListBox",20 + 180,y -3 ,100,20,(),() )  
-        #controlL.setMultipleMode(False)
         controlL2.addItems(style_names,0)
         modelL2.Dropdown = True
         index = style_names.index(sett['style_dat'])
         modelL2.SelectedItems = index,
         fenster_cont.addControl('Liste_Dat', controlL2)
-            # Listener fuer beide Stylelisten
+        
+        # Listener fuer beide Stylelisten
         listenerLB = A_ParaStyle_Item_Listener(self.mb,controlL,controlL2)
         controlL.addItemListener(listenerLB)
         controlL2.addItemListener(listenerLB)
@@ -1216,9 +1224,9 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
         
         controlF, modelF = self.mb.createControl(self.mb.ctx,"FixedText",40 ,y,500,22,(),() )  
         modelF.HelpText = 'URL'
-        #modelF.Border = True
+
         if self.mb.settings_exp['url'] != '':
-            modelF.Label = uno.fileUrlToSystemPath(decode_utf(sett['url']))#.decode("utf-8"))
+            modelF.Label = uno.fileUrlToSystemPath(decode_utf(sett['url']))
         fenster_cont.addControl('Anzahl', controlF) 
         
         listener = A_TrennDatei_Button_Listener(self.mb,modelF)

@@ -116,7 +116,7 @@ class Bereiche():
             self.oOO.close(False)
 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     
     def erzeuge_leere_datei(self):
@@ -266,38 +266,39 @@ class Bereiche():
         if self.mb.props[T.AB].tastatureingabe == True and bereichsname != None:
             # Nur loggen, falls tatsaechlich gespeichert wurde
             if self.mb.debug: log(inspect.stack)
-            
-            # Damit das Handbuch nicht geaendert wird:
-            if self.mb.anleitung_geladen:
-                return
-            
-            if self.mb.debug: log(inspect.stack)
-            
-            self.verlinkte_Bilder_einbetten(self.mb.doc)
-            projekt_path = self.mb.doc.URL
-            
-            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop.Name = 'Hidden'
-            prop.Value = True
-            
-            newDoc =  self.mb.desktop.loadComponentFromURL("private:factory/swriter",'_blank',8+32,(prop,))
-            cur = newDoc.Text.createTextCursor()
-            cur.gotoStart(False)
-            cur.gotoEnd(True)
 
-            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-            SFLink.FileURL = projekt_path
-
-            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-            newSection.setPropertyValues(("LinkRegion",'FileLink'),(bereichsname,SFLink))
-
-            newDoc.Text.insertTextContent(cur, newSection, True)
-            newDoc.Text.removeTextContent(newSection)
-            newDoc.storeToURL(zu_speicherndes_doc_path,())
-            newDoc.close(False)
-
-            self.mb.props[T.AB].tastatureingabe = False
-            self.mb.bereich_wurde_bearbeitet = False
+            try:
+                # Damit das Handbuch nicht geaendert wird:
+                if self.mb.anleitung_geladen:
+                    return
+                                
+                self.verlinkte_Bilder_einbetten(self.mb.doc)
+                projekt_path = self.mb.doc.URL
+                
+                prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                prop.Name = 'Hidden'
+                prop.Value = True
+                
+                newDoc =  self.mb.desktop.loadComponentFromURL("private:factory/swriter",'_blank',8+32,(prop,))
+                cur = newDoc.Text.createTextCursor()
+                cur.gotoStart(False)
+                cur.gotoEnd(True)
+    
+                SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                SFLink.FileURL = projekt_path
+    
+                newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+                newSection.setPropertyValues(("LinkRegion",'FileLink'),(bereichsname,SFLink))
+    
+                newDoc.Text.insertTextContent(cur, newSection, True)
+                newDoc.Text.removeTextContent(newSection)
+                newDoc.storeToURL(zu_speicherndes_doc_path,())
+                newDoc.close(False)
+    
+                self.mb.props[T.AB].tastatureingabe = False
+                self.mb.bereich_wurde_bearbeitet = False
+            except:
+                log(inspect.stack,tb())
 
     def verlinkte_Bilder_einbetten(self,doc):
         if self.mb.debug: log(inspect.stack)
@@ -324,7 +325,7 @@ class Bereiche():
                         pass
                     bitmap.removeByName( "TempI"+str(i) ) 
                 except:
-                    if self.mb.debug: log(inspect.stack,tb())
+                    log(inspect.stack,tb())
                 
         self.mb.selbstruf = False   
         

@@ -4,7 +4,7 @@ from time import clock,sleep
 from os.path import join,exists
 from unohelper import Base
 from uno import fileUrlToSystemPath
-#from traceback import print_exc as tb
+from traceback import print_exc as tb
 
 class Log():
     
@@ -18,6 +18,7 @@ class Log():
         self.debug = False  
         self.load_reload = False      
         self.timer_start = clock()
+        self.path_to_project_settings = None
         
         # Default Debug Settings
         self.location_debug_file = path_to_extension
@@ -98,7 +99,7 @@ class Log():
         return zeit
     
     def log(self,args,traceb = None,extras = None):
-        
+
         try:
             info = args()
 
@@ -137,9 +138,10 @@ class Log():
                 string = '%-7s %-18s %-40s %s( caller: %s' %(self.debug_time(),modul,function,'',call)
             
             
-            
-            print(string)
-            
+            try:
+                print(string)
+            except:
+                pass
             
             if self.write_debug_file:
                 path = join(self.location_debug_file,'organon_log.txt')
@@ -151,18 +153,48 @@ class Log():
                     with open(path , "a") as file:
                         file.write('### ERROR ### \r\n')
                         file.write(traceb+'\r\n')
-                
+                    
+                    path2 = join(self.location_debug_file,'error_log.txt')
+                    with open(path2 , "a") as file:
+                        file.write('### ERROR ### \r\n')
+                        file.write(traceb+'\r\n')
+                    
+                    
                 if extras != None:
                     print(extras)
                     with open(path , "a") as file:
                         file.write(extras+'\r')
+                        
+            
+            # Fehler werden auf jeden Fall geloggt        
+            if traceb != None:
+                
+                path2 = join(self.location_debug_file,'error_log.txt')
+                with open(path2 , "a") as file:
+                    file.write('### ERROR ### \r\n')
+                    file.write(traceb+'\r\n')
+                
+                
+                if self.path_to_project_settings != None:
+                    path3 = join(self.path_to_project_settings,'error_log.txt')
+                    with open(path3 , "a") as file:
+                        file.write('### ERROR ### \r\n')
+                        file.write(traceb+'\r\n')
+                
+                
+                try:
+                    if not self.write_debug_file:
+                        print(traceb)
+                except:
+                    pass
             
         except Exception as e:
             try:
-                path = join(self.location_debug_file,'organon_log.txt')
-                with open(path , "a") as file:
-                    file.write(e +'\r\n')
                 print(e)
+                path = join(self.location_debug_file,'organon_log_error.txt')
+                with open(path , "a") as file:
+                    file.write(str(e) +'\r\n')
+                    file.write(traceb +'\r\n')
             except:
                 pass
 
@@ -254,6 +286,13 @@ class Log():
             prop_values = (mb.class_Log.location_debug_file,)
             control_path, model = mb.createControl(ctx, "FixedText", tab1, y, 600, 20, prop_names, prop_values)
             fenster_cont.addControl('Titel', control_path)
+            
+            # Breite des Log-Fensters setzen
+            prefSize = control_path.getPreferredSize()
+            Hoehe = prefSize.Height 
+            Breite = prefSize.Width
+            control_path.setPosSize(0,0,Breite+10,0,4)
+            fenster.setPosSize(0,0,Breite+10+tab1,0,4)
             
             y += 20
             

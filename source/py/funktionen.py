@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unohelper
+from math import sqrt
+from shutil import copyfile
 
 
 class Funktionen():
@@ -60,20 +62,21 @@ class Funktionen():
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags)
         
         # create Listener
-        listener = Tag1_Container_Listener()
+        listener = Tag_Container_Listener()
         fenster_cont.addMouseListener(listener) 
         listener.ob = fenster  
         
         self.erzeuge_ListBox_Tag1(fenster, fenster_cont,ev.Source)
-
-    
+        
     def erzeuge_ListBox_Tag1(self,window,cont,source):
         if self.mb.debug: log(inspect.stack)
         
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 4 ,  4 , 
                                        KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
-
+        model.Border = 0
+        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        
         items = ('leer',
                 'blau',
                 'braun',
@@ -104,8 +107,156 @@ class Funktionen():
         control.addItemListener(tag_item_listener)
         
         cont.addControl('Eintraege_Tag1', control)
-    
-    
+        
+        
+            
+    def erzeuge_Tag2_Container(self,ev,ordinal):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            
+            controls = []
+            icons_gallery,icons_prj_folder = self.get_icons()
+
+            # create Listener
+            listener = Tag_Container_Listener()
+            listener2 = Tag2_Images_Listener(self.mb)
+            listener2.ordinal = ordinal
+            listener2.icons_dict = {}
+            
+            y = 10
+            x = 0            
+            
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10,y,200, 20, (), ())  
+            model.Label = 'Kein Icon:'
+            model.FontWeight = 150
+            width,h = self.mb.kalkuliere_und_setze_Control(control,'w')
+            controls.append(control)
+
+            control, model = self.mb.createControl(self.mb.ctx, "ImageControl", 20 + width,y,18, 18, (), ())  
+            model.ImageURL = ''
+            model.setPropertyValue('HelpText','Kein Icon')
+            model.setPropertyValue('Border',1)
+            control.addMouseListener(listener2) 
+                            
+            controls.append(control)
+            
+            y += 25
+            
+            
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10,y,200, 20, (), ())  
+            model.Label = 'Im Projekt verwendete Icons:'
+            model.FontWeight = 150
+            prefW,h = self.mb.kalkuliere_und_setze_Control(control,'w')
+            controls.append(control)
+            
+            y += 25
+            
+            anzahl = sqrt(len(icons_prj_folder))
+
+            for iGal in icons_prj_folder:
+                control, model = self.mb.createControl(self.mb.ctx, "ImageControl", x +10,y,16, 16, (), ())  
+
+                model.ImageURL = iGal[1]
+                model.setPropertyValue('HelpText',iGal[0])
+                model.setPropertyValue('Border',0)
+                model.setPropertyValue('ScaleImage' ,True)
+                control.addMouseListener(listener2) 
+                listener2.icons_dict.update({iGal[0]:iGal[1]})
+                
+                controls.append(control)
+                
+                x += 25
+                
+                if x> anzahl*25:
+                    y+=25
+                    x = 0
+            
+            y += 25
+            
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10,y,200, 20, (), ())  
+            model.Label = 'In der Galerie vorhandene Icons:'
+            model.FontWeight = 150
+            prefW1,h = self.mb.kalkuliere_und_setze_Control(control,'w')
+            controls.append(control)
+            
+            y += 25
+            x = 0
+            anzahl2 = sqrt(len(icons_gallery))
+            
+            
+            for iGal in icons_gallery:
+                control, model = self.mb.createControl(self.mb.ctx, "ImageControl", x +10,y,16, 16, (), ())  
+
+                model.ImageURL = iGal[1]
+                model.setPropertyValue('HelpText',iGal[0])
+                model.setPropertyValue('Border',0)
+                model.setPropertyValue('ScaleImage' ,True)
+                control.addMouseListener(listener2) 
+                                
+                controls.append(control)
+                
+                x += 25
+                
+                if x> anzahl2*25:
+                    y+=25
+                    x = 0
+
+            breite = sorted((prefW,prefW1,int(anzahl)*25,int(anzahl2)*25))[-1]
+
+
+            X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X 
+            Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y + ev.value.Source.Size.value.Height
+            posSize = X,Y,breite + 20,y +25 
+            flags = 1+16+32+128
+
+            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags)
+            fenster_cont.addMouseListener(listener) 
+            listener.ob = fenster  
+            
+            for control in controls:
+                fenster_cont.addControl('wer',control)
+            
+        except:
+            log(inspect.stack,tb())
+            
+            
+            
+    def get_icons(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            icons_gallery = []
+            icons_prj_folder = []
+            icons_prj_folder_names = []
+            
+                
+            icons_folder = self.mb.pfade['icons']
+                        
+            for root, dirs, files in os.walk(icons_folder):
+                for f in files:
+                    name = f
+                    path = os.path.join(root,f)
+                    path2 = uno.systemPathToFileUrl(path)
+                    icons_prj_folder.append((name,path2))
+                    icons_prj_folder_names.append(name)
+            
+            gallery = self.mb.createUnoService("com.sun.star.gallery.GalleryThemeProvider")
+            org = gallery.getByName('Organon Icons')
+
+            for i in range(org.Count):
+                url = org.getByIndex(i).URL
+                
+                if os.path.basename(url) not in icons_prj_folder_names:
+                    url_os = uno.fileUrlToSystemPath(url)
+                    name = os.path.basename(url_os).split('.')[0]
+                    icons_gallery.append((name,url))
+            
+            
+            return icons_gallery, icons_prj_folder 
+
+        except:
+            log(inspect.stack,tb())
+        
     def find_parent_section(self,sec):
         if self.mb.debug: log(inspect.stack)
         
@@ -240,39 +391,136 @@ class Funktionen():
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('teile_text ' + str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
      
 from com.sun.star.awt import XMouseListener,XItemListener
-class Tag1_Container_Listener (unohelper.Base, XMouseListener):
-        def __init__(self):
-            pass
-           
-        def mousePressed(self, ev):
-            #print('mousePressed,Tag1_Container_Listener')  
-            if ev.Buttons == MB_LEFT:
-                return False
+class Tag_Container_Listener (unohelper.Base, XMouseListener):
+    def __init__(self):
+        self.ob = None
        
-        def mouseExited(self, ev): 
-            #print('mouseExited')                      
-            if self.enthaelt_Punkt(ev):
-                pass
-            else:            
-                self.ob.dispose()    
-            return False
+    def mousePressed(self, ev):
+        return False
+   
+    def mouseExited(self, ev): 
         
-        def enthaelt_Punkt(self, ev):
-            #print('enthaelt_Punkt') 
-            X = ev.value.X
-            Y = ev.value.Y
+        point = uno.createUnoStruct('com.sun.star.awt.Point')
+        point.X = ev.X
+        point.Y = ev.Y
+
+        enthaelt_Punkt = ev.Source.AccessibleContext.containsPoint(point)
+        
+        if enthaelt_Punkt:
+            pass
+        else:            
+            self.ob.dispose()    
+        return False
+    
+    def mouseEntered(self, ev):  
+        return False
+    def mouseReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+  
             
-            XTrue = (0 <= X < ev.value.Source.Size.value.Width)
-            YTrue = (0 <= Y < ev.value.Source.Size.value.Height)
+class Tag2_Images_Listener (unohelper.Base, XMouseListener):
+    def __init__(self,mb):
+        self.mb = mb
+        self.ordinal = None
+        self.icons_dict = None
+       
+    def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack) 
+
+        url = ev.Source.Model.ImageURL
+
+        if url != '':
+            url = self.galerie_icon_im_prj_ordner_speichern(url) 
+        else:
+            self.galerie_icon_im_prj_ordner_evt_loeschen() 
+
+        self.tag2_in_allen_tabs_xml_anpassen(self.ordinal,url)
+
+    def tag2_in_allen_tabs_xml_anpassen(self,ord_source,url):
+        if self.mb.debug: log(inspect.stack) 
+        try:
+            tabnamen = self.mb.props.keys()
+
+            for name in tabnamen:
             
-            if XTrue and YTrue:           
-                return True
-            else:
-                return False   
+                tree = self.mb.props[name].xml_tree
+                root = tree.getroot()        
+                source_xml = root.find('.//'+ord_source)
+                
+                if source_xml != None:
+                
+                    source_xml.attrib['Tag2'] = url
+                    
+                    if name == 'Projekt':
+                        Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
+                    else:
+                        Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
+                    
+                    tag2_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag2')
+                    tag2_button.Model.ImageURL = url
+                        
+                    self.mb.tree_write(tree,Path)
+        except:
+            log(inspect.stack,tb())
+            pd()
+    
+    def galerie_icon_im_prj_ordner_speichern(self,url):  
+        if self.mb.debug: log(inspect.stack)
+        
+        try:            
+            url = uno.fileUrlToSystemPath(url)
+            pfad_icons_prj_ordner = self.mb.pfade['icons']
+            name = os.path.basename(url)
+            neuer_pfad = os.path.join(pfad_icons_prj_ordner,name)
+
+            if not os.path.exists(neuer_pfad):
+                copyfile(url, neuer_pfad)
+                
+            return uno.systemPathToFileUrl(neuer_pfad)
+
+        except:
+            log(inspect.stack,tb())
+    
+    def galerie_icon_im_prj_ordner_evt_loeschen(self): 
+        if self.mb.debug: log(inspect.stack)
+        
+        tree = self.mb.props['Projekt'].xml_tree
+        root = tree.getroot()
+        
+        ord_xml = root.find('.//' + self.ordinal)
+        url = ord_xml.attrib['Tag2']
+        
+        if 'uno_packages' in url:
+            return
+        all_xml = root.findall('.//')
+        
+        for el in all_xml:
+            if el.tag == self.ordinal:
+                continue
+            if el.attrib['Tag2'] == url:
+                return
+
+        # Wenn die url nicht mehr im Dokument vorhanden ist, wird sie geloescht
+        os.remove(uno.fileUrlToSystemPath(url))
+
+   
+    def mouseExited(self, ev): 
+        ev.value.Source.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        return False
+    def mouseEntered(self, ev):    
+        ev.value.Source.Model.BackgroundColor = 102
+        return False
+    def mouseReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+        
              
 class Tag1_Item_Listener(unohelper.Base, XItemListener):
     def __init__(self,mb,window,source):
@@ -281,7 +529,6 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         self.window = window
         self.source = source
         
-    # XItemListener    
     def itemStateChanged(self, ev):   
         if self.mb.debug: log(inspect.stack) 
 
@@ -295,14 +542,11 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         
         self.tag1_in_allen_tabs_xml_anpassen(ord_source,sel)
         
-        
-        
-        
-        
         self.window.dispose()
 
     def tag1_in_allen_tabs_xml_anpassen(self,ord_source,sel):
         if self.mb.debug: log(inspect.stack) 
+        
         try:
             tabnamen = self.mb.props.keys()
             
@@ -321,21 +565,12 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                     else:
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
                     
-                    self.tag1_img_in_tab_anpassen(ord_source,sel,name)
-                        
+                    tag1_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag1')
+                    tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
+                    
                     self.mb.tree_write(tree,Path)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
-        
-        
-    def tag1_img_in_tab_anpassen(self,ord_source,sel,tab_name):  
-        if self.mb.debug: log(inspect.stack) 
-        
-        try:
-            tag1_button = self.mb.props[tab_name].Hauptfeld.getControl(ord_source).getControl('tag1')
-            tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
-        except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
         
@@ -403,7 +638,7 @@ class Greek():
                         teste_kursiv = False
                         teste_fett = False
                 except:
-                    if self.mb.debug: log(inspect.stack,tb())
+                    log(inspect.stack,tb())
                 
                 enum2 = par.createEnumeration()
                 portions = []
@@ -521,7 +756,7 @@ class Greek():
                     self.inhalt.append('\\textgreek{' + inh[0] + '}')
                     
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
     
@@ -581,7 +816,7 @@ class Greek():
             
             attribute = kursiv,fett,is_greek,ParaStyleName,buchstabe
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             return None
         
         return attribute
@@ -628,7 +863,7 @@ class Greek():
             #pd()
             return content
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def schreibe_Praeambel(self):
         
@@ -693,7 +928,7 @@ class Greek():
                         continue
                     E1.append(eval('vc.'+e))
                 except:
-                    if self.mb.debug: log(inspect.stack,tb())
+                    log(inspect.stack,tb())
                   
             vc.goRight(5,False)
             vc.goRight(1,True)
@@ -709,7 +944,7 @@ class Greek():
                         continue
                     E2.append(eval('vc.'+e))
                 except:
-                    if self.mb.debug: log(inspect.stack,tb())
+                    log(inspect.stack,tb())
               
             fehler = []
                    
@@ -719,7 +954,7 @@ class Greek():
                     fehler.append((E1[a], E2[a]))
               
         except:
-            if self.mb.debug: log(inspect.stack,tb())   
+            log(inspect.stack,tb())   
 
             
 
@@ -791,7 +1026,7 @@ class Fussnote():
             return self.inhalt
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         
     
     def test_auf_griechisch(self,portion):
@@ -852,7 +1087,7 @@ class Fussnote():
                     self.inhalt.append('\\textgreek{' + inh[0] + '}')
                     
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
 #############################################################################################################                 
      

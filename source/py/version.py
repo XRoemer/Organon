@@ -30,11 +30,16 @@ class Version():
                 self.an_091b_anpassen()
             if self.version in ('0.9.1b'):
                 self.an_092b_anpassen()
-            # an 093, 094, 095, 096  muss nichts angepasst werden
+            if self.version in ('0.9.7b'):
+                self.an_098b_anpassen()
+            
+
+            # an 093, 094, 095, 096 ,097 muss nichts angepasst werden
             self.neue_programmversion_eintragen()
         
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
+
         
     def neue_programmversion_eintragen(self):
         if self.mb.debug: log(inspect.stack)
@@ -99,9 +104,15 @@ class Version():
             
             self.mb.class_Sidebar.speicher_sidebar_dict()
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         
         
-        
-        
+    def an_098b_anpassen(self):
+        if self.mb.debug: log(inspect.stack)
+
+        pfade = self.mb.pfade
+        # Organon/<Projekt Name>/Settings/Tags
+        if not os.path.exists(pfade['icons']):
+            os.makedirs(pfade['icons'])
+
         

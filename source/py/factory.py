@@ -58,7 +58,7 @@ dict_sb = {'sichtbare':['empty_project'],
            'controls':{},
            'erzeuge_sb_layout':None,
            'optionsfenster':None,
-           'sb_closed':None}
+           'sb_closed':True}
 
 
 from com.sun.star.ui import XUIElementFactory

@@ -4,6 +4,7 @@ import unohelper
 import traceback
 import sys
 from os import walk,path,remove
+from codecs import open as codecs_open
 from inspect import stack as inspect_stack
 
 import konstanten as KONST
@@ -58,14 +59,15 @@ class Menu_Start():
             self.language = None
             self.LANG = self.lade_Modul_Language()
             self.path_to_extension = path_to_extension
+            self.zuletzt_geladene_Projekte = self.get_zuletzt_geladene_Projekte()
             self.win = win
             self.dict_sb = dict_sb
             
             dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
         except:
-            if debug: log(inspect.stack,tb())
-                
-    
+            log(inspect.stack,tb())
+
+
     def get_office_name(self):
         if debug: log(inspect_stack)
         frame = self.desktop.Frames.getByIndex(0)
@@ -84,16 +86,16 @@ class Menu_Start():
         if debug: log(inspect_stack)
             
         # Hauptfeld_Aussen
-        Attr = (0,0,1000,1800,'Hauptfeld_aussen', 0)    
+        Attr = (0,0,1000,1800,'Hauptfeld_aussen1', 0)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
         self.cont, model1 = self.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
         model1.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
 
-        self.dialog.addControl('Hauptfeld_aussen',self.cont)  
+        self.dialog.addControl('Hauptfeld_aussen1',self.cont)  
 
 
-        Attr = (150,60,120,153,'Hauptfeld_aussen', 0)    
+        Attr = (150,60,120,153,'Hauptfeld_aussen1', 0)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control, model = self.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
@@ -101,7 +103,7 @@ class Menu_Start():
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/organon icon_120.png' 
         model.Border = False   
         model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
-        self.cont.addControl('Hauptfeld_aussen',control)  
+        self.cont.addControl('Hauptfeld_aussen1',control)  
         
        
         self.listener = Menu_Listener(self)
@@ -119,7 +121,7 @@ class Menu_Start():
         model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
 
         
-        self.cont.addControl('Hauptfeld_aussen',control)  
+        self.cont.addControl('Hauptfeld_aussen1',control)  
         
         PosY += 50
         
@@ -129,7 +131,7 @@ class Menu_Start():
         model.Label = self.LANG.OPEN_PROJECT
         model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
         
-        self.cont.addControl('Hauptfeld_aussen',control) 
+        self.cont.addControl('Hauptfeld_aussen1',control) 
         
         
         PosY += 70
@@ -140,8 +142,27 @@ class Menu_Start():
         model.Label = self.LANG.LOAD_DESCRIPTION
         model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
         
-        self.cont.addControl('Hauptfeld_aussen',control) 
+        self.cont.addControl('Hauptfeld_aussen1',control) 
+        
+        PosY += 150
+        
+        if self.zuletzt_geladene_Projekte == None:
+            return
+        
+        for proj in self.zuletzt_geladene_Projekte:
+            name,pfad = proj
+            
+            control, model = self.createControl(self.ctx,"FixedText",PosX,PosY,200,20,(),() )  
+            control.addMouseListener(self.listener)
+            model.Label = name
+            model.HelpText = pfad
+            self.cont.addControl('Hauptfeld_aussen1',control) 
+            PosY += 25
 
+
+            
+            
+            
     
     def erzeuge_Menu(self):
         if debug: log(inspect_stack)
@@ -173,7 +194,7 @@ class Menu_Start():
             self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu(self.dialog)
         except:
-            if debug: log(inspect.stack,tb())    
+            log(inspect.stack,tb())    
         
               
     def lade_Modul_Language(self):
@@ -214,6 +235,26 @@ class Menu_Start():
             pyPath = '/home/xgr/workspace/organonEclipse/py'
             sys.path.append(pyPath)
     
+    def get_zuletzt_geladene_Projekte(self):
+        if debug: log(inspect_stack)
+        
+        try:
+            pfad = path.join(self.path_to_extension,'zuletzt_geladene_Projekte.txt')
+            
+            if not path.exists(pfad):
+                with codecs_open(pfad, "w",encoding='utf8') as file:
+                    file.write('') 
+            else:
+                with codecs_open(pfad, "r",encoding='utf8') as file:
+                    lines = file.readlines() 
+                
+            x = list(a.split('++oo++') for a in lines)
+            geladene_Projekte = list((a,b.replace('\n','')) for a,b in x if path.exists(b.replace('\n','')))
+            return geladene_Projekte
+        except:
+            if debug: log(inspect_stack,tb())
+            return None
+    
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
@@ -232,9 +273,9 @@ class Menu_Start():
 
 
 
-from com.sun.star.awt import XActionListener
+from com.sun.star.awt import XActionListener,XMouseListener
     
-class Menu_Listener (unohelper.Base, XActionListener):
+class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
     def __init__(self,menu):
         self.menu = menu
 
@@ -259,7 +300,7 @@ class Menu_Listener (unohelper.Base, XActionListener):
                 self.menu.Menu_Bar.class_Projekt.lade_Projekt(False,pfad)
                 self.menu.Menu_Bar.anleitung_geladen = True
         except:
-            if debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def get_Org_description_path(self):
         if debug: log(inspect_stack)
@@ -284,6 +325,29 @@ class Menu_Listener (unohelper.Base, XActionListener):
         desc_path = path.join(path_HB,projekt_name[0],projekt_name[0])
         return desc_path
     
+    def mouseReleased(self, ev):  
+        print('released')
+        return False
+    def mouseExited(self,ev):
+        return False
+    def mouseEntered(self,ev):
+        return False
+    
+    def mousePressed(self, ev):
+        if debug: log(inspect_stack)
+        
+        projekt_pfad = ev.Source.Model.HelpText
+        
+        # Das Editfeld ueberdeckt kurzzeitig das Startmenu fuer eine bessere Anzeige
+        control, model = self.menu.createControl(self.menu.ctx,"Edit",0,0,1500,1500,(),() )  
+        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        self.menu.cont.addControl('wer',control)
+
+        self.menu.erzeuge_Menu()
+        self.menu.Menu_Bar.class_Projekt.lade_Projekt(False,projekt_pfad)
+        
+        self.menu.cont.dispose()
+        
     def disposing(self,ev):
         pass
            
@@ -314,13 +378,13 @@ def load_reload_modul(modul,pyPath,mb):
                 except:
                     pass
         except:
-            if debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                             
         exec('import '+ modul)
 
         return eval(modul)
     except:
-        if debug: log(inspect.stack,tb())
+        log(inspect.stack,tb())
         
 
     

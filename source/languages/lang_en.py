@@ -42,9 +42,6 @@ SCHLIESSE_TAB = u'Close active Tab'
 TAB_SCHLIESSEN = u'Do you really want to close the tab "%s" ?'
 TAB_EXISTIERT_SCHON = u'The tab name already exists.'
 UNFOLD_PROJ_DIR = 'Unfold Project Folder'
-SHOW_TAG1 = 'Show Tag 1'
-SHOW_TAG2 = 'Show Tag 2'
-SHOW_TAG3 = 'Show Tag 3'
 TRENNE_TEXT = 'Divide Text'
 TRENNE_TEXT_Help = 'Divide Text at Cursor Position'
 
@@ -64,6 +61,19 @@ ERZEUGE_NEUE_ZEILE = '                    creating row, please wait!            
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = 'Unfold folder'
 IN_PAPIERKORB_VERSCHIEBEN = 'Move to Waste Bin'
+SHOW_TAG1 = 'Color Icons'
+SHOW_TAG2 = 'User-defined Icons'
+SHOW_TAG3 = 'Scientific Outline'
+BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'If you like to use self-defined icons, ' \
+    u'Organon has to insert the folder "Organon Icons" to your gallery.\r\n\r\n'\
+    u'Furthermore the following folder will be created on your filesystem:\r\n' \
+    u'%s '\
+    u'\r\n\r\nThe gallery can be opened by the symbol in the standard toolbar or from the sidebar.' \
+    u'\r\n\r\n' \
+    u'Organon saves a small amount of icons to this folder. You may delete them and insert your own.' \
+    u'Icons are selected by a right click into the empty space between the file/folder icon and the titel. ' \
+    u'\r\n\r\n' \
+    u'Should Organon set up an entry in the galerie?\r\n\r\n'
 
 ## EXPORT SETTINGS
 EXPORT_2 = 'Export'
@@ -171,6 +181,7 @@ TAB_HELP_TEXT = u'\u039B'+ u' (AND): Only files, which hold all tags, will be ad
 TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (AND): Only files, which hold all tags, will be added. \
 \rV (OR): Files, which keep at least one tag, will be added. \r(not implemented yet)'
 AUSGEWAEHLTE = u'Selected'
+BENUTZTE = u'Used Tags in Project'
 ZEITLICH_ANORDNEN = 'sort by time tag'
 UNAUSGEZEICHNETE = 'use untagged files'
 NUTZE_ZEIT  = 'use time'

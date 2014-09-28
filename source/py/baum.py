@@ -16,7 +16,7 @@ class Baumansicht():
         self.mb = mb
         self.listener_treeview_symbol = TreeView_Symbol_Listener(self.ctx,self.mb)
         self.tag1_listener = Tag1_Listener(self.mb)
-        
+        self.tag2_listener = Tag2_Listener(self.mb)
         
     def start(self):
         if self.mb.debug: log(inspect.stack)
@@ -51,7 +51,7 @@ class Baumansicht():
         return control2
 
   
-    def erzeuge_Zeile_in_der_Baumansicht(self,eintrag,class_Zeilen_Listener,index=0,tab_name = 'Projekt'):
+    def erzeuge_Zeile_in_der_Baumansicht(self,eintrag,class_Zeilen_Listener,gliederung,index=0,tab_name = 'Projekt'):
         if self.mb.debug: log(inspect.stack)
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
@@ -67,40 +67,17 @@ class Baumansicht():
             
         self.mb.props[tab_name].Hauptfeld.addControl(ordinal,control)
         
+        sett = self.mb.settings_proj
+        sicht_tag1 = int(sett['tag1'])
+        sicht_tag2 = int(sett['tag2'])
+        sicht_tag3 = int(sett['tag3'])
         
         ### einzelne Elemente #####
-        tag1X,tag2X,tag3X = 0,0,0
-        if int(self.mb.settings_proj['tag1']):
-            tag1X = 16
-        if int(self.mb.settings_proj['tag2']):
-            tag2X = 16
-        if int(self.mb.settings_proj['tag3']):
-            tag3X = 16
-        
-        
-        # Textfeld
-        Farbe_Textfeld = 102023
-        Attr = (32+int(lvl)*16+tag1X+tag2X+tag3X,0,400,20,'egal', Farbe_Textfeld)   
-        PosX,PosY,Width,Height,Name,Color = Attr
-        
-        control1, model1 = self.mb.createControl(self.ctx,"Edit",PosX,PosY,Width,Height,(),() )  
-        model1.Text = name
-        model1.Border = False
-        model1.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
-        model1.ReadOnly = True
 
-        control1.addMouseListener(class_Zeilen_Listener) 
-        control1.addMouseMotionListener(class_Zeilen_Listener)
-        control1.addFocusListener(class_Zeilen_Listener)
-
-        control.addControl('textfeld',control1)
-        
         # Icon
-        Color__Container = 10202
-        Attr = (16+int(lvl)*16,2,16,16,'egal', Color__Container)    
-        PosX,PosY,Width,Height,Name,Color = Attr
-        
-        control2, model2 = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+        x = 16+int(lvl)*16
+        control2, model2 = self.mb.createControl(self.ctx,"ImageControl",x,2,16,16,(),() ) 
+        model2.Border = 0 
         control2.addMouseListener(self.listener_treeview_symbol)
         
         if art == 'waste':
@@ -110,8 +87,6 @@ class Baumansicht():
             self.mb.props[T.AB].Projektordner = ordinal
              
         
-        # icons sind unter: C:\Program Files (x86)\LibreOffice 4\share\config ... \images\res
-        # richtige Icons finden
         if art in ('dir','prj'):
 
             if zustand == 'auf':
@@ -137,33 +112,113 @@ class Baumansicht():
                 model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png' 
             else:
                 model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_offen.png' 
-                
-        model2.Border = 0
+            sicht_tag1 = sicht_tag2 = sicht_tag3 = False
+            
+        
 
         control.addControl('icon',control2)                       
         # return ist nur fuer neu angelegte Dokumente nutzbar 
         
         
-        if int(self.mb.settings_proj['tag1']):
-            
+        
+        x += 18
+        
+        if sicht_tag1:
             # Tag1 Farbe
-            Color__Container = 10202
-            Attr = (32+int(lvl)*16,2,16,16,'egal', Color__Container)    
-            PosX,PosY,Width,Height,Name,Color = Attr
-            
-            control_tag1, model_tag1 = self.mb.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+            control_tag1, model_tag1 = self.mb.createControl(self.ctx,"ImageControl",x,2,16,16,(),() )  
             model_tag1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % tag1
             model_tag1.Border = 0
             control_tag1.addMouseListener(self.tag1_listener)
-            
             control.addControl('tag1',control_tag1)
+            x += 16
             
+        if sicht_tag2:
+            # Tag2 BENUTZERDEFINIERT
+            control_tag2, model_tag2 = self.mb.createControl(self.ctx,"ImageControl",x,2,16,16,(),() )  
+            model_tag2.ImageURL = tag2
+            model_tag2.Border = 0
+            control_tag2.addMouseListener(self.tag2_listener)
+            
+            control.addControl('tag2',control_tag2)
+            x += 18
+        
+        if sicht_tag3:
+            PosX,PosY,Width,Height = 0,2,16,16
+            control_tag3, model_tag3 = self.mb.createControl(self.mb.ctx,"FixedText",x,2,16,16,(),() )
+            model_tag3.Label = gliederung[ordinal]
+            breite,hoehe = self.mb.kalkuliere_und_setze_Control(control_tag3,'w')
+            control.addControl('tag3',control_tag3)
+            x += breite + 4
+
+        
+        # Textfeld
+        control1, model1 = self.mb.createControl(self.ctx,"Edit",x,0,400,20,(),() )  
+        model1.Text = name
+        model1.Border = False
+        model1.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
+        model1.ReadOnly = True
+
+        control1.addMouseListener(class_Zeilen_Listener) 
+        control1.addMouseMotionListener(class_Zeilen_Listener)
+        control1.addFocusListener(class_Zeilen_Listener)
+
+        control.addControl('textfeld',control1)
+        
+        
         
         if sicht == 'nein':
             control.Visible = False
         else:              
             index += 1
         return index  
+    
+    
+    def positioniere_icons_in_zeile(self,contr_zeile,tags,gliederung):
+        #if self.mb.debug: log(inspect.stack)
+        
+        try:
+            tag1,tag2,tag3 = tags
+            
+            x = contr_zeile.getControl('icon').PosSize.X +18
+            breite = 0
+            
+            if tag1:
+                tag1_contr = contr_zeile.getControl('tag1')
+                tag1_contr.setPosSize(x,0,0,0,1)
+                x += 16
+                breite = 16
+                
+            if tag2:
+                tag2_contr = contr_zeile.getControl('tag2')
+                tag2_contr.setPosSize(x,0,0,0,1)
+                x += 18
+                breite = 18
+                
+            if tag3:
+                tag3_contr = contr_zeile.getControl('tag3')
+                
+                ordinal = tag3_contr.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
+                if ordinal != self.mb.props[T.AB].Papierkorb:
+                    tag3_contr.Model.Label = gliederung[ordinal]
+                else:
+                    tag3_contr.Model.Label = ''
+                breite,hoehe = self.mb.kalkuliere_und_setze_Control(tag3_contr)  
+                breite += 4              
+                tag3_contr.setPosSize(x,0,0,0,1)
+                x += breite
+            
+
+            text_contr = contr_zeile.getControl('textfeld')
+            if text_contr.PosSize.X != x:
+                text_contr.setPosSize(x,0,0,0,1)
+            
+        except:
+            log(inspect.stack,tb())
+            pd()
+  
+        
+    
+    
      
     def erzeuge_Scrollbar(self,win,ctx):
         if self.mb.debug: log(inspect.stack)
@@ -271,8 +326,14 @@ class Baumansicht():
                 eintrag = ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 
                 
                 # neue Zeile / neuer XML Eintrag
-                self.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)
+                
+                if self.mb.settings_proj['tag3']:
+                    gliederung = self.mb.class_Gliederung.rechne(tree)
+                else:
+                    gliederung = None
+
+                self.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung)
                 self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal)
                             
                 # neue Datei / neuen Bereich anlegen           
@@ -296,7 +357,7 @@ class Baumansicht():
                     self.mb.doc.unlockControllers()
 
             except:
-                if self.mb.debug: log(inspect.stack,tb())
+                log(inspect.stack,tb())
             StatusIndicator.end()
             
             return nr
@@ -386,7 +447,7 @@ class Baumansicht():
             self.korrigiere_scrollbar()
     
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                 
     def erneuere_selektierungen(self,selektierter_ist_im_papierkorb):
         if self.mb.debug: log(inspect.stack)
@@ -466,7 +527,7 @@ class Baumansicht():
                         
                     textSectionCursor.setString('')
             except:
-                if self.mb.debug: log(inspect.stack,tb())
+                log(inspect.stack,tb())
         
         
     def erneuere_dict_bereiche(self):
@@ -583,7 +644,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             return False
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
     def mouseReleased(self, ev):
         if self.mb.debug: log(inspect.stack)
@@ -889,18 +950,22 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if not ok:
                 return
 
-
             if 'vorNachfolger' in action:
                 # wenn der Nachfolger gleich der Quelle ist, nicht verschieben
                 if source == action[1]:
                     return
-                else:  
-                    eintraege = self.xml_neu_ordnen(source,target,action)
-                    self.hf_neu_ordnen(eintraege)
-                    
-            else:  
-                eintraege = self.xml_neu_ordnen(source,target,action)
-                self.hf_neu_ordnen(eintraege)
+ 
+            eintraege = self.xml_neu_ordnen(source,target,action)
+            self.posY_in_tv_anpassen(eintraege)
+            
+            # dict_ordner updaten
+            self.mb.class_Projekt.erzeuge_dict_ordner()
+
+            # Bereiche neu verlinken
+            sections = self.mb.doc.TextSections
+            self.verlinke_Bereiche(sections)
+            # Sichtbarkeit der Bereiche umschalten
+            self.schalte_sichtbarkeit_der_Bereiche()      
 
             if T.AB == 'Projekt':   
                 Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
@@ -936,68 +1001,34 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                             self.mb.Mitteilungen.nachricht(self.mb.lang.KANN_NICHT_VERSCHOBEN_WERDEN %(dateiname,tab),"warningbox")
                             return False
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                     
         return True
         
-    def hf_neu_ordnen(self,eintraege): 
+    def posY_in_tv_anpassen(self,eintraege): 
         if self.mb.debug: log(inspect.stack)
-        
-        tree = self.mb.props[T.AB].xml_tree
-        root = tree.getroot()
         
         # ordnen des dict_zeilen_posY
         self.mb.props[T.AB].dict_zeilen_posY = {}
         index = 0
         
-        tag1X,tag2X,tag3X = 0,0,0
-        if int(self.mb.settings_proj['tag1']):
-            tag1X = 16
-        if int(self.mb.settings_proj['tag2']):
-            tag2X = 16
-        if int(self.mb.settings_proj['tag3']):
-            tag3X = 16
-        
-        
         for eintrag in eintraege:
             
             ordinal,parent,text,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
+            
             if sicht == 'ja':
-                
-                # Y_Wert sichtbarer Eintraege setzen
-                cont = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
-                # der X-Wert ALLER Eintraege wird in xml_m neu gesetzt
-                cont.Peer.setPosSize(0,KONST.ZEILENHOEHE*index,0,0,2)# 2: Flag fuer: nur Y Wert aendern
-                
-                iconArt = cont.getControl('icon')
-                iconArt.Peer.setPosSize(16+int(lvl)*16,0,0,0,1)   
-                
-                if int(self.mb.settings_proj['tag1']):
-                    tag1_cont = cont.getControl('tag1')
-                    tag1_cont.Peer.setPosSize(32+int(lvl)*16,0,0,0,1)  
-                if int(self.mb.settings_proj['tag2']):
-                    tag2_cont = cont.getControl('tag2')
-                    tag2_cont.Peer.setPosSize(32+int(lvl)*16+tag1X,0,0,0,1)   
-                if int(self.mb.settings_proj['tag3']):
-                    tag3_cont = cont.getControl('tag3')
-                    tag3_cont.Peer.setPosSize(32+int(lvl)*16+tag1X+tag2X,0,0,0,1)    
-                
-                textfeld = cont.getControl('textfeld')
-                textfeld.Peer.setPosSize(32+int(lvl)*16+tag1X+tag2X+tag3X,0,0,0,1)        
-                 
                 # dict_zeilen_posY updaten            
-                self.mb.props[T.AB].dict_zeilen_posY.update({KONST.ZEILENHOEHE*index:eintrag})                   
+                self.mb.props[T.AB].dict_zeilen_posY.update({KONST.ZEILENHOEHE*index:eintrag})  
+                                            
+                # Y_Wert sichtbarer Eintraege setzen
+                contr_zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
+                                
+                # der X-Wert ALLER Eintraege wird in xml_m neu gesetzt
+                y = KONST.ZEILENHOEHE*index
+                if contr_zeile.PosSize.Y != y:
+                    contr_zeile.setPosSize(0,y,0,0,2)# 2: Flag fuer: nur Y Wert aendern
+                          
                 index += 1  
-             
-        # dict_ordner updaten
-        self.mb.class_Projekt.erzeuge_dict_ordner()
-        
-        sections = self.mb.doc.TextSections
-
-        # Bereiche neu verlinken
-        self.verlinke_Bereiche(sections)
-        # Sichtbarkeit der Bereiche umschalten
-        self.schalte_sichtbarkeit_der_Bereiche()        
 
         
     def xml_neu_ordnen(self,source,target,action):
@@ -1119,7 +1150,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             letzte_zeile = sections.getByIndex(sections.Count - 1)
             letzte_zeile.IsVisible = False   
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                 
         for i in range (len(alle_Zeilen)):
             ordinal = alle_Zeilen[i].tag
@@ -1272,7 +1303,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
     
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
@@ -1306,7 +1337,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     self.entferne_Trenner(sec)      
                                
         self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
-
+    
     def verlinke_Sektion(self,name,bereich,sections_uno):
         if self.mb.debug: log(inspect.stack)
         
@@ -1348,7 +1379,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     bereich.setPropertyValue('FileLink',SFLink)
                 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
 
     ## NUR ZU TESTZWECKEN ##
@@ -1442,7 +1473,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             #pd() #newSection.setPropertyValue("ParaStyleName", 'Standard')
             return newSection
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def entferne_Trenner(self,sec):
         if self.mb.debug: log(inspect.stack)
@@ -1554,7 +1585,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
                     self.mb.class_Baumansicht.korrigiere_scrollbar()
                 except:
-                    if self.mb.debug: log(inspect.stack,tb())
+                    log(inspect.stack,tb())
                 
             return False
         
@@ -1626,7 +1657,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             for ctrl in controls:
                 cont.addControl(ctrl.Model.Label,ctrl)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
             
 class Symbol_Popup_Mouse_Listener (unohelper.Base, XMouseListener):
@@ -1668,9 +1699,27 @@ class Tag1_Listener (unohelper.Base, XMouseListener):
         
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack)
-        
         if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:    
-                self.mb.class_Funktionen.erzeuge_Tag1_Container(ev)
+            self.mb.class_Funktionen.erzeuge_Tag1_Container(ev)
+                
+    def mouseEntered(self,ev):
+        return False
+    def mouseExited(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+    
+class Tag2_Listener (unohelper.Base, XMouseListener):
+    
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        
+    def mousePressed(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:  
+            ordinal = ev.Source.Context.AccessibleContext.AccessibleName  
+            self.mb.class_Funktionen.erzeuge_Tag2_Container(ev,ordinal)
                 
     def mouseEntered(self,ev):
         return False

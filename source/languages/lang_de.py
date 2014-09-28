@@ -41,9 +41,6 @@ SCHLIESSE_TAB = u'Schließe aktiven Tab'
 TAB_SCHLIESSEN = u'Soll der Tab "%s" wirklich geschlossen werden?'
 TAB_EXISTIERT_SCHON = u'Der Tabname existiert schon.'
 UNFOLD_PROJ_DIR = 'Projektordner ausklappen'
-SHOW_TAG1 = 'zeige Tag 1'
-SHOW_TAG2 = 'zeige Tag 2'
-SHOW_TAG3 = 'zeige Tag 3'
 TRENNE_TEXT = 'Teile Text'
 TRENNE_TEXT_Help = 'Teile Text an Cursorposition'
 
@@ -63,7 +60,20 @@ ERZEUGE_NEUE_ZEILE = '                    erzeuge neue Zeile, bitte warten!     
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = 'Ordner ausklappen'
 IN_PAPIERKORB_VERSCHIEBEN = 'In Papierkorb verschieben'
-       
+SHOW_TAG1 = 'Farbige Icons'
+SHOW_TAG2 = 'Benutzerdefinierte Icons'
+SHOW_TAG3 = u'Wissenschaftliche Gliederung'
+BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'Wenn Sie selbstgewählte Symbole nutzen wollen, ' \
+    u'legt Organon den Ordner "Organon Icons" in Ihrer Galerie an.\r\n\r\n'\
+    u'Außerdem wird folgender Ordner im Dateisystem angelegt:\r\n' \
+    u'%s ' \
+    u'\r\n\r\nDie Galerie kann über das Bild Icon der Standard Symbolleiste oder der Seitenleiste ' \
+    u'geöffnet werden. \r\n\r\n' \
+    u'Organon speichert bereits eine kleine Anzahl von Symbolen in diesem Ordner, dem Sie jederzeit eigene ' \
+    u'hinzufügen können. Die Symbole werden per Rechtsklick in der Baumansicht auf den leeren Platz zwischen ' \
+    u'Ordner-/Dateisymbol und Titel ausgewählt.\r\n\r\n' \
+    u'Soll ein Eintrag in der Galerie angelegt werden?\r\n\r\n'
+
 ## EXPORT SETTINGS
 EXPORT_2 = 'Export'
 EXPORT = 'EXPORT'
@@ -171,6 +181,7 @@ TAB_HELP_TEXT = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werde
 TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt. \
 \rV (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt. \r(noch nicht implementiert)'
 AUSGEWAEHLTE = u'Ausgewählte'
+BENUTZTE = u'Im Projekt genutzte Tags'
 ZEITLICH_ANORDNEN = 'zeitlich anordnen'
 UNAUSGEZEICHNETE = 'nicht ausgezeichnete Dateien einbeziehen'
 NUTZE_ZEIT  = 'nutze Zeit'

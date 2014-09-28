@@ -163,18 +163,19 @@ class XML_Methoden():
         eintr = []
         self.get_tree_info(root,eintr)
         
+        sett = self.mb.settings_proj
+        tags = sett['tag1'],sett['tag2'],sett['tag3']
         
-        tag1X,tag2X,tag3X = 0,0,0
-        if self.mb.settings_proj['tag1']:
-            tag1X = 16
-        if self.mb.settings_proj['tag2']:
-            tag2X = 16
-        if self.mb.settings_proj['tag3']:
-            tag3X = 16
+        
+        zeilen = []
         
         for eintrag in eintr:
             # Attribut 'Lvl' in xml datei setzen
             ordinal,parent,text,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
+            
+            if ordinal == self.mb.props[T.AB].Papierkorb:
+                continue
+            
             elem = root.find('.//'+ordinal)
             elem.attrib['Lvl'] = str(lvl)  
             lvl2 = int(lvl)
@@ -185,23 +186,23 @@ class XML_Methoden():
                 elem.attrib['Parent'] = 'root'
             else:
                 elem.attrib['Parent'] = par.tag
-            
+                
             # Alle Zeilen X neu positionieren
-            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
-            text = zeile.getControl('textfeld')
-            icon = zeile.getControl('icon')
-            
-            icon.setPosSize(16+lvl2*16,0,0,0,1)
-            text.setPosSize(32+lvl2*16 + tag1X + tag2X +tag3X,0,0,0,1)
-            
-            if self.mb.settings_proj['tag1']:
-                tag1_cont = zeile.getControl('tag1')
-                tag1_cont.setPosSize(32+lvl2*16,0,0,0,1)
-            if self.mb.settings_proj['tag2']:
-                tag2_cont = zeile.getControl('tag2')
-                tag2_cont.setPosSize(32+lvl2*16+tag1X,0,0,0,1)
-            if self.mb.settings_proj['tag3']:
-                tag3_cont = zeile.getControl('tag3')
-                tag3_cont.setPosSize(32+lvl2*16+tag1X+tag2X,0,0,0,1)
+            contr_zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
+            icon = contr_zeile.getControl('icon')
+            x = 16+lvl2*16
+            if icon.PosSize.X != x:
+                icon.setPosSize(x,0,0,0,1)
+                
+            zeilen.append(contr_zeile)
+                
+                
+        gliederung  = None
+        if sett['tag3']:
+            tree = self.mb.props[T.AB].xml_tree
+            gliederung = self.mb.class_Gliederung.rechne(tree)    
+                
+        for contr_zeile in zeilen:       
+            self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
             
                     

@@ -127,6 +127,7 @@ class Menu_Bar():
         self.class_Tabs =       self.lade_modul('tabs','.Tabs(self)') 
         self.class_Log = class_LogX
         self.class_Design = Design()
+        self.class_Gliederung = Gliederung()
         
         #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
         
@@ -287,7 +288,7 @@ class Menu_Bar():
 
         except Exception as e:
                 self.Mitteilungen.nachricht('erzeuge_Menu ' + str(e),"warningbox")
-                if self.mb.debug: log(inspect.stack,tb())
+                log(inspect.stack,tb())
   
   
     def erzeuge_Menu_DropDown_Container(self,ev,BREITE,HOEHE,Border = False):
@@ -381,7 +382,7 @@ class Menu_Bar():
                 prefSize = control.getPreferredSize()
      
                 Hoehe = prefSize.Height 
-                Breite = prefSize.Width +10
+                Breite = prefSize.Width + 10
                 control.setPosSize(0,0,Breite ,Hoehe,12)
                 
                 control.addMouseListener(listener)
@@ -419,7 +420,7 @@ class Menu_Bar():
             controls = []
             SEPs = []
             lang = self.lang
-            
+
             if self.projekt_name != None:
                 tag1 = self.settings_proj['tag1']
                 tag2 = self.settings_proj['tag2']
@@ -436,9 +437,9 @@ class Menu_Bar():
             tag_TV_listener = DropDown_Tags_TV_Listener(self)
             tag_SB_listener = DropDown_Tags_SB_Listener(self)
             
-            
+
             for item in items:
-                
+
                 if item[0] != 'SEP':
                     prop_names = ('Label',)
                     prop_values = (item[0],)
@@ -450,14 +451,14 @@ class Menu_Bar():
                     prefSize = control.getPreferredSize()
          
                     Hoehe = prefSize.Height 
-                    Breite = prefSize.Width +10
+                    Breite = prefSize.Width +15
                     control.setPosSize(0,0,Breite ,Hoehe,12)
                     
                     if item[1] == 'Ueberschrift':
                         model.FontWeight = 150
                         
                         
-                    elif item[1] == '':
+                    elif item[1] == '' and item[0] != 'SEP':
                         control.addMouseListener(listener)
                         
                         
@@ -473,14 +474,10 @@ class Menu_Bar():
 
                         if item[0] == lang.SHOW_TAG1 and tag1 == 1:
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
-                            
-                        # Tag2 + 3 noch nicht implementiert    
-                        elif item[0] == lang.SHOW_TAG2:# and tag2:
-                            #model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
-                            control.Enable = False
-                        elif item[0] == lang.SHOW_TAG3:# and tag3:
-                            #model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
-                            control.Enable = False
+                        elif item[0] == lang.SHOW_TAG2 and tag2 == 1:
+                            model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
+                        elif item[0] == lang.SHOW_TAG3 and tag3 == 1:
+                            model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
                             
                             
                     elif item[1] == 'Tag_SB':
@@ -492,9 +489,8 @@ class Menu_Bar():
                         if panel in self.dict_sb['sichtbare']:
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
                         
-                    else:
-                        control.addMouseListener(listener) 
                     
+
                     if xBreite < Breite:
                         xBreite = Breite
                         
@@ -504,11 +500,11 @@ class Menu_Bar():
                     
                     # Waagerechter Trenner
                     control, model = self.createControl(self.ctx, "FixedLine", 30, y, 50,10,(),())
-                    model.TextColor = 0
-                    model.TextLineColor = 0
+                    model.setPropertyValue('TextColor',102)
+                    model.setPropertyValue('TextLineColor',102)
                     SEPs.append(control)
                     y += 10
-    
+
                 controls.append((control,item[0]))
                 controls.append((control_I,item[0]+'_icon'))
             
@@ -522,7 +518,7 @@ class Menu_Bar():
     
             return controls,listener,y - 5,xBreite +20
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
      
     
     def get_speicherort(self):
@@ -583,7 +579,7 @@ class Menu_Bar():
                 else:
                     return eval(modul+arg)
         except:
-            if self.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
      
   
     def lade_Modul_Language(self):
@@ -614,15 +610,8 @@ class Menu_Bar():
         try:
             self.class_Projekt.test()
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
-    def erzeuge_Zeile(self,ordner_oder_datei):
-        if self.debug: log(inspect.stack)
-        
-        try:
-            self.class_Baumansicht.erzeuge_neue_Zeile(ordner_oder_datei)    
-        except:
-            if self.mb.debug: log(inspect.stack,tb())  
             
     def leere_Papierkorb(self):
         if self.debug: log(inspect.stack)
@@ -657,7 +646,7 @@ class Menu_Bar():
             os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')  
             self.Mitteilungen.nachricht('Backup erzeugt unter: %s' %pfad_zu_neuem_ordner+'.organon', "infobox")           
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
             
     def debug_time(self):
@@ -774,7 +763,7 @@ class Menu_Bar():
         viewSettings.ShowRulers = False
     
     def kalkuliere_und_setze_Control(self,ctrl,h_or_w = None):
-        if self.debug: log(inspect.stack)
+        #if self.debug: log(inspect.stack)
         
         prefSize = ctrl.getPreferredSize()
         Hoehe = prefSize.Height 
@@ -882,7 +871,7 @@ def menuEintraege(lang,menu):
         items = ((lang.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
             (lang.SHOW_TAG1,'Tag_TV'),
             (lang.SHOW_TAG2,'Tag_TV'),
-            (lang.SHOW_TAG2,'Tag_TV'),
+            (lang.SHOW_TAG3,'Tag_TV'),
             ('SEP',''),
             (lang.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift'),
             (lang.SYNOPSIS,'Tag_SB'),
@@ -996,7 +985,43 @@ class Design():
             self.new_tabs.update( {'tab%sx'%(i) : summe} )
             self.new_tabs.update( {'tab%s'%(i) : summe} )
 
+class Gliederung():
+    def rechne(self,tree):  
+        if debug: log(inspect.stack)
+        
+        root = tree.getroot()
+        all_elem = root.findall('.//')
+        
+        self.lvls = {}
+        for i in range(10):
+            self.lvls.update({i: 0})
 
+        gliederung = {}
+        lvl = 1
+        
+        for el in all_elem:
+            
+            lvl_el = int(el.attrib['Lvl']) + 1
+            
+            if lvl_el == lvl:
+                self.lvls[lvl] += 1
+            elif lvl_el > lvl:
+                self.lvls[lvl+1] += 1
+                lvl += 1
+            elif lvl_el < lvl:
+                self.lvls[lvl_el] += 1
+                lvl = lvl_el #self.lvls[lvl_el]
+                for i in range(lvl,10):
+                    self.lvls[i+1] = 0
+            
+            glied = ''
+            for l in range(lvl_el):
+                glied = glied + str(self.lvls[l+1]) + '.'
+                
+            gliederung.update({el.tag:glied})
+
+        return gliederung 
+     
         
 from com.sun.star.awt import XTabListener
 class Tab_Listener(unohelper.Base,XTabListener):
@@ -1053,7 +1078,7 @@ class Tab_Listener(unohelper.Base,XTabListener):
              
             self.id_old = id
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
     def deactivated(self,id):
@@ -1134,15 +1159,16 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
         self.geklickterMenupunkt = None
         
     def mousePressed(self, ev):
-        #print('mousePressed, Menu_Kopf_Listener2')
+        if self.mb.debug: log(inspect.stack)
+        
         if ev.Buttons == 1:
             if self.mb.debug: log(inspect.stack)
             
             if self.mb.projekt_name != None:
                 if ev.Source.Model.HelpText == self.mb.lang.INSERT_DOC:            
-                    self.mb.erzeuge_Zeile('dokument')
+                    self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
                 if ev.Source.Model.HelpText == self.mb.lang.INSERT_DIR:            
-                    self.mb.erzeuge_Zeile('Ordner')
+                     self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
                 if ev.Source.Model.HelpText == self.mb.lang.CLEAR_RECYCLE_BIN:  
                     self.mb.leere_Papierkorb()
                     
@@ -1183,10 +1209,10 @@ class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
             self.mb.class_Projekt.lade_Projekt()
             
         elif sel == LANG.NEW_DOC:
-            self.mb.erzeuge_Zeile('dokument')
+            self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
             
         elif sel == LANG.NEW_DIR:
-            self.mb.erzeuge_Zeile('Ordner')
+            self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
             
         elif sel == LANG.EXPORT_2:
             self.mb.class_Export.export()
@@ -1271,10 +1297,7 @@ class DropDown_Container_Listener (unohelper.Base, XMouseListener):
 
             enthaelt_Punkt = ev.Source.AccessibleContext.containsPoint(point)
 
-            if enthaelt_Punkt:
-                pass
-            else:    
-                pass        
+            if not enthaelt_Punkt:        
                 self.ob.dispose() 
                 self.mb.geoeffnetesMenu = None   
             return False
@@ -1312,24 +1335,44 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
             lang = self.mb.lang
             sett = self.mb.settings_proj
             
+            
             if text == lang.SHOW_TAG1:
+                nummer = 1
+                lang_show_tag = lang.SHOW_TAG1
                 
-                sett['tag1'] = not sett['tag1']
-                self.mache_tag1_sichtbar(sett['tag1'])
-                
-                ctrl = ev.Source.Context.getControl(lang.SHOW_TAG1+'_icon')
-                
-                if sett['tag1']:
-                    ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
-                else:
-                    ctrl.Model.ImageURL = '' 
+            elif text == lang.SHOW_TAG2:
+                if not self.pruefe_galerie_eintrag():
+                    return
+                nummer = 2
+                lang_show_tag = lang.SHOW_TAG2
+            
+            elif text == lang.SHOW_TAG3:
+                nummer = 3
+                lang_show_tag = lang.SHOW_TAG3
+            
+            tag = 'tag%s'%nummer
+            sett[tag] = not sett[tag]
+            
+            self.mache_tag_sichtbar(sett[tag],tag)
+            ctrl = ev.Source.Context.getControl(lang_show_tag+'_icon')
+            
+            if sett[tag]:
+                ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
+            else:
+                ctrl.Model.ImageURL = '' 
             
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
-    def mache_tag1_sichtbar(self,sichtbar):
+    
+       
+    
+    def mache_tag_sichtbar(self,sichtbar,tag_name):
         if self.mb.debug: log(inspect.stack)
+        
+        sett = self.mb.settings_proj
+        tags = sett['tag1'],sett['tag2'],sett['tag3']
         
         for tab_name in self.mb.props:
         
@@ -1338,46 +1381,96 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
             tree = self.mb.props[tab_name].xml_tree
             root = tree.getroot()
             
+            gliederung  = None
+            if sett['tag3']:
+                gliederung = self.mb.class_Gliederung.rechne(tree)
+            
             if not sichtbar:
                 for contr_zeile in controls_zeilen:
-                    tag1_contr = contr_zeile.getControl('tag1')
-                    text_contr = contr_zeile.getControl('textfeld')
-                    posSizeX = text_contr.PosSize.X
+                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
+                    if ord_zeile == self.mb.props[T.AB].Papierkorb:
+                        continue
                     
-                    text_contr.setPosSize(posSizeX-16,0,0,0,1)
-    
-                    if self.mb.settings_proj['tag2']:
-                        tag2_contr = contr_zeile.getControl('tag2')
-                    if self.mb.settings_proj['tag3']:
-                        tag3_contr = contr_zeile.getControl('tag3')
-                        
-                    tag1_contr.dispose()
+                    self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
+                    tag_contr = contr_zeile.getControl(tag_name)
+                    tag_contr.dispose()
+ 
                     
             if sichtbar:
-                for contr_zeile in controls_zeilen:
-                    text_contr = contr_zeile.getControl('textfeld')
-                    text_posX = text_contr.PosSize.X
-                    text_contr.setPosSize(text_posX + 16 ,0,0,0,1)                  
-    
-                    icon_contr = contr_zeile.getControl('icon')
-                    icon_posX_end = icon_contr.PosSize.X + icon_contr.PosSize.Width 
-    
-                    Color__Container = 10202
-                    Attr = (icon_posX_end,2,16,16,'egal', Color__Container)    
-                    PosX,PosY,Width,Height,Name,Color = Attr
-    
-                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
-    
-                    zeile_xml = root.find('.//'+ord_zeile)
-                    tag1 = zeile_xml.attrib['Tag1']
-    
-                    control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
-                    model_tag1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % tag1
-                    model_tag1.Border = 0
-                    control_tag1.addMouseListener(self.mb.class_Baumansicht.tag1_listener)
-    
-                    contr_zeile.addControl('tag1',control_tag1)
+                for contr_zeile in controls_zeilen:                    
 
+                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
+                    if ord_zeile == self.mb.props[T.AB].Papierkorb:
+                        continue
+                    
+                    zeile_xml = root.find('.//'+ord_zeile)
+                    
+                    if tag_name == 'tag1':
+                        farbe = zeile_xml.attrib['Tag1']
+                        url = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % farbe
+                        listener = self.mb.class_Baumansicht.tag1_listener
+                    elif tag_name == 'tag2':
+                        url = zeile_xml.attrib['Tag2']
+                        listener = self.mb.class_Baumansicht.tag2_listener
+                    elif tag_name == 'tag3':
+                        url = ''
+                    
+                    if tag_name in ('tag1','tag2'):
+                        PosX,PosY,Width,Height = 0,2,16,16
+                        control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+                        model_tag1.ImageURL = url
+                        model_tag1.Border = 0
+                        control_tag1.addMouseListener(listener)
+                    else:
+                        PosX,PosY,Width,Height = 0,2,16,16
+                        control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"FixedText",PosX,PosY,Width,Height,(),() )     
+                        
+                    contr_zeile.addControl(tag_name,control_tag1)
+                    self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
+                    
+                    
+    def pruefe_galerie_eintrag(self):
+        
+        gallery = self.mb.createUnoService("com.sun.star.gallery.GalleryThemeProvider")
+            
+        if 'Organon Icons' not in gallery.ElementNames:
+            
+            paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
+            gallery_pfad = uno.fileUrlToSystemPath(paths.Gallery_writable)
+            gallery_ordner = os.path.join(gallery_pfad,'Organon Icons')
+                    
+            entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.BENUTZERDEFINIERTE_SYMBOLE_NUTZEN %gallery_ordner,"warningbox",16777216)
+            # 3 = Nein oder Cancel, 2 = Ja
+            if entscheidung == 3:
+                return False
+            elif entscheidung == 2:
+                try:
+                    iGal = gallery.insertNewByName('Organon Icons')  
+                    path_icons = os.path.join(self.mb.path_to_extension,'img','Organon Icons')
+                    
+                    from shutil import copy 
+                    
+                    # Galerie anlegen
+                    if not os.path.exists(gallery_ordner):
+                        os.makedirs(gallery_ordner)
+                    
+                    # Organon Icons einfuegen
+                    for (dirpath,dirnames,filenames) in os.walk(path_icons):
+                        for f in filenames:
+                            url_source = os.path.join(dirpath,f)
+                            url_dest   = os.path.join(gallery_ordner,f)
+                            
+                            copy(url_source,url_dest)
+ 
+                            url = uno.systemPathToFileUrl(url_dest)
+                            iGal.insertURLByIndex(url,0)
+                    
+                    return True
+                
+                except:
+                    log(inspect.stack,tb())
+        
+        return True
 
 class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
@@ -1423,10 +1516,10 @@ class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
                         #pd()
                         ev.Source.setFocus()
             except:
-                if self.mb.debug: log(inspect.stack,tb()) 
+                log(inspect.stack,tb()) 
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())   
+            log(inspect.stack,tb())   
 
 
             
@@ -1658,7 +1751,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
-                print('trenner')
+
                 if self.mb.props[T.AB].zuletzt_gedrueckte_taste == None:
                     try:
                         self.mb.viewcursor.goDown(1,False)
@@ -1720,7 +1813,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                     self.farbe_der_selektion_aendern(selected_ts.Name)
                     return False 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
    
     def test_for_parent_section(self,selected_text_sectionX,sec):
@@ -1775,12 +1868,13 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
                 # speichern, wenn Organon beendet wird.
                 # aenderungen nach tabwechsel werden in Tab_Listener.activated() gespeichert
                 if self.mb.bereich_wurde_bearbeitet:
-                    tab_name = self.mb.tabs[self.mb.tab_id_old][1]
+                    #tab_name = self.mb.tabs[self.mb.tab_id_old][1]
+                    tab_name = T.AB 
                     ordinal = self.mb.props[tab_name].selektierte_zeile.AccessibleName
                     bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
                     path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
                     self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)   
-                               
+                    #pd()          
                 if 'files' in self.mb.pfade: 
                     self.mb.class_Sidebar.speicher_sidebar_dict()       
                     self.mb.class_Sidebar.dict_sb_zuruecksetzen()
@@ -1790,7 +1884,7 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
             else:
                 self.mb.tab_umgeschaltet = False
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def korrigiere_hoehe_des_scrollbalkens(self):
         if self.mb.debug: log(inspect.stack)
@@ -1814,7 +1908,7 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener):
                 scrll = win.getControl('ScrollBar')
                 scrll.setPosSize(0,0,0,Height,8)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
 
     def disposing(self,arg):
@@ -1878,13 +1972,13 @@ def load_reload_modul(modul,pyPath,mb):
                 except:
                     pass
         except:
-            if mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
                             
         exec('import '+ modul)
 
         return eval(modul)
     except:
-        if mb.debug: log(inspect.stack,tb())
+        log(inspect.stack,tb())
         
 
     

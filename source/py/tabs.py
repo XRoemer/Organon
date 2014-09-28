@@ -25,7 +25,7 @@ class Tabs():
                 self.berechne_ordinale_in_baum_und_tab(True)
                 self.erzeuge_Fenster(True)    
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     def berechne_ordinale_in_baum_und_tab(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
@@ -153,7 +153,7 @@ class Tabs():
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
             self.mb.tree_write(tree,Path)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
     def fuege_ausgewaehlte_in_tab_ein(self,ordinale):
         if self.mb.debug: log(inspect.stack)
@@ -189,7 +189,7 @@ class Tabs():
 
             self.mb.write_tab = False
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
  
         
     def lade_tabs(self):
@@ -219,7 +219,7 @@ class Tabs():
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
     
     def lade_tab_Eintraege(self,tab_name):
@@ -300,7 +300,7 @@ class Tabs():
                 s_tag_ist_drin = []
                 
                 for s_tag in selektierte_tags:
-                    
+
                     if s_tag in alle_tag_eintraege[tag_eintrag]['Tags_general']:
                         tag_ist_drin = True
                         s_tag_ist_drin.append(True)
@@ -317,7 +317,7 @@ class Tabs():
                 if tag_ist_drin:
                     ordinale.append(tag_eintrag)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         return sorted(ordinale)
     
@@ -342,7 +342,7 @@ class Tabs():
             if in_tab_einfuegen:
                 if eintrag.tag in self.im_tab_vorhandene:
                     continue
-            if eintrag.attrib['Tag1'] in ausgew_icons:
+            if eintrag.attrib['Tag1'] in ausgew_icons or eintrag.attrib['Tag2'] in ausgew_icons:
                 ordinale.append(eintrag.tag)
 
         return ordinale
@@ -937,7 +937,7 @@ class Tabs():
 
             self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name)    
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
         
     def get_tab(self,tab_name):
@@ -968,7 +968,7 @@ class Tabs():
             return win,tab_id              
   
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def setMenuBar(self,window,ctx):
         try:
@@ -982,7 +982,7 @@ class Tabs():
             oMenuBar.insertItem(4, "First4", 4, 0)
             window.setMenuBar(oMenuBar)
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege,tab_name):
         if self.mb.debug: log(inspect.stack)        
@@ -992,11 +992,19 @@ class Tabs():
         Bereichsname_ord_dict = {}
         index = 0
         index2 = 0
-
+        
+        if self.mb.settings_proj['tag3']:
+            tree = self.mb.props[tab_name].xml_tree
+            root = tree.getroot()
+            gliederung = self.mb.class_Gliederung.rechne(tree)
+        else:
+            gliederung = None
+        
+        
         for eintrag in Eintraege:
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
                      
-            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,index,tab_name)
+            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung,index,tab_name)
 
             if sicht == 'ja':
                 # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
@@ -1066,7 +1074,7 @@ class Tabs():
             T.AB = 'Projekt'
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
 
  
@@ -1100,7 +1108,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                         return
                     self.mb.class_Tabs.erzeuge_neuen_tab(ordinale)
             except:
-                if self.mb.debug: log(inspect.stack,tb())
+                log(inspect.stack,tb())
                 
         elif ev.ActionCommand == 'ok_tab':
             try:
@@ -1112,7 +1120,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     return
                 self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
             except:
-                if self.mb.debug: log(inspect.stack,tb())
+                log(inspect.stack,tb())
                 
         elif ev.ActionCommand == 'V':
             if ev.Source.Model.Label == 'V':
@@ -1136,68 +1144,112 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     def erzeuge_tag_auswahl_baumansicht(self,ev):
         if self.mb.debug: log(inspect.stack)
         
+        try:
+        
+            
+            
+            # BENUTZTE TAGS
+            url_nutzer_tags = []
+            nutzer_tags = []
+            farb_tags = []
+            
+            tree = self.mb.props['Projekt'].xml_tree
+            root = tree.getroot()
+            alle_elem = root.findall('.//')
+            
+            
+            
+            for el in alle_elem:
+                farbe = el.attrib['Tag1']
+                url = el.attrib['Tag2']
+                
+                if farbe not in ('','leer') and farbe not in farb_tags:
+                    farb_tags.append(el.attrib['Tag1'])
+                
+                if url not in ('','leer') and url not in url_nutzer_tags:
+                    url_nutzer_tags.append(el.attrib['Tag2'])
+                    name = os.path.basename(el.attrib['Tag2']).split('.')[0]
+                    nutzer_tags.append((name,el.attrib['Tag2']))
+            
+            
+            
+            # TITEL
+            prop_names = ('Label',)
+            prop_values = (self.mb.lang.AUSGEWAEHLTE,)
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
+            model.FontWeight = 150 
+            
+            
+            
+            prop_names = ('Label',)
+            prop_values = (self.mb.lang.BENUTZTE,)
+            controlT2, modelT2 = self.mb.createControl(self.mb.ctx, "FixedText", 120, 10, 300, 20, prop_names, prop_values) 
+            modelT2.FontWeight = 150 
+            
+            # TRENNER
+            controlTrenner, modelTrenner = self.mb.createControl(self.mb.ctx, "FixedLine", 100, 40, 10, 340, (), ()) 
+            modelTrenner.Orientation = 1
+            
+            
+            farb_icons,ausgew_icons,user_icons,breite = self.erzeuge_ListBox_Tag1(tuple(farb_tags),nutzer_tags)
+            
+            
+            
+            tag_item_listener = Tag1_Listener(self.mb,self.fenster_cont,farb_icons,ausgew_icons,user_icons)
+            farb_icons.addItemListener(tag_item_listener)
+            ausgew_icons.addItemListener(tag_item_listener)
+            user_icons.addItemListener(tag_item_listener)
+            
+            
+        except:
+            log(inspect.stack,tb())        
+        
+        # DIALOG FENSTER
         x,y = self.get_fenster_position(ev)
-        posSize = (x,y,220,400)
+        posSize = (x,y,breite + 20,400)
         
-        win,cont = self.mb.erzeuge_Dialog_Container(posSize)
-        
-        prop_names = ('Label',)
-        prop_values = (self.mb.lang.AUSGEWAEHLTE,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
-        model.FontWeight = 200.0 
+        win,cont = self.mb.erzeuge_Dialog_Container(posSize)   
+                    
         cont.addControl('ausgewaehlte_XXX', control)
-        
-        lb_alle_icons,lb_ausgew_icons = self.erzeuge_ListBox_Tag1()
-        
-        tag_item_listener = Tag1_Listener(self.mb,self.fenster_cont,lb_alle_icons,lb_ausgew_icons)
-        lb_alle_icons.addItemListener(tag_item_listener)
-        lb_ausgew_icons.addItemListener(tag_item_listener)
-        
-        cont.addControl('Eintraege_Tag1', lb_alle_icons)
-        cont.addControl('Ausgewaehlte_Tag1', lb_ausgew_icons)
+        cont.addControl('ausgewaehlte_YYY', controlT2)
+        cont.addControl('Trenner', controlTrenner)
+        cont.addControl('Eintraege_Tag1', farb_icons)
+        cont.addControl('Ausgewaehlte_Tag1', ausgew_icons)
+        cont.addControl('Ausgewaehlte_Tag1', user_icons)
             
        
-    def erzeuge_ListBox_Tag1(self):
+    def erzeuge_ListBox_Tag1(self,farb_tags,nutzer_tags):
         if self.mb.debug: log(inspect.stack)
         
-        # alle Punkte
-        control, model = self.mb.createControl(self.mb.ctx, "ListBox", 120, 10, KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
+        # FARB_TAGS
+        control, model = self.mb.createControl(self.mb.ctx, "ListBox", 120, 40, 80 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
         model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
-        model.Border = 0
+        model.Border = 0          
         
-        items = ('blau',
-                'braun',
-                'creme',
-                'gelb',
-                'grau',
-                'gruen',
-                'hellblau',
-                'hellgrau',
-                'lila',
-                'ocker',
-                'orange',
-                'pink',
-                'rostrot',
-                'rot',
-                'schwarz',
-                'tuerkis',
-                'weiss')
-                
-        control.addItems(items, 0)           
-        
-        for item in items:
-            pos = items.index(item)
-            model.setItemImage(pos,KONST.URL_IMGS+'punkt_%s.png' %item)
+        for item in farb_tags:
+            model.insertItem(control.ItemCount,item,KONST.URL_IMGS+'punkt_%s.png' %item)
         
         
-        # ausgewaehlte Punkte
+        # NUTZER_TAGS
+        control2, model2 = self.mb.createControl(self.mb.ctx, "ListBox", 220, 40, 280 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
+        control2.setMultipleMode(False)
+        model2.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model2.Border = 0
+
+        for (item,url) in nutzer_tags:
+            model2.insertItem(0,item,url)
+        
+        breite = control2.PreferredSize.Width + control2.PosSize.X
+        
+        # Listbox fuer ausgewaehlte Punkte
         control_ausgewaehlte, model = self.mb.createControl(self.mb.ctx, "ListBox", 10, 40, KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
-        control.setMultipleMode(False)
+        control_ausgewaehlte.setMultipleMode(False)
         model.Border = 0
         model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
         
-        return control,control_ausgewaehlte
+        
+        return control,control_ausgewaehlte,control2, breite
     
         
     def erzeuge_tag_auswahl_seitenleiste(self,ev):
@@ -1272,7 +1324,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 y += 25
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         
     def erstelle_auswahl_dict(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1331,14 +1383,17 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         ausgew_icons = []
         
         for cont in container.Controls:
-            name = cont.Model.ImageURL.split('punkt_')[1]
-            name = name.replace('.png','')
+            
+            if 'punkt_' in cont.Model.ImageURL:
+                name = cont.Model.ImageURL.split('punkt_')[1]
+                name = name.replace('.png','')
+            else:
+                name = cont.Model.ImageURL
+            
             ausgew_icons.append(name)
-
+        
         return ausgew_icons
-    
-    #################
-    
+        
     
     def erzeuge_eigene_auswahl(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1453,6 +1508,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
         return baum,im_tab_vorhandene
         
+        
     def erzeuge_treeview(self,fenster_cont):
         if self.mb.debug: log(inspect.stack)
         
@@ -1535,18 +1591,19 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 
             return y 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
 
 
 from com.sun.star.awt import XItemListener
 class Tag1_Listener(unohelper.Base, XItemListener):
-    def __init__(self,mb,win,lb_alle_icons,lb_ausgew_icons):
+    def __init__(self,mb,win,farb_icons,ausgew_icons,user_icons):
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.win = win
-        self.lb_alle_icons = lb_alle_icons
-        self.lb_ausgew_icons = lb_ausgew_icons
+        self.farb_icons = farb_icons
+        self.ausgew_icons = ausgew_icons
+        self.user_icons = user_icons
         
     # XItemListener    
     def itemStateChanged(self, ev):  
@@ -1555,27 +1612,24 @@ class Tag1_Listener(unohelper.Base, XItemListener):
         try: 
             container_baumansicht = self.win.getControl('icons_Baumansicht')
             item = ev.Source.Items[ev.Selected]
-            
 
-            if ev.Source == self.lb_alle_icons:
+            if ev.Source != self.ausgew_icons:
                 
-                if self.lb_ausgew_icons.ItemCount == 0:
+                if self.ausgew_icons.ItemCount == 0:
                     Bedingung = True
-                elif item not in self.lb_ausgew_icons.Items:
+                elif item not in self.ausgew_icons.Items:
                     Bedingung = True
                 else:
                     Bedingung = False
                     
                 if Bedingung:
-                    self.lb_ausgew_icons.addItem(item, 0)
-                    
-                    for it in self.lb_ausgew_icons.Items:
-                        pos = self.lb_ausgew_icons.Items.index(it)       
-                        self.lb_ausgew_icons.Model.setItemImage(pos,KONST.URL_IMGS+'punkt_%s.png' %it)
-                        
-            elif ev.Source == self.lb_ausgew_icons:
-                pos = self.lb_ausgew_icons.Items.index(item) 
-                self.lb_ausgew_icons.Model.removeItem(pos)
+
+                    url = ev.Source.Model.AllItems[ev.Selected].Second
+                    self.ausgew_icons.Model.insertItem(self.ausgew_icons.ItemCount,item, url)
+                       
+            else:
+                pos = self.ausgew_icons.Items.index(item) 
+                self.ausgew_icons.Model.removeItem(pos)
             
             
             container_controls = container_baumansicht.getControls()
@@ -1584,16 +1638,16 @@ class Tag1_Listener(unohelper.Base, XItemListener):
                 con.dispose()
             
             x = 0  
-            for it in self.lb_ausgew_icons.Model.AllItems:
+            for it in self.ausgew_icons.Model.AllItems:
                 
                 prop_names = ('ImageURL','Border')
                 prop_values = (it.Second,0)
-                control, model = self.mb.createControl(self.mb.ctx, "ImageControl", x, 0, 20, 20, prop_names, prop_values) 
+                control, model = self.mb.createControl(self.mb.ctx, "ImageControl", x, 0, 16, 16, prop_names, prop_values) 
                 container_baumansicht.addControl(it.First, control)
                 x += 20
-            
+
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
 
         
@@ -1635,7 +1689,7 @@ class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
                     txt_control.Model.Label = self.erzeuge_text()
                     
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def erzeuge_button(self,ActionCommand):
         if self.mb.debug: log(inspect.stack)

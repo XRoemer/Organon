@@ -65,7 +65,7 @@ class Projekt():
                             shutil.rmtree(self.mb.pfade['projekt'])
                         except:
                             # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
-                            if self.mb.debug: log(inspect.stack,tb())
+                            pass #log(inspect.stack,tb())
                   
             if geglueckt:
                 
@@ -98,11 +98,14 @@ class Projekt():
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
                 
                 self.mb.use_UM_Listener = True
-
+                
+                filepath = os.path.join(self.mb.pfade['projekt'],"%s.organon" % self.mb.projekt_name)
+                dateiname = "%s.organon" % self.mb.projekt_name
+                self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
                 
         except Exception as e:
             self.mb.Mitteilungen.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
                         
     def setze_pfade(self): 
@@ -111,10 +114,7 @@ class Projekt():
         paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
         pHome = paths.Work_writable
         if sys.platform == 'linux':
-            os.chdir( '//')
-
-#         retval = os.getcwd()
-#         print ("Current working directory %s" % retval)          
+            os.chdir( '//')        
 
         pOrganon = self.mb.projekt_path
 
@@ -122,6 +122,7 @@ class Projekt():
         pFiles =    os.path.join(pProjekt , 'Files')
         pOdts =     os.path.join(pFiles , 'odt')
         pImages =   os.path.join(pFiles , 'Images')
+        pIcons =   os.path.join(pFiles , 'Icons')
         pSettings = os.path.join(pProjekt , 'Settings')
         pTabs =     os.path.join(pSettings , 'Tabs')
         
@@ -134,6 +135,10 @@ class Projekt():
         self.mb.pfade.update({'settings':pSettings}) 
         self.mb.pfade.update({'images':pImages}) 
         self.mb.pfade.update({'tabs':pTabs}) 
+        self.mb.pfade.update({'icons':pIcons}) 
+        
+        # Pfad fuer Fehler Debugging des Projektes setzen
+        self.mb.class_Log.path_to_project_settings = pSettings
 
     
     def lade_settings(self):
@@ -176,6 +181,9 @@ class Projekt():
             # Organon/<Projekt Name>/Settings/Tags
             if not os.path.exists(pfade['tabs']):
                 os.makedirs(pfade['tabs'])
+            # Organon/<Projekt Name>/Settings/Tags
+            if not os.path.exists(pfade['icons']):
+                os.makedirs(pfade['icons'])
     
             # Datei anlegen, die bei lade_Projekt angesprochen werden soll
             path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
@@ -197,7 +205,7 @@ class Projekt():
             self.mb.doc.storeAsURL(Path2,())  
              
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
     
     
     def dialog_neues_projekt_anlegen(self):
@@ -279,36 +287,36 @@ class Projekt():
             30,
             ('controlT',"FixedLine",        'tab0',y,360,40,   (),(),                                                       {} ), 
             40,
-            ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(lang.FORMATIERUNG,150),              {} ),
-            0,  
-            ('controlForm1',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_WRITER,modelForm1_State),   {'setActionCommand':'standard','addActionListener':(listenerCB,)} ),
-            0,
-            ('controlHelp',"Button",        'tab4',y ,30,30,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)} ), 
-            25,
-            ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_USER,modelForm2_State),     {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
-            22,
-            ('controlLBF2',"ListBox",       'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'Enable':controlLBF2_Enable,'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
-            20,
-            ('controlT5',"FixedLine",       'tab2',y,238,40,   (),(),                                                       {} ),
-            50,
-            ('controlFormLBF4',"FixedText", 'tab2',y,300,20,   ('Label',),(lang.EIGENES_TEMPL_ERSTELLEN,),                  {} ), 
-            25,
-            ('controlLBF5',"FixedText",     'tab2',y,50,20,    ('Label',),(lang.NAME,),                                     {}),  
-            0,
-            ('controlLBF6',"Edit",          'tab3',y,130,20,   (),(),                                                       {} ),
-            25,
-            ('controlER',"Button",          'tab2x',y ,80,20,  ('Label',),(lang.ERSTELLEN,),                                {'setActionCommand':'vorlage_erstellen','addActionListener':(listener,)} ),  
-            30,
-            ('controlT2',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
-            40,
-            ('controlTemp',"FixedText",     'tab0x',y,80,20,   ('Label',),(lang.TEMPLATE,),                                 {}) ,
-            -3,
-            ('controlTempL',"ListBox",      'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'addItems':templates,'Enable':False,'SelectedItems':0}) ,
-            -10,
-            ('controlHelpT',"Button",       'tab4',y,30,30,    ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)}  ),
-            30,
-            ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
-            40,
+#             ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(lang.FORMATIERUNG,150),              {} ),
+#             0,  
+#             ('controlForm1',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_WRITER,modelForm1_State),   {'setActionCommand':'standard','addActionListener':(listenerCB,)} ),
+#             0,
+#             ('controlHelp',"Button",        'tab4',y ,30,30,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)} ), 
+#             25,
+#             ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_USER,modelForm2_State),     {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
+#             22,
+#             ('controlLBF2',"ListBox",       'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'Enable':controlLBF2_Enable,'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
+#             20,
+#             ('controlT5',"FixedLine",       'tab2',y,238,40,   (),(),                                                       {} ),
+#             50,
+#             ('controlFormLBF4',"FixedText", 'tab2',y,300,20,   ('Label',),(lang.EIGENES_TEMPL_ERSTELLEN,),                  {} ), 
+#             25,
+#             ('controlLBF5',"FixedText",     'tab2',y,50,20,    ('Label',),(lang.NAME,),                                     {}),  
+#             0,
+#             ('controlLBF6',"Edit",          'tab3',y,130,20,   (),(),                                                       {} ),
+#             25,
+#             ('controlER',"Button",          'tab2x',y ,80,20,  ('Label',),(lang.ERSTELLEN,),                                {'setActionCommand':'vorlage_erstellen','addActionListener':(listener,)} ),  
+#             30,
+#             ('controlT2',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+#             40,
+#             ('controlTemp',"FixedText",     'tab0x',y,80,20,   ('Label',),(lang.TEMPLATE,),                                 {}) ,
+#             -3,
+#             ('controlTempL',"ListBox",      'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'addItems':templates,'Enable':False,'SelectedItems':0}) ,
+#             -10,
+#             ('controlHelpT',"Button",       'tab4',y,30,30,    ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)}  ),
+#             30,
+#             ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+#             40,
             ('control2',"Button",           'tab3',y,80,30,    ('Label',),(lang.OK,),                                       {'setActionCommand':lang.OK,'addActionListener':(listener,)} ) , 
             0,
 #             ('control3',"Button",           tab2+120,y,80,30,('Label',),(lang.CANCEL,),                                  {'setActionCommand':lang.CANCEL,'addActionListener':(listener,)} )  
@@ -332,7 +340,7 @@ class Projekt():
             controlContainer.createPeer(toolkit, None);
             # ENDE HAUPTFENSTER
             
-
+            
             pos_y = 0
             
             for ctrl in controls:
@@ -388,12 +396,12 @@ class Projekt():
             # UEBERGABE AN LISTENER
             listenerS.control = locals()['controlU']
             listener.model_proj_name = locals()['model1']
-            listener.model_neue_vorl = locals()['modelLBF6']
-            listener.control_CB = locals()['controlForm2']
-            listener.control_LB = locals()['controlLBF2']
-            listenerCB.modelStandard = locals()['modelForm1']
-            listenerCB.modelUser = locals()['modelForm2']
-            listenerCB.modelListBox = locals()['modelLBF2']
+            #listener.model_neue_vorl = locals()['modelLBF6']
+            #listener.control_CB = locals()['controlForm2']
+            #listener.control_LB = locals()['controlLBF2']
+            #listenerCB.modelStandard = locals()['modelForm1']
+            #listenerCB.modelUser = locals()['modelForm2']
+            #listenerCB.modelListBox = locals()['modelLBF2']
 
 
             controlContainer.addTopWindowListener(listener)
@@ -404,7 +412,7 @@ class Projekt():
             return geglueckt,locals()['model1'].Text
         
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
                        
    
@@ -452,7 +460,7 @@ class Projekt():
             self.mb.user_styles_pfade = tuple(pfade)
             return tuple(benutzervorlagen),tuple(pfade)  
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
@@ -519,11 +527,42 @@ class Projekt():
             self.mb.class_Sidebar.lade_sidebar()
             self.selektiere_ersten_Bereich()
             self.mb.use_UM_Listener = True    
-
+            self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
         except Exception as e:
             self.mb.Mitteilungen.nachricht('lade_Projekt ' + str(e),"warningbox")
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
+    
+    def trage_projekt_in_zuletzt_geladene_Projekte_ein(self,dateiname,filepath):
+        if self.mb.debug: log(inspect.stack)
+        
+        pfad = os.path.join(self.mb.path_to_extension,'zuletzt_geladene_Projekte.txt')
+        
+        with codecs_open(pfad, "r") as file:
+            zeilen = file.readlines() 
+        
+        neue_liste = []
+        neue_liste.append(dateiname + '++oo++' + filepath)
+        
+        i = 0
+        for zeile in zeilen:
+            name,pfadx = zeile.split('++oo++')
+            pfadx = pfadx.replace('\n','')
+
+            if i < 9:
+                if os.path.exists(pfadx):
+                    z = name + '++oo++' + pfadx
+                    if z not in neue_liste:
+                        neue_liste.append(z)
+                        i += 1
+
+        with codecs_open(pfad, "w",encoding='utf8') as file:
+            file.write('')  
+            
+        with codecs_open(pfad, "a",encoding='utf8') as file:
+            for eintrag in neue_liste:
+                file.write(eintrag+'\n') 
+        
         
     def pruefe_auf_geladenes_organon_projekt(self):
         if self.mb.debug: log(inspect.stack)
@@ -570,11 +609,20 @@ class Projekt():
             Bereichsname_ord_dict = {}
             index = 0
             index2 = 0 
+            
+            if self.mb.settings_proj['tag3']:
+                tree = self.mb.props[T.AB].xml_tree
+                root = tree.getroot()
+                gliederung = self.mb.class_Gliederung.rechne(tree)
+            else:
+                gliederung = None
+            
+            
             for eintrag in Eintraege:
                 # Navigation
                 ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
                          
-                index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,index)
+                index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung,index)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)  
     
                 if sicht == 'ja':
@@ -608,7 +656,7 @@ class Projekt():
             self.erzeuge_dict_ordner()
         
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
 
     def erzeuge_helfer_bereich(self):
         if self.mb.debug: log(inspect.stack)
@@ -645,7 +693,6 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
 
         CB = self.mb.class_Bereiche
-        #CB.leere_Dokument()    ################################  rausnehmen
         
         self.erzeuge_dict_ordner()
         
@@ -657,11 +704,20 @@ class Projekt():
         
         first_time = True
         
+        
+        if self.mb.settings_proj['tag3']:
+            tree = self.mb.props[T.AB].xml_tree
+            root = tree.getroot()
+            gliederung = self.mb.class_Gliederung.rechne(tree)
+        else:
+            gliederung = None
+            
+        
         for eintrag in Eintraege:
             # Navigation
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag   
                      
-            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,index)
+            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung,index)
             
             if sicht == 'ja':
                 # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
@@ -777,7 +833,7 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
         
         settings_proj = {
-            'tag1' : 1, 
+            'tag1' : 0, 
             'tag2' : 0,
             'tag3' : 0,
             'use_template' : self.mb.settings_proj['use_template'],
@@ -916,16 +972,42 @@ class Projekt():
 
         try: 
             
+#             url_target = os.path.join(self.mb.pfade['odts'],'nr4' + '.odt')
+#             URL_target = uno.systemPathToFileUrl(url_target)
+               
+            #doc_new = self.mb.doc.CurrentController.Frame.loadComponentFromURL(helfer_url,'_blank',0,(prop,))           
             pass
-        
+            URL1 = str(uno.systemPathToFileUrl('C:\\Users\\Homer\\Desktop\\Neuer Ordner\\Unbenannt 1.ott'))
+            URL = 'file:///C:/Users/Homer/Documents/organon%20projekte/wo.organon/Files/wo.organon'
+            old_doc = self.mb.doc
+            self.mb.doc  = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL1,'_self','',())
+            old_doc.close(False)
+            #self.lade_Projekt(URL)
+            
+            
+#             (pdk,
+#              dialog,
+#              ctx,
+#              tabs,
+#              path_to_extension,
+#              win,
+#              dict_sb,
+#              debugX,
+#              load_reloadX,
+#              factory,
+#              logX,
+#              class_LogX) = args
+             
+            self.mb.menu_start.erzeuge_Startmenu()
+            
             
         except:
-            log(tb())
+            log(inspect.stack,tb())
             print(tb())
             
         pd()
         
-        
+ 
         
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
@@ -969,7 +1051,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             if 'filepath' in locals():
                 if self.mb.debug: log(inspect.stack,tb(),filepath)
             else:
-                if self.mb.debug: log(inspect.stack,tb())
+                log(inspect.stack,tb())
         
         
         
@@ -1010,7 +1092,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                 parent.endDialog(1)
                 
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         
             
     def keyPressed(self,ev):
@@ -1034,7 +1116,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                     filepath = file.read() 
                 self.mb.projekt_path = filepath
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
             
     def vorlage_auswaehlen(self):        
         if self.mb.debug: log(inspect.stack)
@@ -1104,7 +1186,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
             newDoc.storeToURL(Path2,(prop2,))
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
+            log(inspect.stack,tb())
         newDoc.close(False)
         self.mb.Mitteilungen.nachricht(lang.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
         
@@ -1214,8 +1296,8 @@ class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
             viewSettings.ShowRulers = False
             
         except:
-            if self.mb.debug: log(inspect.stack,tb())
-        #pd()
+            log(inspect.stack,tb())
+
         
     def disposing(self,ev):
         return False
