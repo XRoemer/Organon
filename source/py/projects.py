@@ -839,6 +839,11 @@ class Projekt():
             'use_template' : self.mb.settings_proj['use_template'],
             'user_styles' : (),
             'formatierung' : 'Standard',
+            # keiner, strich, farbe, user
+            'trenner': 'farbe',
+            'trenner_farbe_hintergrund': KONST.FARBE_TRENNER_HINTERGRUND,
+            'trenner_farbe_schrift': KONST.FARBE_TRENNER_SCHRIFT,
+            'trenner_user_url':'',
             }
             
         self.mb.speicher_settings("project_settings.txt", settings_proj)        
@@ -977,11 +982,11 @@ class Projekt():
                
             #doc_new = self.mb.doc.CurrentController.Frame.loadComponentFromURL(helfer_url,'_blank',0,(prop,))           
             pass
-            URL1 = str(uno.systemPathToFileUrl('C:\\Users\\Homer\\Desktop\\Neuer Ordner\\Unbenannt 1.ott'))
-            URL = 'file:///C:/Users/Homer/Documents/organon%20projekte/wo.organon/Files/wo.organon'
-            old_doc = self.mb.doc
-            self.mb.doc  = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL1,'_self','',())
-            old_doc.close(False)
+#             URL1 = str(uno.systemPathToFileUrl('C:\\Users\\Homer\\Desktop\\Neuer Ordner\\Unbenannt 1.ott'))
+#             URL = 'file:///C:/Users/Homer/Documents/organon%20projekte/wo.organon/Files/wo.organon'
+#             old_doc = self.mb.doc
+#             self.mb.doc  = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL1,'_self','',())
+#             old_doc.close(False)
             #self.lade_Projekt(URL)
             
             
@@ -998,9 +1003,9 @@ class Projekt():
 #              logX,
 #              class_LogX) = args
              
-            self.mb.menu_start.erzeuge_Startmenu()
+#             self.mb.menu_start.erzeuge_Startmenu()
             
-            
+            print(int('0x366937',0))
         except:
             log(inspect.stack,tb())
             print(tb())

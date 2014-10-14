@@ -56,13 +56,24 @@ KANN_NICHT_VERSCHOBEN_WERDEN = u'%s kann nicht in den Papierkorb verschoben werd
 
 ZEILE_AUSWAEHLEN = u'Wählen Sie bitte erst eine Zeile aus, unter der eingefügt werden soll    '
 ERZEUGE_NEUE_ZEILE = '                    erzeuge neue Zeile, bitte warten!                   '
-        
+
+# TRENNER
+TRENNER_FORMATIERUNG = 'Trenner Formatierung'
+LINIE = 'Linie'
+FARBE = 'Farbe'
+FARBE_SCHRIFT = 'Farbe Schrift'
+FARBE_HINTERGRUND = 'Farbe Hintergrund'
+BENUTZER = 'Benutzer'
+KEIN_TRENNER = 'kein Trenner'
+HEXA_EINGBEN = u'Geben Sie den Hexadezimalwert einer Farbe ein und bestätigen Sie mit Return.'
+FARBWAEHLER = u'Einen Farbwähler finden Sie im Web z.B. unter: http://www.colorpicker.com/'
+
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = 'Ordner ausklappen'
 IN_PAPIERKORB_VERSCHIEBEN = 'In Papierkorb verschieben'
 SHOW_TAG1 = 'Farbige Icons'
 SHOW_TAG2 = 'Benutzerdefinierte Icons'
-SHOW_TAG3 = u'Wissenschaftliche Gliederung'
+SHOW_TAG3 = u'Gliederung'
 BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'Wenn Sie selbstgewählte Symbole nutzen wollen, ' \
     u'legt Organon den Ordner "Organon Icons" in Ihrer Galerie an.\r\n\r\n'\
     u'Außerdem wird folgender Ordner im Dateisystem angelegt:\r\n' \

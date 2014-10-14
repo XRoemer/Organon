@@ -32,6 +32,8 @@ class Version():
                 self.an_092b_anpassen()
             if self.version in ('0.9.7b'):
                 self.an_098b_anpassen()
+            if self.version in ('0.9.8b'):
+                self.an_0981b_anpassen()
             
 
             # an 093, 094, 095, 096 ,097 muss nichts angepasst werden
@@ -81,6 +83,7 @@ class Version():
         
         self.mb.settings_exp.update({'neues_proj':0})
         self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp)  
+        self.version = '0.9.1b'
         
     def an_092b_anpassen(self):
         if self.mb.debug: log(inspect.stack)
@@ -103,6 +106,7 @@ class Version():
                     self.mb.dict_sb_content['ordinal'][ordn]['Tags_time'] = dict
             
             self.mb.class_Sidebar.speicher_sidebar_dict()
+            self.version = '0.9.2b'
         except:
             log(inspect.stack,tb())
         
@@ -114,5 +118,18 @@ class Version():
         # Organon/<Projekt Name>/Settings/Tags
         if not os.path.exists(pfade['icons']):
             os.makedirs(pfade['icons'])
+        self.version = '0.9.8b'
 
+    def an_0981b_anpassen(self):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            self.mb.settings_proj.update({'trenner': 'farbe'})
+            self.mb.settings_proj.update({'trenner_farbe_hintergrund': KONST.FARBE_TRENNER_HINTERGRUND,})
+            self.mb.settings_proj.update({'trenner_farbe_schrift': KONST.FARBE_TRENNER_SCHRIFT})
+            self.mb.settings_proj.update({'trenner_user_url':''})
+            
+            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)
+        except:
+            log(inspect.stack,tb())
+        self.version = '0.9.8.1b'
         

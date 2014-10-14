@@ -561,7 +561,7 @@ class Baumansicht():
         
         
         
-    
+from com.sun.star.style.ParagraphAdjust import CENTER 
 from com.sun.star.awt import XMouseListener,XMouseMotionListener,XFocusListener
 from com.sun.star.awt.MouseButton import LEFT as MB_LEFT
 from com.sun.star.awt.MouseButton import RIGHT as MB_RIGHT
@@ -1248,22 +1248,22 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                         # er nicht existiert
                         if zeilenordinal in self.mb.props[T.AB].dict_ordner[self.mb.props[T.AB].Papierkorb]:
                             if zeilen_in_ordner_ordinal.index(z) != len(zeilen_in_ordner_ordinal)-1:
-                                self.zeige_Trenner(z_in_ordner)
+                                self.zeige_Trenner(z_in_ordner,zeilenordinal)
                         else:
-                            self.zeige_Trenner(z_in_ordner)
+                            self.zeige_Trenner(z_in_ordner,zeilenordinal)
                         
                 # uebrige noch sichtbare ausblenden
                 sichtbare_bereiche = self.mb.props['Projekt'].sichtbare_bereiche
                 
                 for bereich in (sichtbare_bereiche): 
-                    sec = self.mb.doc.TextSections.getByName(bereich)
-                    bereich_ord = os.path.basename(sec.FileLink.FileURL).split('.')[0] 
+                    bereich_ord = self.mb.props['Projekt'].dict_bereiche['Bereichsname-ordinal'][bereich]
                     
                     if bereich_ord not in zeilen_in_ordner_ordinal:                            
                         #print('blende aus:',sec.Name,bereich_ord)
+                        sec = self.mb.doc.TextSections.getByName(bereich)
                         sec.IsVisible = False 
                         self.entferne_Trenner(sec)
-                                           
+                                       
                 # sichtbare Bereiche wieder in Prop eintragen
                 self.mb.props['Projekt'].sichtbare_bereiche = []  
                 for b in zeilen_in_ordner_ordinal:
@@ -1426,17 +1426,20 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         self.log_selbstruf = False
     
-    def zeige_Trenner(self,sec):  
+    def zeige_Trenner(self,sec,source_ordinal):  
         if self.mb.debug: log(inspect.stack)
         
         try:
             trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
+            sec_name =  sec.Name
+            sec_nachfolger_name = 'OrganonSec' + str(int(sec.Name.split('OrganonSec')[1])+1)
              
             if trenner_name in self.mb.doc.TextSections.ElementNames:
                 trennerSec = self.mb.doc.TextSections.getByName(trenner_name)
                 trennerSec.IsVisible = True
                 if len(sec.ChildSections) != 0:
                     trennerSec.BackColor = sec.ChildSections[0].BackColor
+                    self.setze_Trenner_Formatierung(trennerSec,sec_nachfolger_name,source_ordinal)
                 return trennerSec
             
             newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
@@ -1447,7 +1450,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 newSection.BackColor = sec.ChildSections[0].BackColor
     
             
-            sec_nachfolger_name = 'OrganonSec' + str(int(sec.Name.split('OrganonSec')[1])+1)
+            
             sec_nachfolger = self.mb.doc.TextSections.getByName(sec_nachfolger_name)
     
             cur = sec_nachfolger.Anchor.Text.createTextCursor()
@@ -1460,32 +1463,73 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             cur.ParaStyleName = 'Standard'
             #cur.PageDescName = ""
             #cur.Text.insertString(cur,'a',False)
-    
-            
-            bgl = newSection.BackGraphicLocation
-            bgl.value = 'MIDDLE_BOTTOM'
-             
-            KONST.URL_TRENNER = 'vnd.sun.star.extension://xaver.roemers.organon/img/trenner.png'
-     
-            newSection.setPropertyValue('BackGraphicURL',KONST.URL_TRENNER)
-            newSection.setPropertyValue("BackGraphicLocation", bgl)
             cur.PageDescName = ""
-            #pd() #newSection.setPropertyValue("ParaStyleName", 'Standard')
+            
+            self.setze_Trenner_Formatierung(newSection,sec_nachfolger_name,source_ordinal)
+            
             return newSection
         except:
             log(inspect.stack,tb())
-    
+
+            
+    def setze_Trenner_Formatierung(self,sec_trenner,sec_nachfolger_name,source_ordinal):  
+        if self.mb.debug: log(inspect.stack)
+         
+        nachfolger_ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][sec_nachfolger_name]
+
+        if nachfolger_ordinal == self.mb.props[T.AB].Papierkorb:
+            sec_trenner.setPropertyValue('BackGraphicURL','')
+            sec_trenner.Anchor.setString('')
+            return
+        
+        tree = self.mb.props[T.AB].xml_tree
+        root = tree.getroot()
+        nachfolger_xml = root.find('.//'+nachfolger_ordinal)
+        source_xml = root.find('.//'+source_ordinal)
+
+        if int(nachfolger_xml.attrib['Lvl']) <= int(source_xml.attrib['Lvl']):
+            sec_trenner.setPropertyValue('BackGraphicURL','')
+            sec_trenner.Anchor.setString('')
+            return
+        
+        
+        trenner_hintergrund = self.mb.settings_proj['trenner']
+
+        if trenner_hintergrund == 'farbe':
+        
+            
+            datei_name = nachfolger_xml.attrib['Name']
+            sec_trenner.Anchor.setString(datei_name)
+            sec_trenner.Anchor.ParaAdjust = CENTER
+            sec_trenner.BackColor = self.mb.settings_proj['trenner_farbe_hintergrund']
+            sec_trenner.Anchor.CharColor = self.mb.settings_proj['trenner_farbe_schrift']
+            
+            sec_trenner.setPropertyValue('BackGraphicURL','')
+            
+        elif trenner_hintergrund == 'strich':
+            bgl = sec_trenner.BackGraphicLocation
+            bgl.value = 'MIDDLE_BOTTOM'
+             
+            KONST.URL_TRENNER = 'vnd.sun.star.extension://xaver.roemers.organon/img/trenner.png'
+            sec_trenner.Anchor.setString('')
+            sec_trenner.setPropertyValue('BackGraphicURL',KONST.URL_TRENNER)
+            sec_trenner.setPropertyValue("BackGraphicLocation", bgl)
+        
+        elif trenner_hintergrund == 'keiner':
+            sec_trenner.Anchor.setString('')
+            sec_trenner.setPropertyValue('BackGraphicURL','')
+                
     def entferne_Trenner(self,sec):
         if self.mb.debug: log(inspect.stack)
-        
-        #print('entferne', sec.Name)
+
         trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
         
         if trenner_name not in self.mb.doc.TextSections.ElementNames:
             return
-        
+#         log(inspect.stack,None,str(trenner_name+';'+sec.Name))
         trenner = self.mb.doc.TextSections.getByName(trenner_name)
         trenner.IsVisible = False
+        
         
     def update_dict_zeilen_posY(self):
         if self.mb.debug: log(inspect.stack)
@@ -1724,6 +1768,8 @@ class Tag2_Listener (unohelper.Base, XMouseListener):
     def mouseEntered(self,ev):
         return False
     def mouseExited(self,ev):
+        return False
+    def mouseReleased(self,ev):
         return False
     def disposing(self,ev):
         return False

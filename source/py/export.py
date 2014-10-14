@@ -188,6 +188,16 @@ class Export():
         if self.mb.debug: log(inspect.stack)
         
         try:
+            
+            # zunaechst den zuletzt bearbeiteten Bereich speichern
+            if self.mb.bereich_wurde_bearbeitet:
+                ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+                bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
+                # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
+                path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
+                self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+            
+            
             from shutil import copy 
             
             self.neuer_pfad = ''

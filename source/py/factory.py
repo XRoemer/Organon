@@ -18,13 +18,13 @@ platform = sys.platform
 if load_reload:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
-        pyPath = '/home/xgr/workspace/organonEclipse/py'
+        pyPath = '/home/xgr/workspace/organon/Organon/source/py'
         sys.path.append(pyPath)
 
 def pydevBrk():  
     # adjust your path 
     if platform == 'linux':
-        sys.path.append('/opt/eclipse/plugins/org.python.pydev_3.3.3.201401272249/pysrc')  
+        sys.path.append('/opt/eclipse/plugins/org.python.pydev_3.8.0.201409251235/pysrc')  
     else:
         sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_3.5.0.201405201709/pysrc')  
     from pydevd import settrace
@@ -427,7 +427,7 @@ def load_reload_modul(modul,pyPath):
             import shutil
 
             if 'LibreOffice' in sys.executable:
-                if platform == 'linux':
+                if 'linux' in platform:
                     shutil.rmtree(pyPath+'/__pycache__')
                 else:
                     shutil.rmtree(pyPath+'\\__pycache__')
@@ -442,3 +442,4 @@ def load_reload_modul(modul,pyPath):
         return eval(modul)
     except:
         tb()
+        #pd()

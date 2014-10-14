@@ -436,6 +436,7 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
         url = ev.Source.Model.ImageURL
 
         if url != '':
+            self.galerie_icon_im_prj_ordner_evt_loeschen()
             url = self.galerie_icon_im_prj_ordner_speichern(url) 
         else:
             self.galerie_icon_im_prj_ordner_evt_loeschen() 
@@ -468,7 +469,7 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
                     self.mb.tree_write(tree,Path)
         except:
             log(inspect.stack,tb())
-            pd()
+
     
     def galerie_icon_im_prj_ordner_speichern(self,url):  
         if self.mb.debug: log(inspect.stack)

@@ -232,7 +232,7 @@ class Menu_Start():
         global pyPath
         pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
         if platform == 'linux':
-            pyPath = '/home/xgr/workspace/organonEclipse/py'
+            pyPath = '/home/xgr/workspace/organon/Organon/source/py'
             sys.path.append(pyPath)
     
     def get_zuletzt_geladene_Projekte(self):

@@ -315,7 +315,7 @@ class ImportX():
                         
                         if 2 in flags:  
                             if 'bib' in extensions:
-                                pd()
+                                pass #pd()
 #                             time.sleep(0.04)
 #                             print(extensions)                    
                             # FilterName: Filter als Label, Extensions Endungen

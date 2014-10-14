@@ -648,6 +648,145 @@ class Menu_Bar():
         except:
             log(inspect.stack,tb())
             
+    def erzeuge_Trenner_Enstellungen(self):
+        
+        try:
+            
+            listener_CB = Trenner_Format_Listener(self)
+            
+            lang = self.lang
+            
+            y = 0
+            
+            tab0 = tab0x = 25
+            tab1 = tab1x = 42
+            tab2 = tab2x = 78
+            tab3 = tab3x = 100
+            tab4 = tab4x = 130
+            
+            tabs = [tab0,tab1,tab2,tab3,tab4]
+            
+            design = self.class_Design
+            design.set_default(tabs)
+            
+            
+            trenner = 'keiner', 'strich', 'farbe', 'user'
+            for t in trenner:
+                if self.settings_proj['trenner'] == t:
+                    locals()[t] = 1
+                else:
+                    locals()[t] = 0
+             
+
+            controls = (
+            20,
+            ('control',"FixedText",         'tab0',y,250,20,  ('Label','FontWeight'),(lang.TRENNER_FORMATIERUNG ,150),                                             {} ),
+            40,
+            ('control1',"CheckBox",         'tab0',y,200,20,   ('Label','State'),(lang.LINIE,locals()['strich']),                                                  {'addItemListener':(listener_CB)} ) ,
+            40,
+            ('control2',"CheckBox",         'tab0',y,360,20,   ('Label','State'),(lang.FARBE,locals()['farbe']),                                                   {'addItemListener':(listener_CB)} ), 
+            20,
+            ('control3',"FixedText",        'tab1',y,32,16,  ('BackgroundColor','Label','Border'),(self.settings_proj['trenner_farbe_schrift'],'    ',1),       {'addMouseListener':(listener_CB)} ),  
+            0,
+            ('control4',"FixedText",        'tab2',y,120,20,  ('Label',),(lang.FARBE_SCHRIFT,),                                                                    {} ),  
+            20,
+            ('control5',"FixedText",        'tab1',y,32,16,  ('BackgroundColor','Label','Border'),(self.settings_proj['trenner_farbe_hintergrund'],'    ',1),   {'addMouseListener':(listener_CB)} ),  
+            0,
+            ('control6',"FixedText",        'tab2',y,120,20,  ('Label',),(lang.FARBE_HINTERGRUND,),                                                                {} ),  
+            40,
+            ('control7',"CheckBox",         'tab0',y,80,20,   ('Label','State'),(lang.BENUTZER,locals()['user']),                                                  {'Enable':False,'addItemListener':(listener_CB)} ),              
+            20,
+            ('control8',"FixedText",        'tab1',y,20,20,   ('Label',),('URL: ',),                                                                            {'Enable':False} ), 
+            20,
+            ('control9',"FixedText",        'tab1',y,300,20,   ('Label',),(self.settings_proj['trenner_user_url'],),                                            {} ), 
+            20,
+            ('control10',"Button",          'tab1',y,60,20,    ('Label',),(lang.AUSWAHL,),                                                                         {'Enable':False} ) , 
+            40,
+            ('control11',"CheckBox",        'tab0x',y,80,20,   ('Label','State'),(lang.KEIN_TRENNER,locals()['keiner']),                                           {'addItemListener':(listener_CB)} ),              
+            40,
+#             ('control12',"ImageControl",    'tab0',y,80,20,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),                {} ),              
+#             30,
+            )
+            
+            
+            # HAUPTFENSTER    
+            # create the dialog model and set the properties
+            dialogModel = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
+            dialogModel.Width = 215 
+            dialogModel.Height = 320
+            dialogModel.Title = 'Trenner festlegen'
+            dialogModel.BackgroundColor = KONST.MENU_DIALOG_FARBE
+                      
+            # create the dialog control and set the model
+            controlContainer = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
+            controlContainer.setModel(dialogModel);
+                     
+            # create a peer
+            toolkit = self.smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
+            controlContainer.setVisible(False);       
+            controlContainer.createPeer(toolkit, None);
+            # ENDE HAUPTFENSTER
+            
+
+            pos_y = 0
+            ganze_breite = 0
+            
+            for ctrl in controls:
+                if isinstance(ctrl,int):
+                    pos_y += ctrl
+                else:
+                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
+                    pos_x = locals()[X]
+                    
+                    locals()[name],locals()[name.replace('control','model')] = self.createControl(self.ctx,unoCtrl,pos_x,pos_y,width,height,prop_names,prop_values)
+                            
+                    if 'x' in X:
+                        w,h = self.kalkuliere_und_setze_Control(locals()[name],'w')
+                        design.setze_tab(X,w)
+                    
+                    if 'setActionCommand' in extras:
+                        locals()[name].setActionCommand(extras['setActionCommand'])
+                    if 'addItems' in extras:
+                        locals()[name].addItems(extras['addItems'],0)
+                    if 'Enable' in extras:
+                        locals()[name].Enable = extras['Enable']
+                    if 'addActionListener' in extras:
+                        for l in extras['addActionListener']:
+                            locals()[name].addActionListener(l)
+                    if 'addMouseListener' in extras:
+                        locals()[name].addMouseListener(extras['addMouseListener'])
+                    if 'addItemListener' in extras:
+                        locals()[name].addItemListener(extras['addItemListener'])
+                    
+                    breite, hoehe = self.kalkuliere_und_setze_Control(locals()[name],'w')
+                    controlContainer.addControl(name,locals()[name])
+                    
+                    pos_x = locals()[X]
+                    locals()[name].setPosSize(pos_x,0,0,0,1)
+                    
+                    if breite + pos_x > ganze_breite:
+                        ganze_breite = breite + pos_x
+             
+            
+            #locals()['control12'].setPosSize(ganze_breite - 16,0,0,0,1)  
+            controlContainer.setPosSize(0,0,ganze_breite + 25 ,pos_y + 20,12)
+
+            # UEBERGABE AN LISTENER
+            listener_CB.controls = {'strich': locals()['control1'],
+                                    'farbe': locals()['control2'],
+                                    'user': locals()['control7'],
+                                    'keiner': locals()['control11']}
+                                    
+            listener_CB.farb_controls = {'schrift': locals()['control3'],
+                                         'hintergrund': locals()['control5']}
+
+
+            geglueckt = controlContainer.execute()       
+            controlContainer.dispose() 
+            
+        except:
+            log(inspect.stack,tb())
+
             
     def debug_time(self):
         zeit = "%0.2f" %(self.time.clock()-self.timer_start)
@@ -784,18 +923,21 @@ class Menu_Bar():
         global pyPath
         pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
         if platform == 'linux':
-            pyPath = '/home/xgr/workspace/organonEclipse/py'
+            pyPath = '/home/xgr/workspace/organon/Organon/source/py'
             sys.path.append(pyPath)    
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
-        smgr = ctx.getServiceManager()
-        ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-        ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
-        ctrl_model.setPropertyValues(names,values)
-        ctrl.setModel(ctrl_model)
-        ctrl.setPosSize(x,y,width,height,15)
-        return (ctrl, ctrl_model)
+        try:
+            smgr = ctx.getServiceManager()
+            ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+            ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
+            ctrl_model.setPropertyValues(names,values)
+            ctrl.setModel(ctrl_model)
+            ctrl.setPosSize(x,y,width,height,15)
+            return (ctrl, ctrl_model)
+        except:
+            log(inspect.stack,tb())
     
     def createUnoService(self,serviceName):
         sm = uno.getComponentContext().ServiceManager
@@ -887,6 +1029,7 @@ def menuEintraege(lang,menu):
             (lang.BENUTZER3,'Tag_SB'),
             ('SEP',''),
             (lang.ZEIGE_TEXTBEREICHE,''),
+            (lang.TRENNER,''),
             ('SEP',''),
             ('Homepage',''),
             ('Feedback',''),
@@ -1103,30 +1246,33 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
     def mousePressed(self, ev):
         if ev.Buttons == MB_LEFT:
             if self.mb.debug: log(inspect.stack)
-            
-            controls = []
-            lang = self.mb.lang
-            
-            if self.menu_Kopf_Eintrag in (lang.BEARBEITEN_M,self.mb.lang.FILE):
-                items = menuEintraege(lang,self.menu_Kopf_Eintrag)
-                controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege(items)
-                oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
-                controls = list((x,'') for x in controls)
+            try:
+                controls = []
+                lang = self.mb.lang
+    
+                if self.menu_Kopf_Eintrag in (lang.BEARBEITEN_M,self.mb.lang.FILE):
+                    items = menuEintraege(lang,self.menu_Kopf_Eintrag)
+                    controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege(items)
+                    oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
+                    controls = list((x,'') for x in controls)
+                    
+                elif self.menu_Kopf_Eintrag == 'Test':
+                    self.mb.Test()   
+                    return
+                           
+                elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
+                    items = menuEintraege(lang,self.menu_Kopf_Eintrag)
+                    controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege_Options(items)
+                    oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
+
+                self.mb.geoeffnetesMenu = self.menu_Kopf_Eintrag
+                listener.window = oWindow
+                self.mb.menu_fenster = oWindow 
                 
-            elif self.menu_Kopf_Eintrag == 'Test':
-                self.mb.Test()   
-                       
-            elif self.menu_Kopf_Eintrag == self.mb.lang.OPTIONS:
-                items = menuEintraege(lang,self.menu_Kopf_Eintrag)
-                controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege_Options(items)
-                oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
-            
-            self.mb.geoeffnetesMenu = self.menu_Kopf_Eintrag
-            listener.window = oWindow
-            self.mb.menu_fenster = oWindow 
-            
-            for c in controls:
-                cont.addControl(c[1],c[0])
+                for c in controls:
+                    cont.addControl(c[1],c[0])
+            except:
+                log(inspect.stack,tb())
                 
 
     def mouseEntered(self, ev):
@@ -1255,6 +1401,9 @@ class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
             
         elif sel == self.mb.lang.CLEAR_RECYCLE_BIN:  
             self.mb.leere_Papierkorb()
+            
+        elif sel == self.mb.lang.TRENNER:  
+            self.mb.erzeuge_Trenner_Enstellungen()
             
 
         self.mb.bereich_wurde_bearbeitet = False
@@ -1739,7 +1888,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
 
         try:
             if self.mb.selbstruf:
-                if self.mb.debug: print('selection selbstruf')
+                #if self.mb.debug: print('selection selbstruf')
                 return False
     
             selected_ts = self.mb.current_Contr.ViewCursor.TextSection            
@@ -1841,6 +1990,137 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             self.mb.class_Sidebar.passe_sb_an(textfeld)
         self.mb.props[T.AB].selektierte_zeile_alt = textfeld
   
+
+
+class Trenner_Format_Listener(unohelper.Base,XItemListener,XMouseListener):
+    
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
+        self.mb = mb
+        self.controls = {}
+        self.farb_controls = {}
+        
+    def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
+
+        for name in self.controls:
+            if ev.Source == self.controls[name]:
+                self.controls[name].State = 1
+                self.mb.settings_proj['trenner'] = name
+            else:
+                self.controls[name].State = 0
+        
+        self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+                
+    def mousePressed(self, ev):   
+        if self.mb.debug: log(inspect.stack) 
+           
+        try:
+            if ev.Source == self.farb_controls['schrift']:
+                self.erzeuge_farb_auswahl_fenster('schrift',ev)
+            elif ev.Source == self.farb_controls['hintergrund']:
+                self.erzeuge_farb_auswahl_fenster('hintergrund',ev)            
+        except:
+            log(inspect.stack,tb())    
+    
+    def erzeuge_farb_auswahl_fenster(self,auswahl,ev):
+        if self.mb.debug: log(inspect.stack) 
+        
+        
+        posSize = ev.Source.Context.PosSize
+        x = ev.value.Source.AccessibleContext.LocationOnScreen.value.X 
+        y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y + ev.value.Source.Size.value.Height
+        w = posSize.Width
+        h = posSize.Height
+        
+        win,cont = self.mb.erzeuge_Dialog_Container((x,y,w,h))
+        
+        y = 20
+        
+        control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
+        control.Text = self.mb.lang.HEXA_EINGBEN
+        cont.addControl('Titel', control)
+        breite, hoehe = self.mb.kalkuliere_und_setze_Control(control,'w')
+        
+        y += 25
+        
+        listener = Farben_Key_Listener(self.mb,win,auswahl,ev.Source)
+        control, model = self.mb.createControl(self.mb.ctx,"Edit",20,y ,100,20,(),() ) 
+        control.addKeyListener(listener)
+        cont.addControl('Hex', control)
+        
+        y += 25
+        
+        control, model = self.mb.createControl(self.mb.ctx,"Edit",20,y ,50,20,(),() )  
+        control.Text = self.mb.lang.FARBWAEHLER
+        model.ReadOnly = True
+        model.BackgroundColor = KONST.MENU_DIALOG_FARBE
+        model.Border = 0
+        
+        
+        cont.addControl('Titel', control)
+        breite2, hoehe2 = self.mb.kalkuliere_und_setze_Control(control,'w')
+        
+        if breite2 > breite:
+            breite = breite2
+            
+        win.setPosSize(0,0,breite + 50,y+40,12)
+        
+    
+            
+    def mouseExited(self, ev):
+        return False
+    def mouseEntered(self,ev):
+        return False
+    def mouseReleased(self,ev):
+        return False
+    def disposing(self,ev):
+        return False
+    
+    
+from com.sun.star.awt import XKeyListener
+class Farben_Key_Listener(unohelper.Base, XKeyListener):
+    
+    def __init__(self,mb,win,auswahl,source):
+        if mb.debug: log(inspect.stack)
+        
+        self.mb = mb
+        self.win = win
+        self.auswahl = auswahl
+        self.source = source
+    
+    def keyPressed(self,ev):
+        return False
+        
+    def keyReleased(self,ev):
+        
+        if ev.KeyCode != 1280:
+            return
+        
+        if self.mb.debug: log(inspect.stack)
+        
+        if self.auswahl == 'schrift':
+            wahl = 'trenner_farbe_schrift'
+        else:
+            wahl = 'trenner_farbe_hintergrund'
+        
+        try:
+            farbe = int('0x'+ev.Source.Text,0)
+        
+        except:
+            self.mb.Mitteilungen.nachricht(u'Keine gültige Farbe',"warningbox")
+            self.win.dispose()
+            return
+        
+        self.mb.settings_proj[wahl] = farbe
+        self.win.dispose()
+        self.source.Model.BackgroundColor = farbe
+        
+        self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+
+    def disposing(self,ev):pass
+    
 
             
 from com.sun.star.awt import XWindowListener

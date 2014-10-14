@@ -57,13 +57,24 @@ KANN_NICHT_VERSCHOBEN_WERDEN = u"%s can't be moved to the waste bin, as it's sti
 
 ZEILE_AUSWAEHLEN = 'Choose a row beneath which the new content should be inserted    '
 ERZEUGE_NEUE_ZEILE = '                    creating row, please wait!                   '
+
+# TRENNER
+TRENNER_FORMATIERUNG = 'Format Seperator'
+LINIE = 'Line'
+FARBE = 'Color'
+FARBE_SCHRIFT = 'Color Font'
+FARBE_HINTERGRUND = 'Color Background'
+BENUTZER = 'User'
+KEIN_TRENNER = 'No Seperator'
+HEXA_EINGBEN = u'Enter a hexadecimal value for a color and confirm with return.'
+FARBWAEHLER = u"A color picker on the web : http://www.colorpicker.com/"
         
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = 'Unfold folder'
 IN_PAPIERKORB_VERSCHIEBEN = 'Move to Waste Bin'
 SHOW_TAG1 = 'Color Icons'
 SHOW_TAG2 = 'User-defined Icons'
-SHOW_TAG3 = 'Scientific Outline'
+SHOW_TAG3 = 'Outline'
 BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'If you like to use self-defined icons, ' \
     u'Organon has to insert the folder "Organon Icons" to your gallery.\r\n\r\n'\
     u'Furthermore the following folder will be created on your filesystem:\r\n' \

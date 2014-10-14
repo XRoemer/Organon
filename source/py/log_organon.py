@@ -125,7 +125,7 @@ class Log():
                 return
             
             if self.load_reload:
-                if function in ('entferne_Trenner','mouseEntered','mouseExited'):
+                if function in ('mouseEntered','mouseExited'):
                     return
                 #sleep(0.04)
 
