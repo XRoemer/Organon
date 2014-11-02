@@ -36,7 +36,7 @@ class Version():
                 self.an_0981b_anpassen()
             
 
-            # an 093, 094, 095, 096 ,097 muss nichts angepasst werden
+            # an 093, 094, 095, 096 ,097, 0981, 0982 muss nichts angepasst werden
             self.neue_programmversion_eintragen()
         
         except:

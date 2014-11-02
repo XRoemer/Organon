@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unohelper
-
+from com.sun.star.style.BreakType import NONE as BREAKTYPE_NONE
 
 class Bereiche():
     
@@ -34,8 +34,10 @@ class Bereiche():
             URL="private:factory/swriter"
             if self.mb.settings_proj['use_template'][0] == True:
                 URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
+                
+        URL1 = str(uno.systemPathToFileUrl('C:\\Users\\Homer\\Desktop\\Neuer Ordner\\Unbenannt 1.ott'))
 
-        self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
+        self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL1,'_blank',0,(prop,prop2))
         
         
     def schliesse_oOO(self):
@@ -159,18 +161,19 @@ class Bereiche():
         text = self.doc.Text        
         try:
             all_sections_Namen = self.doc.TextSections.ElementNames
-            for name in all_sections_Namen:
-                sec = self.doc.TextSections.getByName(name)
-                sec.dispose()
+            if self.doc.TextSections.Count != 0:
+                for name in all_sections_Namen:
+                    sec = self.doc.TextSections.getByName(name)
+                    sec.dispose()
     
-            inhalt = ''
-            cursor = text.createTextCursor()
+            
+            cursor = self.mb.viewcursor
             cursor.gotoStart(False)
             cursor.gotoEnd(True)
-            text.insertString( cursor, inhalt, True )
+            cursor.setString('')
         except:
-            pass
-            #print(tb())
+            log(inspect.stack,tb())
+            
 
                      
     def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
@@ -246,6 +249,8 @@ class Bereiche():
         path_to_empty = uno.systemPathToFileUrl(os.path.join(self.mb.pfade['odts'],'empty_file.odt'))
         SFLink.FileURL = path_to_empty
         newSection.setPropertyValue('FileLink',SFLink)
+        
+        newSection.Anchor.BreakType = BREAKTYPE_NONE
 
 
     def loesche_leeren_Textbereich_am_Ende(self):

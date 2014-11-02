@@ -214,7 +214,7 @@ class Baumansicht():
             
         except:
             log(inspect.stack,tb())
-            pd()
+            #pd()
   
         
     
@@ -1212,7 +1212,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
     def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal = None):
         if self.mb.debug: log(inspect.stack)
-
+        # sec_trenner.Anchor.BreakType = 'NONE'
+        
         try:
             # Der VC Listener wird von IsVisible ausgeloest,
             # daher wird er vorher ab- und hinterher wieder angeschaltet
@@ -1231,17 +1232,23 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             # Ordner
             if zeilenordinal in self.mb.props[T.AB].dict_ordner:
                 zeilen_in_ordner_ordinal = self.mb.props[T.AB].dict_ordner[zeilenordinal]
-
+                #print(zeilen_in_ordner_ordinal)
+                
+                hinzugefuegte = []
+                
                 # alle Zeilen im Ordner einblenden
                 for z in zeilen_in_ordner_ordinal:
+                    
                     ordnereintrag_name = self.mb.props[T.AB].dict_bereiche['ordinal'][z]
                     z_in_ordner = self.mb.doc.TextSections.getByName(ordnereintrag_name)
-                        
-                    self.verlinke_Sektion(ordnereintrag_name,z_in_ordner,sections_uno)
+                    hinzugefuegte.append(z_in_ordner.Name)
                     
-                    #print('blende ein:',z_in_ordner.Name)
+                    self.verlinke_Sektion(ordnereintrag_name,z_in_ordner,sections_uno)
+
+                    #print('blende ein:',z_in_ordner.Name,'##################')
                     z_in_ordner.IsVisible = True
                     self.mache_Kind_Bereiche_sichtbar(z_in_ordner)
+                    
                     # Wenn mehr als nur ein geschlossener Ordner zu sehen ist
                     if len(zeilen_in_ordner_ordinal) > 1:
                         # Wenn die Zeile im Papierkorb ist, darf der letzte trenner nicht gezeigt werden, da
@@ -1251,23 +1258,28 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                                 self.zeige_Trenner(z_in_ordner,zeilenordinal)
                         else:
                             self.zeige_Trenner(z_in_ordner,zeilenordinal)
-                        
+                    # Wenn der Ordner keine Kinder hat
+                    else:
+                        self.entferne_Trenner(z_in_ordner)
+                       
                 # uebrige noch sichtbare ausblenden
                 sichtbare_bereiche = self.mb.props['Projekt'].sichtbare_bereiche
-                
+
                 for bereich in (sichtbare_bereiche): 
-                    bereich_ord = self.mb.props['Projekt'].dict_bereiche['Bereichsname-ordinal'][bereich]
-                    
-                    if bereich_ord not in zeilen_in_ordner_ordinal:                            
-                        #print('blende aus:',sec.Name,bereich_ord)
+
+                    if bereich not in hinzugefuegte:                            
                         sec = self.mb.doc.TextSections.getByName(bereich)
                         sec.IsVisible = False 
+
+                        #print('blende aus:',sec.Name,bereich_ord,'---------------')
                         self.entferne_Trenner(sec)
                                        
                 # sichtbare Bereiche wieder in Prop eintragen
                 self.mb.props['Projekt'].sichtbare_bereiche = []  
                 for b in zeilen_in_ordner_ordinal:
-                    self.mb.props['Projekt'].sichtbare_bereiche.append(self.mb.props[T.AB].dict_bereiche['ordinal'][b])                    
+                    self.mb.props['Projekt'].sichtbare_bereiche.append(self.mb.props[T.AB].dict_bereiche['ordinal'][b]) 
+                    
+                                   
             else:
             # Seiten 
                 #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
@@ -1304,7 +1316,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         except:
             log(inspect.stack,tb())
-
+            #pd()
     
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
         if self.mb.debug: log(inspect.stack)
@@ -1418,9 +1430,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if self.mb.debug: log(inspect.stack)
         
         self.log_selbstruf = True
-        
+
         for kind in sec.ChildSections:
             kind.IsVisible = True
+            #print('blende Kind ein:',kind.Name)
             if len(kind.ChildSections) > 0:
                 self.mache_Kind_Bereiche_sichtbar(kind)
         
@@ -1480,6 +1493,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         if nachfolger_ordinal == self.mb.props[T.AB].Papierkorb:
             sec_trenner.setPropertyValue('BackGraphicURL','')
             sec_trenner.Anchor.setString('')
+            
             return
         
         tree = self.mb.props[T.AB].xml_tree
@@ -1529,7 +1543,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 #         log(inspect.stack,None,str(trenner_name+';'+sec.Name))
         trenner = self.mb.doc.TextSections.getByName(trenner_name)
         trenner.IsVisible = False
-        
+                
         
     def update_dict_zeilen_posY(self):
         if self.mb.debug: log(inspect.stack)

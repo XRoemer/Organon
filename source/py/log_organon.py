@@ -5,6 +5,7 @@ from os.path import join,exists
 from unohelper import Base
 from uno import fileUrlToSystemPath
 from traceback import print_exc as tb
+import uno
 
 class Log():
     
@@ -165,6 +166,11 @@ class Log():
                     with open(path , "a") as file:
                         file.write(extras+'\r')
                         
+#             # HELFER          
+#             nachricht = self.suche()
+#             if nachricht != None:
+#                 with open(path , "a") as file:
+#                     file.write(nachricht+'\r\n')
             
             # Fehler werden auf jeden Fall geloggt        
             if traceb != None:
@@ -215,8 +221,7 @@ class Log():
         except:
             print(tb())
             return 'Fehler'
-        
-        
+
         
     def logging_optionsfenster(self,mb):
 
@@ -321,6 +326,23 @@ class Log():
 
         except:
             print(tb())
+            
+    def suche(self):  
+        # Fuer eine Fehlersuche, die bei jedem Methodenaufruf gestartet wird
+        
+        try:
+            ctx = uno.getComponentContext()  
+            smgr = ctx.ServiceManager
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            doc = desktop.getCurrentComponent()
+            
+            
+        except Exception as e:
+            print(tb())
+            #pd()
+            return e
+        return None
+        
         
 from com.sun.star.awt import XActionListener
 class Listener_Log_Optionen(Base, XActionListener):

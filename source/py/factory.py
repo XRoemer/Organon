@@ -92,7 +92,18 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             
             # panelWin has to be set visible
             panelWin.Visible = True
-            panelWin.Model.BackgroundColor = 14804725            
+            panelWin.Model.BackgroundColor = 14804725      
+            
+            from com.sun.star.awt import FontDescriptor
+            
+            #Create font descriptor for fixed text
+            font_descriptor = FontDescriptor()
+            font_descriptor.Name = 'Trajan Pro'
+            font_descriptor.Height = 19
+            font_descriptor.Width = 15
+            font_descriptor.Weight = 150
+            font_descriptor.Kerning = True
+            panelWin.Model.FontDescriptor = font_descriptor       
             
             conts = dict_sb['controls']
             

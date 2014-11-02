@@ -247,12 +247,14 @@ class Sidebar():
             for f in fehlende:
                 self.lege_dict_sb_content_ordinal_an(f)
             return
+
+        helfer = fehlende[:]  
         
-        helfer = fehlende[:]    
-        for f in fehlende:
-            if f in backup['ordinal']:
-                self.mb.dict_sb_content['ordinal'].update(backup['ordinal'][f])
-                helfer.remove(f)
+        if backup != None:  
+            for f in fehlende:
+                if f in backup['ordinal']:
+                    self.mb.dict_sb_content['ordinal'].update(backup['ordinal'][f])
+                    helfer.remove(f)
         
         fehlende = helfer      
         for f in fehlende:
@@ -292,7 +294,23 @@ class Sidebar():
             xUIElement = self.mb.dict_sb['controls'][xUIElement_name][0]
             sb = self.mb.dict_sb['controls'][xUIElement_name][1]
             panelWin = xUIElement.Window
+            # 
+            panelWin.Model.Sizeable = True
             
+            from com.sun.star.awt import FontDescriptor
+            
+            #Create font descriptor for fixed text
+            font_descriptor = FontDescriptor()
+            font_descriptor.Name = 'Trajan Pro'
+            font_descriptor.Height = 19
+            font_descriptor.Width = 15
+            font_descriptor.Weight = 150
+            font_descriptor.Kerning = True
+            try:
+                panelWin.Controls[0].Model.FontDescriptor = font_descriptor    
+            except:
+                print(tb())
+            #pd()
             #panelWin.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
             
             # alte Eintraege im einzelnen Panel vorher loeschen

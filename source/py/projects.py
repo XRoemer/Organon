@@ -465,7 +465,7 @@ class Projekt():
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
         if self.mb.debug: log(inspect.stack)
-        
+
         try:
             if self.pruefe_auf_geladenes_organon_projekt():
                 return
@@ -975,40 +975,14 @@ class Projekt():
        
     def test(self):
 
-        try: 
-            
-#             url_target = os.path.join(self.mb.pfade['odts'],'nr4' + '.odt')
-#             URL_target = uno.systemPathToFileUrl(url_target)
-               
-            #doc_new = self.mb.doc.CurrentController.Frame.loadComponentFromURL(helfer_url,'_blank',0,(prop,))           
+        try:
+            self.mb.class_Bereiche.leere_Dokument()
             pass
-#             URL1 = str(uno.systemPathToFileUrl('C:\\Users\\Homer\\Desktop\\Neuer Ordner\\Unbenannt 1.ott'))
-#             URL = 'file:///C:/Users/Homer/Documents/organon%20projekte/wo.organon/Files/wo.organon'
-#             old_doc = self.mb.doc
-#             self.mb.doc  = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL1,'_self','',())
-#             old_doc.close(False)
-            #self.lade_Projekt(URL)
-            
-            
-#             (pdk,
-#              dialog,
-#              ctx,
-#              tabs,
-#              path_to_extension,
-#              win,
-#              dict_sb,
-#              debugX,
-#              load_reloadX,
-#              factory,
-#              logX,
-#              class_LogX) = args
-             
-#             self.mb.menu_start.erzeuge_Startmenu()
-            
-            print(int('0x366937',0))
+
         except:
             log(inspect.stack,tb())
             print(tb())
+            pd()
             
         pd()
         

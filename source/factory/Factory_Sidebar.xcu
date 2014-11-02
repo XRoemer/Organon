@@ -8,7 +8,7 @@
     <node oor:name="Registered">
         <node oor:name="UIElementFactories">
         
-            <node oor:name="WorkbenchPanelFactory" oor:op="replace">
+            <node oor:name="WorkbenchOrganonPanelFactory" oor:op="replace">
                 <prop oor:name="Type">
                     <value>toolpanel</value>
                 </prop>
