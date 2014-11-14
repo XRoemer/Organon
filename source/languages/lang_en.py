@@ -207,5 +207,27 @@ KONSOLENAUSGABE = 'Output to Console'
 LOGDATEI_ERZEUGEN = 'Create Logfile'
 ARGUMENTE_LOGGEN = 'Log Arguments'
 
+###### ZITATE FINDEN ######
+DATEI_AUSSUCHEN = 'select File'
+ORDNER_AUSSUCHEN = 'select Folder'
+TEXTVERGLEICH = 'Text Comparison: find Quotations'
+ANZ_SUCHWOERTER = u'Amount Searchterms'
+ANZ_WOERTER_KTXT = u'Amount Words Context'
+OEFFNEN_IN = u'open in:'
+WEBBROWSER = 'Webbrowser'
+NEUEM_DOK = 'new Document'
+SPEICHERN_ALS = 'save as:'
+START = 'Start'
+KEINE_AUSGABE_GEWAEHLT = u"You didn't select an output"
+NOCH_NICHT_AUSGESUCHT = u"You didn't select %s!"
+VERGLEICH_VON_MIT = u'Comparison of %s with %s'
+KEINE_UEBEREINSTIMMUNGEN = u'No matches found'
+ZITATE_FINDEN = 'Find Quotations'
+IN_SPALTEN = ' in rows.html'
+GEFUNDEN_WURDEN = u'%s exact matches and %s similarities had been found'
+EXAKTE_UEBEREINSTIMMUNGEN = u'Exact Matches'
+AUSGEWAEHLTER_ORDNER_WAEHLT = u'A selected folder selects his content as well'
+
+
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"

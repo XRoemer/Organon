@@ -14,16 +14,17 @@ class Tabs():
 
         self.mb = mb
         
+        self.win_eigene_auswahl = False
+        self.win_seitenleiste = False
+        self.win_baumansicht = False
+        
     
     def start(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
+        
         try:
-            if not in_tab_einfuegen:
-                self.berechne_ordinale_in_baum_und_tab(False)
-                self.erzeuge_Fenster(False)    
-            else:     
-                self.berechne_ordinale_in_baum_und_tab(True)
-                self.erzeuge_Fenster(True)    
+            self.berechne_ordinale_in_baum_und_tab(in_tab_einfuegen)
+            self.erzeuge_Fenster(in_tab_einfuegen)    
         except:
             log(inspect.stack,tb())
     
@@ -146,12 +147,14 @@ class Tabs():
             
             # zur Sicherung, damit der projekt xml nicht ueberschrieben wrd
             if T.AB == 'Projekt' or self.mb.active_tab_id == 1:
-                self.mb.Mitteilungen.nachricht('ERROR',"warningbox",16777216)
+                self.mb.nachricht('ERROR',"warningbox",16777216)
                 return
              
             tree = self.mb.props[T.AB].xml_tree
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
             self.mb.tree_write(tree,Path)
+            
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
         except:
             log(inspect.stack,tb())
 
@@ -160,7 +163,7 @@ class Tabs():
 
         tab_name = copy.deepcopy(T.AB)
         tab_xml = copy.deepcopy(self.mb.props[T.AB].xml_tree)
-        ord_selektierter = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        ord_selektierter = self.mb.props[T.AB].selektierte_zeile
         
         self.schliesse_Tab(False)
      
@@ -267,7 +270,7 @@ class Tabs():
         if self.mb.debug: log(inspect.stack)
         
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)        
-        self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext
+        self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext.AccessibleName
     
     def get_ordinale_seitenleiste(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
@@ -362,17 +365,15 @@ class Tabs():
     
     def erzeuge_Fenster(self,in_tab_einfuegen = False):
         if self.mb.debug: log(inspect.stack)
-
-        LANG = self.mb.lang
         
         if in_tab_einfuegen:
             hoehe = 640
         else:
             hoehe = 690
         
+        X = self.mb.dialog.Size.Width
+        posSize = X,30,310,hoehe
         
-        posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-        posSize = (posSize_main.X + 20, posSize_main.Y + 20,310,hoehe)
         win,cont = self.mb.erzeuge_Dialog_Container(posSize)
         
         button_listener = Auswahl_Button_Listener(self.mb,win,cont,in_tab_einfuegen)
@@ -687,7 +688,7 @@ class Tabs():
         # hier sollen die Ergebnisse von Suche oder Tags erzeugt werden
         
 #         parent_eintrag = ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer')
-#         papierkorb = ('nr5','root',lang.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')
+#         papierkorb = ('nr5','root',LANG.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')
                 
         xml_tree = self.mb.props['Projekt'].xml_tree
         root = xml_tree.getroot()
@@ -933,7 +934,7 @@ class Tabs():
         
         try:
             self.mb.props[tab_name].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(win)  
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(win,self.mb.ctx)   
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(win)   
 
             self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name)    
         except:
@@ -1046,13 +1047,13 @@ class Tabs():
         try:
             if abfrage:
                 # Frage: Soll Tab wirklich geschlossen werden?
-                entscheidung = self.mb.Mitteilungen.nachricht(self.mb.lang.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
+                entscheidung = self.mb.nachricht(LANG.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
                 # 3 = Nein oder Cancel, 2 = Ja
                 if entscheidung == 3:
                     return
                 #print('active tab id', self.mb.active_tab_id,self.mb.tabs[self.mb.active_tab_id][1])
                 if T.AB == 'Projekt':
-                    self.mb.Mitteilungen.nachricht("Project tab can't be closed" ,"warningbox",16777216)
+                    self.mb.nachricht("Project tab can't be closed" ,"warningbox",16777216)
                     return
             
             # loesche tab listener
@@ -1088,21 +1089,40 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         self.fenster_cont = fenster_cont
         self.in_tab_einfuegen = in_tab_einfuegen
         
+        
+        
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
-        
+
         if ev.ActionCommand == 'Tags Seitenleiste':
-            self.erzeuge_tag_auswahl_seitenleiste(ev)
+            if not self.mb.class_Tabs.win_seitenleiste:
+                self.erzeuge_tag_auswahl_seitenleiste(ev)
+                self.mb.class_Tabs.win_seitenleiste = True
+            
         elif ev.ActionCommand == 'Tags Baumansicht':
-            self.erzeuge_tag_auswahl_baumansicht(ev)
+            if not self.mb.class_Tabs.win_baumansicht:
+                self.erzeuge_tag_auswahl_baumansicht(ev)
+                self.mb.class_Tabs.win_baumansicht = True
+            
         elif ev.ActionCommand == 'Eigene Auswahl':
-            self.erzeuge_eigene_auswahl(ev)
+            if not self.mb.class_Tabs.win_eigene_auswahl:
+                self.erzeuge_eigene_auswahl(ev)
+                self.mb.class_Tabs.win_eigene_auswahl = True
+                
         elif ev.ActionCommand == 'ok':
             try:
                 self.erstelle_auswahl_dict(ev)
                 ok = self.pruefe_tab_namen()
                 if ok:
                     self.win.dispose()
+                    
+                    if self.mb.props[T.AB].tastatureingabe:
+                        ordinal = self.mb.props[T.AB].selektierte_zeile
+                        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
+                        # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
+                        path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
+                        self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+                    
                     ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(False)
                     if ordinale == []:
                         return
@@ -1114,11 +1134,13 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             try:
                 self.erstelle_auswahl_dict(ev)
                 self.win.dispose()
+                
                 ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
-                #ordinale =  self.schliesse_vorhandene_ordinale_aus(ordin)
+
                 if ordinale == []:
                     return
                 self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
+                
             except:
                 log(inspect.stack,tb())
                 
@@ -1136,10 +1158,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     def get_fenster_position(self,ev):
         if self.mb.debug: log(inspect.stack)
         
-        par_win = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext
-        x = par_win.LocationOnScreen.X + par_win.Size.Width + 20
-        y = par_win.LocationOnScreen.Y
-        return x,y        
+        x = self.mb.dialog.Size.Width + ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.Size.Width +20
+        return x,30      
         
     def erzeuge_tag_auswahl_baumansicht(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1175,14 +1195,14 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             
             # TITEL
             prop_names = ('Label',)
-            prop_values = (self.mb.lang.AUSGEWAEHLTE,)
+            prop_values = (LANG.AUSGEWAEHLTE,)
             control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
             model.FontWeight = 150 
             
             
             
             prop_names = ('Label',)
-            prop_values = (self.mb.lang.BENUTZTE,)
+            prop_values = (LANG.BENUTZTE,)
             controlT2, modelT2 = self.mb.createControl(self.mb.ctx, "FixedText", 120, 10, 300, 20, prop_names, prop_values) 
             modelT2.FontWeight = 150 
             
@@ -1216,6 +1236,10 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         cont.addControl('Eintraege_Tag1', farb_icons)
         cont.addControl('Ausgewaehlte_Tag1', ausgew_icons)
         cont.addControl('Ausgewaehlte_Tag1', user_icons)
+        
+        dispose_listener = Listener_for_Win_dispose(self.mb,'baumansicht')
+        win.addEventListener(dispose_listener)
+
             
        
     def erzeuge_ListBox_Tag1(self,farb_tags,nutzer_tags):
@@ -1268,7 +1292,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             ausgew_tags = 'Tags_characters','Tags_objects','Tags_locations','Tags_user1','Tags_user2','Tags_user3'
             
             prop_names = ('Label',)
-            prop_values = (self.mb.lang.AUSGEWAEHLTE,)
+            prop_values = (LANG.AUSGEWAEHLTE,)
             control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
             model.FontWeight = 200.0 
             cont.addControl('ausgewaehlte_XXX', control)
@@ -1323,6 +1347,9 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 
                 y += 25
             
+            dispose_listener = Listener_for_Win_dispose(self.mb,'seitenleiste')
+            win.addEventListener(dispose_listener)
+            
         except:
             log(inspect.stack,tb())
         
@@ -1370,7 +1397,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         path = os.path.join(self.mb.pfade['tabs'],tab_name+'.xml')
 
         if os.path.exists(path):
-            self.mb.Mitteilungen.nachricht(self.mb.lang.TAB_EXISTIERT_SCHON,'infobox')
+            self.mb.nachricht(LANG.TAB_EXISTIERT_SCHON,'infobox')
             return False
         
         else:
@@ -1417,9 +1444,8 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         if self.mb.debug: log(inspect.stack)
         
         x,y = self.get_fenster_position(ev)
-        posSize = x,y,400,600
+        posSize = x,30,400,600
         
-        lang = self.mb.lang
         sett = self.mb.settings_exp
  
         # Dict von alten Eintraegen bereinigen
@@ -1434,48 +1460,33 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         for ordn in eintr:
             del sett['ausgewaehlte'][ordn]
 
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-
-        fenster_cont.Model.Text = lang.AUSWAHL
-        fenster_cont.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE        
         
         control_innen, model = self.mb.createControl(self.mb.ctx,"Container",20,0,posSize[2],posSize[3],(),() )  
         model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
-        fenster_cont.addControl('Huelle', control_innen)
         
         y = self.erzeuge_treeview(control_innen)
         control_innen.setPosSize(0, 0,0,y + 20,8)
-
+        
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
+        fenster_cont.Model.Text = LANG.AUSWAHL
+        fenster_cont.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  
+        
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
-    
+        
+        fenster_cont.addControl('Huelle', control_innen)
+        
+        dispose_listener = Listener_for_Win_dispose(self.mb,'eigene auswahl')
+        fenster.addEventListener(dispose_listener)
       
     def setze_hoehe_und_scrollbalken(self,y,y_desk,fenster,fenster_cont,control_innen):  
         if self.mb.debug: log(inspect.stack)
-        
+
         if y < y_desk-20:
             fenster.setPosSize(0,0,0,y + 20,8) 
-        else:
+        else:            
+            PosSize = 0,0,0,y_desk
+            control = self.mb.erzeuge_Scrollbar(fenster_cont,PosSize,control_innen)
 
-            Attr = (0,0,20,y_desk,'scrollbar', None)    
-            PosX,PosY,Width,Height,Name,Color = Attr
-            
-            # SCROLLBAR
-            control, model = self.mb.createControl(self.mb.ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
-            #
-            model.Orientation = 1
-            model.BorderColor = KONST.EXPORT_DIALOG_FARBE
-            model.Border = 0
-            model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
-            
-            
-            model.LiveScroll = True        
-            #model.ScrollValueMax = y/2
-            control.Maximum = y
-            
-            listener = Auswahl_ScrollBar_Listener(self.mb,control_innen)
-            control.addAdjustmentListener(listener) 
-            
-            fenster_cont.addControl('ScrollBar',control)  
   
     def berechne_eigene_auswahl(self):
         if self.mb.debug: log(inspect.stack)
@@ -1514,7 +1525,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
         try:
             sett = self.mb.settings_exp
-            lang = self.mb.lang
 
 
             #baum,im_tab_vorhandene = self.berechne_eigene_auswahl()
@@ -1529,7 +1539,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             
             #Titel
             control, model = self.mb.createControl(self.mb.ctx,"FixedText",x,y ,300,20,(),() )  
-            control.Text = lang.AUSWAHL_TIT
+            control.Text = LANG.AUSWAHL_TIT
             model.FontWeight = 200.0
             fenster_cont.addControl('Titel', control)
             
@@ -1537,7 +1547,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             
             # Untereintraege auswaehlen
             control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40,y ,300,20,(),() )  
-            control.Text = lang.ORDNER_CLICK
+            control.Text = LANG.ORDNER_CLICK
             model.FontWeight = 150.0
             fenster_cont.addControl('ausw', control)
             
@@ -1594,6 +1604,28 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             log(inspect.stack,tb())
             
 
+from com.sun.star.lang import XEventListener
+
+class Listener_for_Win_dispose(unohelper.Base,XEventListener):
+    def __init__(self,mb,win):
+        self.mb = mb
+        self.win = win
+    
+    def disposing(self,ev):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            tabs = self.mb.class_Tabs
+            if self.win == 'baumansicht':
+                tabs.win_baumansicht = False
+            elif self.win == 'eigene auswahl':
+                tabs.win_eigene_auswahl = False
+            elif self.win == 'seitenleiste':
+                tabs.win_seitenleiste = False
+        except:
+            log(inspect.stack,tb())
+
+
 
 from com.sun.star.awt import XItemListener
 class Tag1_Listener(unohelper.Base, XItemListener):
@@ -1648,6 +1680,10 @@ class Tag1_Listener(unohelper.Base, XItemListener):
 
         except:
             log(inspect.stack,tb())
+            
+    
+    def disposing(self,ev):
+        return False
 
 
         
@@ -1719,29 +1755,12 @@ class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
             text += z + t
             
         return text
-
-from com.sun.star.awt import XMouseListener, XItemListener
-from com.sun.star.awt.MouseButton import LEFT as MB_LEFT 
-     
-
-
-
-from com.sun.star.awt import XAdjustmentListener
-class Auswahl_ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
     
-    def __init__(self,mb,fenster_cont):  
-        if mb.debug: log(inspect.stack)      
-        self.mb = mb
-        self.fenster_cont = fenster_cont
-        
-    def adjustmentValueChanged(self,ev):
-        self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
-        
     def disposing(self,ev):
         return False
 
-            
-            
+
+                      
 class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb,fenster_cont):
         if mb.debug: log(inspect.stack)

@@ -58,7 +58,7 @@ dict_sb = {'sichtbare':['empty_project'],
            'controls':{},
            'erzeuge_sb_layout':None,
            'optionsfenster':None,
-           'sb_closed':True}
+           'sb_closed':None}
 
 
 from com.sun.star.ui import XUIElementFactory
@@ -94,16 +94,16 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             panelWin.Visible = True
             panelWin.Model.BackgroundColor = 14804725      
             
-            from com.sun.star.awt import FontDescriptor
-            
-            #Create font descriptor for fixed text
-            font_descriptor = FontDescriptor()
-            font_descriptor.Name = 'Trajan Pro'
-            font_descriptor.Height = 19
-            font_descriptor.Width = 15
-            font_descriptor.Weight = 150
-            font_descriptor.Kerning = True
-            panelWin.Model.FontDescriptor = font_descriptor       
+#             from com.sun.star.awt import FontDescriptor
+#             
+#             #Create font descriptor for fixed text
+#             font_descriptor = FontDescriptor()
+#             font_descriptor.Name = 'Trajan Pro'
+#             font_descriptor.Height = 19
+#             font_descriptor.Width = 15
+#             font_descriptor.Weight = 150
+#             font_descriptor.Kerning = True
+#             panelWin.Model.FontDescriptor = font_descriptor       
             
             conts = dict_sb['controls']
             

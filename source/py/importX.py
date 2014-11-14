@@ -14,9 +14,6 @@ class ImportX():
         global pd
         pd = pdk
         
-        global lang
-        lang = self.mb.lang
-        
         self.auszuschliessende_filter = ('org.openoffice.da.writer2bibtex','org.openoffice.da.writer2latex','BibTeX_Writer','LaTeX_Writer')
         
         
@@ -25,7 +22,7 @@ class ImportX():
         try:
             
             if T.AB != 'Projekt':
-                self.mb.Mitteilungen.nachricht('Import to tab is not implemented yet.',"infobox")
+                self.mb.nachricht('Import to tab is not implemented yet.',"infobox")
                 return
                 
             if self.mb.filters_import == None:
@@ -40,7 +37,7 @@ class ImportX():
                 self.erzeuge_importfenster()
                 
         except Exception as e:
-            self.mb.Mitteilungen.nachricht('ImportX ' + str(e),"warningbox")
+            self.mb.nachricht('ImportX ' + str(e),"warningbox")
             log(inspect.stack,tb())
 
  
@@ -60,7 +57,7 @@ class ImportX():
         
         posSize = X,Y,Width,Height
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-        fenster_cont.Model.Text = lang.IMPORT
+        fenster_cont.Model.Text = LANG.IMPORT
         
         self.fenster_import = fenster
         listenerDisp = Fenster_Dispose_Listener(self.mb,self)
@@ -70,7 +67,7 @@ class ImportX():
         
         # Titel
         controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
-        controlE.Text = lang.IMPORT
+        controlE.Text = LANG.IMPORT
         modelE.FontWeight = 200.0
         fenster_cont.addControl('Titel', controlE)
         self.mb.kalkuliere_und_setze_Control(controlE,'w')
@@ -78,7 +75,7 @@ class ImportX():
         y += 30
         
         control1, model1 = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
-        model1.Label = lang.IMPORT_DATEI
+        model1.Label = LANG.IMPORT_DATEI
         model1.State = int(imp_set['imp_dat'])
         control1.ActionCommand = 'model1'
         fenster_cont.addControl('ImportD', control1)
@@ -87,7 +84,7 @@ class ImportX():
         y += 30
         
         control2, model2 = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
-        model2.Label = lang.IMPORT_ORDNER
+        model2.Label = LANG.IMPORT_ORDNER
         model2.State = not int(imp_set['imp_dat'])
         control2.ActionCommand = 'model2'
         fenster_cont.addControl('ImportO', control2)
@@ -96,7 +93,7 @@ class ImportX():
         y += 20
         
         control3, model3 = self.mb.createControl(self.mb.ctx,"CheckBox",40,y,180,22,(),() )  
-        model3.Label = lang.ORDNERSTRUKTUR
+        model3.Label = LANG.ORDNERSTRUKTUR
         model3.State =  int(imp_set['ord_strukt'])
         control3.Enable = not int(imp_set['imp_dat'])
         control3.ActionCommand = 'struktur'
@@ -118,7 +115,7 @@ class ImportX():
         y += 40
         
         controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
-        controlE.Text = lang.DATEIFILTER
+        controlE.Text = LANG.DATEIFILTER
         fenster_cont.addControl('Filter', controlE)
         self.mb.kalkuliere_und_setze_Control(controlE,'w')
         
@@ -141,7 +138,7 @@ class ImportX():
         control, model = self.mb.createControl(self.mb.ctx,"CheckBox",180 ,y-5*16,100,22,(),() )  
         buttons.update({'auswahl':control})
         control.ActionCommand = 'auswahl'
-        model.Label = self.mb.lang.EIGENE_AUSWAHL
+        model.Label = LANG.EIGENE_AUSWAHL
         model.State = imp_set['auswahl']   
         control.addActionListener(filter_CB_listener)                    
         fenster_cont.addControl('auswahl', control)      
@@ -149,7 +146,7 @@ class ImportX():
         
         
         control, model = self.mb.createControl(self.mb.ctx,"Button",180 + 16,y - 3*16  ,80,20,(),() )  ###
-        control.Label = lang.AUSWAHL
+        control.Label = LANG.AUSWAHL
         fenster_cont.addControl('Filter_Auswahl', control)  
         self.mb.kalkuliere_und_setze_Control(control,'w')
         
@@ -166,7 +163,7 @@ class ImportX():
         y += 40
 
         controlA, modelA = self.mb.createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
-        controlA.Label = lang.DATEIAUSWAHL
+        controlA.Label = LANG.DATEIAUSWAHL
         controlA.ActionCommand = 'Datei'
         fenster_cont.addControl('Auswahl', controlA) 
         self.mb.kalkuliere_und_setze_Control(controlA,'w')
@@ -186,7 +183,7 @@ class ImportX():
         y += 40   
         
         controlA2, modelA2 = self.mb.createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
-        controlA2.Label = lang.ORDNERAUSWAHL
+        controlA2.Label = LANG.ORDNERAUSWAHL
         controlA2.ActionCommand = 'Ordner'
         fenster_cont.addControl('Auswahl2', controlA2)             
         self.mb.kalkuliere_und_setze_Control(controlA2,'w')
@@ -210,7 +207,7 @@ class ImportX():
         y += 60
         
         controlI, modelI = self.mb.createControl(self.mb.ctx,"Button",breite - 80 - 20,y  ,80,30,(),() )  ###
-        controlI.Label = lang.IMPORTIEREN
+        controlI.Label = LANG.IMPORTIEREN
         listener_imp = Import_Button_Listener(self.mb,fenster)
         controlI.addActionListener(listener_imp)
         self.mb.kalkuliere_und_setze_Control(controlI,'w')
@@ -320,14 +317,17 @@ class ImportX():
 #                             print(extensions)                    
                             # FilterName: Filter als Label, Extensions Endungen
                             self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
+
+            self.mb.filters_export.update({'LaTex':('LaTex (*.tex)','tex','*tex')})
+            
         except:
             log(inspect.stack,tb())
                         
     def warning(self,mb):
         if self.mb.debug: log(inspect.stack)
         
-        lang.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
-        entscheidung = mb.Mitteilungen.nachricht(lang.IMPORT_WARNING,"warningbox",16777216)
+        LANG.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
+        entscheidung = mb.nachricht(LANG.IMPORT_WARNING,"warningbox",16777216)
         # 3 = Nein oder Cancel, 2 = Ja
         if entscheidung == 3:
             return False
@@ -407,7 +407,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             if int(imp_set['imp_dat']) == 1:
                 
                 if imp_set['url_dat'] == '':
-                    self.mb.Mitteilungen.nachricht(lang.ERST_DATEI_AUSWAEHLEN,"warningbox")
+                    self.mb.nachricht(LANG.ERST_DATEI_AUSWAEHLEN,"warningbox")
                     self.fenster.toFront()
                     return
                 
@@ -417,7 +417,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 
             else:
                 if imp_set['url_ord'] == '':
-                    self.mb.Mitteilungen.nachricht(lang.ERST_ORDNER_AUSWAEHLEN,"warningbox")
+                    self.mb.nachricht(LANG.ERST_ORDNER_AUSWAEHLEN,"warningbox")
                     self.fenster.toFront()
                     return
     
@@ -429,7 +429,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
                 if lade:
                     self.lade_Projekt()
-                    self.mb.Mitteilungen.nachricht(lang.IMPORT_ABGESCHLOSSEN,'infobox')
+                    self.mb.nachricht(LANG.IMPORT_ABGESCHLOSSEN,'infobox')
                     
                 self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
         except:
@@ -548,13 +548,13 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
-            self.mb.Mitteilungen.nachricht(self.mb.lang.ZEILE_AUSWAEHLEN,'infobox')
+            self.mb.nachricht(self.mb.LANG.ZEILE_AUSWAEHLEN,'infobox')
             return None
         else:
             
             
                       
-            ord_sel_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+            ord_sel_zeile = self.mb.props[T.AB].selektierte_zeile
             
             # XML TREE
             tree = self.mb.props[T.AB].xml_tree
@@ -685,7 +685,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             link,filt = link_filt
             
             StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
-            StatusIndicator.start(lang.ERZEUGE_DATEI %(index,anzahl_links),anzahl_links)
+            StatusIndicator.start(LANG.ERZEUGE_DATEI %(index,anzahl_links),anzahl_links)
             StatusIndicator.setValue(index)
             index += 1
         
@@ -724,7 +724,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
         root = self.mb.props[T.AB].xml_tree.getroot()
         
-        name_selek_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        name_selek_zeile = self.mb.props[T.AB].selektierte_zeile
         xml_selekt_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile)
         
         parent = root.find('.//'+xml_selekt_zeile.tag+'/..')
@@ -741,17 +741,17 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         path = uno.fileUrlToSystemPath(imp_set['url_ord'])
         
         if not os.path.exists(path):
-            self.mb.Mitteilungen.nachricht(lang.NO_FILES,"infobox")
+            self.mb.nachricht(LANG.NO_FILES,"infobox")
             return None,None,False
         
         Verzeichnis,AusgangsOrdner = self.durchlaufe_ordner(path)
         anz = len(Verzeichnis)
         
         if anz == 0:
-            self.mb.Mitteilungen.nachricht(lang.NO_FILES,"infobox")
+            self.mb.nachricht(LANG.NO_FILES,"infobox")
             return None,None,False
         elif anz > 10:
-            entscheidung = self.mb.Mitteilungen.nachricht(lang.IMP_FORTFAHREN %anz,"warningbox",16777216)
+            entscheidung = self.mb.nachricht(LANG.IMP_FORTFAHREN %anz,"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return None,None,False
@@ -764,7 +764,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         root_xml = et.Element(ordinal_neuer_Eintrag)
         tree_xml = et.ElementTree(root_xml)
         
-        name_selek_zeile = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        name_selek_zeile = self.mb.props[T.AB].selektierte_zeile
         xml_selekt_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile)
         parent_sel_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile+'/..')
         lvl = int(xml_selekt_zeile.attrib['Lvl'])
@@ -1001,7 +1001,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.class_Projekt.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Zeile
-            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
+            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
@@ -1015,7 +1015,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.class_Projekt.selektiere_ersten_Bereich()
                         
         except Exception as e:
-            self.mb.Mitteilungen.nachricht('lade_Projekt '+ str(e),"warningbox")
+            self.mb.nachricht('lade_Projekt '+ str(e),"warningbox")
             log(inspect.stack,tb())
  
     
@@ -1122,12 +1122,12 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         # Titel
         control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
-        control.Text = lang.FILTER
+        control.Text = LANG.FILTER
         model.FontWeight = 200.0
         fenster_cont.addControl('Titel', control)
 
         control, model = self.mb.createControl(self.mb.ctx,"Button",160,y-3,100,20,(),() )  
-        control.Label = lang.ALLE_WAEHLEN
+        control.Label = LANG.ALLE_WAEHLEN
         control.ActionCommand = 'alle_waehlen'
         control.addActionListener(f_listener)
         fenster_cont.addControl('Alle', control)  
@@ -1270,7 +1270,7 @@ class Filter_CheckBox_Listener(unohelper.Base, XActionListener):
         
         if ev.ActionCommand == 'auswahl':
             if ev.Source.State == True:
-                self.mb.Mitteilungen.nachricht(lang.IMPORT_FILTER_WARNUNG,"warningbox")
+                self.mb.nachricht(LANG.IMPORT_FILTER_WARNUNG,"warningbox")
                 self.fenster.toFront()
             for but in self.buttons:
                 if but != 'auswahl':

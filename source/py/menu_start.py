@@ -15,7 +15,7 @@ platform = sys.platform
 class Menu_Start():
     
     def __init__(self,args):
-        
+
         (pdk,
          dialog,
          ctx,
@@ -252,8 +252,11 @@ class Menu_Start():
             geladene_Projekte = list((a,b.replace('\n','')) for a,b in x if path.exists(b.replace('\n','')))
             return geladene_Projekte
         except:
-            if debug: log(inspect_stack,tb())
-            return None
+            try:
+                if debug: log(inspect_stack,tb())
+            except:
+                pass
+        return None
     
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.

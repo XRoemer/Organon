@@ -6,6 +6,7 @@ from unohelper import Base
 from uno import fileUrlToSystemPath
 from traceback import print_exc as tb
 import uno
+import inspect
 
 class Log():
     
@@ -43,7 +44,7 @@ class Log():
             'log_args=' + str(self.log_args)
             )
         
-        print(string)
+        #print(string)
         
         path = path = join(self.path_to_extension,'log_config.txt')
         
@@ -128,7 +129,6 @@ class Log():
             if self.load_reload:
                 if function in ('mouseEntered','mouseExited'):
                     return
-                #sleep(0.04)
 
             if len(modul) > 18:
                 modul = modul[0:18]
@@ -165,7 +165,8 @@ class Log():
                     print(extras)
                     with open(path , "a") as file:
                         file.write(extras+'\r')
-                        
+            
+            #self.suche()        
 #             # HELFER          
 #             nachricht = self.suche()
 #             if nachricht != None:
@@ -223,10 +224,9 @@ class Log():
             return 'Fehler'
 
         
-    def logging_optionsfenster(self,mb):
+    def logging_optionsfenster(self,mb,LANG):
 
         try:
-            lang = mb.lang
             ctx = mb.ctx
             
             breite = 650
@@ -249,7 +249,7 @@ class Log():
             y = 10
             
             prop_names = ('Label','FontWeight',)
-            prop_values = (lang.EINSTELLUNGEN_LOGDATEI,200,)
+            prop_values = (LANG.EINSTELLUNGEN_LOGDATEI,200,)
             control, model = mb.createControl(ctx, "FixedText", tab, y, 200, 20, prop_names, prop_values)
             fenster_cont.addControl('Titel', control) 
 
@@ -257,14 +257,14 @@ class Log():
             y += 30
             
             prop_names = ('Label','State')
-            prop_values = (lang.KONSOLENAUSGABE,self.output_console)
+            prop_values = (LANG.KONSOLENAUSGABE,self.output_console)
             controlCB, model = mb.createControl(ctx, "CheckBox", tab, y, 200, 20, prop_names, prop_values)
             controlCB.setActionCommand('Konsole')
              
             y += 20
             
             prop_names = ('Label','State',)
-            prop_values = (lang.ARGUMENTE_LOGGEN,self.log_args,)
+            prop_values = (LANG.ARGUMENTE_LOGGEN,self.log_args,)
             control_arg, model = mb.createControl(ctx, "CheckBox", tab1, y, 200, 20, prop_names, prop_values)
             control_arg.setActionCommand('Argumente')
             control_arg.Enable = (self.output_console == 1)
@@ -272,7 +272,7 @@ class Log():
             y += 30
             
             prop_names = ('Label','State',)
-            prop_values = (lang.LOGDATEI_ERZEUGEN,self.write_debug_file,)
+            prop_values = (LANG.LOGDATEI_ERZEUGEN,self.write_debug_file,)
             control_log, model = mb.createControl(ctx, "CheckBox", tab1, y, 200, 20, prop_names, prop_values)
             control_log.setActionCommand('Logdatei')
             control_log.Enable = (self.output_console == 1)
@@ -281,7 +281,7 @@ class Log():
             y += 20
             
             prop_names = ('Label',)
-            prop_values = (lang.SPEICHERORT,)
+            prop_values = (LANG.SPEICHERORT,)
             control_filepath, model = mb.createControl(ctx, "FixedText", tab1, y, 200, 20, prop_names, prop_values)
             fenster_cont.addControl('Titel', control_filepath) 
             
@@ -302,7 +302,7 @@ class Log():
             y += 20
             
             prop_names = ('Label',)
-            prop_values = (lang.AUSWAHL,)
+            prop_values = (LANG.AUSWAHL,)
             control_but, model = mb.createControl(ctx, "Button", tab1, y, 80, 20, prop_names, prop_values)
             control_but.setActionCommand('File')
             fenster_cont.addControl('Titel', control)
@@ -336,11 +336,18 @@ class Log():
             desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
             doc = desktop.getCurrentComponent()
             
+            secs = doc.TextSections
+            el_names = secs.ElementNames
+            
+            for n in el_names:
+                if 'Bereich' in n:
+                    pd()
             
         except Exception as e:
             print(tb())
             #pd()
             return e
+        
         return None
         
         

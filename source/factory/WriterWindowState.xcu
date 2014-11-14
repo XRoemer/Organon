@@ -10,7 +10,7 @@
         <node oor:name="States">
             <node oor:name="private:resource/dockingwindow/9809" oor:op="replace">
                 <prop oor:name="UIName" oor:type="xs:string">
-                    <value xml:lang="de">das organon fenster</value>
+                    <value xml:lang="de">Organon: dockable window</value>
                 </prop>
                 <prop oor:name="Visible" oor:type="xs:boolean">
                     <value>true</value>

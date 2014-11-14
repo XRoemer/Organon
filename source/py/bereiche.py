@@ -35,9 +35,7 @@ class Bereiche():
             if self.mb.settings_proj['use_template'][0] == True:
                 URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
                 
-        URL1 = str(uno.systemPathToFileUrl('C:\\Users\\Homer\\Desktop\\Neuer Ordner\\Unbenannt 1.ott'))
-
-        self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL1,'_blank',0,(prop,prop2))
+        self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
         
         
     def schliesse_oOO(self):
@@ -301,7 +299,7 @@ class Bereiche():
                 newDoc.close(False)
     
                 self.mb.props[T.AB].tastatureingabe = False
-                self.mb.bereich_wurde_bearbeitet = False
+                
             except:
                 log(inspect.stack,tb())
 

@@ -15,8 +15,6 @@ mb.path_to_extension,dict mb.pfade, mb.projekt_path : SystemPath
 
 '''
 
-
-
 class Projekt():
     
     def __init__(self,mb,pydevBrk):
@@ -26,9 +24,8 @@ class Projekt():
         
         self.mb.settings_proj['use_template'] = (False,None)
 
-        global pd,lang
+        global pd
         pd = pydevBrk
-        lang = self.mb.lang
         
         self.first_time = True
    
@@ -47,14 +44,14 @@ class Projekt():
 
                 if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
                     
-                    self.mb.Mitteilungen.nachricht(lang.DOUBLE_PROJ_NAME,"warningbox")
+                    self.mb.nachricht(LANG.DOUBLE_PROJ_NAME,"warningbox")
                     return
                 
                 # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
                 # funktioniert das unter Linux?? ############
                 elif os.path.exists(self.mb.pfade['projekt']):
                     # 16777216 Flag fuer YES_NO
-                    entscheidung = self.mb.Mitteilungen.nachricht(lang.PROJ_EXISTS,"warningbox",16777216)
+                    entscheidung = self.mb.nachricht(LANG.PROJ_EXISTS,"warningbox",16777216)
                     # 3 = Nein oder Cancel, 2 = Ja
                     if entscheidung == 3:
                         return
@@ -87,7 +84,7 @@ class Projekt():
                 
                 self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
                 
-                self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
+                self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
                 #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
@@ -104,7 +101,7 @@ class Projekt():
                 self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
                 
         except Exception as e:
-            self.mb.Mitteilungen.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
+            self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
             log(inspect.stack,tb())
 
                         
@@ -225,7 +222,7 @@ class Projekt():
                 modelU_Label = '-' 
             
 
-            modelForm1_Label = lang.TEMPLATE_WRITER
+            modelForm1_Label = LANG.TEMPLATE_WRITER
             if not self.mb.settings_proj:
                 state = 0#False
                 not_state = 1
@@ -241,7 +238,7 @@ class Projekt():
             modelForm2_State = state
             
             if self.mb.user_styles == ():
-                user_styles = (lang.NO_TEMPLATES,)
+                user_styles = (LANG.NO_TEMPLATES,)
                 controlLBF2_Enable = 0
                 controlForm2_Enable = 0
             else:
@@ -273,43 +270,43 @@ class Projekt():
                 
             controls = (
             20,
-            ('control',"FixedText",         'tab0x',y,250,20,  ('Label','FontWeight'),(lang.ENTER_PROJ_NAME ,150),          {'addKeyListener':(listener)} ),
+            ('control',"FixedText",         'tab0x',y,250,20,  ('Label','FontWeight'),(LANG.ENTER_PROJ_NAME ,150),          {'addKeyListener':(listener)} ),
             30,
             ('control1',"Edit",             'tab0',y,200,20,   (),(),                                                       {} ) ,
             30,
             ('controlT3',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
             43,
-            ('controlP',"FixedText",        'tab0x',y,120,20,  ('Label','FontWeight'),(lang.SPEICHERORT,150),               {} ),  
+            ('controlP',"FixedText",        'tab0x',y,120,20,  ('Label','FontWeight'),(LANG.SPEICHERORT,150),               {} ),  
             0,
-            ('controlW',"Button",           'tab2x',y,80,20,   ('Label',),(lang.AUSWAHL,),                                  {'setActionCommand':lang.WAEHLEN,'addActionListener':(listenerS,listener)}),              
+            ('controlW',"Button",           'tab2x',y,80,20,   ('Label',),(LANG.AUSWAHL,),                                  {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listenerS,listener)}),              
             30,
             ('controlU',"FixedText",        'tab0',y,300,20,   ('Label','State'),(modelU_Label,modelForm1_State),           {} ), 
             30,
             ('controlT',"FixedLine",        'tab0',y,360,40,   (),(),                                                       {} ), 
             40,
-#             ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(lang.FORMATIERUNG,150),              {} ),
+#             ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(LANG.FORMATIERUNG,150),              {} ),
 #             0,  
-#             ('controlForm1',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_WRITER,modelForm1_State),   {'setActionCommand':'standard','addActionListener':(listenerCB,)} ),
+#             ('controlForm1',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(LANG.TEMPLATE_WRITER,modelForm1_State),   {'setActionCommand':'standard','addActionListener':(listenerCB,)} ),
 #             0,
 #             ('controlHelp',"Button",        'tab4',y ,30,30,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)} ), 
 #             25,
-#             ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(lang.TEMPLATE_USER,modelForm2_State),     {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
+#             ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(LANG.TEMPLATE_USER,modelForm2_State),     {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
 #             22,
 #             ('controlLBF2',"ListBox",       'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'Enable':controlLBF2_Enable,'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
 #             20,
 #             ('controlT5',"FixedLine",       'tab2',y,238,40,   (),(),                                                       {} ),
 #             50,
-#             ('controlFormLBF4',"FixedText", 'tab2',y,300,20,   ('Label',),(lang.EIGENES_TEMPL_ERSTELLEN,),                  {} ), 
+#             ('controlFormLBF4',"FixedText", 'tab2',y,300,20,   ('Label',),(LANG.EIGENES_TEMPL_ERSTELLEN,),                  {} ), 
 #             25,
-#             ('controlLBF5',"FixedText",     'tab2',y,50,20,    ('Label',),(lang.NAME,),                                     {}),  
+#             ('controlLBF5',"FixedText",     'tab2',y,50,20,    ('Label',),(LANG.NAME,),                                     {}),  
 #             0,
 #             ('controlLBF6',"Edit",          'tab3',y,130,20,   (),(),                                                       {} ),
 #             25,
-#             ('controlER',"Button",          'tab2x',y ,80,20,  ('Label',),(lang.ERSTELLEN,),                                {'setActionCommand':'vorlage_erstellen','addActionListener':(listener,)} ),  
+#             ('controlER',"Button",          'tab2x',y ,80,20,  ('Label',),(LANG.ERSTELLEN,),                                {'setActionCommand':'vorlage_erstellen','addActionListener':(listener,)} ),  
 #             30,
 #             ('controlT2',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
 #             40,
-#             ('controlTemp',"FixedText",     'tab0x',y,80,20,   ('Label',),(lang.TEMPLATE,),                                 {}) ,
+#             ('controlTemp',"FixedText",     'tab0x',y,80,20,   ('Label',),(LANG.TEMPLATE,),                                 {}) ,
 #             -3,
 #             ('controlTempL',"ListBox",      'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'addItems':templates,'Enable':False,'SelectedItems':0}) ,
 #             -10,
@@ -317,9 +314,9 @@ class Projekt():
 #             30,
 #             ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
 #             40,
-            ('control2',"Button",           'tab3',y,80,30,    ('Label',),(lang.OK,),                                       {'setActionCommand':lang.OK,'addActionListener':(listener,)} ) , 
+            ('control2',"Button",           'tab3',y,80,30,    ('Label',),(LANG.OK,),                                       {'setActionCommand':LANG.OK,'addActionListener':(listener,)} ) , 
             0,
-#             ('control3',"Button",           tab2+120,y,80,30,('Label',),(lang.CANCEL,),                                  {'setActionCommand':lang.CANCEL,'addActionListener':(listener,)} )  
+#             ('control3',"Button",           tab2+120,y,80,30,('Label',),(LANG.CANCEL,),                                  {'setActionCommand':LANG.CANCEL,'addActionListener':(listener,)} )  
             )
             
             
@@ -328,7 +325,7 @@ class Projekt():
             dialogModel = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
             dialogModel.Width = 215 
             dialogModel.Height = 320
-            dialogModel.Title = lang.CREATE_NEW_PROJECT
+            dialogModel.Title = LANG.CREATE_NEW_PROJECT
                       
             # create the dialog control and set the model
             controlContainer = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
@@ -504,10 +501,10 @@ class Projekt():
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Zeile
-            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext
+            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
+            self.mb.class_Baumansicht.erzeuge_Scrollbar()    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
@@ -530,8 +527,10 @@ class Projekt():
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
         except Exception as e:
-            self.mb.Mitteilungen.nachricht('lade_Projekt ' + str(e),"warningbox")
+            self.mb.nachricht('lade_Projekt ' + str(e),"warningbox")
             log(inspect.stack,tb())
+    
+    
     
     def trage_projekt_in_zuletzt_geladene_Projekte_ein(self,dateiname,filepath):
         if self.mb.debug: log(inspect.stack)
@@ -575,7 +574,7 @@ class Projekt():
             return False
         else:
 #         if has_prop:
-            self.mb.Mitteilungen.nachricht(lang.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
+            self.mb.nachricht(LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
             return True
         
         
@@ -827,7 +826,7 @@ class Projekt():
         ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal']['OrganonSec0']
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
         textfeld = zeile.getControl('textfeld')
-        self.mb.props[T.AB].selektierte_zeile_alt = textfeld 
+        self.mb.props[T.AB].selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
         
     def erzeuge_proj_Settings(self):
         if self.mb.debug: log(inspect.stack)
@@ -948,11 +947,11 @@ class Projekt():
         
         Eintraege = [
                 ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
-                ('nr1','nr0',lang.TITEL,1,'pg','-','ja','leer','leer','leer'),
-                ('nr2','nr0',lang.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr3','nr2',lang.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
-                ('nr4','nr2',lang.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
-                ('nr5','root',lang.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
+                ('nr1','nr0',LANG.TITEL,1,'pg','-','ja','leer','leer','leer'),
+                ('nr2','nr0',LANG.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr3','nr2',LANG.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
+                ('nr4','nr2',LANG.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
+                ('nr5','root',LANG.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
         
         return Eintraege
         
@@ -976,9 +975,24 @@ class Projekt():
     def test(self):
 
         try:
-            self.mb.class_Bereiche.leere_Dokument()
+            doc = self.mb.doc  
+            vd = doc.ViewData.getByIndex(0)
+            va_size = doc.getVisualAreaSize(8)
+            
+            event = doc.Events.getByName('OnVisAreaChanged')
+            
+            
+            oDisplayAccess = self.mb.createUnoService("com.sun.star.awt.DisplayAccess")
+            oDisplay1 = oDisplayAccess.getByIndex(0)
+            oDisplay2 = oDisplayAccess.getByIndex(1)
+            #aRect = oDisplay.WorkArea 
+            
             pass
-
+#             
+#             z = self.mb.class_Zitate
+#             z.start()
+            
+             
         except:
             log(inspect.stack,tb())
             print(tb())
@@ -986,8 +1000,9 @@ class Projekt():
             
         pd()
         
- 
-        
+
+
+
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     
@@ -1058,15 +1073,15 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
             cmd = ev.ActionCommand  
             if cmd == 'vorlage_erstellen':
                 self.vorlage_auswaehlen()
-            elif cmd == lang.WAEHLEN:
+            elif cmd == LANG.WAEHLEN:
                 return
-            elif cmd == lang.CANCEL:
+            elif cmd == LANG.CANCEL:
                 parent.endDialog(0)
             elif self.model_proj_name.Text == '':
-                self.mb.Mitteilungen.nachricht(lang.KEIN_NAME,"warningbox")
+                self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
             elif self.mb.speicherort_last_proj == None:
-                self.mb.Mitteilungen.nachricht(lang.KEIN_SPEICHERORT,"warningbox")
-            elif cmd == lang.OK:
+                self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
+            elif cmd == LANG.OK:
                 self.get_path()
                 parent.endDialog(1)
                 
@@ -1101,14 +1116,14 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         if self.mb.debug: log(inspect.stack)
         
         if self.model_neue_vorl.Text == '':
-            self.mb.Mitteilungen.nachricht(lang.WARNUNG_NAME_TEMPLATE,"warningbox")
+            self.mb.nachricht(LANG.WARNUNG_NAME_TEMPLATE,"warningbox")
             return
         
         else:
             name = self.model_neue_vorl.Text
             
             if name in self.mb.user_styles:
-                self.mb.Mitteilungen.nachricht(lang.WARNUNG_TEMPLATE_EXISTS   ,"warningbox")
+                self.mb.nachricht(LANG.WARNUNG_TEMPLATE_EXISTS   ,"warningbox")
                 return
             
             else:
@@ -1121,7 +1136,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                 self.control_LB.Enable = True
                 self.control_CB.Enable = True
                 
-                if self.control_LB.Items[0] == lang.NO_TEMPLATES:
+                if self.control_LB.Items[0] == LANG.NO_TEMPLATES:
                     
                     self.control_LB.Model.removeAllItems()
                     self.control_LB.addItems((name,),0)
@@ -1167,7 +1182,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         except:
             log(inspect.stack,tb())
         newDoc.close(False)
-        self.mb.Mitteilungen.nachricht(lang.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
+        self.mb.nachricht(LANG.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
         
         # var DefaultTemplate = ((XDocumentPropertiesSupplier)oDoc).getDocumentProperties().TemplateURL;
     

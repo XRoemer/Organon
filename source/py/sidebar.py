@@ -27,31 +27,31 @@ class Sidebar():
             'Tags_user2',
             'Tags_user3')
         
-        self.sb_panels1 = {'Synopsis':self.mb.lang.SYNOPSIS,
-            'Notes':self.mb.lang.NOTIZEN,
-            'Images':self.mb.lang.BILDER,
-            'Tags_general':self.mb.lang.ALLGEMEIN,
-            'Tags_characters':self.mb.lang.CHARAKTERE,
-            'Tags_locations':self.mb.lang.ORTE,
-            'Tags_objects':self.mb.lang.OBJEKTE,
-            'Tags_time':self.mb.lang.ZEIT,
-            'Tags_user1':self.mb.lang.BENUTZER1,
-            'Tags_user2':self.mb.lang.BENUTZER2,
-            'Tags_user3':self.mb.lang.BENUTZER3}
+        self.sb_panels1 = {'Synopsis':LANG.SYNOPSIS,
+            'Notes':LANG.NOTIZEN,
+            'Images':LANG.BILDER,
+            'Tags_general':LANG.ALLGEMEIN,
+            'Tags_characters':LANG.CHARAKTERE,
+            'Tags_locations':LANG.ORTE,
+            'Tags_objects':LANG.OBJEKTE,
+            'Tags_time':LANG.ZEIT,
+            'Tags_user1':LANG.BENUTZER1,
+            'Tags_user2':LANG.BENUTZER2,
+            'Tags_user3':LANG.BENUTZER3}
         
         
         
-        self.sb_panels2 = {self.mb.lang.SYNOPSIS:'Synopsis',
-            self.mb.lang.NOTIZEN:'Notes',
-            self.mb.lang.BILDER:'Images',
-            self.mb.lang.ALLGEMEIN:'Tags_general',
-            self.mb.lang.CHARAKTERE:'Tags_characters',
-            self.mb.lang.ORTE:'Tags_locations',
-            self.mb.lang.OBJEKTE:'Tags_objects',
-            self.mb.lang.ZEIT:'Tags_time',
-            self.mb.lang.BENUTZER1:'Tags_user1',
-            self.mb.lang.BENUTZER2:'Tags_user2',
-            self.mb.lang.BENUTZER3:'Tags_user3'}
+        self.sb_panels2 = {LANG.SYNOPSIS:'Synopsis',
+            LANG.NOTIZEN:'Notes',
+            LANG.BILDER:'Images',
+            LANG.ALLGEMEIN:'Tags_general',
+            LANG.CHARAKTERE:'Tags_characters',
+            LANG.ORTE:'Tags_locations',
+            LANG.OBJEKTE:'Tags_objects',
+            LANG.ZEIT:'Tags_time',
+            LANG.BENUTZER1:'Tags_user1',
+            LANG.BENUTZER2:'Tags_user2',
+            LANG.BENUTZER3:'Tags_user3'}
         
         self.sb_tags = ('Tags_general',
                         'Tags_characters',
@@ -294,24 +294,7 @@ class Sidebar():
             xUIElement = self.mb.dict_sb['controls'][xUIElement_name][0]
             sb = self.mb.dict_sb['controls'][xUIElement_name][1]
             panelWin = xUIElement.Window
-            # 
-            panelWin.Model.Sizeable = True
             
-            from com.sun.star.awt import FontDescriptor
-            
-            #Create font descriptor for fixed text
-            font_descriptor = FontDescriptor()
-            font_descriptor.Name = 'Trajan Pro'
-            font_descriptor.Height = 19
-            font_descriptor.Width = 15
-            font_descriptor.Weight = 150
-            font_descriptor.Kerning = True
-            try:
-                panelWin.Controls[0].Model.FontDescriptor = font_descriptor    
-            except:
-                print(tb())
-            #pd()
-            #panelWin.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
             
             # alte Eintraege im einzelnen Panel vorher loeschen
             if rufer == 'focus_lost':
@@ -326,7 +309,7 @@ class Sidebar():
             #                TAGS                #
             ######################################            
             
-            ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+            ordinal = self.mb.props[T.AB].selektierte_zeile
             
             if xUIElement_name in self.sb_tags:
                 
@@ -336,7 +319,7 @@ class Sidebar():
                 height = 20
                 
                 prop_names = ('HelpText','MultiLine')
-                prop_values = (self.mb.lang.ENTER_NEW_TAG,True)
+                prop_values = (LANG.ENTER_NEW_TAG,True)
                 control, model = self.mb.createControl(ctx, "Edit", 170, y,100, height, prop_names, prop_values)
                 panelWin.addControl('Button', control) 
 
@@ -366,7 +349,7 @@ class Sidebar():
                         
                         # Add Button
                         prop_names = ('Label','HelpText')
-                        prop_values = ('',self.mb.lang.TAG_HINZUFUEGEN)
+                        prop_values = ('',LANG.TAG_HINZUFUEGEN)
                         control, model = self.mb.createControl(ctx, "Button", 280, y_all_tags ,14, 14, prop_names, prop_values)
                         panelWin.addControl('Remove_'+tag_eintrag, control) 
                         control.setActionCommand(xUIElement_name + SEP + ordinal + SEP + tag_eintrag + SEP + 'hinzufuegen')
@@ -389,11 +372,11 @@ class Sidebar():
                     
                     if xUIElement_name == 'Tags_general':
                         if self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] == 0:
-                            helptext = self.mb.lang.TAGS_IN_AKT_DAT_LOESCHEN
+                            helptext = LANG.TAGS_IN_AKT_DAT_LOESCHEN
                         else:
-                            helptext = self.mb.lang.TAGS_IM_GES_DOK_LOESCHEN
+                            helptext = LANG.TAGS_IM_GES_DOK_LOESCHEN
                     else:
-                        helptext = self.mb.lang.TAG_LOESCHEN
+                        helptext = LANG.TAG_LOESCHEN
                     # Remove Button
                     prop_names = ('Label','HelpText')
                     prop_values = ('X',helptext)
@@ -517,7 +500,7 @@ class Sidebar():
                     leere_zeit = self.in_time_struct_wandeln(leere_zeit)
                     
                 prop_names = ('Label',)
-                prop_values = (self.mb.lang.ZEIT2,)
+                prop_values = (LANG.ZEIT2,)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
                 panelWin.addControl('Time', control)
                 
@@ -539,7 +522,7 @@ class Sidebar():
                 pos_y += 30
                 
                 prop_names = ('Label',)
-                prop_values = (self.mb.lang.DATUM,)
+                prop_values = (LANG.DATUM,)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
                 panelWin.addControl('Datum_Label', control)
                 
@@ -646,19 +629,19 @@ class Sidebar():
         listener = Options_Tags_General_And_Images_Listener(self.mb,win)
         
         prop_names = ('Label',)
-        prop_values = (self.mb.lang.IN_PROJEKTORDNER_IMPORTIEREN,)
+        prop_values = (LANG.IN_PROJEKTORDNER_IMPORTIEREN,)
         control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 340, 20, prop_names, prop_values)  
         cont.addControl('Titel', control)
         
         prop_names = ('Label',)
-        prop_values = (self.mb.lang.BILD_EINFUEGEN,)
+        prop_values = (LANG.BILD_EINFUEGEN,)
         control, model = self.mb.createControl(self.mb.ctx, "Button", 10, 30, 120, 30, prop_names, prop_values)  
         cont.addControl('Titel', control)
         control.setActionCommand('bild_einfuegen')
         control.addActionListener(listener)
         
         prop_names = ('Label',)
-        prop_values = (self.mb.lang.BILD_LOESCHEN,)
+        prop_values = (LANG.BILD_LOESCHEN,)
         control, model = self.mb.createControl(self.mb.ctx, "Button", 10, 70, 120, 30, prop_names, prop_values)  
         cont.addControl('Titel2', control)
         control.setActionCommand('bild_loeschen')
@@ -681,19 +664,19 @@ class Sidebar():
             listener = Options_Tags_General_And_Images_Listener(self.mb)
             
             prop_names = ('Label',)
-            prop_values = (self.mb.lang.EINSTELLUNGEN_TAGS_GENERAL,)
+            prop_values = (LANG.EINSTELLUNGEN_TAGS_GENERAL,)
             control, model = self.mb.createControl(self.mb.ctx, "FixedText", 28, 10, 340, 20, prop_names, prop_values)  
             cont.addControl('Titel', control)
             
             prop_names = ('Label','State')
-            prop_values = (self.mb.lang.TAGS_IM_GES_DOK_LOESCHEN,state)
+            prop_values = (LANG.TAGS_IM_GES_DOK_LOESCHEN,state)
             control, model = self.mb.createControl(self.mb.ctx, "RadioButton", 10, 30, 340, 20, prop_names, prop_values)  
             cont.addControl('Titel', control)
             control.setActionCommand('1')
             control.addActionListener(listener)
             
             prop_names = ('Label','State')
-            prop_values = (self.mb.lang.TAGS_IN_AKT_DAT_LOESCHEN,state2)
+            prop_values = (LANG.TAGS_IN_AKT_DAT_LOESCHEN,state2)
             control, model = self.mb.createControl(self.mb.ctx, "RadioButton", 10, 50, 340, 20, prop_names, prop_values)  
             cont.addControl('Titel', control)
             control.setActionCommand('0')
@@ -775,7 +758,7 @@ class Text_Change_Listener_Synopsis(unohelper.Base, XPropertyChangeListener):
         self.mb = mb
         
     def propertyChange(self,ev):
-        ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        ordinal = self.mb.props[T.AB].selektierte_zeile
         self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis'] = ev.NewValue
           
           
@@ -785,7 +768,7 @@ class Text_Change_Listener_Notizen(unohelper.Base, XPropertyChangeListener):
         self.mb = mb
 
     def propertyChange(self,ev):
-        ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        ordinal = self.mb.props[T.AB].selektierte_zeile
         self.mb.dict_sb_content['ordinal'][ordinal]['Notes'] = ev.NewValue
 
 
@@ -841,7 +824,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
             from shutil import copy2
             copy2(sys_filepath, sys_path)
         
-        ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        ordinal = self.mb.props[T.AB].selektierte_zeile
         
         old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
         
@@ -855,7 +838,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
     def bild_loeschen_a(self):
         if self.mb.debug: log(inspect.stack)
         
-        ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        ordinal = self.mb.props[T.AB].selektierte_zeile
         old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
         self.mb.dict_sb_content['ordinal'][ordinal]['Images'] = ''
         self.bild_loeschen(old_image_path)
@@ -896,7 +879,7 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
         if ev.KeyCode != 1280:
             return
         
-        ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+        ordinal = self.mb.props[T.AB].selektierte_zeile
         new_tag = ev.Source.Model.Text.replace('\n','')
         
         if new_tag != '':
@@ -941,7 +924,7 @@ class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
         
         self.mb.doc.UndoManager.undo()
         try:
-            ordinal = self.mb.props[T.AB].selektierte_zeile.AccessibleName
+            ordinal = self.mb.props[T.AB].selektierte_zeile
 
             if hasattr(ev.Source.Model, 'Time'):
                 attribute = 'zeit'
