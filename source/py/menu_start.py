@@ -199,7 +199,7 @@ class Menu_Start():
               
     def lade_Modul_Language(self):
         if debug: log(inspect_stack)
-        
+            
         enum = self.desktop.Components.createEnumeration()
         comps = []
         
@@ -222,7 +222,7 @@ class Menu_Start():
         if 'lang_' + language in vars():
             lang = vars()['lang_' + language]
         else:
-            lang = vars()[lang_en]   
+            lang = vars()[lang_en]  
 
         return lang
     

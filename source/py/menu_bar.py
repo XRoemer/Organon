@@ -103,8 +103,7 @@ class Menu_Bar():
         self.tabs = {tabsX.ActiveTabID:(dialog,'Projekt')}
         self.active_tab_id = tabsX.ActiveTabID
         self.tab_id_old = self.active_tab_id
-        self.tab_umgeschaltet = False
-        
+                
         
         # Settings
         self.settings_exp = None
@@ -914,6 +913,13 @@ class Menu_Bar():
         # diese Methode existiert, um alle Schreibvorgaenge
         # des XML_trees kontrollieren zu koennen
         tree.write(pfad)
+    
+    def prettyprint(self,pfad,oObject,w=600):
+        
+        from pprint import pformat
+        imp = pformat(oObject,width=w)
+        with codecs_open(pfad , "w",'utf-8') as file:
+            file.write(imp)
         
 
     def oeffne_dokument_in_neuem_fenster(self,URL):
@@ -1032,7 +1038,7 @@ def menuEintraege(LANG,menu):
             LANG.NEUER_TAB,
             'SEP',
             LANG.TRENNE_TEXT,
-            #LANG.TEXTVERGLEICH,
+            LANG.TEXTVERGLEICH,
             'SEP',
             LANG.UNFOLD_PROJ_DIR,
             LANG.CLEAR_RECYCLE_BIN
@@ -1043,8 +1049,8 @@ def menuEintraege(LANG,menu):
                 LANG.SCHLIESSE_TAB,
                 LANG.IMPORTIERE_IN_TAB,
                 'SEP',
-                #LANG.TEXTVERGLEICH,
-                #'SEP',
+                LANG.TEXTVERGLEICH,
+                'SEP',
                 LANG.UNFOLD_PROJ_DIR,
                 LANG.CLEAR_RECYCLE_BIN
                 )  
@@ -1242,7 +1248,6 @@ class Tab_Listener(unohelper.Base,XTabListener):
                     self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)  
                     self.mb.props[T.AB].tastatureingabe = False
 
-                self.mb.tab_umgeschaltet = True
                 self.mb.active_tab_id = id
                 sichtbare_bereiche = self.mb.props['Projekt'].sichtbare_bereiche
                 try:

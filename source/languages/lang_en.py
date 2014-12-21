@@ -212,21 +212,24 @@ DATEI_AUSSUCHEN = 'select File'
 ORDNER_AUSSUCHEN = 'select Folder'
 TEXTVERGLEICH = 'Text Comparison: find Quotations'
 ANZ_SUCHWOERTER = u'Amount Searchterms'
-ANZ_WOERTER_KTXT = u'Amount Words Context'
-OEFFNEN_IN = u'open in:'
-WEBBROWSER = 'Webbrowser'
-NEUEM_DOK = 'new Document'
-SPEICHERN_ALS = 'save as:'
 START = 'Start'
 KEINE_AUSGABE_GEWAEHLT = u"You didn't select an output"
 NOCH_NICHT_AUSGESUCHT = u"You didn't select %s!"
 VERGLEICH_VON_MIT = u'Comparison of %s with %s'
 KEINE_UEBEREINSTIMMUNGEN = u'No matches found'
 ZITATE_FINDEN = 'Find Quotations'
-IN_SPALTEN = ' in rows.html'
-GEFUNDEN_WURDEN = u'%s exact matches and %s similarities had been found'
-EXAKTE_UEBEREINSTIMMUNGEN = u'Exact Matches'
 AUSGEWAEHLTER_ORDNER_WAEHLT = u'A selected folder selects his content as well'
+
+FUNDSTELLEN = u'References: {0}'
+VERSIONEN_TXT1 = u'Versions Text 1: {0}'
+VARIANTEN_TXT2 = u'Variants Text 2: {0}'
+NAVIGATION = u'Navigation'
+SUCHWOERTER = u'Amount Search Terms: {0}'
+SORTIERUNG = 'Order'
+INTERN = 'intern'
+EXTERN = 'extern'
+ALPHABETISCH = 'alphabetical'
+CHRONOLOGISCH = 'chronological'
 
 
 ## DIVERSES

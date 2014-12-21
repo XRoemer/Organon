@@ -332,4 +332,59 @@ class Bereiche():
                 
         self.mb.selbstruf = False   
         
+        
+    def speicher_odt(self,pfad):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True        
+        
+            prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop2.Name = 'FilterName'
+            prop2.Value = "HTML (StarWriter)"
+    
+            pfad = uno.systemPathToFileUrl(os.path.join(self.speicherordner,self.titel+'.html'))
+            doc = self.doc.CurrentController.Frame.loadComponentFromURL(pfad,'_blank',0,(prop,prop2))
+
+            prop1 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop1.Name = 'Overwrite'
+            prop1.Value = True
+            
+            pfad = uno.systemPathToFileUrl(os.path.join(self.speicherordner,self.titel+'.odt'))
+            doc.storeToURL(pfad,(prop1,))
+            doc.close(False)
+            
+        except:
+            log(inspect.stack,tb())
+
+
+    def speicher_pdf(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop.Name = 'Hidden'
+        prop.Value = True        
+    
+        prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop2.Name = 'FilterName'
+        prop2.Value = "HTML (StarWriter)"
+
+        pfad = uno.systemPathToFileUrl(os.path.join(self.speicherordner,self.titel+'.html'))
+        doc = self.doc.CurrentController.Frame.loadComponentFromURL(pfad,'_blank',0,(prop,prop2))
+
+        prop1 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop1.Name = 'Overwrite'
+        prop1.Value = True
+        
+        
+        prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop3.Name = 'FilterName'
+        prop3.Value = 'writer_pdf_Export'
+        
+        
+        pfad = uno.systemPathToFileUrl(os.path.join(self.speicherordner,self.titel+'.pdf'))
+        doc.storeToURL(pfad,(prop1,prop3))
+        doc.close(False)
 

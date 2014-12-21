@@ -198,10 +198,11 @@ class Log():
         except Exception as e:
             try:
                 print(e)
+                print(tb())
                 path = join(self.location_debug_file,'organon_log_error.txt')
                 with open(path , "a") as file:
                     file.write(str(e) +'\r\n')
-                    file.write(traceb +'\r\n')
+                    file.write(tb() +'\r\n')
             except:
                 pass
 

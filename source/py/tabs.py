@@ -132,7 +132,6 @@ class Tabs():
             self.erzeuge_props(tab_name)
             Eintraege = self.erzeuge_Eintraege(tab_name,ordinale)        
  
-            self.mb.tab_umgeschaltet = True
             self.mb.tab_id_old = self.mb.active_tab_id
             win,tab_id = self.get_tab(tab_name)
  
@@ -175,7 +174,6 @@ class Tabs():
 
             Eintraege = self.erzeuge_neue_Eintraege_im_tab(tab_name,ordinale,tab_xml, ord_selektierter)        
 
-            self.mb.tab_umgeschaltet = True
             self.mb.tab_id_old = self.mb.active_tab_id
             win,tab_id = self.get_tab(tab_name)
  
@@ -209,7 +207,6 @@ class Tabs():
                 self.erzeuge_props(tab_name)
                 Eintraege = self.lade_tab_Eintraege(tab_name)        
             
-                self.mb.tab_umgeschaltet = True
                 self.mb.tab_id_old = self.mb.active_tab_id
                 win,tab_id = self.get_tab(tab_name)
     

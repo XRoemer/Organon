@@ -8,17 +8,20 @@ from string import punctuation as Punctuation
 from unicodedata import name as unicode_name
 from bisect import bisect_right
 
-# verbotene_Buchstaben = {u"\u0313":u"\u2018", # SINGLE HIGH-REVERSED-9 QUOTATION MARK
-#                         u"\u0312":'',
-#                          u"\u02BB":u"\u2018", # SINGLE HIGH-REVERSED-9 QUOTATION MARK
-#                          u"\u02BC":u"\u2019", # RIGHT SINGLE QUOTATION MARK
-#                         u"\u0315":'',
-#                         u"\u0308":'',
-#                         u"\u2028":'',
-#                          u"\u03F2":'',
-#                          u"\u201B":u"\u2018", # SINGLE HIGH-REVERSED-9 QUOTATION MARK
-#                         u"\u2012":''
-#                          }
+verbotene_Buchstaben = {#u"\u0313":u"\u2018", # SINGLE HIGH-REVERSED-9 QUOTATION MARK
+                        #u"\u0312":'',
+                        # u"\u02BB":u"\u2018", # SINGLE HIGH-REVERSED-9 QUOTATION MARK
+                         #u"\u02BC":u"\u2019", # RIGHT SINGLE QUOTATION MARK
+                        #u"\u0315":'',
+                        #u"\u0308":'',
+                        #u"\u2028":'',
+                         #u"\u03F2":'',
+                         u"\u201B":u"\u2019", # SINGLE HIGH-REVERSED-9 QUOTATION MARK
+                        #u"\u2012":''
+                         }
+
+
+
 
 class ExportToLatex():
     
@@ -26,8 +29,8 @@ class ExportToLatex():
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.leerzeile = '\r\n\r\n'
-        self.umbruch = '\r\n'
+        self.leerzeile = '\n\n'
+        self.umbruch = '\n'
         self.ausnahmen = []
         self.inhalt = []
         self.blocks = unicode_blocks
@@ -55,7 +58,7 @@ class ExportToLatex():
             
             StatusIndicator = self.mb.doc.CurrentController.Frame.createStatusIndicator()
             StatusIndicator.start('Export ' + os.path.split(path)[1],len(paras))
-            
+
             x = 0
             for par in paras:
                 
@@ -67,9 +70,15 @@ class ExportToLatex():
                 
                 teste_kursiv = True
                 teste_fett = True
+                leerer_para = False
 
                 if 'Heading' in par.ParaStyleName:
                     self.set_heading(par)
+                    teste_kursiv = False
+                    teste_fett = False
+
+                if 'Quotations' in par.ParaStyleName:
+                    self.inhalt.append('\\begin{quote}')
                     teste_kursiv = False
                     teste_fett = False
                     
@@ -84,7 +93,7 @@ class ExportToLatex():
                 if len(portions) == 1:
                     if portions[0].String == '':
                         self.inhalt.append('\\bigskip')
-                
+                        leerer_para = True
 
                 for portion in portions:
                     open = 0
@@ -116,10 +125,15 @@ class ExportToLatex():
                 # schliesse Klammer fuer Ueberschrift
                 if 'Heading' in par.ParaStyleName:
                     self.inhalt.append('}')
-                    
-                self.inhalt.append(self.leerzeile)
+                if 'Quotations' in par.ParaStyleName:
+                    self.inhalt.append('\\end{quote}')
                 
-            #inhalt = self.verbotene_buchstaben_auswechseln(self.inhalt)
+                self.inhalt.append(self.leerzeile)
+                if leerer_para:
+                    self.inhalt.append('\\noindent\n') 
+                
+                
+            #self.inhalt = self.verbotene_buchstaben_auswechseln(self.inhalt)
             #self.speicher(self.inhalt,'a') 
             
             self.ende()
@@ -150,7 +164,8 @@ class ExportToLatex():
         
         
         if par.ParaStyleName == 'Heading':
-            self.inhalt.append('\\chapter{')
+            self.inhalt.append('{')
+            pass#self.inhalt.append('\\chapter{')
         elif par.ParaStyleName == 'Heading 1':
             self.inhalt.append('\\section{')
         elif par.ParaStyleName == 'Heading 2':
@@ -179,53 +194,54 @@ class ExportToLatex():
             
             content = ''.join(inhalt)
             
+                
             with codecs_open( pfad, mode,"utf-8") as file:
                 file.write(content)
         except:
             log(inspect.stack,tb())
     
-#     def verbotene_buchstaben_auswechseln(self,content):    
-#         if self.mb.debug: log(inspect.stack)
-#         
-#         try:
-#             ausgewechselte = []
-#             content = ''.join(content)
-#             
-#             for b in verbotene_Buchstaben:
-#                 anz = content.count(b)
-#                 
-#                 if anz > 0:
-#                     
-#                      
-#                     if verbotene_Buchstaben[b] == '':
-#                         tausch = 'XXX %s XXX'%anz
-#                     else:
-#                         tausch = verbotene_Buchstaben[b]
-#                     content = content.replace(b,tausch)
-#                     
-#                     mitteil = b , str(anz) , b.encode("unicode_escape"),tausch
-#                     ausgewechselte.append(mitteil) 
-#                 
-#                 
-#             pfad_a = os.path.join(self.path,'exchanged_letters.txt')
-#             
-#             a2 = 10
-#             b = 15
-#             c = 20
-#             
-#             with codecs_open( pfad_a, 'w',"utf-8") as file:
-#                     top = 'Symbol'.ljust(a2) + u'Amount'.ljust(b) + 'Unicode Number'.ljust(c)+ 'exchanged with:' + '\r\n'
-#                     file.write(top)
-#                     
-#             for aus in ausgewechselte:
-#                                 
-#                 symbol = aus[0].ljust(a2) + aus[1].ljust(b) + aus[2].ljust(c) + aus[3].ljust(c) + '\r\n'
-#                 with codecs_open( pfad_a, 'a',"utf-8") as file:
-#                     file.write(symbol)
-#             #pd()
-#             return content
-#         except:
-#             print(tb())   
+    def verbotene_buchstaben_auswechseln(self,content):    
+        if self.mb.debug: log(inspect.stack)
+         
+        try:
+            ausgewechselte = []
+            content = ''.join(content)
+             
+            for b in verbotene_Buchstaben:
+                anz = content.count(b)
+                 
+                if anz > 0:
+                     
+                      
+                    if verbotene_Buchstaben[b] == '':
+                        tausch = 'XXX %s XXX'%anz
+                    else:
+                        tausch = verbotene_Buchstaben[b]
+                    content = content.replace(b,tausch)
+                     
+                    mitteil = b , str(anz) , b.encode("unicode_escape"),tausch
+                    ausgewechselte.append(mitteil) 
+                 
+                 
+            pfad_a = os.path.join(self.path,'exchanged_letters.txt')
+             
+            a2 = 10
+            b = 15
+            c = 20
+             
+            with codecs_open( pfad_a, 'w',"utf-8") as file:
+                    top = 'Symbol'.ljust(a2) + u'Amount'.ljust(b) + 'Unicode Number'.ljust(c)+ 'exchanged with:' + '\r\n'
+                    file.write(top)
+                     
+            for aus in ausgewechselte:
+                                 
+                symbol = aus[0].ljust(a2) + aus[1].ljust(b) + aus[2].ljust(c) + aus[3].ljust(c) + '\r\n'
+                with codecs_open( pfad_a, 'a',"utf-8") as file:
+                    file.write(symbol)
+
+            return content
+        except:
+            log(inspect.stack,tb())
             
             
     def Praeambel(self):
@@ -257,7 +273,7 @@ class ExportToLatex():
         for p in Praeambel:
             prae = prae + p + '\r\n'
         
-        self.inhalt.append(prae)
+        #self.inhalt.append(prae)
         #self.speicher(prae,'w')
              
     def ende(self):
@@ -273,7 +289,7 @@ class ExportToLatex():
         for p in ende:
             en = en + p + '\r\n'
             
-        self.inhalt.append(en)
+        #self.inhalt.append(en)
         
     
 #     def speicher_ausnahmen(self,buchst):
@@ -353,7 +369,7 @@ class ExportToLatex():
             return fussnote
             
         except:
-            print(tb())
+            log(inspect.stack,tb())
 
     def ausgabe(self,text):
         
@@ -388,7 +404,33 @@ class ExportToLatex():
                     dict_gr_BS.update({z[2]:(z[1],z[0])})
                 elif z[0] > 256:
                     dict_auszuschliessende.update({z[2]:(z[1],z[0])})
+                
             
+            verwendete = [u'A searchable unicode table can be found at: http://unicode-table.com\n',
+                          u'An editor which is able to view all unicode signs is for example: Notepad++ \n',
+                          u'\n',
+                          u'%-5s %-8s %-30s %-20s \n' %(u'Sign',u'Dec',u'Unicode Block',u'Name'),
+                          u'\n',]
+            
+            zu_tauschende = {}
+            zu_t = []
+            for vw in verwendete_Buchstaben:
+                v1 = vw[1]
+                v2 = vw[2]
+                v3 = codepoints_b[v2]
+                v4 = unicode_name(v2,'not defined, search in unicode table')
+                
+                if v1 == 'Control Character':
+                    v2 = ' '
+                    
+                if v1 in ["Spacing Modifier Letters","Combining Diacritical Marks"]:
+                    zu_tauschende.update({v2:v3})
+                    zu_t.append(v2)
+                    
+                ausg = '%-5s %-8s %-30s %-20s \n' %(v2,v3,v1,v4) 
+                verwendete.append(ausg)
+            
+ 
             
             neuer_text = []
             greek = False
@@ -397,8 +439,12 @@ class ExportToLatex():
             pu = pu.replace('{','').replace('}','').replace('\\','')
             
             for b in buchstaben_liste:
-    #             if b in dict_auszuschliessende:
-    #                 continue
+                if b in zu_t:
+                    b = 'XXX'+str(zu_tauschende[b])+'XXX'
+                if b in verbotene_Buchstaben:
+                    b = verbotene_Buchstaben[b]
+                elif b == '_':
+                    b = ' '
                 if b in pu:
                     neuer_text.append(b)
                     continue
@@ -416,33 +462,16 @@ class ExportToLatex():
                     else:
                         neuer_text.append(b)
                         
-            
+
             pfad1 = self.path+'.tex'
             pfad2 = self.path +'_used_letters.txt'
             
-            self.speicher(neuer_text,'w',pfad1)   
-            
-            verwendete = [u'A searchable unicode table can be found at: http://unicode-table.com\n',
-                          u'An editor which is able to view all unicode signs is for example: Notepad++ \n',
-                          u'\n',
-                          u'%-5s %-8s %-30s %-20s \n' %(u'Sign',u'Dec',u'Unicode Block',u'Name'),
-                          u'\n',]
-            
-            for vw in verwendete_Buchstaben:
-                v1 = vw[1]
-                v2 = vw[2]
-                v3 = codepoints_b[v2]
-                v4 = unicode_name(v2,'not defined, search in unicode table')
-                
-                if v1 == 'Control Character':
-                    v2 = ' '
-                
-                ausg = '%-5s %-8s %-30s %-20s \n' %(v2,v3,v1,v4) 
-                verwendete.append(ausg)
             
             text_ver = ''.join(verwendete)
             self.speicher(text_ver,'w',pfad2)
             
+            
+            self.speicher(neuer_text,'w',pfad1)
         except:
             log(inspect.stack,tb())
         

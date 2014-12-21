@@ -975,24 +975,10 @@ class Projekt():
     def test(self):
 
         try:
-            doc = self.mb.doc  
-            vd = doc.ViewData.getByIndex(0)
-            va_size = doc.getVisualAreaSize(8)
-            
-            event = doc.Events.getByName('OnVisAreaChanged')
             
             
-            oDisplayAccess = self.mb.createUnoService("com.sun.star.awt.DisplayAccess")
-            oDisplay1 = oDisplayAccess.getByIndex(0)
-            oDisplay2 = oDisplayAccess.getByIndex(1)
-            #aRect = oDisplay.WorkArea 
-            
-            pass
-#             
-#             z = self.mb.class_Zitate
-#             z.start()
-            
-             
+            txt = 'wer hat an der uhr gedreht'.encode('ascii', 'xmlcharrefreplace')
+            a = txt.decode('utf-8')
         except:
             log(inspect.stack,tb())
             print(tb())

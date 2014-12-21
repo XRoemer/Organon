@@ -1004,7 +1004,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog,self.mb.ctx)    
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog)    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
                          
             # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
