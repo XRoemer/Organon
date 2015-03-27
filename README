@@ -22,6 +22,8 @@ tested for Win7 (LO 4.2.0.4, OO 4.0.1), Ubuntu 13.10 (LO 4.2.0.4), OSX 10.6 (LO 
 WARNING:         This is still a beta version.
 
 	Installation:
+Unzip the downloaded package or download organon.oxt directly from here:
+http://extensions.openoffice.org/en/project/organon
 Click 'Add' in Tools/Extension Manager and choose the saved 'organon.oxt'. Accept the licence and restart LO/OO.
 
 	Usage
@@ -32,34 +34,34 @@ For a detailed description start the manual after installation.
 
 
 
-	Organon – Beschreibung
+	Organon â€“ Beschreibung
 
-Organon ist ein Werkzeug für eine übersichtliche Navigation zwischen Texten in Writer (OpenOffice und LibreOffice).
+Organon ist ein Werkzeug fÃ¼r eine Ã¼bersichtliche Navigation zwischen Texten in Writer (OpenOffice und LibreOffice).
 
-Organon legt Textdateien in einem Verzeichnisbaum an und erstellt Möglichkeiten für Tags in der Sidebar
+Organon legt Textdateien in einem Verzeichnisbaum an und erstellt MÃ¶glichkeiten fÃ¼r Tags in der Sidebar
 
-Texte/Verzeichnisse können:
+Texte/Verzeichnisse kÃ¶nnen:
 
 - per Drag and Drop verschoben werden
 - mit Tags versehen werden
 - ex- und
 - importiert werden
-- in neuen Tabs geöffnet werden
+- in neuen Tabs geÃ¶ffnet werden
 
 Bei Auswahl eines Ordners oder einer Datei springt Organon an die entsprechende Textstelle. 
 
 
 
-Extension für LibreOffice (LO) und OpenOffice (OO)
-getestet für Win7 (LO 4.2.0.4 und OO 4.0.1), Ubuntu 13.10 (LO 4.2.0.4), Mac 10.6 (LO 4.2.0.4)
+Extension fÃ¼r LibreOffice (LO) und OpenOffice (OO)
+getestet fÃ¼r Win7 (LO 4.2.0.4 und OO 4.0.1), Ubuntu 13.10 (LO 4.2.0.4), Mac 10.6 (LO 4.2.0.4)
 
 WARNUNG:	Dies ist eine Beta-Version.
  	
 	Installation:
-Unter Extras/Extension Manager auf hinzufügen klicken und die organon.oxt Datei auswählen. Lizenzvertrag akzeptieren und Office schließen und neu starten.
+Unter Extras/Extension Manager auf hinzufÃ¼gen klicken und die organon.oxt Datei auswÃ¤hlen. Lizenzvertrag akzeptieren und Office schlieÃŸen und neu starten.
 
  	Bedienung
-Öffnen Sie für eine ausführlichere Beschreibung das Handbuch nach der Installation
+Ã–ffnen Sie fÃ¼r eine ausfÃ¼hrlichere Beschreibung das Handbuch nach der Installation
 
 
 
