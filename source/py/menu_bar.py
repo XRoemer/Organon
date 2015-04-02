@@ -131,8 +131,8 @@ class Menu_Bar():
         self.class_Tabs =       self.lade_modul('tabs','.Tabs(self)') 
         self.class_Latex =      self.lade_modul('latex_export','.ExportToLatex(self)') 
         self.class_Zitate =      self.lade_modul('zitate','.Zitate(self)') 
-        self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','.WListe(self)') 
-        self.class_Index = self.lade_modul('index','.Index(self)')
+        #self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','.WListe(self)') 
+        #self.class_Index = self.lade_modul('index','.Index(self)')
         
         self.class_Log = class_LogX
         self.class_Design = Design()
