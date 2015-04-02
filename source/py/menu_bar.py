@@ -131,6 +131,9 @@ class Menu_Bar():
         self.class_Tabs =       self.lade_modul('tabs','.Tabs(self)') 
         self.class_Latex =      self.lade_modul('latex_export','.ExportToLatex(self)') 
         self.class_Zitate =      self.lade_modul('zitate','.Zitate(self)') 
+        self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','.WListe(self)') 
+        self.class_Index = self.lade_modul('index','.Index(self)')
+        
         self.class_Log = class_LogX
         self.class_Design = Design()
         self.class_Gliederung = Gliederung()
@@ -825,7 +828,7 @@ class Menu_Bar():
         # global oWindow
         oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
         oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = self.topWindow #self.toolkit.getActiveTopWindow() #toolkit.getTopWindow(0) #self.desktop.CurrentFrame.ComponentWindow #
+        oWindowDesc.Parent = self.topWindow 
         oWindowDesc.ParentIndex = -1
         oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
     
@@ -1039,6 +1042,8 @@ def menuEintraege(LANG,menu):
             'SEP',
             LANG.TRENNE_TEXT,
             LANG.TEXTVERGLEICH,
+            #LANG.WOERTERLISTE,
+            #'Erzeuge Index',
             'SEP',
             LANG.UNFOLD_PROJ_DIR,
             LANG.CLEAR_RECYCLE_BIN
@@ -1050,6 +1055,7 @@ def menuEintraege(LANG,menu):
                 LANG.IMPORTIERE_IN_TAB,
                 'SEP',
                 LANG.TEXTVERGLEICH,
+                #LANG.WOERTERLISTE,
                 'SEP',
                 LANG.UNFOLD_PROJ_DIR,
                 LANG.CLEAR_RECYCLE_BIN
@@ -1445,6 +1451,12 @@ class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
             
         elif sel == LANG.TEXTVERGLEICH:  
             self.mb.class_Zitate.start()
+            
+        elif sel == LANG.WOERTERLISTE:  
+            self.mb.class_werkzeug_wListe.start()
+            
+        elif sel == 'Erzeuge Index':  
+            self.mb.class_Index.start()
 
         self.mb.loesche_undo_Aktionen()
         

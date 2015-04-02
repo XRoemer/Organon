@@ -976,16 +976,101 @@ class Projekt():
 
         try:
             
+            pass
             
-            txt = 'wer hat an der uhr gedreht'.encode('ascii', 'xmlcharrefreplace')
-            a = txt.decode('utf-8')
+            
+            
         except:
             log(inspect.stack,tb())
             print(tb())
             pd()
-            
         pd()
         
+        
+
+def calc_erstellen():
+    pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Infinitive.txt'
+
+    with codecs_open( pfad, "r",'utf-8') as file:
+        eintraege = file.readlines()
+    
+    
+    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+    prop.Name = 'Hidden'
+    prop.Value = True
+            
+    URL="private:factory/scalc"
+
+    self.calc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
+     
+    sheet = self.calc.Sheets.getByIndex(0)            
+    
+    for i in range(len(eintraege)):
+        
+        #nr,wort,infinitive = 
+        nr,wort,infinitive = eintraege[i].split(';')
+        
+        infinitive = infinitive.rstrip()
+        infinitive = infinitive.split(',')
+        
+        if infinitive == ['']:
+            infinitive = []
+            
+        
+        #print(nr,wort,infinitive)
+        
+        #print(len(infinitive))
+        
+        inf1 = ''
+        inf2 = ''
+#                 
+        if len(infinitive) == 0:
+            pass
+        elif len(infinitive) == 1:
+            inf1 = infinitive[0]
+        else:
+            inf1 = infinitive[0]
+            inf2 = ','.join(infinitive[1:])
+            
+        
+        #print(wort,inf1,inf2)
+        
+        cell1 = sheet.getCellByPosition(0, i)
+        cell1.setString(wort)
+        
+        cell2 = sheet.getCellByPosition(1, i)
+        cell2.setString(inf1)
+        
+        cell3 = sheet.getCellByPosition(2, i)
+        cell3.setString(inf2)
+#             
+    
+    pfadx = 'C:\\Users\\Homer\\Desktop\\TLG'
+    path = os.path.join(pfadx,'michael tabelle.odt')
+#              
+    self.calc.storeToURL(uno.systemPathToFileUrl(path),())    
+    self.calc.close(False)
+
+
+def woerterListe_reduzieren():
+    pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Woerter Liste.txt'
+    with codecs_open( pfad, "r",'utf-8') as file:
+        text = file.readlines()
+    
+    ignore = u'‘’“·;'#.split()
+
+    for i in range(len(text)):
+        
+        for j in ignore:
+            text[i] = text[i].replace(j,'')
+        
+    text2 = sorted(set(text))    
+
+    
+    pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Woerter Liste2.txt'
+    with codecs_open( pfad, "a",'utf-8') as file:
+        for t in text2:
+            file.write(t)
 
 
 

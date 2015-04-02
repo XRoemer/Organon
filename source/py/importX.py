@@ -390,13 +390,16 @@ class Fenster_Dispose_Listener(unohelper.Base, XEventListener):
         self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp) 
         
 
-from com.sun.star.awt import XItemListener, XActionListener, XFocusListener    
+from com.sun.star.awt import XItemListener, XActionListener, XFocusListener  
+from com.sun.star.style.BreakType import NONE as BREAKTYPE_NONE  
 class Import_Button_Listener(unohelper.Base, XActionListener):
     
     def __init__(self,mb,fenster):
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.fenster = fenster
+        
+        
 
         
     def actionPerformed(self,ev):
@@ -455,6 +458,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         # moeglicherweise vorhandene Links entfernen
         self.entferne_links(self.oOO)
         self.kapsel_in_Bereich(self.oOO,str(zeile_nr))
+        self.entferne_seitenumbrueche_am_anfang(self.oOO)
                 
         prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop3.Name = 'FilterName'
@@ -492,6 +496,20 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal_neuer_Eintrag)
         
         return ordinal_neuer_Eintrag,bereichsname
+     
+    
+    def entferne_seitenumbrueche_am_anfang(self,oOO):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            enum = oOO.Text.createEnumeration()
+            para = enum.nextElement() 
+            para.BreakType = BREAKTYPE_NONE
+            para.PageDescName = ''
+        except:
+            log(inspect.stack,tb())
+        
+    
             
     def entferne_links(self,oOO):
         if self.mb.debug: log(inspect.stack)
@@ -703,6 +721,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
 
             self.entferne_links(self.oOO)
             self.kapsel_in_Bereich(self.oOO,ordn)
+            self.entferne_seitenumbrueche_am_anfang(self.oOO)
             
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop3.Name = 'FilterName'

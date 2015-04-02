@@ -25,14 +25,6 @@ class Export():
             if self.mb.filters_export == None:
                 self.mb.class_Import.erzeuge_filter()
                 
-#             if self.haupt_fenster != None:
-#                 self.haupt_fenster.toFront()
-#                 
-#                 if self.trenner_fenster != None:
-#                     self.trenner_fenster.toFront()
-#                 if self.auswahl_fenster != None:
-#                     self.auswahl_fenster.toFront()
-#             else:
             self.erzeuge_exportfenster()
                 
         except Exception as e:

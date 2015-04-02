@@ -539,7 +539,6 @@ class Suche():
          ) = args
          
          
-        self.alphabetisch_sortiert = True
         self.titel = LANG.VERGLEICH_VON_MIT %(name1,name2)
         self.titel_txt1 = name1
         self.titel_txt2 = name2

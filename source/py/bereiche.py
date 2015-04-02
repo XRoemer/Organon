@@ -133,21 +133,24 @@ class Bereiche():
         text = dokument.Text
         cur = text.createTextCursor()
         cur.gotoStart(False)
-        cur.setPropertyValue('BreakType',6)
+        #cur.setPropertyValue('BreakType',6)
+        leer = ' ' * 60 * 30 * 400
+        leer = 'hallo'
+        #text.setString(leer)
         
         from com.sun.star.text.ControlCharacter import PARAGRAPH_BREAK
+        for i in range(100):
+            text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
+            text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
         
-        text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
-        text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
-        
-        enum = text.createEnumeration()
-        paras = []
-        while enum.hasMoreElements():
-            paras.append(enum.nextElement())
+#         enum = text.createEnumeration()
+#         paras = []
+#         while enum.hasMoreElements():
+#             paras.append(enum.nextElement())
             
-        for par in paras:
-            cur.gotoRange(par.Start,False)
-            cur.setPropertyValue('BreakType',4)
+#         for par in paras:
+#             cur.gotoRange(par.Start,False)
+#             cur.setPropertyValue('BreakType',4)
         
         url = os.path.join(self.mb.pfade['odts'], 'empty_file.odt')
         dokument.storeToURL(uno.systemPathToFileUrl(url),())
@@ -264,8 +267,7 @@ class Bereiche():
        
         
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
-        
-        
+
         if self.mb.props[T.AB].tastatureingabe == True and bereichsname != None:
             # Nur loggen, falls tatsaechlich gespeichert wurde
             if self.mb.debug: log(inspect.stack)

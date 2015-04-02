@@ -329,7 +329,6 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
         return desc_path
     
     def mouseReleased(self, ev):  
-        print('released')
         return False
     def mouseExited(self,ev):
         return False

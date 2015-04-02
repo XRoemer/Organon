@@ -273,7 +273,7 @@ class ExportToLatex():
         for p in Praeambel:
             prae = prae + p + '\r\n'
         
-        #self.inhalt.append(prae)
+        self.inhalt.append(prae)
         #self.speicher(prae,'w')
              
     def ende(self):
@@ -289,7 +289,7 @@ class ExportToLatex():
         for p in ende:
             en = en + p + '\r\n'
             
-        #self.inhalt.append(en)
+        self.inhalt.append(en)
         
     
 #     def speicher_ausnahmen(self,buchst):

@@ -125,7 +125,7 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
                 return None
             
         except Exception as e:
-            print('createUIElement '+ str(e))
+            #print('createUIElement '+ str(e))
             #pd()
             tb()
        

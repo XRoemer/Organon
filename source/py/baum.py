@@ -620,8 +620,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     bereichsname_zeile_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].selektierte_zeile_alt ]
                     bereich_zeile_alt = self.mb.doc.TextSections.getByName(bereichsname_zeile_alt)
     
-                    self.mb.props[T.AB].tastatureingabe = False
                     self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
+                    self.mb.props[T.AB].tastatureingabe = False
                     
             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
             self.mb.props[T.AB].selektierte_zeile_alt = self.mb.props[T.AB].selektierte_zeile
@@ -1446,7 +1446,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     
     def zeige_Trenner(self,sec,source_ordinal):  
         if self.mb.debug: log(inspect.stack)
-        
+
         try:
             trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
             sec_name =  sec.Name
@@ -1477,6 +1477,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             cur.gotoRange(sec_nachfolger.Anchor,False)
             cur.gotoRange(cur.TextSection.Anchor.Start,False)        
             
+            #time.sleep(0.08)
+            t1 = sec.Anchor.End.Text
+            t2 = sec_nachfolger.Anchor.Text
+            #print(t1 == t2)
+            log(inspect.stack,extras = str(t1 == t2))
+            
             sec.Anchor.End.Text.insertTextContent(cur, newSection, False)
             
             cur.goLeft(1,False)
@@ -1490,7 +1496,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             return newSection
         except:
             log(inspect.stack,tb())
-
+            
             
     def setze_Trenner_Formatierung(self,sec_trenner,sec_nachfolger_name,source_ordinal,sec_ordinal):  
         if self.mb.debug: log(inspect.stack)
