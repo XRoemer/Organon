@@ -69,7 +69,7 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
         
     def createUIElement(self,url,args):    
         cmd = url.split('/')[-1]
-
+        
         try:
             xParentWindow = None
             xFrame = None
@@ -274,7 +274,7 @@ def start_main(window,ctx,tabs,path_to_extension,win,factory):
         log,class_Log,debug = load_logging(path_to_extension)
     except:
         tb()
-            
+       
     args = (pd,
             dialog,
             ctx,

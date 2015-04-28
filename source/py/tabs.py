@@ -1090,62 +1090,64 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
-
-        if ev.ActionCommand == 'Tags Seitenleiste':
-            if not self.mb.class_Tabs.win_seitenleiste:
-                self.erzeuge_tag_auswahl_seitenleiste(ev)
-                self.mb.class_Tabs.win_seitenleiste = True
-            
-        elif ev.ActionCommand == 'Tags Baumansicht':
-            if not self.mb.class_Tabs.win_baumansicht:
-                self.erzeuge_tag_auswahl_baumansicht(ev)
-                self.mb.class_Tabs.win_baumansicht = True
-            
-        elif ev.ActionCommand == 'Eigene Auswahl':
-            if not self.mb.class_Tabs.win_eigene_auswahl:
-                self.erzeuge_eigene_auswahl(ev)
-                self.mb.class_Tabs.win_eigene_auswahl = True
+        try:
+            if ev.ActionCommand == 'Tags Seitenleiste':
+                if not self.mb.class_Tabs.win_seitenleiste:
+                    self.erzeuge_tag_auswahl_seitenleiste(ev)
+                    self.mb.class_Tabs.win_seitenleiste = True
                 
-        elif ev.ActionCommand == 'ok':
-            try:
-                self.erstelle_auswahl_dict(ev)
-                ok = self.pruefe_tab_namen()
-                if ok:
+            elif ev.ActionCommand == 'Tags Baumansicht':
+                if not self.mb.class_Tabs.win_baumansicht:
+                    self.erzeuge_tag_auswahl_baumansicht(ev)
+                    self.mb.class_Tabs.win_baumansicht = True
+                
+            elif ev.ActionCommand == 'Eigene Auswahl':
+                if not self.mb.class_Tabs.win_eigene_auswahl:
+                    self.erzeuge_eigene_auswahl(ev)
+                    self.mb.class_Tabs.win_eigene_auswahl = True
+                    
+            elif ev.ActionCommand == 'ok':
+                try:
+                    self.erstelle_auswahl_dict(ev)
+                    ok = self.pruefe_tab_namen()
+                    if ok:
+                        self.win.dispose()
+                        
+                        if self.mb.props[T.AB].tastatureingabe:
+                            ordinal = self.mb.props[T.AB].selektierte_zeile
+                            bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
+                            # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
+                            path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
+                            self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+                        
+                        ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(False)
+                        if ordinale == []:
+                            return
+                        self.mb.class_Tabs.erzeuge_neuen_tab(ordinale)
+                except:
+                    log(inspect.stack,tb())
+                    
+            elif ev.ActionCommand == 'ok_tab':
+                try:
+                    self.erstelle_auswahl_dict(ev)
                     self.win.dispose()
                     
-                    if self.mb.props[T.AB].tastatureingabe:
-                        ordinal = self.mb.props[T.AB].selektierte_zeile
-                        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-                        # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
-                        path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-                        self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
-                    
-                    ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(False)
+                    ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
+    
                     if ordinale == []:
                         return
-                    self.mb.class_Tabs.erzeuge_neuen_tab(ordinale)
-            except:
-                log(inspect.stack,tb())
-                
-        elif ev.ActionCommand == 'ok_tab':
-            try:
-                self.erstelle_auswahl_dict(ev)
-                self.win.dispose()
-                
-                ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
-
-                if ordinale == []:
-                    return
-                self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
-                
-            except:
-                log(inspect.stack,tb())
-                
-        elif ev.ActionCommand == 'V':
-            if ev.Source.Model.Label == 'V':
-                ev.Source.Model.Label = u'\u039B'
-            else:
-                ev.Source.Model.Label = 'V'
+                    self.mb.class_Tabs.fuege_ausgewaehlte_in_tab_ein(ordinale)
+                    
+                except:
+                    log(inspect.stack,tb())
+                    
+            elif ev.ActionCommand == 'V':
+                if ev.Source.Model.Label == 'V':
+                    ev.Source.Model.Label = u'\u039B'
+                else:
+                    ev.Source.Model.Label = 'V'
+        except:
+            log(inspect.stack,tb())
     
     
     def textChanged(self,ev):
@@ -1436,6 +1438,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         self.erzeuge_Fenster_fuer_eigene_Auswahl(ev)
         
         
+        
     
     def erzeuge_Fenster_fuer_eigene_Auswahl(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1470,10 +1473,13 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
         
-        fenster_cont.addControl('Huelle', control_innen)
+        fenster_cont.addControl('Container_innen', control_innen)
         
         dispose_listener = Listener_for_Win_dispose(self.mb,'eigene auswahl')
-        fenster.addEventListener(dispose_listener)
+        fenster_cont.addEventListener(dispose_listener)
+
+        self.mb.class_Mausrad.registriere_Maus_Focus_Listener(fenster_cont)
+
       
     def setze_hoehe_und_scrollbalken(self,y,y_desk,fenster,fenster_cont,control_innen):  
         if self.mb.debug: log(inspect.stack)

@@ -186,7 +186,6 @@ class Zitate():
         except:
             log(inspect.stack,tb())
             
-            
 
 from com.sun.star.awt import XActionListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
@@ -290,7 +289,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def get_internal_text(self,ordinal):
         if self.mb.debug: log(inspect.stack)
         
-        props = self.mb.props['Projekt']
+        props = self.mb.props[T.AB]
                     
         if ordinal in props.dict_ordner:
             ordinale = props.dict_ordner[ordinal]
@@ -461,7 +460,8 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         anz_SW =        self.class_Zitate.p['anz_SW'] =  int(self.controls['NumericField1'].Value)
         
-        chronologisch =        self.class_Zitate.p['chronologisch'] =  not int(self.controls['rb_sort1'].State)
+        chronologisch =  not int(self.controls['rb_sort1'].State)
+        self.class_Zitate.p['chronologisch'] = int(chronologisch)
 
         args = (pfad1,pfad2,
                 text1_intern,text2_intern,
@@ -567,7 +567,7 @@ class Suche():
             set_t2 = set(WoerterListe2)
             
             uebereinstimmungen = set_t1.intersection(set_t2)  
-
+            
             if len(uebereinstimmungen) == 0:
                 SI.end()
                 self.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 

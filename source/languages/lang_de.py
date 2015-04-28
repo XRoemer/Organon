@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # Menubar
-OPTIONS = 'Optionen'
+EINSTELLUNGEN = 'Einstellungen'
 BEARBEITEN_M = 'Bearbeiten'
+ANSICHT = 'Ansicht'
 FILE = 'Datei'
 TITEL = 'Titel'
 PAPIERKORB = 'Papierkorb'
@@ -20,6 +21,10 @@ ZEIGE_TEXTBEREICHE = 'Zeige Textbereiche'
 SICHTBARE_TAGS_BAUMANSICHT = 'Sichtbare Tags in der Baumansicht'
 SICHTBARE_TAGS_SEITENLEISTE = 'Sichtbare Tags in der Sidebar'
 BACKUP = u'Backup erzeugen'
+HOMEPAGE = 'Homepage'
+FEEDBACK = 'Feedback'
+TEXTTOOLS = 'Textwerkzeuge'
+ERZEUGE_INDEX = 'Erzeuge Index'
 
 SPEICHERORT = 'Speicherort'
 FORMATIERUNG = 'Formatierung'
@@ -201,6 +206,7 @@ NUTZE_ZEIT_UND_DATUM = 'nutze Zeit und Datum'
 IMPORTIERE_IN_TAB = 'Importiere in Tab'
 
 ###### LOGGING ######
+LOG = 'Logging'
 LOGGING = 'Erzeuge Logdatei'
 EINSTELLUNGEN_LOGDATEI = 'Einstellungen Logdatei'
 KONSOLENAUSGABE = 'Konsolenausgabe'
@@ -231,6 +237,21 @@ EXTERN = 'extern'
 ALPHABETISCH = 'alphabetisch'
 CHRONOLOGISCH = 'chronologisch'
 
+## MAUSRAD
+MAUSRAD = 'Mausrad'
+NUTZE_MAUSRAD = 'Nutze Mausrad'
+MAUSRAD_HINWEIS = u'''Hinweis:
+Das Mausrad ist z.Z. nur unter Windows nutzbar.
+Für Linux oder OSX haben die Einstellungen keine Auswirkung.
+
+Windows:
+Bei aktiviertem Mausrad kann in Fenstern mit Scrollbalken
+per Mausrad gescrollt werden.
+Sollten Probleme auftreten (Kein Scrollen, Fehlermeldung oder 
+verlängerte Reaktionszeiten), deaktivieren Sie das Mausrad.
+Feedback unter Ansicht/Feedback'''
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
+WOERTERLISTE = u'Wörterliste erstellen'
+UNGUELTIGE_FARBE = u'Keine gültige Farbe'

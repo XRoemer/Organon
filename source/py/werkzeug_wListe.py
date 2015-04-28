@@ -503,7 +503,8 @@ class Liste_Erstellen():
                         
             posDict1, posDict_O1, WoerterDict1, WoerterListe1 = self.listen_und_dicts_erstellen(self.text1)
             
-            
+            # es fehlt die chronologiesche Sortierung
+            # es reicht allerdings nicht, einfach sorted wegzulassen
             woerter = sorted(set(WoerterListe1))
 
             if len(woerter) == 0:

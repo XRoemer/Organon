@@ -150,7 +150,7 @@ class Projekt():
         pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
         self.mb.settings_proj = eval(open(pfad).read())
         
-        
+
     def erzeuge_Ordner_Struktur(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -487,9 +487,8 @@ class Projekt():
                 return
             
             self.mb.projekt_name = dateiname.split(dateiendung)[0]
-            proj = os.path.dirname(filepath) 
-            self.mb.projekt_path = os.path.dirname(proj)  
-    
+            self.mb.projekt_path = os.path.dirname(os.path.dirname(filepath))  
+
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
             self.lade_settings()  
@@ -506,7 +505,8 @@ class Projekt():
             
             self.mb.class_Baumansicht.erzeuge_Scrollbar()    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
-            
+            self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['Projekt'].Hauptfeld.Context.Context)
+
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
             UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
             has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
@@ -843,6 +843,7 @@ class Projekt():
             'trenner_farbe_hintergrund': KONST.FARBE_TRENNER_HINTERGRUND,
             'trenner_farbe_schrift': KONST.FARBE_TRENNER_SCHRIFT,
             'trenner_user_url':'',
+            'nutze_mausrad':False,
             }
             
         self.mb.speicher_settings("project_settings.txt", settings_proj)        
@@ -977,7 +978,181 @@ class Projekt():
         try:
             
             pass
+
             
+
+            
+            
+            ## PILLOW ##
+            
+#             pass
+#             pyPath = 'C:/Program Files (x86)/OpenOffice 4/program/python-core-2.7.6/lib/site-packages/Pillow-2.7.0-py2.7-win32.egg'
+#             
+#             if pyPath not in sys.path:
+#                 sys.path.append(pyPath)
+#             import PIL
+#             from PIL import Image,ImageDraw,ImageFont
+            
+#             ft_size = 56
+#             
+#             image = Image.new("RGBA", (800,200), (255,255,255))
+# 
+#             usr_font = ImageFont.truetype('C:\\Program Files\\Scribus 1.4.5\\share\\fonts\\Lato2\\Lato-Light.ttf', ft_size) 
+#             msg = u'Beispieltext für Schrifttype:'
+#             msg2 = 'Lato-Light.ttf' + ' {}pt'.format(ft_size)
+#             draw = ImageDraw.Draw(image)
+#      
+#             draw.text( (5,0) , msg, (0,0,0), font=usr_font)
+#             w, h = draw.textsize(msg,font=usr_font)
+#              
+#             draw.text( (5,h) , msg2, (0,0,0), font=usr_font)
+#             w2, h2 = draw.textsize(msg2,font=usr_font)
+#              
+#             wmax = max(w,w2)
+#             hmax = h+h2+5
+#      
+#             image.size = (wmax+10,hmax)
+#             print(wmax+10,hmax)
+#             pfad = os.path.join(self.mb.pfade['projekt'],'mein bild.png')
+#             image.save(pfad)
+#             
+#             
+#             faktor = ((wmax+10)/hmax)/2
+#             print(faktor)
+#             maxsize = (wmax*faktor, hmax*faktor)
+#             #maxsize = (100,100)
+#             #image.thumbnail(maxsize, PIL.Image.ANTIALIAS)
+#             #im = image.resize((image.size[0] / 3, image.size[1] / 2))
+#             
+#             #print(image.size,wmax/2+5, hmax/2)
+#             pfad = os.path.join(self.mb.pfade['projekt'],'mein bild2.png')
+#             #im.save(pfad)
+#             
+#              
+#             basewidth = 300
+#             wpercent = (basewidth/float(image.size[0]))
+#             hsize = int((float(image.size[1])*float(wpercent)))
+#             im = image.resize((basewidth,hsize), PIL.Image.ANTIALIAS)
+#             im.save(pfad)
+            
+            
+            
+            
+            
+            
+            
+            
+#             # StringIO
+#             output = StringIO.StringIO()
+#             image.save(output, format="GIF")
+#             contents = output.getvalue()
+#             output.close()
+             
+#             photo = PhotoImage(data=contents)
+#             self.beispieltext = Label(self, image=photo,width =W)
+#             self.beispieltext.grid(column=6, row=30)
+#             self.beispieltext.image = photo
+            
+#             pass
+#             pyPath = self.mb.pfade['projekt']
+#              
+#             if pyPath not in sys.path:
+#                 sys.path.append(pyPath)
+# #                 
+# #                 
+#             pyPath = os.path.join(self.mb.pfade['projekt'],'PythonMagick')
+#             if pyPath not in sys.path:
+#                 sys.path.append(pyPath)
+#                 
+#             cur_version = sys.version_info
+#             #print(cur_version)    
+#             
+#             #import cairo
+#             #import pango
+#             
+#             import PythonMagick
+#             
+# #             path = self.mb.pfade['projekt']
+# #             draw(path)
+#             print('klar')
+
+
+
+############################     Text als Bild einfuegen
+
+
+
+
+#             cont1,model1 = self.mb.createControl(self.mb.ctx,'ImageControl',10,10,191,14,('ImageURL',),(os.path.join(self.mb.pfade['projekt'],'kopp.jpg'),))
+#             path = uno.systemPathToFileUrl('C:\\Python276\\testbild.png')
+#             model1.ImageURL = path
+#             model1.Border = 0
+#             #model1.setPropertyValue('ImageURL',os.path.join(self.mb.pfade['projekt'],'kopp.jpg'))
+#             
+#             
+#             
+#             #model1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png'
+#             
+#             cont2,model2 = self.mb.createControl(self.mb.ctx, "FixedText", 10, 30, 300,30, (), ())
+#             cont2.Text = 'hier ist ein Quantum AV Beispieltext!'
+# 
+#             
+#             cont3,model3 = self.mb.createControl(self.mb.ctx,'ImageControl',10,50,215,18,('ImageURL',),(os.path.join(self.mb.pfade['projekt'],'kopp.jpg'),))
+#             path = uno.systemPathToFileUrl('C:\\Python276\\testbild2.png')
+#             model3.ImageURL = path
+#             #model3.Border = 0
+#             
+#             cont4,model4 = self.mb.createControl(self.mb.ctx,'ImageControl',10,70,192,12,('ImageURL',),(os.path.join(self.mb.pfade['projekt'],'kopp.jpg'),))
+#             path = uno.systemPathToFileUrl('C:\\Python276\\testbild3.png')
+#             model4.ImageURL = path
+#             model4.Border = 0
+#             
+#             
+# 
+#             posSize = 200,200,600,300
+# 
+#             win,cont = self.mb.erzeuge_Dialog_Container(posSize)
+#             
+#            
+#             
+#             
+#             
+#             cont.addControl('',cont1)
+#             cont.addControl('',cont2)
+#             #cont.addControl('',cont3)
+#             cont.addControl('',cont4)
+            
+#############################################################################################
+
+            
+
+            hf = self.mb.props[T.AB].Hauptfeld
+#             container = hf.Context.Context
+#             scrollLeiste = container.getControl('ScrollBar')
+#             
+#             hf.Context.addFocusListener(self.mb.test_listener)
+#             hf.Context.Context.addFocusListener(self.mb.test_listener)
+#             self.mb.win.addFocusListener(self.mb.test_listener)
+#             self.mb.dialog.addFocusListener(self.mb.test_listener)
+            #scrollLeiste.Model.ScrollValue = 20
+            
+            elements = (hf,hf.Context,hf.Context.Context,self.mb.win,self.mb.dialog)
+            #elements = (hf,)
+            
+#             for el in elements:
+#                 el.addFocusListener(self.mb.test_listener)
+#                 el.addMouseListener(self.mb.test_listener)
+#                 el.addMouseMotionListener(self.mb.test_listener)
+
+
+#             hauptfeld = self.mb.props[T.AB].Hauptfeld
+#             container = hauptfeld.Context.Context
+#             scrollLeiste = container.getControl('ScrollBar')
+#             
+#             RawInputReader1 = self.mb.RawInputReader(self.mb,pd,tb,log,inspect,hauptfeld,scrollLeiste)
+#             RawInputReader2 = self.mb.RawInputReader2(self.mb,pd,tb,log,inspect,hauptfeld,scrollLeiste)
+            
+            #self.mb.class_Einstellungen.start()
             
             
         except:
@@ -986,7 +1161,67 @@ class Projekt():
             pd()
         pd()
         
-        
+
+
+
+def spiral(x, y):
+    theta0 = -math.pi * 3 / 4
+    theta = x / Width * math.pi * 2 + theta0
+    radius = y + 200 - x/7
+    xnew = radius*math.cos(theta)
+    ynew = radius*math.sin(-theta)
+    return xnew + Width/2, ynew + Height/2
+
+def curl(x, y):
+    xn = x - Textwidth/2
+    #yn = y - Textheight/2
+    xnew = xn
+    ynew = y + xn ** 3 / ((Textwidth/2)**3) * 70
+    return xnew + Width/2, ynew + Height*2/5
+
+def draw(path):
+    import cairo
+    import math
+    
+    global Width, Height, Textwidth
+    Width, Height = 512, 512
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, Width, Height)
+    ctx = cairo.Context(surface)
+    solidpattern = ctx.get_source()
+    
+    # background
+    pat = cairo.LinearGradient (1, 1, 1, Height)
+    #pat.add_color_stop_rgba (1, 0, 0, 0, 1)
+    #pat.add_color_stop_rgba (0, 1, 1, 1, 1)
+    
+    ctx.rectangle (0,0,Width,Height)
+    ctx.set_source (pat)
+    ctx.fill ()
+    
+    # foreground
+    ctx.set_source (solidpattern)
+    ctx.set_source_rgb (1,1,1)
+    
+    ctx.select_font_face("Sans")
+    ctx.set_font_size(12)
+    
+    dir_ctx = dir(ctx)
+    
+    # curly text
+    ctx.new_path()
+    ctx.move_to(20, 80)
+    ctx.set_source_rgb(0, 0, 0)
+    text = u"für vérenö\nNiemand hört auf mich!\Aber daß das so ist\wird sich ändern!"
+    ctx.text_path(text)
+    Textwidth, Textheight = ctx.text_extents(text)[2:4]
+    #warpPath(ctx, curl)
+    ctx.fill()
+    import os
+    os.chdir(path)
+    
+    surface.write_to_png('cairo_test.png')
+    
+            
 
 def calc_erstellen():
     pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Infinitive.txt'

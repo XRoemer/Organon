@@ -53,6 +53,7 @@ class Baumansicht():
   
     def erzeuge_Zeile_in_der_Baumansicht(self,eintrag,class_Zeilen_Listener,gliederung,index=0,tab_name = 'Projekt'):
         if self.mb.debug: log(inspect.stack)
+        
         # wird in projects aufgerufen
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag        
 
@@ -119,8 +120,7 @@ class Baumansicht():
         control.addControl('icon',control2)                       
         # return ist nur fuer neu angelegte Dokumente nutzbar 
         
-        
-        
+                
         x += 18
         
         if sicht_tag1:
@@ -163,7 +163,6 @@ class Baumansicht():
         control1.addFocusListener(class_Zeilen_Listener)
 
         control.addControl('textfeld',control1)
-        
         
         
         if sicht == 'nein':
@@ -214,11 +213,7 @@ class Baumansicht():
             
         except:
             log(inspect.stack,tb())
-            #pd()
-  
-        
-    
-    
+            
      
     def erzeuge_Scrollbar(self,win = None):
         if self.mb.debug: log(inspect.stack)
@@ -261,16 +256,21 @@ class Baumansicht():
                 SB.BlockIncrement = 200
                 SB.Maximum =  baum_hoehe  
                 SB.VisibleSize = sb_hoehe - 40
+                # Bei Mausradnutzung Mausradlistener einschalten
+                if self.mb.settings_proj['nutze_mausrad']:
+                    self.mb.mausrad_an = True
             else:
                 SB.Maximum  = 1
                 SB.Visible = False
                 nav_cont_aussen = win.getControl('Hauptfeld_aussen')
                 nav_cont = nav_cont_aussen.getControl('Hauptfeld')
                 nav_cont.setPosSize(0, 0,0,0,2)
-
-    
+                # Mausradlistener ausschalten
+                self.mb.mausrad_an = False
+           
+                
+    # Nur fuers Debugging
     def finde_falschen_bereich(self):
-        # Nur fuers Debugging
         if self.mb.debug: log(inspect.stack)
         
         sections = self.mb.doc.TextSections
@@ -600,8 +600,14 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         
         self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
         
+        # Mauslistener starten
         try:
+            self.mb.mausrad_an = True
+            self.mb.class_Mausrad.starte_mausrad(treeview=True)
+        except:
+            log(inspect.stack,tb())
 
+        try:
             # die gesamte Zeile, control (ordinal)
             self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext.AccessibleName
             # control 'textfeld'   
@@ -702,6 +708,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     
     def focusLost(self, ev):
         if self.mb.debug: log(inspect.stack)
+        
+        # Listener fuers Mausrad beenden
+        self.mb.mausrad_an = False
         
         # Bearbeitung des Zeileneintrags wieder ausschalten
         if self.edit_text == True:
@@ -1213,7 +1222,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         for name in sections_uno:
             sec = sections_uno[name]
             dict.update({sec.FileLink.FileURL:sec.Name})
-        
+
         return dict       
     
     def finde_eltern_bereich(self,sec):
@@ -1470,18 +1479,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 newSection.BackColor = sec.ChildSections[0].BackColor
     
             
-            
             sec_nachfolger = self.mb.doc.TextSections.getByName(sec_nachfolger_name)
     
             cur = sec_nachfolger.Anchor.Text.createTextCursor()
             cur.gotoRange(sec_nachfolger.Anchor,False)
             cur.gotoRange(cur.TextSection.Anchor.Start,False)        
-            
-            #time.sleep(0.08)
-            t1 = sec.Anchor.End.Text
-            t2 = sec_nachfolger.Anchor.Text
-            #print(t1 == t2)
-            log(inspect.stack,extras = str(t1 == t2))
             
             sec.Anchor.End.Text.insertTextContent(cur, newSection, False)
             
@@ -1565,6 +1567,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         elif trenner_hintergrund == 'keiner':
             sec_trenner.Anchor.setString('')
             sec_trenner.setPropertyValue('BackGraphicURL','')
+        
+        elif trenner_hintergrund == 'user':
+            sec_trenner.Anchor.setString('')
+            sec_trenner.setPropertyValue('BackGraphicURL',self.mb.settings_proj['trenner_user_url'])
+
                 
     def entferne_Trenner(self,sec):
         if self.mb.debug: log(inspect.stack)
@@ -1614,7 +1621,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
     def disposing(self,ev):
         return False
-        
             
             
 class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
@@ -1716,33 +1722,49 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                     control.addMouseListener(maus_listener)
                     controls.append(control)
                 
-            x = 0
-            y = 0
+            b = 0
+            h = 0
             
             for ctrl in controls:
                 breite,hoehe = self.mb.kalkuliere_und_setze_Control(ctrl)
-                if breite > x:
-                    x = breite
+                if breite > b:
+                    b = breite
                 
-                ctrl.setPosSize(30,y+5,breite+10,0,7)
-                y += hoehe
+                ctrl.setPosSize(30,h+5,breite+10,0,7)
+                h += hoehe
             
             if len(controls) == 0:
                 return
             
             # SEPERATOR
-            control, model = self.mb.createControl(self.mb.ctx, "FixedLine", 20, 5, 5,y,(),())
+            control, model = self.mb.createControl(self.mb.ctx, "FixedLine", 20, 5, 5,h,(),())
             model.Orientation = 1
             controls.append(control)
             
-            BREITE = x
-            HOEHE = y
+            # Position finden
+            BREITE = b
+            HOEHE = h
+
+            loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+            pos_hf = self.mb.props['Projekt'].Hauptfeld.AccessibleContext.LocationOnScreen
             
-            win,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,BREITE+50,HOEHE+10,True)
-            posSize = win.PosSize
+            y = pos_hf.Y - loc_cont.Y
+            y +=  ev.Source.Context.PosSize.Y 
+            x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
+            posSize = x+20,y,BREITE +50,HOEHE +10
+            
+            # Fenster erzeugen
+            win,cont = self.mb.erzeuge_Dialog_Container(posSize,1+16)
+            
+            # Listener fuers Dispose des Fensters
+            from menu_bar import Schliesse_Menu_Listener
+            listener = Schliesse_Menu_Listener(self.mb)
+            cont.addMouseListener(listener) 
+            listener.ob = win
+            
+
             cont.Model.BorderColor = 16580864
             
-            win.setPosSize(posSize.X - 5,posSize.Y - 20,0,0,3)
             maus_listener.window = win
             
             for ctrl in controls:

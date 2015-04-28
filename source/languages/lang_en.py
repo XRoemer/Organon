@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # Menubar
-OPTIONS = 'Options'
+EINSTELLUNGEN = 'Preferences'
 BEARBEITEN_M = 'Edit'
+ANSICHT = 'View'
 FILE = 'File'
 TITEL = 'Titel'
 PAPIERKORB = 'Waste Bin'
@@ -20,6 +21,10 @@ ZEIGE_TEXTBEREICHE = 'Show Textsections'
 SICHTBARE_TAGS_BAUMANSICHT = 'Visible Tags in Treeview'
 SICHTBARE_TAGS_SEITENLEISTE = 'Visible Tags in Sidebar'
 BACKUP = u'Create Backup'
+HOMEPAGE = 'Homepage'
+FEEDBACK = 'Feedback'
+TEXTTOOLS = 'Texttools'
+ERZEUGE_INDEX = 'Create Index'
 
 
 SPEICHERORT = 'Storage Location'
@@ -201,6 +206,7 @@ NUTZE_ZEIT_UND_DATUM = 'use time and date'
 IMPORTIERE_IN_TAB = 'Import to Tab'
 
 ###### LOGGING ######
+LOG = 'Logging'
 LOGGING = 'Create Logfile'
 EINSTELLUNGEN_LOGDATEI = 'Logging Options'
 KONSOLENAUSGABE = 'Output to Console'
@@ -231,6 +237,21 @@ EXTERN = 'extern'
 ALPHABETISCH = 'alphabetical'
 CHRONOLOGISCH = 'chronological'
 
+## MAUSRAD
+MAUSRAD = 'Mouse Wheel'
+NUTZE_MAUSRAD = 'Use Mouse Wheel'
+MAUSRAD_HINWEIS = u'''Please note:
+The wheel can be used in Windows only.
+This setting has no impact in Linux or OSX.
+
+Windows:
+An activated scroll wheel makes it possible to scroll with 
+the wheel in Organon windows with a scrollbar.
+On issues (No scrolling, errors or bad response):
+deactivate the scroll wheel.
+You might leave a feedback (View/Feedback)'''
 
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"
+WOERTERLISTE = 'Create List of all Words'
+UNGUELTIGE_FARBE = 'This is not a valid color'

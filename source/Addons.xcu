@@ -27,7 +27,7 @@
               <value>_self</value>
             </prop>
             <prop oor:name="Context" oor:type="xs:string">
-              <value/>
+              <value>com.sun.star.text.TextDocument</value>
             </prop>
             <prop oor:name="Title" oor:type="xs:string">
               <value/>
@@ -60,7 +60,7 @@
               <value>_self</value>
             </prop>
             <prop oor:name="Context" oor:type="xs:string">
-              <value>com.sun.star.text.TextDocument </value>
+              <value>com.sun.star.text.TextDocument</value>
             </prop>
           </node>
         </node>

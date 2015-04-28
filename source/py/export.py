@@ -40,11 +40,12 @@ class Export():
             
             sett = self.mb.settings_exp
             
-            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +20
-            Y = posSize_main.Y +20            
-
-                        
+            # Position des 
+            posSize_main = self.mb.dialog.PosSize 
+            X = posSize_main.Width
+            Y = 80       
+            
+            # benoetigte Listner erzeugen            
             listenerDis = AB_Fenster_Dispose_Listener(self.mb,self)
             listener = Speicherordner_Button_Listener(self.mb)
             listener6 = Fenster_Export_Listener1(self.mb)
@@ -70,68 +71,175 @@ class Export():
                 l = label_speicherort
             label_speicherort = l
             
+            # y gibt die relative Position zum Abstand (int vor Klammer) an
             y = 0
             
             controls = (
                 10,
-                ('controlE',"FixedText",        20,y ,50,20,    ('Label','FontWeight'),(LANG.EXPORT ,150),                  {} ), 
+                ('controlE',"FixedText",                        # Name, UnoControl
+                                        20,y ,50,20,            # Position
+                                        ('Label','FontWeight'), # Properties
+                                        (LANG.EXPORT ,150),     # Property-Values               
+                                        {}                      # Extras
+                                        ), 
                 30,
-                ('control_CB1',"CheckBox",      20,y,120,22,    ('Label','State'),(LANG.ALLES ,sett['alles']),              {'addItemListener':(listener6)} ),    
+                ('control_CB1',"CheckBox",      
+                                        20,y,120,22,    
+                                        ('Label','State'),
+                                        (LANG.ALLES ,sett['alles']),              
+                                        {'addItemListener':(listener6)} 
+                                        ),    
                 20,                                                  
-                ('control_CB2',"CheckBox",      20,y,120,22,    ('Label','State'),(LANG.SICHTBARE ,sett['sichtbar']),       {'addItemListener':(listener6)} ),  
+                ('control_CB2',"CheckBox",      
+                                        20,y,120,22,    
+                                        ('Label','State'),
+                                        (LANG.SICHTBARE ,sett['sichtbar']),       
+                                        {'addItemListener':(listener6)} 
+                                        ),  
                 20,
-                ('control_CB3',"CheckBox",      20,y,120,22,    ('Label','State'),(LANG.AUSWAHL ,sett['eigene_ausw']),      {'addItemListener':(listener6)} ),  
+                ('control_CB3',"CheckBox",      
+                                        20,y,120,22,    
+                                        ('Label','State'),
+                                        (LANG.AUSWAHL ,sett['eigene_ausw']),      
+                                        {'addItemListener':(listener6)} 
+                                        ),  
                 -3,                                                      
-                ('controlA',"Button",           tab1,y-25,70,20,('Label',),(LANG.AUSWAHL,),                                 {'Enable':not(sett['alles'] or sett['sichtbar']),'addActionListener':(listener3,)} ),
+                ('controlA',"Button",           
+                                        tab1,y-25,70,20,
+                                        ('Label',),
+                                        (LANG.AUSWAHL,),                                 
+                                        {'Enable':not(sett['alles'] or sett['sichtbar']),'addActionListener':(listener3,)} 
+                                        ),
                 20,
-                ('controlT',"FixedLine",        20,y-10 ,breite-40,40,(),(),                                                {} ),        
+                ('controlT',"FixedLine",        
+                                        20,y-10 ,breite-40,40,
+                                        (),
+                                        (),                                                
+                                        {} 
+                                        ),        
                 40,
-                ('controlex',"FixedText",       20,y ,150,20,   ('Label','FontWeight'),(LANG.EXPORTIEREN_ALS,150.0),        {} ),
+                ('controlex',"FixedText",       
+                                        20,y ,150,20,   
+                                        ('Label','FontWeight'),
+                                        (LANG.EXPORTIEREN_ALS,150.0),        
+                                        {} 
+                                        ),
                 30,  
-                ('controlcb1',"CheckBox",       20,y,110,22,    ('Label','State'),(LANG.EIN_DOKUMENT,sett['einz_dok']),     {'addItemListener':(listener2)} ),  
+                ('controlcb1',"CheckBox",       
+                                        20,y,110,22,    
+                                        ('Label','State'),
+                                        (LANG.EIN_DOKUMENT,sett['einz_dok']),     
+                                        {'addItemListener':(listener2)} 
+                                        ),  
                 20,
-                ('controlcb2',"CheckBox",       40,y,110,22,    ('Label','State'),(LANG.TRENNER,sett['trenner']),           {'addItemListener':(listener2),'Enable':not(sett['einz_dat'] or sett['neues_proj']) } ),
+                ('controlcb2',"CheckBox",       
+                                        40,y,110,22,    
+                                        ('Label','State'),
+                                        (LANG.TRENNER,sett['trenner']),           
+                                        {'addItemListener':(listener2),'Enable':not(sett['einz_dat'] or sett['neues_proj']) } 
+                                        ),
                 -3,
-                ('controlTr',"Button",          tab1,y-145 ,70,20,    ('Label',),(LANG.BEARBEITEN,),                        {'Enable':(sett['trenner'] and sett['einz_dok']),'addActionListener':(listener5,) } ),
+                ('controlTr',"Button",          
+                                        tab1,y-145 ,70,20,    
+                                        ('Label',),
+                                        (LANG.BEARBEITEN,),                        
+                                        {'Enable':(sett['trenner'] and sett['einz_dok']),'addActionListener':(listener5,) } 
+                                        ),
                 40,
-                ('controlcb3',"CheckBox",       20,y,110,22,    ('Label','State'),(LANG.EINZ_DATEIEN,sett['einz_dat']),     {'addItemListener':(listener2)} ),
+                ('controlcb3',"CheckBox",       
+                                        20,y,110,22,    
+                                        ('Label','State'),
+                                        (LANG.EINZ_DATEIEN,sett['einz_dat']),     
+                                        {'addItemListener':(listener2)} 
+                                        ),
                 20,
-                ('controlcb4',"CheckBox",       40,y,110,22,    ('Label','State'),(LANG.ORDNERSTRUKTUR,sett['ordner_strukt']),     {'addItemListener':(listener2),'Enable':not(sett['einz_dok'] or sett['neues_proj']) } ),
+                ('controlcb4',"CheckBox",       
+                                        40,y,110,22,    
+                                        ('Label','State'),
+                                        (LANG.ORDNERSTRUKTUR,sett['ordner_strukt']),     
+                                        {'addItemListener':(listener2),'Enable':not(sett['einz_dok'] or sett['neues_proj']) } 
+                                        ),
                 30,
-                ('controlcb5',"CheckBox",       20,y,110,22,    ('Label','State'),(LANG.NEW_PROJECT2,sett['neues_proj']),   {'addItemListener':(listener2)} ),
+                ('controlcb5',"CheckBox",       
+                                        20,y,110,22,    
+                                        ('Label','State'),
+                                        (LANG.NEW_PROJECT2,sett['neues_proj']),   
+                                        {'addItemListener':(listener2)} 
+                                        ),
                 20,
-                ('controlPN',"Edit",            35,y ,100,20,    ('HelpText',),(LANG.PROJEKT_NAMEN_EINGEBEN,),               {'Enable':not(sett['einz_dat'] or sett['einz_dok']) } ),
+                ('controlPN',"Edit",            
+                                        35,y ,100,20,    
+                                        ('HelpText',),
+                                        (LANG.PROJEKT_NAMEN_EINGEBEN,),               
+                                        {'Enable':not(sett['einz_dat'] or sett['einz_dok']) } 
+                                        ),
                 20,
-                ('controlT',"FixedLine",        20,y,breite-40,40,(),(),                                                    {} ),
+                ('controlT',"FixedLine",        
+                                        20,y,breite-40,40,
+                                        (),
+                                        (),                                                    
+                                        {} 
+                                        ),
                 40,
-                ('controlf',"FixedText",        20,y ,80,20,    ('Label','FontWeight'),(LANG.DATEITYP,150),                 {} ),
+                ('controlf',"FixedText",        
+                                        20,y ,80,20,    
+                                        ('Label','FontWeight'),
+                                        (LANG.DATEITYP,150),                 
+                                        {} 
+                                        ),
                 0,
-                ('controlL',"ListBox",          tab1,y ,250,20,    ('LineCount','Dropdown'),(150,True), {'addItems':filter_items,'SelectedItems':sel,'addItemListener':(f_listener)} ),
+                ('controlL',"ListBox",          
+                                        tab1,y ,250,20,    
+                                        ('LineCount','Dropdown'),
+                                        (150,True), 
+                                        {'addItems':filter_items,'SelectedItems':sel,'addItemListener':(f_listener)} 
+                                        ),
                 30,
-                ('controlSO',"FixedText",       20,y ,80,20,    ('Label','FontWeight'),(LANG.SPEICHERORT,150),              {} ),
+                ('controlSO',"FixedText",       
+                                        20,y ,80,20,    
+                                        ('Label','FontWeight'),
+                                        (LANG.SPEICHERORT,150),              
+                                        {} 
+                                        ),
                 0,
-                ('controlSD',"Button",          tab1,y-3,70,20,    ('Label',),(LANG.WAEHLEN,),                              {'setActionCommand':'speicherort','addActionListener':(listener,)} ) ,
+                ('controlSD',"Button",          
+                                        tab1,y-3,70,20,    
+                                        ('Label',),
+                                        (LANG.WAEHLEN,),                              
+                                        {'setActionCommand':'speicherort','addActionListener':(listener,)} 
+                                        ) ,
                 30,
-                ('controlFO',"FixedText",       20,y ,80,20,    ('HelpText','Label'),('URL',label_speicherort),             {} ),
+                ('controlFO',"FixedText",       
+                                        20,y ,80,20,    
+                                        ('HelpText','Label'),
+                                        ('URL',label_speicherort),             
+                                        {} 
+                                        ),
                 60,
-                ('controlB',"Button",           breite -120 ,y,80,30,    ('Label',),(LANG.EXPORTIEREN,),                 {'setActionCommand':'speicherort','addActionListener':(listener4,)} ) ,
+                ('controlB',"Button",           
+                                        breite -120 ,y,80,30,    
+                                        ('Label',),
+                                        (LANG.EXPORTIEREN,),                 
+                                        {'setActionCommand':'speicherort','addActionListener':(listener4,)} 
+                                        ) ,
                 )
             
-            pos_y = 0
             
+            # Controls und Models erzeugen
+            pos_y = 0
             ctrls = []
             
             for ctrl in controls:
                 if isinstance(ctrl,int):
                     pos_y += ctrl
                 else:
-                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
-                    locals()[name],locals()[name.replace('control','model')] = self.mb.createControl(self.mb.ctx,unoCtrl,X,pos_y,width,height,prop_names,prop_values)
+                    name,unoCtrl,x,y,width,height,prop_names,prop_values,extras = ctrl
+                    locals()[name],locals()[name.replace('control','model')] = self.mb.createControl(self.mb.ctx,unoCtrl,x,pos_y,width,height,prop_names,prop_values)
                     
                     if unoCtrl in ('FixedText','CheckBox','Button'):
                         w,h = self.mb.kalkuliere_und_setze_Control(locals()[name],'w')
 
-                        
+                    # Extras setzen    
                     if 'setActionCommand' in extras:
                         locals()[name].setActionCommand(extras['setActionCommand'])
                     if 'addItems' in extras:
@@ -151,16 +259,27 @@ class Export():
                     ctrls.append((name,locals()[name]))                    
         
             
-            buttons = locals()['control_CB1'],locals()['control_CB2'],locals()['control_CB3']
+            # Custom Properties eintragen
+            buttons = [locals()['control_CB1'],
+                       locals()['control_CB2'],
+                       locals()['control_CB3']]
             listener6.buttons = buttons
-            buttons2 = locals()['controlcb1'],locals()['controlcb2'],locals()['controlcb3'],locals()['controlcb4'],locals()['controlcb5'],locals()['controlPN']
+            
+            buttons2 = [locals()['controlcb1'],
+                        locals()['controlcb2'],
+                        locals()['controlcb3'],
+                        locals()['controlcb4'],
+                        locals()['controlcb5'],
+                        locals()['controlPN']]
             listener2.buttons2 = buttons2
+            
             listener2.trenner = locals()['controlTr']
             listener6.but_Auswahl = locals()['controlA']
             listener.model = locals()['modelFO']
             listener4.feld_projekt_name = locals()['controlPN']
             
             
+            # Hauptfenster erzeugen
             posSize = X,Y,breite,pos_y + 40
             fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
             fenster_cont.Model.Text = LANG.EXPORT
@@ -168,78 +287,18 @@ class Export():
             fenster_cont.addEventListener(listenerDis)
             self.haupt_fenster = fenster
             
+            # Listener fuer Hauptfenster
             listener3.exp_fenster = fenster
             listener5.exp_fenster = fenster
             
+            # Controls in Hauptfenster eintragen
             for c in ctrls:
                 fenster_cont.addControl(c[0],c[1])
             
-
         except:
             log(inspect.stack,tb())
-                
-        #pd()
-        
-    def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128):
-        if self.mb.debug: log(inspect.stack)
-        
-        ctx = self.mb.ctx
-        smgr = self.mb.smgr
-        
-        X,Y,Width,Height = posSize
-        if X == None:
-            X = ev.Source.AccessibleContext.LocationOnScreen.value.X 
-        if Y == None:
-            Y = ev.Source.AccessibleContext.LocationOnScreen.value.Y + ev.Source.Size.value.Height
-    
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-        oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
-    
-        # Create Uno Struct
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.WindowDescriptor")
-        oReturnValue, oWindowDesc = oXIdlClass.createObject(None)
-        # global oWindow
-        oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
-        oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = self.mb.topWindow #self.toolkit.getActiveTopWindow() #toolkit.getTopWindow(0) #self.desktop.CurrentFrame.ComponentWindow #
-        oWindowDesc.ParentIndex = -1
-        oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
-        
-    
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
-        oReturnValue, oRect = oXIdlClass.createObject(None)
-        oRect.X = X
-        oRect.Y = Y
-        oRect.Width = Width 
-        oRect.Height = Height 
-        
-        oWindowDesc.Bounds = oRect
 
-        # create window
-        oWindow = toolkit.createWindow(oWindowDesc)
-        
-        
-        # create frame for window
-        oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame",ctx)
-        oFrame.initialize(oWindow)
-        oFrame.setCreator(self.mb.desktop)
-        oFrame.activate()
-        oFrame.Name = 'Xaver'
-        oFrame.Title = 'Xaver2'
-        # create new control container
-        cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
-        cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-        cont_model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  # 9225984
-        cont.setModel(cont_model)
-        # need createPeer just only the container
-        cont.createPeer(toolkit, oWindow)
-        cont.setPosSize(0, 0, 0, 0, 15)
-
-        oFrame.setComponent(cont, None)
-        cont.Model.Text = 'Gabriel'
-
-        return oWindow,cont
-        
+     
     def kopiere_projekt(self,neuer_projekt_name,pfad_zu_neuem_ordner,
                         ordinale,tree,dict_sb_content_neu,backup = False):
         if self.mb.debug: log(inspect.stack)
@@ -1535,10 +1594,10 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
          
         model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
-        fenster_cont.addControl('Huelle', control_innen)
+        fenster_cont.addControl('Container_innen', control_innen)
         
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
-    
+        self.mb.class_Mausrad.registriere_Maus_Focus_Listener(fenster_cont)
     
     def disposing(self,ev):
         return False

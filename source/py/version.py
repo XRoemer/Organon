@@ -11,33 +11,50 @@ class Version():
         
         global pd
         pd = pdk
+                
+        self.vers_dict = {
         
-        self.version = 0
+        '0.9.0':self.an_091b_anpassen,
+        '0.9.1':self.an_092b_anpassen,
+        '0.9.2':None,
+        '0.9.3':None,
+        '0.9.4':None,
+        '0.9.5':None,
+        '0.9.6':None,
+        '0.9.7':self.an_098b_anpassen,
+        '0.9.8':self.an_0981b_anpassen,
+        '0.9.8.1':None,
+        '0.9.8.2':None,
+        '0.9.8.3':None,
+        '0.9.8.4':None,
+        '0.9.8.5':None,
+        '0.9.8.6':self.an_0987b_anpassen,
+        } 
+        
         
     def pruefe_version(self):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            if 'Programmversion' in self.mb.props[T.AB].xml_tree.getroot().attrib:
-                self.version = self.mb.props[T.AB].xml_tree.getroot().attrib['Programmversion']
-    
-    
-            if self.version == 0:
-                self.an_080b_anpassen()
-            if self.version in ('0.8.0b','0.8.1b'):
-                self.an_090b_anpassen()
-            if self.version in ('0.9.0b'):
-                self.an_091b_anpassen()
-            if self.version in ('0.9.1b'):
-                self.an_092b_anpassen()
-            if self.version in ('0.9.7b'):
-                self.an_098b_anpassen()
-            if self.version in ('0.9.8b'):
-                self.an_0981b_anpassen()
-            
+            self.version = self.mb.props[T.AB].xml_tree.getroot().attrib['Programmversion']
 
-            # an 093, 094, 095, 096 ,097, 0981, 0982 - 0986 muss nichts angepasst werden
-            self.neue_programmversion_eintragen()
+            v = self.version
+            v = v.replace('b','')
+            
+            loslegen = False
+            
+            if self.version != self.mb.programm_version:
+            
+                for vers in sorted(self.vers_dict):
+                    if v == vers:
+                        loslegen = True
+                    if loslegen:
+                        if self.vers_dict[vers] != None:
+                            self.vers_dict[vers]()
+                
+                
+                
+                self.neue_programmversion_eintragen()
         
         except:
             log(inspect.stack,tb())
@@ -52,31 +69,6 @@ class Version():
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
         self.mb.tree_write(self.mb.props['Projekt'].xml_tree,Path)
         
-    def an_080b_anpassen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        # Programmversion in settings.xml einfuegen
-        xml_root = self.mb.props[T.AB].xml_tree.getroot()
-        xml_root.attrib['Programmversion'] = self.mb.programm_version
-        Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        self.mb.tree_write(self.mb.props['Projekt'].xml_tree,Path)
-        
-        # Ordner Images in Programmordner/Files einfuegen
-        if not os.path.exists(self.mb.pfade['images']):
-            os.makedirs(self.mb.pfade['images'])  
-            
-        # Die fehlende sidebar_content.pkl wird beim Projektstart automatisch erzeugt.
-        # Das dict wurde faelschlich als SystemPath erzeugt
-        self.mb.settings_exp['speicherort'] = ''
-        self.version = '0.8.0b'
-        
-    def an_090b_anpassen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        if not os.path.exists(self.mb.pfade['tabs']):
-            os.makedirs(self.mb.pfade['tabs'])
-        self.mb.class_Bereiche.erzeuge_leere_datei()
-        self.version = '0.9.0b'
     
     def an_091b_anpassen(self):
         if self.mb.debug: log(inspect.stack)
@@ -132,4 +124,28 @@ class Version():
         except:
             log(inspect.stack,tb())
         self.version = '0.9.8.1b'
+        
+        
+    def an_0987b_anpassen(self):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            self.mb.settings_proj.update({'nutze_mausrad': False})
+            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)
+        except:
+            log(inspect.stack,tb())
+        self.version = '0.9.8.7b'
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         

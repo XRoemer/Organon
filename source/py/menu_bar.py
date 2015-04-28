@@ -16,6 +16,7 @@ import inspect
 from pprint import pformat
 import webbrowser
 
+
 platform = sys.platform
 
 
@@ -24,150 +25,163 @@ class Menu_Bar():
     
     def __init__(self,args,tab = 'Projekt'):
         
-        pdk,dialog,ctx,tabsX,path_to_extension,win,dict_sb,debugX,load_reloadX,factory,menu_start,logX,class_LogX = args
+        try:
         
-        
-        ###### DEBUGGING ########
-        global debug,log,load_reload
-        debug = debugX
-        load_reload = load_reloadX 
-        self.load_reload = load_reload  
-        log = logX
-        
-        self.debug = debugX
-        if self.debug: 
-            self.time = time
-            self.timer_start = self.time.clock()
+            pdk,dialog,ctx,tabsX,path_to_extension,win,dict_sb,debugX,load_reloadX,factory,menu_start,logX,class_LogX = args
             
-        
-
-        if self.debug: log(inspect.stack)
-        
-        if load_reload:
-            self.get_pyPath()
             
-        ###### DEBUGGING END ########
-        
-        
-        
-        self.win = win
-        self.pd = pdk
-        global pd,IMPORTS,LANG
-        pd = pdk
-        
-        global T
-        T = Tab()
-        
-        IMPORTS = ('uno','unohelper','sys','os','ElementTree','time',
-                   'codecs_open','math_floor','re','tb','platform','KONST',
-                   'pd','copy','Props','T','log','inspect','webbrowser','LANG')
-        
-        
-        
-        # Konstanten
-        self.factory = factory
-        self.dialog = dialog
-        self.ctx = ctx
-        self.smgr = self.ctx.ServiceManager
-        self.toolkit = self.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-        self.topWindow = self.toolkit.getActiveTopWindow() 
-        self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
-        self.doc = self.get_doc()  
-        self.current_Contr = self.doc.CurrentController 
-        self.programm = self.get_office_name() 
-        self.undo_mgr = self.doc.UndoManager
-        self.viewcursor = self.current_Contr.ViewCursor
-        self.tabsX = tabsX
-        self.platform = sys.platform
-        self.language = None
-        LANG = self.lade_Modul_Language()
-        self.path_to_extension = path_to_extension
-        self.programm_version = self.get_programm_version()
-        self.filters_import = None
-        self.filters_export = None
-        self.BEREICH_EINFUEGEN = self.get_BEREICH_EINFUEGEN()
-        self.anleitung_geladen = False
-        self.speicherort_last_proj = self.get_speicherort()
-        self.projekt_name = None
-        self.menu_start = menu_start
-        self.sec_helfer = None
-        
-
-        
-        # Properties
-        self.props = {}
-        self.props.update({T.AB :Props()})
-        self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
-        self.dict_sb_content = None
-        
-        self.tabs = {tabsX.ActiveTabID:(dialog,'Projekt')}
-        self.active_tab_id = tabsX.ActiveTabID
-        self.tab_id_old = self.active_tab_id
+            ###### DEBUGGING ########
+            global debug,log,load_reload
+            debug = debugX
+            load_reload = load_reloadX 
+            self.load_reload = load_reload  
+            log = logX
+            
+            self.debug = debugX
+            if self.debug: 
+                self.time = time
+                self.timer_start = self.time.clock()
                 
-        
-        # Settings
-        self.settings_exp = None
-        self.settings_imp = None
-        self.settings_proj = {}
-        self.user_styles = ()
+            
+    
+            if self.debug: log(inspect.stack)
+            
+            if load_reload:
+                self.get_pyPath()
+                
+            ###### DEBUGGING END ########
+            
+            
+            
+            self.win = win
+            self.pd = pdk
+            global pd,IMPORTS,LANG
+            pd = pdk
+    
+            global T
+            T = Tab()
+            
+            IMPORTS = ('uno','unohelper','sys','os','ElementTree','time',
+                       'codecs_open','math_floor','re','tb','platform','KONST',
+                       'pd','copy','Props','T','log','inspect','webbrowser','LANG')
+            
+            
+            
+            # Konstanten
+            self.factory = factory
+            self.dialog = dialog
+            self.ctx = ctx
+            self.smgr = self.ctx.ServiceManager
+            self.toolkit = self.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+            self.topWindow = self.toolkit.getActiveTopWindow() 
+            self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
+            self.doc = self.get_doc()  
+            self.current_Contr = self.doc.CurrentController 
+            self.programm = self.get_office_name() 
+            self.undo_mgr = self.doc.UndoManager
+            self.viewcursor = self.current_Contr.ViewCursor
+            self.tabsX = tabsX
+            self.platform = sys.platform
+            self.language = None
+            LANG = self.lade_Modul_Language()
+            self.path_to_extension = path_to_extension
+            self.programm_version = self.get_programm_version()
+            self.filters_import = None
+            self.filters_export = None
+            self.BEREICH_EINFUEGEN = self.get_BEREICH_EINFUEGEN()
+            self.anleitung_geladen = False
+            self.speicherort_last_proj = self.get_speicherort()
+            self.projekt_name = None
+            self.menu_start = menu_start
+            self.sec_helfer = None
+            
+    
+            
+            # Properties
+            self.props = {}
+            self.props.update({T.AB :Props()})
+            self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
+            self.dict_sb_content = None
+            
+            self.tabs = {tabsX.ActiveTabID:(dialog,'Projekt')}
+            self.active_tab_id = tabsX.ActiveTabID
+            self.tab_id_old = self.active_tab_id
+            self.registrierte_maus_listener = []
+            self.maus_fenster = None
+            self.mausrad_an = False
+            self.texttools_geoeffnet = False
+            
+            # Settings
+            self.settings_exp = None
+            self.settings_imp = None
+            self.settings_proj = {}
+            self.user_styles = ()
+    
+            # Pfade
+            self.pfade = {}
+    
+            # Klassen   
+            self.Key_Handler = Key_Handler(self)
+            self.ET = ElementTree  
+            self.nachricht = Mitteilungen(self.ctx,self).nachricht
+            
+            self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
+            self.class_Projekt =        self.lade_modul('projects','.Projekt(self, pd)')   
+            self.class_XML =            self.lade_modul('xml_m','.XML_Methoden(self,pd)')
+            self.class_Funktionen =     self.lade_modul('funktionen','.Funktionen(self, pd)')     
+            self.class_Export =         self.lade_modul('export','.Export(self,pd)')
+            self.class_Import =         self.lade_modul('importX','.ImportX(self,pd)') 
+            self.class_Sidebar =        self.lade_modul('sidebar','.Sidebar(self,pd)') 
+            self.class_Bereiche =       self.lade_modul('bereiche','.Bereiche(self)')
+            self.class_Version =        self.lade_modul('version','.Version(self,pd)') 
+            self.class_Tabs =           self.lade_modul('tabs','.Tabs(self)') 
+            self.class_Latex =          self.lade_modul('latex_export','.ExportToLatex(self)') 
+            self.class_Zitate =         self.lade_modul('zitate','.Zitate(self)') 
+            self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','.WListe(self)') 
+            self.class_Index =          self.lade_modul('index','.Index(self)')
+            self.class_Mausrad =        self.lade_modul('mausrad','.Mausrad(self,pd)')
+            self.class_RawInputReader = self.lade_RawInputReader()
+            self.class_Einstellungen =  self.lade_modul('einstellungen','.Einstellungen(self,pd)')
+            
+            self.class_Log = class_LogX
+            self.class_Design = Design()
+            self.class_Gliederung = Gliederung()
+            
+            #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
+            
+            # Listener  
+            self.VC_selection_listener  = ViewCursor_Selection_Listener(self)          
+            self.w_listener             = Dialog_Window_Listener(self)    
+            self.undo_mgr_listener      = Undo_Manager_Listener(self)
+            self.tab_listener           = Tab_Listener(self)
+            #self.listener_top_window    = Top_Window_Listener(self)
+                                                             
+            self.Listener = {}
+            self.Listener.update( {'Menu_Leiste_Listener': Menu_Leiste_Listener(self)} )
+            self.Listener.update( {'Menu_Leiste_Listener2': Menu_Leiste_Listener2(self)} )
+            self.Listener.update( {'ScrollBar': ScrollBar_Listener} )
+            
+            self.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
+            self.dialog.addWindowListener(self.w_listener)
+            self.dialog.AccessibleContext.AccessibleParent.addEventListener(self.w_listener)
+            self.tabsX.addTabListener(self.tab_listener)
+    
+            self.use_UM_Listener = False
+            
+    
+            
+            
+    #         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
 
-        # Pfade
-        self.pfade = {}
 
-        # Klassen   
-        self.Key_Handler = Key_Handler(self)
-        self.ET = ElementTree  
-        self.nachricht = Mitteilungen(self.ctx,self).nachricht
-         
-        self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
-        self.class_Projekt =    self.lade_modul('projects','.Projekt(self, pd)')   
-        self.class_XML =        self.lade_modul('xml_m','.XML_Methoden(self,pd)')
-        self.class_Funktionen = self.lade_modul('funktionen','.Funktionen(self, pd)')     
-        self.class_Export =     self.lade_modul('export','.Export(self,pd)')
-        self.class_Import =     self.lade_modul('importX','.ImportX(self,pd)') 
-        self.class_Sidebar =    self.lade_modul('sidebar','.Sidebar(self,pd)') 
-        self.class_Bereiche =   self.lade_modul('bereiche','.Bereiche(self)')
-        self.class_Version =    self.lade_modul('version','.Version(self,pd)') 
-        self.class_Tabs =       self.lade_modul('tabs','.Tabs(self)') 
-        self.class_Latex =      self.lade_modul('latex_export','.ExportToLatex(self)') 
-        self.class_Zitate =      self.lade_modul('zitate','.Zitate(self)') 
-        #self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','.WListe(self)') 
-        #self.class_Index = self.lade_modul('index','.Index(self)')
-        
-        self.class_Log = class_LogX
-        self.class_Design = Design()
-        self.class_Gliederung = Gliederung()
-        
-        #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
-        
-        # Listener  
-        self.VC_selection_listener  = ViewCursor_Selection_Listener(self)          
-        self.w_listener             = Dialog_Window_Listener(self)    
-        self.undo_mgr_listener      = Undo_Manager_Listener(self)
-        self.tab_listener           = Tab_Listener(self)
-        #self.listener_top_window    = Top_Window_Listener(self)
-                                                         
-        self.Listener = {}
-        self.Listener.update( {'Menu_Kopf_Listener': Menu_Kopf_Listener(self)} )
-        self.Listener.update( {'Menu_Kopf_Listener2': Menu_Kopf_Listener2(self)} )
-        self.Listener.update( {'ScrollBar': ScrollBar_Listener} )
-        
-        self.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
-        self.dialog.addWindowListener(self.w_listener)
-        self.dialog.AccessibleContext.AccessibleParent.addEventListener(self.w_listener)
-        self.tabsX.addTabListener(self.tab_listener)
-
-        self.use_UM_Listener = False
-        
-        
-        
-
-
-#         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
-
-
-           
-       
+        except:
+            logX(inspect.stack,tb())
+            
+            # fehlt:
+            # Den User ueber den Fehler benachrichtigen
+            
+            
+            
     def get_doc(self):
         if self.debug: log(inspect.stack)
         
@@ -230,8 +244,8 @@ class Menu_Bar():
         if self.debug: log(inspect.stack)
         
         try:             
-            listener = Menu_Kopf_Listener(self) 
-            listener2 = Menu_Kopf_Listener2(self) 
+            listener = Menu_Leiste_Listener(self) 
+            listener2 = Menu_Leiste_Listener2(self) 
             
             # CONTAINER
             menuB_control, menuB_model = self.createControl(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
@@ -243,7 +257,7 @@ class Menu_Bar():
             Menueintraege = [
                 (LANG.FILE,'a'),
                 (LANG.BEARBEITEN_M,'a'),
-                (LANG.OPTIONS,'a'),            
+                (LANG.ANSICHT,'a'),            
                 ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
                 ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
                 ('Papierkorb','b','vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png',LANG.CLEAR_RECYCLE_BIN)
@@ -300,76 +314,7 @@ class Menu_Bar():
                 self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 log(inspect.stack,tb())
   
-  
-    def erzeuge_Menu_DropDown_Container(self,ev,BREITE,HOEHE,Border = False):
-        if self.debug: log(inspect.stack)
-        
-        smgr = self.smgr
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.ctx)    
-        oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", self.ctx)
-        
-        # Create Uno Struct
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.WindowDescriptor")
-        oReturnValue, oWindowDesc = oXIdlClass.createObject(None)
-        # global oWindow
-        oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
-        oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = toolkit.getDesktopWindow()
-        oWindowDesc.ParentIndex = -1
-        #oWindowDesc.WindowAttributes = 32
-
-        # Set Window Attributes
-        gnDefaultWindowAttributes = 1 + 512  # + 16 + 32 + 64 + 128 
-    #         com_sun_star_awt_WindowAttribute_SHOW + \
-    #         com_sun_star_awt_WindowAttribute_BORDER + \
-    #         com_sun_star_awt_WindowAttribute_MOVEABLE + \
-    #         com_sun_star_awt_WindowAttribute_CLOSEABLE + \
-    #         com_sun_star_awt_WindowAttribute_SIZEABLE
-    
-        if Border:
-            gnDefaultWindowAttributes = 1 + 16
-          
-        X = ev.Source.AccessibleContext.LocationOnScreen.value.X 
-        Y = ev.Source.AccessibleContext.LocationOnScreen.value.Y + ev.Source.Size.value.Height
-    
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
-        oReturnValue, oRect = oXIdlClass.createObject(None)
-        oRect.X = X
-        oRect.Y = Y
-        oRect.Width = BREITE
-        oRect.Height = HOEHE
-        
-        oWindowDesc.Bounds = oRect
-
-        # specify the window attributes.
-        oWindowDesc.WindowAttributes = gnDefaultWindowAttributes
-        # create window
-        oWindow = toolkit.createWindow(oWindowDesc)
-         
-        # create frame for window
-        oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", self.ctx)
-        oFrame.initialize(oWindow)
-        oFrame.setCreator(self.desktop)
-        oFrame.activate()
-        
-        # create new control container
-        cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", self.ctx)
-        cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", self.ctx)
-        cont_model.BackgroundColor = KONST.MENU_DIALOG_FARBE  
-        cont.setModel(cont_model)
-        # need createPeer just only the container
-        cont.createPeer(toolkit, oWindow)
-        #cont.setPosSize(0, 0, 0, 0, 15)
-        oFrame.setComponent(cont, None)
-        
-        # Listener fuers Dispose des Fensters
-        listener = DropDown_Container_Listener(self)
-        cont.addMouseListener(listener) 
-        listener.ob = oWindow
-
-        return oWindow,cont
-  
-        
+     
     def erzeuge_Menu_DropDown_Eintraege(self,items):
         if self.debug: log(inspect.stack)
 
@@ -379,7 +324,7 @@ class Menu_Bar():
         xBreite = 0
         y = 10
         
-        listener = Menu_Eintrag_Maus_Listener(self)
+        listener = Auswahl_Menu_Eintrag_Listener(self)
         
         for item in items:
             
@@ -396,6 +341,12 @@ class Menu_Bar():
                 
                 control.addMouseListener(listener)
                 
+                if item == LANG.TEXTTOOLS:
+                    prop_names = ('ImageURL','Border')
+                    prop_values = ('vnd.sun.star.extension://xaver.roemers.organon/img/pfeil2.png',0)
+                    controlTexttools, modelT = self.createControl(self.ctx, "ImageControl", Breite , y+5, 4,6, prop_names, prop_values)
+                    controls.append(controlTexttools)
+                
                 if xBreite < Breite:
                     xBreite = Breite
                     
@@ -411,6 +362,7 @@ class Menu_Bar():
                 y += 10
 
             controls.append(control)
+ 
         
         # Senkrechter Trenner
         control, model = self.createControl(self.ctx, "FixedLine", 20, 10, 5,y -10 ,(),())
@@ -419,11 +371,16 @@ class Menu_Bar():
 
         for sep in SEPs:
             sep.setPosSize(0,0,xBreite ,0,4)
-
+        
+        try:
+            controlTexttools.setPosSize(xBreite +30,0,0 ,0,1)
+        except:
+            pass
+        
         return controls,listener,y - 5,xBreite +20
 
 
-    def erzeuge_Menu_DropDown_Eintraege_Options(self,items):
+    def erzeuge_Menu_DropDown_Eintraege_Ansicht(self,items):
         if self.debug: log(inspect.stack)
         try:
             controls = []
@@ -441,7 +398,7 @@ class Menu_Bar():
             xBreite = 0
             y = 10
             
-            listener = Menu_Eintrag_Maus_Listener(self)
+            listener = Auswahl_Menu_Eintrag_Listener(self)
             tag_TV_listener = DropDown_Tags_TV_Listener(self)
             tag_SB_listener = DropDown_Tags_SB_Listener(self)
             
@@ -566,10 +523,10 @@ class Menu_Bar():
         try: 
             if load_reload:
                 load_reload_modul(modul,pyPath,self)
-                exec('import '+modul)
+                exec('import '+ modul)
                 
                 for imp in IMPORTS:
-                    exec(modul+'.%s=%s' %(imp,imp))
+                    exec(modul + '.%s=%s' %(imp,imp))
 
                 if arg == None:
                     return eval(modul)
@@ -580,7 +537,7 @@ class Menu_Bar():
                 exec('import '+modul) 
                 
                 for imp in IMPORTS:
-                    exec(modul+'.%s=%s' %(imp,imp))
+                    exec(modul + '.%s=%s' %(imp,imp))
                 
                 if arg == None:
                     return eval(modul)
@@ -612,6 +569,28 @@ class Menu_Bar():
             lang = vars()[lang_en]   
 
         return lang
+    
+    def lade_RawInputReader(self):
+        if self.debug: log(inspect.stack)
+        
+        if self.platform != 'win32':
+            return None
+        
+        import rawinputdata
+        
+        if load_reload:
+            # reload laedt nur rawinputdata. Aenderungen in
+            # RawInputReader werden nicht neu geladen.
+            # 
+            # Die Methode lade_modul funktionierte ebenfalls nicht,
+            # da bei erneutem Oeffnen von Organon die globalen Variablen
+            # alle auf None gesetzt sind.
+            #
+            # Keine Idee fuer eine Loesung bis jetzt
+            if self.programm == 'OpenOffice':
+                reload(rawinputdata)
+            
+        return rawinputdata.RawInputReader
     
     
     def Test(self):
@@ -656,144 +635,7 @@ class Menu_Bar():
         except:
             log(inspect.stack,tb())
             
-    def erzeuge_Trenner_Enstellungen(self):
-        
-        try:
-            
-            listener_CB = Trenner_Format_Listener(self)
-                        
-            y = 0
-            
-            tab0 = tab0x = 25
-            tab1 = tab1x = 42
-            tab2 = tab2x = 78
-            tab3 = tab3x = 100
-            tab4 = tab4x = 130
-            
-            tabs = [tab0,tab1,tab2,tab3,tab4]
-            
-            design = self.class_Design
-            design.set_default(tabs)
-            
-            
-            trenner = 'keiner', 'strich', 'farbe', 'user'
-            for t in trenner:
-                if self.settings_proj['trenner'] == t:
-                    locals()[t] = 1
-                else:
-                    locals()[t] = 0
-             
-
-            controls = (
-            20,
-            ('control',"FixedText",         'tab0',y,250,20,  ('Label','FontWeight'),(LANG.TRENNER_FORMATIERUNG ,150),                                             {} ),
-            40,
-            ('control1',"CheckBox",         'tab0',y,200,20,   ('Label','State'),(LANG.LINIE,locals()['strich']),                                                  {'addItemListener':(listener_CB)} ) ,
-            40,
-            ('control2',"CheckBox",         'tab0',y,360,20,   ('Label','State'),(LANG.FARBE,locals()['farbe']),                                                   {'addItemListener':(listener_CB)} ), 
-            20,
-            ('control3',"FixedText",        'tab1',y,32,16,  ('BackgroundColor','Label','Border'),(self.settings_proj['trenner_farbe_schrift'],'    ',1),       {'addMouseListener':(listener_CB)} ),  
-            0,
-            ('control4',"FixedText",        'tab2',y,120,20,  ('Label',),(LANG.FARBE_SCHRIFT,),                                                                    {} ),  
-            20,
-            ('control5',"FixedText",        'tab1',y,32,16,  ('BackgroundColor','Label','Border'),(self.settings_proj['trenner_farbe_hintergrund'],'    ',1),   {'addMouseListener':(listener_CB)} ),  
-            0,
-            ('control6',"FixedText",        'tab2',y,120,20,  ('Label',),(LANG.FARBE_HINTERGRUND,),                                                                {} ),  
-            40,
-            ('control7',"CheckBox",         'tab0',y,80,20,   ('Label','State'),(LANG.BENUTZER,locals()['user']),                                                  {'Enable':False,'addItemListener':(listener_CB)} ),              
-            20,
-            ('control8',"FixedText",        'tab1',y,20,20,   ('Label',),('URL: ',),                                                                            {'Enable':False} ), 
-            20,
-            ('control9',"FixedText",        'tab1',y,300,20,   ('Label',),(self.settings_proj['trenner_user_url'],),                                            {} ), 
-            20,
-            ('control10',"Button",          'tab1',y,60,20,    ('Label',),(LANG.AUSWAHL,),                                                                         {'Enable':False} ) , 
-            40,
-            ('control11',"CheckBox",        'tab0x',y,80,20,   ('Label','State'),(LANG.KEIN_TRENNER,locals()['keiner']),                                           {'addItemListener':(listener_CB)} ),              
-            40,
-#             ('control12',"ImageControl",    'tab0',y,80,20,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),                {} ),              
-#             30,
-            )
-            
-            
-            # HAUPTFENSTER    
-            # create the dialog model and set the properties
-            dialogModel = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
-            dialogModel.Width = 215 
-            dialogModel.Height = 320
-            dialogModel.Title = 'Trenner festlegen'
-            dialogModel.BackgroundColor = KONST.MENU_DIALOG_FARBE
-                      
-            # create the dialog control and set the model
-            controlContainer = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
-            controlContainer.setModel(dialogModel);
-                     
-            # create a peer
-            toolkit = self.smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
-            controlContainer.setVisible(False);       
-            controlContainer.createPeer(toolkit, None);
-            # ENDE HAUPTFENSTER
-            
-
-            pos_y = 0
-            ganze_breite = 0
-            
-            for ctrl in controls:
-                if isinstance(ctrl,int):
-                    pos_y += ctrl
-                else:
-                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
-                    pos_x = locals()[X]
-                    
-                    locals()[name],locals()[name.replace('control','model')] = self.createControl(self.ctx,unoCtrl,pos_x,pos_y,width,height,prop_names,prop_values)
-                            
-                    if 'x' in X:
-                        w,h = self.kalkuliere_und_setze_Control(locals()[name],'w')
-                        design.setze_tab(X,w)
-                    
-                    if 'setActionCommand' in extras:
-                        locals()[name].setActionCommand(extras['setActionCommand'])
-                    if 'addItems' in extras:
-                        locals()[name].addItems(extras['addItems'],0)
-                    if 'Enable' in extras:
-                        locals()[name].Enable = extras['Enable']
-                    if 'addActionListener' in extras:
-                        for l in extras['addActionListener']:
-                            locals()[name].addActionListener(l)
-                    if 'addMouseListener' in extras:
-                        locals()[name].addMouseListener(extras['addMouseListener'])
-                    if 'addItemListener' in extras:
-                        locals()[name].addItemListener(extras['addItemListener'])
-                    
-                    breite, hoehe = self.kalkuliere_und_setze_Control(locals()[name],'w')
-                    controlContainer.addControl(name,locals()[name])
-                    
-                    pos_x = locals()[X]
-                    locals()[name].setPosSize(pos_x,0,0,0,1)
-                    
-                    if breite + pos_x > ganze_breite:
-                        ganze_breite = breite + pos_x
-             
-            
-            #locals()['control12'].setPosSize(ganze_breite - 16,0,0,0,1)  
-            controlContainer.setPosSize(0,0,ganze_breite + 25 ,pos_y + 20,12)
-
-            # UEBERGABE AN LISTENER
-            listener_CB.controls = {'strich': locals()['control1'],
-                                    'farbe': locals()['control2'],
-                                    'user': locals()['control7'],
-                                    'keiner': locals()['control11']}
-                                    
-            listener_CB.farb_controls = {'schrift': locals()['control3'],
-                                         'hintergrund': locals()['control5']}
-
-
-            geglueckt = controlContainer.execute()       
-            controlContainer.dispose() 
-            
-        except:
-            log(inspect.stack,tb())
-
-            
+          
     def debug_time(self):
         zeit = "%0.2f" %(self.time.clock()-self.timer_start)
         return zeit
@@ -814,10 +656,6 @@ class Menu_Bar():
         smgr = self.smgr
         
         X,Y,Width,Height = posSize
-        if X == None:
-            X = ev.Source.AccessibleContext.LocationOnScreen.value.X 
-        if Y == None:
-            Y = ev.Source.AccessibleContext.LocationOnScreen.value.Y + ev.Source.Size.value.Height
     
         toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
         oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
@@ -849,8 +687,8 @@ class Menu_Bar():
         oFrame.initialize(oWindow)
         oFrame.setCreator(self.desktop)
         oFrame.activate()
-        oFrame.Name = 'Xaver'
-        oFrame.Title = 'Xaver2'
+        oFrame.Name = 'Xaver' # no effect
+        oFrame.Title = 'Xaver2' # no effect
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
@@ -858,16 +696,55 @@ class Menu_Bar():
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
-        cont.setPosSize(0, 0, 0, 0, 15)
+        #cont.setPosSize(0, 0, 0, 0, 15)
 
         oFrame.setComponent(cont, None)
-        cont.Model.Text = 'Gabriel'
+        cont.Model.Text = 'Gabriel' 
         
         # PosSize muss erneut gesetzt werden, um die Anzeige zu erneuern,
         # sonst bleibt ein Teil des Fensters schwarz
         oWindow.setPosSize(0,0,Width,Height,12)
-        
+    
         return oWindow,cont
+    
+    
+    def erzeuge_fensterinhalt(self,controls):
+        # Controls und Models erzeugen
+        pos_y = 0
+        ctrls = {}
+        
+        for ctrl in controls:
+            if isinstance(ctrl,int):
+                pos_y += ctrl
+            else:
+                name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
+                locals()[name],locals()[name.replace('control','model')] = self.createControl(self.ctx,unoCtrl,X,pos_y+Y,width,height,prop_names,prop_values)
+                
+                if 'calc' in name:
+                    w,h = self.kalkuliere_und_setze_Control(locals()[name],'w')
+    
+                    
+                if 'setActionCommand' in extras:
+                    locals()[name].setActionCommand(extras['setActionCommand'])
+                if 'addItems' in extras:
+                    locals()[name].addItems(extras['addItems'],0)
+                if 'Enable' in extras:
+                    locals()[name].Enable = extras['Enable']
+                if 'addActionListener' in extras:
+                    for l in extras['addActionListener']:
+                        locals()[name].addActionListener(l)
+                if 'addKeyListener' in extras:
+                    locals()[name].addKeyListener(extras['addKeyListener'])
+                if 'addMouseListener' in extras:
+                    locals()[name].addMouseListener(extras['addMouseListener'])
+                if 'addItemListener' in extras:
+                    locals()[name].addItemListener(extras['addItemListener'])                        
+                if 'SelectedItems' in extras:
+                    locals()[name].Model.SelectedItems = extras['SelectedItems']
+                
+                ctrls.update({name:locals()[name]})    
+        
+        return ctrls,pos_y
     
     def erzeuge_Scrollbar(self,fenster_cont,PosSize,control_innen):
         if self.debug: log(inspect.stack)
@@ -883,9 +760,7 @@ class Menu_Bar():
         control.LineIncrement = fenster_cont.PosSize.Height/Height*50
         control.BlockIncrement = 200
         control.Maximum =  control_innen.PosSize.Height  
-        control.VisibleSize = fenster_cont.PosSize.Height - 40
-        
-        
+        control.VisibleSize = fenster_cont.PosSize.Height - 40        
 
         listener = self.Listener['ScrollBar'](self.debug,control_innen)
         control.addAdjustmentListener(listener) 
@@ -903,8 +778,6 @@ class Menu_Bar():
     def speicher_settings(self,dateiname,eintraege):
         if self.debug: log(inspect.stack)
         
-        
-
         path = os.path.join(self.pfade['settings'],dateiname)
         imp = pformat(eintraege)
             
@@ -914,7 +787,7 @@ class Menu_Bar():
     def tree_write(self,tree,pfad):  
         if self.debug: log(inspect.stack) 
         # diese Methode existiert, um alle Schreibvorgaenge
-        # des XML_trees kontrollieren zu koennen
+        # des XML_trees bei Bedarf kontrollieren zu koennen
         tree.write(pfad)
     
     def prettyprint(self,pfad,oObject,w=600):
@@ -974,9 +847,9 @@ class Menu_Bar():
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
         try:
-            smgr = ctx.getServiceManager()
-            ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-            ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
+            #smgr = ctx.getServiceManager()
+            ctrl = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+            ctrl_model = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
             ctrl_model.setPropertyValues(names,values)
             ctrl.setModel(ctrl_model)
             ctrl.setPosSize(x,y,width,height,15)
@@ -987,6 +860,39 @@ class Menu_Bar():
     def createUnoService(self,serviceName):
         sm = uno.getComponentContext().ServiceManager
         return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
+    
+    def erzeuge_texttools_fenster(self,ev,m_win):
+        
+        loc_menu = ev.Source.Context.AccessibleContext.LocationOnScreen
+        loc_cont = self.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+        
+        x3 = loc_menu.X - loc_cont.X    # Position des Dropdown Menus
+        y3 = loc_menu.Y - loc_cont.Y    # Position des Dropdown Menus
+        
+        x3 += ev.Source.Context.PosSize.Width
+        y3 += ev.Source.PosSize.Y
+        
+        items = menuEintraege(LANG,LANG.TEXTTOOLS)
+        
+        controls,listener,Hoehe,Breite = self.erzeuge_Menu_DropDown_Eintraege(items)
+        controls = list((x,'') for x in controls)
+        
+        posSize = x3+2,y3,Breite +20,Hoehe +20
+        win,cont = self.erzeuge_Dialog_Container(posSize,Flags=1+512)
+        
+        # Listener fuers Dispose des Fensters
+        listener2 = Schliesse_Menu_Listener(self,texttools=True)
+        cont.addMouseListener(listener2) 
+        listener2.ob = win
+        
+        listener.window = win
+        listener.texttools = True
+        #pd()
+        listener.win2 = m_win
+        
+        for c in controls:
+            cont.addControl(c[1],c[0])
+        
 
 
 class Props():
@@ -1027,23 +933,21 @@ def menuEintraege(LANG,menu):
                 LANG.IMPORT_2,
                 'SEP',
                 LANG.BACKUP,
-                LANG.LOGGING)
+                LANG.EINSTELLUNGEN)
         
         if T.AB != 'Projekt':
             items = (
                 LANG.EXPORT_2, 
                 'SEP',
                 LANG.BACKUP,
-                LANG.LOGGING)
+                LANG.EINSTELLUNGEN)
             
     elif menu == LANG.BEARBEITEN_M:
         items = (  
             LANG.NEUER_TAB,
             'SEP',
             LANG.TRENNE_TEXT,
-            LANG.TEXTVERGLEICH,
-            #LANG.WOERTERLISTE,
-            #'Erzeuge Index',
+            LANG.TEXTTOOLS,
             'SEP',
             LANG.UNFOLD_PROJ_DIR,
             LANG.CLEAR_RECYCLE_BIN
@@ -1054,14 +958,15 @@ def menuEintraege(LANG,menu):
                 LANG.SCHLIESSE_TAB,
                 LANG.IMPORTIERE_IN_TAB,
                 'SEP',
-                LANG.TEXTVERGLEICH,
+                #LANG.TEXTVERGLEICH,
                 #LANG.WOERTERLISTE,
+                LANG.TEXTTOOLS,
                 'SEP',
                 LANG.UNFOLD_PROJ_DIR,
                 LANG.CLEAR_RECYCLE_BIN
                 )  
              
-    elif menu == LANG.OPTIONS:
+    elif menu == LANG.ANSICHT:
         items = ((LANG.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
             (LANG.SHOW_TAG1,'Tag_TV'),
             (LANG.SHOW_TAG2,'Tag_TV'),
@@ -1081,11 +986,16 @@ def menuEintraege(LANG,menu):
             (LANG.BENUTZER3,'Tag_SB'),
             ('SEP',''),
             (LANG.ZEIGE_TEXTBEREICHE,''),
-            (LANG.TRENNER,''),
             ('SEP',''),
-            ('Homepage',''),
-            ('Feedback',''),
+            (LANG.HOMEPAGE,''),
+            (LANG.FEEDBACK,''),
              )
+        
+    elif menu == LANG.TEXTTOOLS:
+        items = (LANG.TEXTVERGLEICH,
+                LANG.WOERTERLISTE,
+                LANG.ERZEUGE_INDEX
+                 )
         
     return items
 
@@ -1286,7 +1196,7 @@ class Tab_Listener(unohelper.Base,XTabListener):
 from com.sun.star.awt import XMouseListener, XItemListener
 from com.sun.star.awt.MouseButton import LEFT as MB_LEFT 
     
-class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
+class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
@@ -1299,21 +1209,35 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
             if self.mb.debug: log(inspect.stack)
             try:
                 controls = []
-    
-                if self.menu_Kopf_Eintrag in (LANG.BEARBEITEN_M,LANG.FILE):
-                    items = menuEintraege(LANG,self.menu_Kopf_Eintrag)
-                    controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege(items)
-                    oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
-                    controls = list((x,'') for x in controls)
-                    
-                elif self.menu_Kopf_Eintrag == 'Test':
+                
+                if self.menu_Kopf_Eintrag == 'Test':
                     self.mb.Test()   
                     return
-                           
-                elif self.menu_Kopf_Eintrag == LANG.OPTIONS:
+                
+                else:
                     items = menuEintraege(LANG,self.menu_Kopf_Eintrag)
-                    controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege_Options(items)
-                    oWindow,cont = self.mb.erzeuge_Menu_DropDown_Container(ev,Breite +20,Hoehe +20)
+                    if self.menu_Kopf_Eintrag == LANG.ANSICHT:
+                        controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege_Ansicht(items)
+                    else:
+                        controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege(items)
+                        controls = list((x,'') for x in controls)
+
+                    loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+                    #hauptfeld = self.mb.props['Projekt'].Hauptfeld
+                    #pos_hf = hauptfeld.AccessibleContext.LocationOnScreen
+                    
+                    x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
+                    #y = pos_hf.Y - loc_cont.Y
+                    y = self.mb.dialog.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
+                    posSize = x,y,Breite +20,Hoehe +20
+
+                    oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+512)
+
+                    # Listener fuers Dispose des Fensters
+                    listener2 = Schliesse_Menu_Listener(self.mb)
+                    cont.addMouseListener(listener2) 
+                    listener2.ob = oWindow
+                    
 
                 self.mb.geoeffnetesMenu = self.menu_Kopf_Eintrag
                 listener.window = oWindow
@@ -1347,7 +1271,7 @@ class Menu_Kopf_Listener (unohelper.Base, XMouseListener):
     def disposing(self,ev):
         return False
 
-class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
+class Menu_Leiste_Listener2 (unohelper.Base, XMouseListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
@@ -1380,95 +1304,107 @@ class Menu_Kopf_Listener2 (unohelper.Base, XMouseListener):
     def disposing(self,ev):
         return False
 
-class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
+class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
         self.window = None
+        # Wenn dieser Listener von den Texttools aus gerufen wird,
+        # wird win2 auf das normale Menufenster gesetzt und disposiert
+        self.texttools = False
+        self.win2 = None
         
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack)  
+        try:
+            sel = ev.Source.Text
+            if sel not in [LANG.TEXTTOOLS,]:
+                self.do()
 
-        sel = ev.Source.Text
-
-        self.do()
-        
-        if sel == LANG.NEW_PROJECT:
-            self.mb.class_Projekt.erzeuge_neues_Projekt()
-            
-        elif sel == LANG.OPEN_PROJECT:
-            self.mb.class_Projekt.lade_Projekt()
-            
-        elif sel == LANG.NEW_DOC:
-            self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
-            
-        elif sel == LANG.NEW_DIR:
-            self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
-            
-        elif sel == LANG.EXPORT_2:
-            self.mb.class_Export.export()
-            
-        elif sel == LANG.IMPORT_2:
-            self.mb.class_Import.importX()
-            
-        elif sel == LANG.UNFOLD_PROJ_DIR:
-            self.mb.class_Funktionen.projektordner_ausklappen()
-            
-        elif sel == LANG.NEUER_TAB:
-            self.mb.class_Tabs.start(False)
-            
-        elif sel == LANG.SCHLIESSE_TAB:
-            self.mb.class_Tabs.schliesse_Tab()
-            
-        elif sel == LANG.ZEIGE_TEXTBEREICHE:
-            oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
-            self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool  
-             
-        elif sel == 'Homepage':
-            webbrowser.open('https://github.com/XRoemer/Organon')
-            
-        elif sel == 'Feedback':
-            webbrowser.open('http://organon4office.wordpress.com/')
-            
-        elif sel == LANG.BACKUP:
-            self.mb.erzeuge_Backup()
-        
-        elif sel == LANG.LOGGING:
-            self.mb.class_Log.logging_optionsfenster(self.mb,LANG)
-            
-        elif sel == LANG.TRENNE_TEXT:
-            self.mb.class_Funktionen.teile_text()
-            
-        elif sel == LANG.IMPORTIERE_IN_TAB:
-            self.mb.class_Tabs.start(True)
-            
-        elif sel == LANG.CLEAR_RECYCLE_BIN:  
-            self.mb.leere_Papierkorb()
-            
-        elif sel == LANG.TRENNER:  
-            self.mb.erzeuge_Trenner_Enstellungen()
-            
-        elif sel == LANG.TEXTVERGLEICH:  
-            self.mb.class_Zitate.start()
-            
-        elif sel == LANG.WOERTERLISTE:  
-            self.mb.class_werkzeug_wListe.start()
-            
-        elif sel == 'Erzeuge Index':  
-            self.mb.class_Index.start()
-
-        self.mb.loesche_undo_Aktionen()
+            if sel == LANG.NEW_PROJECT:
+                self.mb.class_Projekt.erzeuge_neues_Projekt()
+                
+            elif sel == LANG.OPEN_PROJECT:
+                self.mb.class_Projekt.lade_Projekt()
+                
+            elif sel == LANG.NEW_DOC:
+                self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
+                
+            elif sel == LANG.NEW_DIR:
+                self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
+                
+            elif sel == LANG.EXPORT_2:
+                self.mb.class_Export.export()
+                
+            elif sel == LANG.IMPORT_2:
+                self.mb.class_Import.importX()
+                
+            elif sel == LANG.UNFOLD_PROJ_DIR:
+                self.mb.class_Funktionen.projektordner_ausklappen()
+                
+            elif sel == LANG.NEUER_TAB:
+                self.mb.class_Tabs.start(False)
+                
+            elif sel == LANG.SCHLIESSE_TAB:
+                self.mb.class_Tabs.schliesse_Tab()
+                
+            elif sel == LANG.ZEIGE_TEXTBEREICHE:
+                oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
+                self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool  
+                 
+            elif sel == LANG.HOMEPAGE:
+                webbrowser.open('https://github.com/XRoemer/Organon')
+                
+            elif sel == LANG.FEEDBACK:
+                webbrowser.open('http://organon4office.wordpress.com/')
+                
+            elif sel == LANG.BACKUP:
+                self.mb.erzeuge_Backup()
+                
+            elif sel == LANG.TRENNE_TEXT:
+                self.mb.class_Funktionen.teile_text()
+                
+            elif sel == LANG.IMPORTIERE_IN_TAB:
+                self.mb.class_Tabs.start(True)
+                
+            elif sel == LANG.CLEAR_RECYCLE_BIN:  
+                self.mb.leere_Papierkorb()
+                
+            elif sel == LANG.TRENNER:  
+                self.mb.erzeuge_Trenner_Enstellungen()
+                
+            elif sel == LANG.TEXTVERGLEICH:  
+                self.mb.class_Zitate.start()
+                
+            elif sel == LANG.TEXTTOOLS:  
+                self.mb.texttools_geoeffnet = True
+                self.mb.erzeuge_texttools_fenster(ev,self.window)
+                
+            elif sel == LANG.WOERTERLISTE:  
+                self.mb.class_werkzeug_wListe.start()
+                
+            elif sel == LANG.ERZEUGE_INDEX:  
+                self.mb.class_Index.start()
+                
+            elif sel == LANG.EINSTELLUNGEN:
+                self.mb.class_Einstellungen.start()
+    
+            self.mb.loesche_undo_Aktionen()
+        except:
+            log(inspect.stack,tb())
         
     def do(self): 
         if self.mb.debug: log(inspect.stack)
-        
         self.window.dispose()
         self.mb.geoeffnetesMenu = None
         # damit der Zeilen_Listener nicht auf mouse_released reagiert,
         # wenn das fenster geschlossen wird
         self.mb.class_Zeilen_Listener.menu_geklickt = True
-        
+        if self.texttools:
+            self.texttools = False
+            self.win2.dispose()
+            self.mb.texttools_geoeffnet = False
 
     def mouseExited(self,ev):
         ev.value.Source.Model.FontWeight = 100
@@ -1482,12 +1418,13 @@ class Menu_Eintrag_Maus_Listener(unohelper.Base, XMouseListener):
         return False
     
     
-class DropDown_Container_Listener (unohelper.Base, XMouseListener):
-        def __init__(self,mb):
+class Schliesse_Menu_Listener (unohelper.Base, XMouseListener):
+        def __init__(self,mb,texttools=False):
             if mb.debug: log(inspect.stack)
             
             self.ob = None
             self.mb = mb
+            self.texttools = texttools
            
         def mousePressed(self, ev):
             return False
@@ -1495,6 +1432,11 @@ class DropDown_Container_Listener (unohelper.Base, XMouseListener):
         def mouseExited(self, ev): 
             if self.mb.debug: log(inspect.stack)
             
+            #print('texttools',self.mb.texttools_geoeffnet,self.texttools)
+            
+            if self.mb.texttools_geoeffnet and self.texttools == False:
+                return
+
             point = uno.createUnoStruct('com.sun.star.awt.Point')
             point.X = ev.X
             point.Y = ev.Y
@@ -1504,6 +1446,10 @@ class DropDown_Container_Listener (unohelper.Base, XMouseListener):
             if not enthaelt_Punkt:        
                 self.ob.dispose() 
                 self.mb.geoeffnetesMenu = None   
+                
+                if self.texttools:
+                    self.mb.texttools_geoeffnet = False
+                    
             return False
         
 
@@ -2046,149 +1992,15 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             ctrl.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
             self.mb.class_Sidebar.passe_sb_an(textfeld)
         self.mb.props[T.AB].selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
-  
-
-
-class Trenner_Format_Listener(unohelper.Base,XItemListener,XMouseListener):
-    
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        
-        self.mb = mb
-        self.controls = {}
-        self.farb_controls = {}
-        
-    def itemStateChanged(self, ev):  
-        if self.mb.debug: log(inspect.stack)
-
-        for name in self.controls:
-            if ev.Source == self.controls[name]:
-                self.controls[name].State = 1
-                self.mb.settings_proj['trenner'] = name
-            else:
-                self.controls[name].State = 0
-        
-        self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
-                
-    def mousePressed(self, ev):   
-        if self.mb.debug: log(inspect.stack) 
-           
-        try:
-            if ev.Source == self.farb_controls['schrift']:
-                self.erzeuge_farb_auswahl_fenster('schrift',ev)
-            elif ev.Source == self.farb_controls['hintergrund']:
-                self.erzeuge_farb_auswahl_fenster('hintergrund',ev)            
-        except:
-            log(inspect.stack,tb())    
-    
-    def erzeuge_farb_auswahl_fenster(self,auswahl,ev):
-        if self.mb.debug: log(inspect.stack) 
-        
-        
-        posSize = ev.Source.Context.PosSize
-        x = ev.value.Source.AccessibleContext.LocationOnScreen.value.X 
-        y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y + ev.value.Source.Size.value.Height
-        w = posSize.Width
-        h = posSize.Height
-        
-        win,cont = self.mb.erzeuge_Dialog_Container((x,y,w,h))
-        
-        y = 20
-        
-        control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
-        control.Text = LANG.HEXA_EINGBEN
-        cont.addControl('Titel', control)
-        breite, hoehe = self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        y += 25
-        
-        listener = Farben_Key_Listener(self.mb,win,auswahl,ev.Source)
-        control, model = self.mb.createControl(self.mb.ctx,"Edit",20,y ,100,20,(),() ) 
-        control.addKeyListener(listener)
-        cont.addControl('Hex', control)
-        
-        y += 25
-        
-        control, model = self.mb.createControl(self.mb.ctx,"Edit",20,y ,50,20,(),() )  
-        control.Text = LANG.FARBWAEHLER
-        model.ReadOnly = True
-        model.BackgroundColor = KONST.MENU_DIALOG_FARBE
-        model.Border = 0
-        
-        
-        cont.addControl('Titel', control)
-        breite2, hoehe2 = self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        if breite2 > breite:
-            breite = breite2
-            
-        win.setPosSize(0,0,breite + 50,y+40,12)
-        
-    
-            
-    def mouseExited(self, ev):
-        return False
-    def mouseEntered(self,ev):
-        return False
-    def mouseReleased(self,ev):
-        return False
-    def disposing(self,ev):
-        return False
-    
-    
-from com.sun.star.awt import XKeyListener
-class Farben_Key_Listener(unohelper.Base, XKeyListener):
-    
-    def __init__(self,mb,win,auswahl,source):
-        if mb.debug: log(inspect.stack)
-        
-        self.mb = mb
-        self.win = win
-        self.auswahl = auswahl
-        self.source = source
-    
-    def keyPressed(self,ev):
-        return False
-        
-    def keyReleased(self,ev):
-        
-        if ev.KeyCode != 1280:
-            return
-        
-        if self.mb.debug: log(inspect.stack)
-        
-        if self.auswahl == 'schrift':
-            wahl = 'trenner_farbe_schrift'
-        else:
-            wahl = 'trenner_farbe_hintergrund'
-        
-        try:
-            farbe = int('0x'+ev.Source.Text,0)
-        
-        except:
-            self.mb.nachricht(u'Keine gültige Farbe',"warningbox")
-            self.win.dispose()
-            return
-        
-        self.mb.settings_proj[wahl] = farbe
-        self.win.dispose()
-        self.source.Model.BackgroundColor = farbe
-        
-        self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
-
-    def disposing(self,ev):pass
-    
+     
 
 from com.sun.star.awt import XAdjustmentListener
 class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
-    
     def __init__(self,debug,fenster_cont):   
         if debug: log(inspect.stack) 
         self.fenster_cont = fenster_cont
-        
     def adjustmentValueChanged(self,ev):
         self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
-        
     def disposing(self,ev):
         return False
 
