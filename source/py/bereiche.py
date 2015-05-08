@@ -7,9 +7,6 @@ class Bereiche():
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
-        
-        global pd
-        pd = mb.pd
 
         # Konstanten
         self.mb = mb

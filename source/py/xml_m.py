@@ -2,9 +2,7 @@
   
 class XML_Methoden():
     
-    def __init__(self,mb,pydevBrk):
-        global pd
-        pd = pydevBrk
+    def __init__(self,mb):
                 
         self.ctx = mb.ctx
         self.mb = mb  

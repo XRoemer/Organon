@@ -124,6 +124,22 @@ ORDNER_EXISTIERT_SCHON = u'Der Ordner enthält bereits eine Datei oder einen Ord
 NEW_PROJECT2 = 'neues Projekt'
 PROJEKT_NAMEN_EINGEBEN = u'Geben Sie einen Namen für das Projekt an.'
 
+## EXPORT HTML SETTINGS
+HTML_AUSWAHL = u'Wählen Sie die Texteigenschaften, die exportiert werden sollen.'
+HTML_EXPORT = u'Html Export'
+FETT = u'Fett',
+KURSIV = u'Kursiv',
+UEBERSCHRIFT = u'Überschriften',
+FUSSNOTE = u'Fußnoten',
+FARBEN = u'Farben',
+AUSRICHTUNG = u'Ausrichtung',
+LINKS = u'Hyper Links',
+ZITATE = u'Zitate',
+SCHRIFTART = u'Schriftart',
+SCHRIFTGROESSE = u'Schriftgröße',
+CSS = u'Erzeuge css'
+
+
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'
 IMPORT = 'IMPORT'
@@ -241,14 +257,14 @@ CHRONOLOGISCH = 'chronologisch'
 MAUSRAD = 'Mausrad'
 NUTZE_MAUSRAD = 'Nutze Mausrad'
 MAUSRAD_HINWEIS = u'''Hinweis:
-Das Mausrad ist z.Z. nur unter Windows nutzbar.
-Für Linux oder OSX haben die Einstellungen keine Auswirkung.
+Das Mausrad ist unter Windows und Linux/Ubuntu (mit installiertem X11) nutzbar.
+Für OSX hat die Einstellung keine Auswirkung.
 
-Windows:
 Bei aktiviertem Mausrad kann in Fenstern mit Scrollbalken
 per Mausrad gescrollt werden.
 Sollten Probleme auftreten (Kein Scrollen, Fehlermeldung oder 
 verlängerte Reaktionszeiten), deaktivieren Sie das Mausrad.
+
 Feedback unter Ansicht/Feedback'''
 
 ## DIVERSES

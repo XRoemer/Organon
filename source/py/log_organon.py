@@ -36,7 +36,6 @@ class Log():
         
         self.path_to_extension = path_to_extension
         self.debug = False  
-        self.load_reload = False      
         self.timer_start = clock()
         self.path_to_project_settings = None
         
@@ -143,14 +142,18 @@ class Log():
                     argues = ''
                 
             function = info[1][3]
-            modul = info[1][0].f_locals['self'].__class__.__name__
+            try:
+                modul = info[1][0].f_locals['self'].__class__.__name__
+            except:
+                # Wenn aus einer Methode ohne Klasse gerufen wird, existiert kein 'self'
+                modul = str(info[1][0])
+                
 
             if modul in ('ViewCursor_Selection_Listener'):
                 return
             
-            if self.load_reload:
-                if function in ('mouseEntered','mouseExited','entferne_Trenner'):
-                    return
+            if function in ('mouseEntered','mouseExited','entferne_Trenner'):
+                return
 
             if len(modul) > 18:
                 modul = modul[0:18]

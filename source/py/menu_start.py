@@ -24,21 +24,16 @@ class Menu_Start():
          win,
          dict_sb,
          debugX,
-         load_reloadX,
          factory,
          logX,
          class_LogX) = args
         
-        global debug,log,class_Log,load_reload
+        global debug,log,class_Log
         debug = debugX
         log = logX
         class_Log = class_LogX
-        load_reload = load_reloadX
         
-        if debug: log(inspect_stack)
-        
-        if load_reload:
-            self.get_pyPath()       
+        if debug: log(inspect_stack)      
         
         self.win = win
         self.pd = pdk
@@ -168,12 +163,7 @@ class Menu_Start():
         if debug: log(inspect_stack)
         
         try:   
-            if load_reload:
-                modul = 'menu_bar'
-                menu_bar = load_reload_modul(modul,pyPath,self)  # gleichbedeutend mit: import menu_bar
-            else:
-                import menu_bar
-            
+            import menu_bar
             
             args = (pd,
                     self.dialog,
@@ -183,7 +173,6 @@ class Menu_Start():
                     self.win,
                     self.dict_sb,
                     debug,
-                    load_reload,
                     self.factory,
                     self,
                     log,
@@ -226,14 +215,6 @@ class Menu_Start():
 
         return lang
     
-    def get_pyPath(self):
-        if debug: log(inspect_stack)
-        
-        global pyPath
-        pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
-        if platform == 'linux':
-            pyPath = '/home/xgr/workspace/organon/Organon/source/py'
-            sys.path.append(pyPath)
     
     def get_zuletzt_geladene_Projekte(self):
         if debug: log(inspect_stack)
@@ -353,41 +334,4 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
     def disposing(self,ev):
         pass
            
-    
-################ TOOLS ################################################################
 
-
-
-def load_reload_modul(modul,pyPath,mb):
-    try:
-        if pyPath not in sys.path:
-            sys.path.append(pyPath)
-
-        exec('import '+ modul)
-        del(sys.modules[modul])
-        try:
-            if mb.programm == 'LibreOffice':
-                import shutil
-                shutil.rmtree(path.join(pyPath,'__pycache__'))
-
-            elif mb.programm == 'OpenOffice':
-
-                path_menu = __file__.split(__name__)
-                pfad = path_menu[0] + modul + '.pyc'
-
-                try:
-                    remove(pfad)
-                except:
-                    pass
-        except:
-            log(inspect.stack,tb())
-                            
-        exec('import '+ modul)
-
-        return eval(modul)
-    except:
-        log(inspect.stack,tb())
-        
-
-    
-    

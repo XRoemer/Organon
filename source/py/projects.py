@@ -17,15 +17,12 @@ mb.path_to_extension,dict mb.pfade, mb.projekt_path : SystemPath
 
 class Projekt():
     
-    def __init__(self,mb,pydevBrk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.ctx = mb.ctx
         self.mb = mb
         
         self.mb.settings_proj['use_template'] = (False,None)
-
-        global pd
-        pd = pydevBrk
         
         self.first_time = True
    
@@ -66,7 +63,9 @@ class Projekt():
                   
             if geglueckt:
                 
-                self.erzeuge_Ordner_Struktur() 
+                ok = self.erzeuge_Ordner_Struktur() 
+                if not ok:
+                    return
                 self.erzeuge_import_Settings()
                 self.erzeuge_export_Settings()  
                 self.erzeuge_proj_Settings()
@@ -201,10 +200,16 @@ class Projekt():
     
             self.mb.doc.storeAsURL(Path2,())  
              
-        except:
+        except PermissionError as e:
+            self.mb.nachricht("You don't have the permission to write into this folder " + str(e),"warningbox")
+            return False
+        except Exception as e:
+            self.mb.nachricht("ERROR: " + str(e),"warningbox")
             log(inspect.stack,tb())
-    
-    
+            return False
+        
+        return True
+        
     def dialog_neues_projekt_anlegen(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -886,6 +891,21 @@ class Projekt():
             'auswahl' : 1,
             'ausgewaehlte' : {},
             'hoehe_auswahlfenster' : 200,
+            
+            # HTML Export
+            'html_export' : {
+                            'FETT' : 1,
+                            'KURSIV' : 1,
+                            'UEBERSCHRIFT' : 1,
+                            'FUSSNOTE' : 1,
+                            'FARBEN' : 1,
+                            'PARA' : 1,
+                            'AUSRICHTUNG' : 1,
+                            'LINKS' : 1,
+                            'ZITATE' : 0,
+                            'SCHRIFTGROESSE' : 0,
+                            'CSS' : 0
+                            },
             }  
         
         self.mb.speicher_settings("export_settings.txt", settings_exp)        
@@ -1154,7 +1174,9 @@ class Projekt():
             
             #self.mb.class_Einstellungen.start()
             
-            
+            #print('hier')
+            dict = self.mb.dict_sb_content
+
         except:
             log(inspect.stack,tb())
             print(tb())
@@ -1222,91 +1244,6 @@ def draw(path):
     surface.write_to_png('cairo_test.png')
     
             
-
-def calc_erstellen():
-    pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Infinitive.txt'
-
-    with codecs_open( pfad, "r",'utf-8') as file:
-        eintraege = file.readlines()
-    
-    
-    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-    prop.Name = 'Hidden'
-    prop.Value = True
-            
-    URL="private:factory/scalc"
-
-    self.calc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
-     
-    sheet = self.calc.Sheets.getByIndex(0)            
-    
-    for i in range(len(eintraege)):
-        
-        #nr,wort,infinitive = 
-        nr,wort,infinitive = eintraege[i].split(';')
-        
-        infinitive = infinitive.rstrip()
-        infinitive = infinitive.split(',')
-        
-        if infinitive == ['']:
-            infinitive = []
-            
-        
-        #print(nr,wort,infinitive)
-        
-        #print(len(infinitive))
-        
-        inf1 = ''
-        inf2 = ''
-#                 
-        if len(infinitive) == 0:
-            pass
-        elif len(infinitive) == 1:
-            inf1 = infinitive[0]
-        else:
-            inf1 = infinitive[0]
-            inf2 = ','.join(infinitive[1:])
-            
-        
-        #print(wort,inf1,inf2)
-        
-        cell1 = sheet.getCellByPosition(0, i)
-        cell1.setString(wort)
-        
-        cell2 = sheet.getCellByPosition(1, i)
-        cell2.setString(inf1)
-        
-        cell3 = sheet.getCellByPosition(2, i)
-        cell3.setString(inf2)
-#             
-    
-    pfadx = 'C:\\Users\\Homer\\Desktop\\TLG'
-    path = os.path.join(pfadx,'michael tabelle.odt')
-#              
-    self.calc.storeToURL(uno.systemPathToFileUrl(path),())    
-    self.calc.close(False)
-
-
-def woerterListe_reduzieren():
-    pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Woerter Liste.txt'
-    with codecs_open( pfad, "r",'utf-8') as file:
-        text = file.readlines()
-    
-    ignore = u'‘’“·;'#.split()
-
-    for i in range(len(text)):
-        
-        for j in ignore:
-            text[i] = text[i].replace(j,'')
-        
-    text2 = sorted(set(text))    
-
-    
-    pfad = 'C:\\Users\\Homer\\Desktop\\TLG\\Michael Kommentar Woerter Liste2.txt'
-    with codecs_open( pfad, "a",'utf-8') as file:
-        for t in text2:
-            file.write(t)
-
 
 
 from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener

@@ -5,14 +5,11 @@ import unohelper
 
 class ImportX():
     
-    def __init__(self,mb,pdk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.fenster_import = None
         self.fenster_filter = None
-        
-        global pd
-        pd = pdk
         
         self.auszuschliessende_filter = ('org.openoffice.da.writer2bibtex','org.openoffice.da.writer2latex','BibTeX_Writer','LaTeX_Writer')
         
@@ -318,7 +315,8 @@ class ImportX():
                             # FilterName: Filter als Label, Extensions Endungen
                             self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
 
-            self.mb.filters_export.update({'LaTex':('LaTex (*.tex)','tex','*tex')})
+            self.mb.filters_export.update({'LaTex':('LaTex (Organon) (*.tex)','tex','*tex')})
+            self.mb.filters_export.update({'HtmlO':('HTML (Organon) (*.html)','html','*html')})
             
         except:
             log(inspect.stack,tb())

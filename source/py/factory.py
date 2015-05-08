@@ -5,6 +5,7 @@ from traceback import print_exc as tb
 import uno
 import unohelper
 from os import path as PATH
+import inspect
 
 
 ####################################################
@@ -13,20 +14,23 @@ from os import path as PATH
 
 load_reload = False
 
+if load_reload:
+    sys.dont_write_bytecode = True
+
 platform = sys.platform
         
 if load_reload:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
-        pyPath = '/home/xgr/workspace/organon/Organon/source/py'
-        sys.path.append(pyPath)
+        pyPath = '/media/windows/Organon/source/py'
+    sys.path.append(pyPath)
 
 def pydevBrk():  
     # adjust your path 
     if platform == 'linux':
-        sys.path.append('/opt/eclipse/plugins/org.python.pydev_3.8.0.201409251235/pysrc')  
+        sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
     else:
-        sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_3.5.0.201405201709/pysrc')  
+        sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
 pd = pydevBrk
@@ -34,14 +38,10 @@ pd = pydevBrk
 
 def load_logging(path_to_extension):
     try:
-        if load_reload:
-            modul = 'log_organon'
-            log_organon = load_reload_modul(modul,pyPath)  
-        else:
-            import log_organon
+
+        import log_organon
         
         class_Log = log_organon.Log(path_to_extension,pd,tb)
-        class_Log.load_reload = load_reload
         debug = class_Log.debug
         log1 = class_Log.log
         return log1,class_Log,debug
@@ -160,7 +160,6 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     
     def __init__(self, ctx, *args):
         self.ctx = ctx
-        self.load_reload_modul = load_reload_modul
         
         global path_to_extension, log, debug, class_Log
         
@@ -261,35 +260,35 @@ dict_sb.update({'CWHandler':ContainerWindowHandler(uno.getComponentContext())})
 
 def start_main(window,ctx,tabs,path_to_extension,win,factory):
 
-    dialog = window
-        
-    if load_reload:
-        modul = 'menu_start'
-        menu_start = load_reload_modul(modul,pyPath)  # gleichbedeutend mit: import menu_bar
-    else:
-        import menu_start
-        
-    try:
-        path_to_extension = get_path_to_extension()
-        log,class_Log,debug = load_logging(path_to_extension)
-    except:
-        tb()
-       
-    args = (pd,
-            dialog,
-            ctx,
-            tabs,
-            path_to_extension,
-            win,
-            dict_sb,
-            debug,
-            load_reload,
-            factory,
-            log,
-            class_Log)
+    try:   
+        dialog = window
     
-    Menu_Start = menu_start.Menu_Start(args)
-    Menu_Start.erzeuge_Startmenu()
+        import menu_start
+            
+        try:
+            path_to_extension = get_path_to_extension()
+            log,class_Log,debug = load_logging(path_to_extension)
+        except:
+            tb()
+    
+    
+        args = (pd,
+                dialog,
+                ctx,
+                tabs,
+                path_to_extension,
+                win,
+                dict_sb,
+                debug,
+                factory,
+                log,
+                class_Log)
+        
+        Menu_Start = menu_start.Menu_Start(args)
+        Menu_Start.erzeuge_Startmenu()
+    except Exception as e:
+        print(e)
+        log(inspect.stack,tb())
 
 
 
@@ -427,30 +426,3 @@ def get_path_to_extension():
 #     
 #     return programm
 
-def load_reload_modul(modul,pyPath):
-    try:
-        if pyPath not in sys.path:
-            sys.path.append(pyPath)
-        
-        exec('import '+ modul)
-        del(sys.modules[modul])
-        try:
-            import shutil
-
-            if 'LibreOffice' in sys.executable:
-                if 'linux' in platform:
-                    shutil.rmtree(pyPath+'/__pycache__')
-                else:
-                    shutil.rmtree(pyPath+'\\__pycache__')
-                
-            elif 'OpenOffice' in sys.executable:
-                pass
-        except:
-            pass
-                            
-        exec('import '+ modul)
-        
-        return eval(modul)
-    except:
-        tb()
-        #pd()

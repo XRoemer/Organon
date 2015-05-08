@@ -27,27 +27,24 @@ class Menu_Bar():
         
         try:
         
-            pdk,dialog,ctx,tabsX,path_to_extension,win,dict_sb,debugX,load_reloadX,factory,menu_start,logX,class_LogX = args
+            pdk,dialog,ctx,tabsX,path_to_extension,win,dict_sb,debugX,factory,menu_start,logX,class_LogX = args
             
             
             ###### DEBUGGING ########
             global debug,log,load_reload
             debug = debugX
-            load_reload = load_reloadX 
-            self.load_reload = load_reload  
             log = logX
             
             self.debug = debugX
             if self.debug: 
                 self.time = time
                 self.timer_start = self.time.clock()
-                
             
+            # Wird beim Debugging auf True gesetzt    
+            load_reload = sys.dont_write_bytecode
     
             if self.debug: log(inspect.stack)
             
-            if load_reload:
-                self.get_pyPath()
                 
             ###### DEBUGGING END ########
             
@@ -61,9 +58,7 @@ class Menu_Bar():
             global T
             T = Tab()
             
-            IMPORTS = ('uno','unohelper','sys','os','ElementTree','time',
-                       'codecs_open','math_floor','re','tb','platform','KONST',
-                       'pd','copy','Props','T','log','inspect','webbrowser','LANG')
+            
             
             
             
@@ -119,29 +114,55 @@ class Menu_Bar():
     
             # Pfade
             self.pfade = {}
-    
+            
+            IMPORTS = {'uno':uno,
+                       'unohelper':unohelper,
+                       'sys':sys,
+                       'os':os,
+                       'ElementTree':ElementTree,
+                       'time':time,
+                       'codecs_open':codecs_open,
+                       'math_floor':math_floor,
+                       're':re,
+                       'tb':tb,
+                       'platform':platform,
+                       'KONST':KONST,
+                       'pd':pd,
+                       'copy':copy,
+                       'Props':Props,
+                       'T':T,
+                       'log':log,
+                       'inspect':inspect,
+                       'webbrowser':webbrowser,
+                       'LANG':LANG}
+            
+            
             # Klassen   
             self.Key_Handler = Key_Handler(self)
             self.ET = ElementTree  
             self.nachricht = Mitteilungen(self.ctx,self).nachricht
             
             self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
-            self.class_Projekt =        self.lade_modul('projects','.Projekt(self, pd)')   
-            self.class_XML =            self.lade_modul('xml_m','.XML_Methoden(self,pd)')
-            self.class_Funktionen =     self.lade_modul('funktionen','.Funktionen(self, pd)')     
-            self.class_Export =         self.lade_modul('export','.Export(self,pd)')
-            self.class_Import =         self.lade_modul('importX','.ImportX(self,pd)') 
-            self.class_Sidebar =        self.lade_modul('sidebar','.Sidebar(self,pd)') 
-            self.class_Bereiche =       self.lade_modul('bereiche','.Bereiche(self)')
-            self.class_Version =        self.lade_modul('version','.Version(self,pd)') 
-            self.class_Tabs =           self.lade_modul('tabs','.Tabs(self)') 
-            self.class_Latex =          self.lade_modul('latex_export','.ExportToLatex(self)') 
-            self.class_Zitate =         self.lade_modul('zitate','.Zitate(self)') 
-            self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','.WListe(self)') 
-            self.class_Index =          self.lade_modul('index','.Index(self)')
-            self.class_Mausrad =        self.lade_modul('mausrad','.Mausrad(self,pd)')
-            self.class_RawInputReader = self.lade_RawInputReader()
-            self.class_Einstellungen =  self.lade_modul('einstellungen','.Einstellungen(self,pd)')
+            self.class_Projekt =        self.lade_modul('projects','Projekt')   
+            self.class_XML =            self.lade_modul('xml_m','XML_Methoden')
+            self.class_Funktionen =     self.lade_modul('funktionen','Funktionen')     
+            self.class_Export =         self.lade_modul('export','Export')
+            self.class_Import =         self.lade_modul('importX','ImportX') 
+            self.class_Sidebar =        self.lade_modul('sidebar','Sidebar') 
+            self.class_Bereiche =       self.lade_modul('bereiche','Bereiche')
+            self.class_Version =        self.lade_modul('version','Version') 
+            self.class_Tabs =           self.lade_modul('tabs','Tabs') 
+            self.class_Latex =          self.lade_modul('latex_export','ExportToLatex') 
+            self.class_Html =           self.lade_modul('export2html','ExportToHtml') 
+            self.class_Zitate =         self.lade_modul('zitate','Zitate') 
+            self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','WListe') 
+            self.class_Index =          self.lade_modul('index','Index')
+            self.class_Mausrad =        self.lade_modul('mausrad','Mausrad')
+            self.class_Einstellungen =  self.lade_modul('einstellungen','Einstellungen')
+            
+            # Plattformabhaengig
+            if self.platform == 'win32':
+                self.class_RawInputReader = self.lade_modul('rawinputdata','RawInputReader')
             
             self.class_Log = class_LogX
             self.class_Design = Design()
@@ -501,17 +522,10 @@ class Menu_Bar():
     def get_Klasse_Baumansicht(self):
         if self.debug: log(inspect.stack)
 
-        if load_reload:
-            modul = 'baum'
-            baum = load_reload_modul(modul,pyPath,self)  
-            
-            for imp in IMPORTS:
-                exec('baum.%s=%s' %(imp,imp))
-        else: 
-            import baum   
-            
-            for imp in IMPORTS:
-                exec('baum.%s=%s' %(imp,imp))
+        import baum   
+        
+        for imp in IMPORTS:
+            setattr(baum,imp,IMPORTS[imp])
                    
         Klasse_Hauptfeld = baum.Baumansicht(self)
         Klasse_Zeilen_Listener = baum.Zeilen_Listener(self.ctx,self)
@@ -521,28 +535,19 @@ class Menu_Bar():
         if self.debug: log(inspect.stack)
         
         try: 
-            if load_reload:
-                load_reload_modul(modul,pyPath,self)
-                exec('import '+ modul)
+#             if load_reload:
+#                 load_reload_modul(modul,pyPath,self)
                 
-                for imp in IMPORTS:
-                    exec(modul + '.%s=%s' %(imp,imp))
+            mod = __import__(modul)
+            
+            for imp in IMPORTS:
+                setattr(mod,imp,IMPORTS[imp])
 
-                if arg == None:
-                    return eval(modul)
-                else:
-                    func = modul+arg
-                    return eval(func)
-            else:
-                exec('import '+modul) 
-                
-                for imp in IMPORTS:
-                    exec(modul + '.%s=%s' %(imp,imp))
-                
-                if arg == None:
-                    return eval(modul)
-                else:
-                    return eval(modul+arg)
+            if arg == None:
+                return mod
+            else:                    
+                oClass = getattr(mod, arg)
+                return oClass(self)
         except:
             log(inspect.stack,tb())
      
@@ -557,16 +562,10 @@ class Menu_Bar():
             
         self.language = language
         
-        import lang_en 
         try:
-            exec('import lang_' + language)
+            lang = __import__('lang_'+language)
         except:
-            pass
-
-        if 'lang_' + language in vars():
-            lang = vars()['lang_' + language]
-        else:
-            lang = vars()[lang_en]   
+            lang = __import__('lang_en')
 
         return lang
     
@@ -834,15 +833,7 @@ class Menu_Bar():
             ctrl.setPosSize(0,0,Breite,0,4)
             
         return Breite,Hoehe
-    
-    def get_pyPath(self):
-        if self.debug: log(inspect.stack)
         
-        global pyPath
-        pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
-        if platform == 'linux':
-            pyPath = '/home/xgr/workspace/organon/Organon/source/py'
-            sys.path.append(pyPath)    
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
@@ -2075,43 +2066,5 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
         return False
 
 
-
-    
-################ TOOLS ################################################################
-
-
-
-def load_reload_modul(modul,pyPath,mb):
-    try:
-        if pyPath not in sys.path:
-            sys.path.append(pyPath)
-
-        #print('lade:',modul)
-        exec('import '+ modul)
-        del(sys.modules[modul])
-        try:
-            if mb.programm == 'LibreOffice':
-                import shutil
-                shutil.rmtree(os.path.join(pyPath,'__pycache__'))
-
-            elif mb.programm == 'OpenOffice':
-
-                path_menu = __file__.split(__name__)
-                path = path_menu[0] + modul + '.pyc'
-                #print(path)
-                try:
-                    os.remove(path)
-                except:
-                    pass
-        except:
-            log(inspect.stack,tb())
-                            
-        exec('import '+ modul)
-
-        return eval(modul)
-    except:
-        log(inspect.stack,tb())
-        
-
-    
+ 
     

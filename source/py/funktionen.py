@@ -7,12 +7,10 @@ from shutil import copyfile
 
 class Funktionen():
     
-    def __init__(self,mb,pdk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb        
-        
-        global pd
-        pd = pdk
+
         
     def projektordner_ausklappen(self,ordinal = None):
         if self.mb.debug: log(inspect.stack)

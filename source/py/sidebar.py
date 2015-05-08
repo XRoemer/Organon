@@ -8,7 +8,7 @@ from pickle import dump as pickle_dump
 
 class Sidebar(): 
     
-    def __init__(self,mb,pdk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb        
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
@@ -62,10 +62,6 @@ class Sidebar():
                         'Tags_user3')
 
        
-        
-
-        global pd
-        pd = pdk
     
     
     

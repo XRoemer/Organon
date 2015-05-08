@@ -125,6 +125,24 @@ ORDNER_EXISTIERT_SCHON = 'The folder already contains a file/directory %s.organo
 NEW_PROJECT2 = 'new Project'
 PROJEKT_NAMEN_EINGEBEN = 'Enter a name for the new project.'
 
+
+## EXPORT HTML SETTINGS
+HTML_AUSWAHL = u'Choose text properties for export.'
+HTML_EXPORT = u'Html Export'
+FETT = u'Bold',
+KURSIV = u'Italic',
+UEBERSCHRIFT = u'Headings',
+FUSSNOTE = u'Footnotes',
+FARBEN = u'Colors',
+AUSRICHTUNG = u'Adjustment',
+LINKS = u'Hyper Links',
+ZITATE = u'Quotations',
+SCHRIFTART = u'Font',
+SCHRIFTGROESSE = u'Fontsize',
+CSS = u'Create css'
+
+
+
 ## IMPORT SETTINGS
 IMPORT_2 = 'Import'
 IMPORT = 'IMPORT'
@@ -241,14 +259,14 @@ CHRONOLOGISCH = 'chronological'
 MAUSRAD = 'Mouse Wheel'
 NUTZE_MAUSRAD = 'Use Mouse Wheel'
 MAUSRAD_HINWEIS = u'''Please note:
-The wheel can be used in Windows only.
-This setting has no impact in Linux or OSX.
+The wheel can be used in Windows and Linux/Ubuntu (with installed X11).
+This setting has no impact in Mac OS.
 
-Windows:
 An activated scroll wheel makes it possible to scroll with 
 the wheel in Organon windows with a scrollbar.
 On issues (No scrolling, errors or bad response):
 deactivate the scroll wheel.
+
 You might leave a feedback (View/Feedback)'''
 
 ## DIVERSES

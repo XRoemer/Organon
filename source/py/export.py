@@ -5,16 +5,13 @@ import unohelper
 
 class Export():
     
-    def __init__(self,mb,pdk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
         self.haupt_fenster = None
         self.trenner_fenster = None
         self.auswahl_fenster = None
-        
-        global pd
-        pd = pdk
         
         
     def export(self):
@@ -796,6 +793,8 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             
             if filterName == 'LaTex':
                 extension = '.tex'
+            elif filterName == 'HtmlO':
+                extension = '.html'
             
             if os.path.exists(Path2+extension):
                 Path2 = self.pruefe_dateiexistenz(Path2,extension)
@@ -807,11 +806,13 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             prop.Name = 'FilterName'
             prop.Value = filterName
             
-            
-            if filterName != 'LaTex':
-                oOO.storeToURL(Path3,(prop,))
-            else:
+
+            if filterName == 'LaTex':
                 self.mb.class_Latex.greek2latex(oOO.Text,Path2,self.mb.projekt_name)
+            elif filterName == 'HtmlO':
+                self.mb.class_Html.export2html(oOO.Text,Path1,self.mb.projekt_name)
+            else:
+                oOO.storeToURL(Path3,(prop,))
 
             
         except:
@@ -988,6 +989,8 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         
                         if filterName == 'LaTex':
                             extension = '.tex'
+                        elif filterName == 'HtmlO':
+                            extension = '.html'
                         
                         # pruefen, ob datei existiert; Namen aendern       
                         if os.path.exists(pfad+extension):
@@ -996,12 +999,17 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         path = pfad + extension 
                         path2 = uno.systemPathToFileUrl(path) 
                         
-                        if filterName != 'LaTex':
-                            oOO.storeToURL(path2,(prop,))
-                        else:
+#                         if filterName != 'LaTex':
+#                             oOO.storeToURL(path2,(prop,))
+#                         else:
+#                             self.mb.class_Latex.greek2latex(oOO.Text,pfad,self.mb.projekt_name)
+
+                        if filterName == 'LaTex':
                             self.mb.class_Latex.greek2latex(oOO.Text,pfad,self.mb.projekt_name)
-             
-                        #oOO.storeToURL(path2,(prop,))
+                        elif filterName == 'HtmlO':
+                            self.mb.class_Html.export2html(oOO.Text,path,self.mb.projekt_name)
+                        else:
+                            oOO.storeToURL(path2,(prop,))
                         
                         
                     # unterbricht while Schleife, wenn nur Trenner und keine keine OrganonSec mehr uebrig sind 

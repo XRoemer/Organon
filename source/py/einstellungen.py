@@ -5,13 +5,11 @@ from uno import fileUrlToSystemPath
 
 class Einstellungen():
     
-    def __init__(self,mb,pdk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        
-        global pd
-        pd = pdk
+
         
         
     def start(self):
@@ -70,7 +68,7 @@ class Einstellungen():
     def dialog_einstellungen(self,listener,breite_listbox,breite,hoehe):
         if self.mb.debug: log(inspect.stack)
         
-        lb_items = LANG.TRENNER,LANG.MAUSRAD,LANG.LOG
+        lb_items = LANG.TRENNER,LANG.MAUSRAD,LANG.HTML_EXPORT,LANG.LOG
 
         controls = (
             10,
@@ -125,6 +123,9 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                                         
             elif sel == LANG.TRENNER:
                 self.dialog_trenner()
+                
+            elif sel == LANG.HTML_EXPORT:
+                self.dialog_html_export()
 
         except:
             log(inspect.stack,tb())
@@ -234,12 +235,65 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
     
     
+    def dialog_html_export_elemente(self,listener,html_exp_settings):
+        if self.mb.debug: log(inspect.stack)
+        
+
+        controls = [
+            10,
+            ('controlE_calc',"FixedText",        
+                                    20,0,50,20,    
+                                    ('Label','FontWeight'),
+                                    (LANG.HTML_AUSWAHL ,150),                  
+                                    {} 
+                                    ), 
+            30, ]
+        
+        elemente = 'FETT','KURSIV','AUSRICHTUNG','UEBERSCHRIFT','FUSSNOTE','FARBEN','LINKS'
+                # ZITATE,SCHRIFTART,SCHRIFTGROESSE,CSS
+                
+        for el in elemente:
+            controls.extend([
+            ('control_{}'.format(el),"CheckBox",      
+                                    20,0,200,20,    
+                                    ('Label','State'),
+                                    (getattr(LANG, el)[0],html_exp_settings[el]),       
+                                    {'setActionCommand':el,'addActionListener':(listener,)} 
+                                    ),  
+            20])
             
+            
+        return controls
+
+ 
+    def dialog_html_export(self): 
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+
+            sett = self.mb.settings_exp['html_export']
+            
+            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
+            X = posSize_main.X +20
+            Y = posSize_main.Y +20            
+
+            # Listener erzeugen 
+            listener = Listener_HTML_Export_Einstellungen(self.mb)         
+            
+            controls = self.dialog_html_export_elemente(listener,sett)
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
+              
+            # Controls in Hauptfenster eintragen
+            for c in ctrls:
+                self.container.addControl(c,ctrls[c])
+                         
+        except:
+            log(inspect.stack,tb())
+            
+                    
     def dialog_mausrad_elemente(self,listener,nutze_mausrad):
         if self.mb.debug: log(inspect.stack)
         
-        lb_items = 'Trenner','Logging','Mausrad'
-
         controls = (
             10,
             ('controlE_calc',"FixedText",        
@@ -535,6 +589,27 @@ class Listener_Mausrad_Einstellungen(unohelper.Base, XActionListener):
             self.mb.settings_proj['nutze_mausrad'] = ev.Source.State == 1
             self.mb.nutze_mausrad = ev.Source.State == 1
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj) 
+        except:
+            log(inspect.stack,tb())
+    
+    def disposing(self,ev):
+        return False    
+    
+class Listener_HTML_Export_Einstellungen(unohelper.Base, XActionListener):
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+                
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            if ev.Source.State == 1:
+                state = 1
+            else:
+                state = 0
+            self.mb.settings_exp['html_export'][ev.ActionCommand] = state
+            self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 
         except:
             log(inspect.stack,tb())
     

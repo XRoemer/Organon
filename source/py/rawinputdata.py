@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# This module is an adjusted version of pymultimouse
+# This module is an adjusted version of pymultimouse/rawinputreader.py
 # http://pymultimouse.googlecode.com/svn-history/r2/trunk/rawinputreader.py
 
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/208699
@@ -11,6 +11,7 @@ import sys
 from ctypes import c_long,c_int,c_uint,c_char_p,c_ushort,Structure,Union
 from ctypes import WINFUNCTYPE,windll,byref,sizeof,pointer,WinError
 from ctypes.wintypes import DWORD,HWND,HANDLE,WPARAM,ULONG,LONG,UINT,BYTE
+
 
 WNDPROC = WINFUNCTYPE(c_long, c_int, c_uint, c_int, c_int)
 
@@ -52,8 +53,8 @@ class RAWINPUTHEADER(Structure):
         ("dwSize", DWORD),
         ("hDevice", HANDLE),
         ("wParam", WPARAM),
-    ]
-
+    ] 
+    
 class RAWMOUSE(Structure):
     class _U1(Union):
         class _S2(Structure):
@@ -74,8 +75,7 @@ class RAWMOUSE(Structure):
         ("lLastY", LONG),
         ("ulExtraInformation", ULONG),
     ]
-    _anonymous_ = ("_u1", )
-
+    _anonymous_ = ("_u1", )   
 
 class RAWKEYBOARD(Structure):
     _fields_ = [
@@ -115,29 +115,21 @@ class RAWINPUT(Structure):
 
 def ErrorIfZero(HANDLE):
     if HANDLE == 0:
-        # raise WinError hat ebenfalls einen Fehler erzeugt. Da der Code aber
-        # keine Fehler mehr erzeugen sollte, bleibt es zunaechst bestehen.
-        raise WinError
+        # raise WinError hat einen Fehler erzeugt. 
+        # raise WinError
+        log(inspect.stack,extras='No Handle for Window // rawinputdata.py')
     else:
         return HANDLE
 
 
 class RawInputReader():
  
-    def __init__(self,mb,pdX,tbX,logX,inspectX,hauptfeldX,scrollLeisteX):
-        if mb.debug: logX(inspectX.stack)
-        self.mb = mb
+    def __init__(self,mbx):
+        if mbx.debug: log(inspect.stack)
+        self.mb = mbx
         
-        global pd,tb,log,inspect,hauptfeld,scrollLeiste
-
-        self.tb = tb = tbX
-        self.pd = pd = pdX
-        self.log = log = logX
-        self.inspect = inspect = inspectX
-        
-        hauptfeld = hauptfeldX
-        scrollLeiste = scrollLeisteX
-
+        global mb
+        mb = mbx
         
     def start(self): 
         if self.mb.debug: log(inspect.stack)
@@ -200,7 +192,7 @@ class RawInputReader():
         IDI_APPLICATION = 32512
         IDC_ARROW = 32512
         WHITE_BRUSH = 0
-
+        
         # Define Window Class
         wndclass = WNDCLASS()
         self.wndclass = wndclass
@@ -219,22 +211,24 @@ class RawInputReader():
          
         return wndclass
 
-     
+
     def pollEvents(self):
         #if self.mb.debug: self.log(inspect.stack)
-        
+                
         # Pump Messages
         msg = MSG()
         pMsg = pointer(msg)
         NULL = c_int(0)
      
         PM_REMOVE = 1
+                
         while windll.user32.PeekMessageA(pMsg, self.hwnd, 0, 0, PM_REMOVE) != 0:
             windll.user32.DispatchMessageA(pMsg)
-
+     
      
     def __del__(self):
         pass
+ 
  
     def stop(self):
         if self.mb.debug: log(inspect.stack)
@@ -245,8 +239,8 @@ class RawInputReader():
  
     def WndProc( self, hwnd, message, wParam, lParam):
         #if self.mb.debug: log(inspect.stack)
-
-        try:
+        
+        try:            
             WM_INPUT = 255
             RI_MOUSE_WHEEL = 0x0400
             WM_DESTROY = 2
@@ -276,28 +270,16 @@ class RawInputReader():
                                 return 0
                              
                             direction = (raw.mouse._u1._s2.usButtonData == 120)
-
+                            
                             if direction:
-                                v = 20
+                                v = 1
                             else:
-                                v = -20
-                                
-                            hoehe_leiste = scrollLeiste.Model.VisibleSize
-                            maximum = scrollLeiste.Maximum
-                              
-                            y = hauptfeld.PosSize.Y + v
-                            if y > 0:
-                                y = 0
-
-                            if -y > maximum - hoehe_leiste:
-                                y = -(maximum - hoehe_leiste - 1)
-                                
-                            #print('mouse event',direction,y)
-
-                            hauptfeld.setPosSize(0, y ,0,0,2)
-                            scrollLeiste.Model.ScrollValue = -y
-            
-                              
+                                v = -1
+                            
+                            # mb wird als globale Variable genutzt, da bei erneutem Oeffnen von Organon
+                            # ansonsten die alte Instanz von self.mb benutzt wird. WARUM?
+                            mb.class_Mausrad.bewege_scrollrad(v)
+                                                          
             return windll.user32.DefWindowProcA(c_int(hwnd), c_int(message), c_int(wParam), c_int(lParam))
     
         except Exception as e:

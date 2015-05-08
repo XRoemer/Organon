@@ -8,9 +8,6 @@ class Tabs():
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
-        
-        global pd
-        pd = mb.pd
 
         self.mb = mb
         

@@ -5,12 +5,9 @@ import unohelper
 
 class Version():
     
-    def __init__(self,mb,pdk):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb        
-        
-        global pd
-        pd = pdk
                 
         self.vers_dict = {
         
@@ -29,6 +26,8 @@ class Version():
         '0.9.8.4':None,
         '0.9.8.5':None,
         '0.9.8.6':self.an_0987b_anpassen,
+        '0.9.8.7':self.an_0988b_anpassen
+        
         } 
         
         
@@ -55,7 +54,7 @@ class Version():
                 
                 
                 self.neue_programmversion_eintragen()
-        
+
         except:
             log(inspect.stack,tb())
 
@@ -134,6 +133,29 @@ class Version():
         except:
             log(inspect.stack,tb())
         self.version = '0.9.8.7b'
+    
+    def an_0988b_anpassen(self):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            self.mb.settings_exp.update({'html_export' : {
+                                                        'FETT' : 1,
+                                                        'KURSIV' : 1,
+                                                        'UEBERSCHRIFT' : 1,
+                                                        'FUSSNOTE' : 1,
+                                                        'FARBEN' : 1,
+                                                        'AUSRICHTUNG' : 1,
+                                                        'LINKS' : 1,
+                                                        'ZITATE' : 0,
+                                                        'SCHRIFTGROESSE' : 0,
+                                                        'SCHRIFTART' : 0,
+                                                        'CSS' : 0
+                                                        },
+                                         })
+            
+            self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp)
+        except:
+            log(inspect.stack,tb())
+        self.version = '0.9.8.8b'
         
         
         

@@ -460,7 +460,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         anz_SW =        self.class_Zitate.p['anz_SW'] =  int(self.controls['NumericField1'].Value)
         
-        chronologisch =  not int(self.controls['rb_sort1'].State)
+        chronologisch =  int(self.controls['rb_sort1'].State)
         self.class_Zitate.p['chronologisch'] = int(chronologisch)
 
         args = (pfad1,pfad2,
@@ -538,7 +538,7 @@ class Suche():
          self.chronologisch
          ) = args
          
-         
+        
         self.titel = LANG.VERGLEICH_VON_MIT %(name1,name2)
         self.titel_txt1 = name1
         self.titel_txt2 = name2
@@ -1043,9 +1043,9 @@ class Suche():
             
                         
             if self.chronologisch:
-                ergebnis_keys = sorted(ergebnis, key=lambda t: ergebnis[t]['txt'])
-            else:
                 ergebnis_keys = sorted(ergebnis)
+            else:
+                ergebnis_keys = sorted(ergebnis, key=lambda t: ergebnis[t]['txt'])
             
 
             for e in ergebnis_keys:  

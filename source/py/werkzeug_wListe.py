@@ -215,7 +215,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                     text1 = self.get_internal_text(text1_intern)
                     name1 = self.class_Zitate.name['text1']
                     
-                                                            
+
                 if not os.path.exists(speicherordner):
                     ntext = LANG.KEIN_SPEICHERORT
                     self.nachricht(ntext)
@@ -251,7 +251,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def get_internal_text(self,ordinal):
         if self.mb.debug: log(inspect.stack)
         
-        props = self.mb.props['Projekt']
+        props = self.mb.props[T.AB]
                     
         if ordinal in props.dict_ordner:
             ordinale = props.dict_ordner[ordinal]
@@ -502,10 +502,12 @@ class Liste_Erstellen():
         try:
                         
             posDict1, posDict_O1, WoerterDict1, WoerterListe1 = self.listen_und_dicts_erstellen(self.text1)
-            
-            # es fehlt die chronologiesche Sortierung
-            # es reicht allerdings nicht, einfach sorted wegzulassen
-            woerter = sorted(set(WoerterListe1))
+
+            if self.chronologisch:
+                woerter_set = set(WoerterListe1)
+                woerter = sorted(woerter_set, key= lambda elem : WoerterListe1.index(elem))
+            else:
+                woerter = sorted(set(WoerterListe1))
 
             if len(woerter) == 0:
                 self.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
@@ -528,7 +530,6 @@ class Liste_Erstellen():
             log(inspect.stack,tb())
         
         
-    
     def oeffne_calc(self):
         if self.mb.debug: log(inspect.stack)
          
@@ -536,16 +537,11 @@ class Liste_Erstellen():
         prop.Name = 'Hidden'
         prop.Value = True
         
-                
         URL="private:factory/scalc"
-
                 
         self.calc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
 
-        
 
- 
-  
     def listen_und_dicts_erstellen(self,lines):     
         if self.mb.debug: log(inspect.stack)
         

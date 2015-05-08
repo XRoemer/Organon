@@ -8,9 +8,6 @@ class Baumansicht():
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
-        global pd
-        pd = mb.pd
-        
         self.dialog = mb.dialog
         self.ctx = mb.ctx
         self.mb = mb
@@ -603,7 +600,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         # Mauslistener starten
         try:
             self.mb.mausrad_an = True
-            self.mb.class_Mausrad.starte_mausrad(treeview=True)
+            self.mb.class_Mausrad.starte_mausrad(called_from_treeview=True)
         except:
             log(inspect.stack,tb())
 
