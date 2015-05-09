@@ -1,11 +1,11 @@
-	Organon - Description
+	#Organon - Description#
 
-Organon is a organisation and navigation-tool for writer (LibreOffice and OpenOffice).
+###Organon is a organisation and navigation-tool for writer (LibreOffice and OpenOffice).###
 
 Organon creates a project with a directory tree for easy navigation between files and folders of the project. Arbitrary parts of the project can be opened in Tabs.
 Organon creates a new entry in the sidebar, where several tags for all items can be assigned. In addition, Organon has a collection of text tools and extensive import and export options (batch import and export).
 
-Features:
+###Features###:
 * Drag and Drop
 * Awarding Tags
 * Open Part of a Job in Tabs
@@ -40,7 +40,7 @@ testet with:
 	Kubuntu 14.04 KDE 4.13.3 (LO 4.2.7.2, OO 4.1.1)
 	not testet with Mac
 
-WARNING:         This is still a beta version.
+**WARNING**:         This is still a beta version.
 
 	Installation:
 Unzip the downloaded package or download organon.oxt directly from here:
