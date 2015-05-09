@@ -11,15 +11,15 @@ In addition, Organon has a collection of text tools and extensive import and exp
 ####Features:
 * Drag and Drop
 * Awarding Tags
-* Open Part of a Job in Tabs
-* When displaying the files in a folder, the relevant sections of the folder is always visible in editing the document.
-* Separator, configurable by the user. The separator separates when viewing a folder the files optically from each other.
+* Open Parts of the Project in Tabs
+* When displaying the files in a folder, the relevant section of the folder is always highlighted while editing the document.
+* Separator, configurable by the user. When viewing a folder the separator separates the files optically from each other.
 * Import of individual files. All filters available for Writer can be used.
 * Import a folder of files, filterable (Batch Import)
 * Export an arbitrary part of the project in a single file or an entire document. All Writer filters are available (.odt, .doc, .pdf ...). (Batch Export)
 * (Batch) Export to LaTex files
-* (Batch) Export to HTML files. In addition, alternative Organon Filter for easier layout of the HTML file.
-* Create a single click backup of the project
+* (Batch) Export to HTML files. In addition, alternative Organon Filter for easier and smoother layout of the HTML file.
+* Create a backup of the project with a single click 
 * Several tags in the tree view:
   * Colors
   * Custom Icons
