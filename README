@@ -6,8 +6,8 @@ Organon creates a project with a directory tree for easy navigation between file
 Organon creates a new entry in the sidebar, where several tags for all items can be assigned. In addition, Organon has a collection of text tools and extensive import and export options (batch import and export).
 
 Features:
-* Drag and Drop
-* Awarding Tags
+- Drag and Drop
+- Awarding Tags
 * Open Part of a Job in Tabs
 * When displaying the files in a folder, the relevant sections of the folder is always visible in editing the document.
 * Separator, configurable by the user. The separator separates when viewing a folder the files optically from each other.
