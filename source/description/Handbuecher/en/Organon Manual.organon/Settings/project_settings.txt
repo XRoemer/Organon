@@ -1,7 +1,11 @@
-{'user_styles': (),
+{'formatierung': 'Standard',
+ 'nutze_mausrad': True,
  'tag1': 1,
  'tag2': 0,
  'tag3': 0,
- 'use_template': (False,
- None),
- 'formatierung': 'Standard'}
+ 'trenner': 'farbe',
+ 'trenner_farbe_hintergrund': 15658734,
+ 'trenner_farbe_schrift': 10066329,
+ 'trenner_user_url': '',
+ 'use_template': (False, None),
+ 'user_styles': ()}

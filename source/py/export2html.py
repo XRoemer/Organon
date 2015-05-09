@@ -31,19 +31,13 @@ class ExportToHtml():
             
             html,fussnoten = t.erstelle_html(text, SI=True,**settings)
             self.inhalt.extend(html)
+            
             if len(fussnoten) > 0:
                 self.inhalt.append('\n\n\t\t<!-- FOOTNOTES -->\n\n')
                 self.inhalt.extend(fussnoten)
                 
-            self.inhalt.append('\n\t</div>')
- 
-            self.inhalt = ''.join(self.inhalt) 
- 
-                 
-#             t = '\n'.join(self.footnoteHtml)
-#             self.inhalt = self.inhalt + t
-                 
-            self.inhalt = self.inhalt + self.ende()
+            self.inhalt.append('\n\t</div>')                 
+            self.inhalt.append(self.ende())
             t = ''.join(self.inhalt)
             
             self.speicher(t, 'w', self.path)
@@ -128,11 +122,9 @@ class Text():
                       1:' style="text-align:right"',
                       2:' style="text-align:justify"',
                       3:' style="text-align:center"',
-                      4:' style="text-align:justify"'
+                      4:' style="text-align:justify"' # Es gibt keine 'stretch' Option in html
                       }
-        
-        #self.nutze_fussnote = 
-    
+            
     
     def erstelle_html(self,text,
                       SI=True,
@@ -146,9 +138,9 @@ class Text():
                       LINKS=True,
                       ZITATE=False,
                       SCHRIFTGROESSE=False,
-                      CSS=False,
+                      CSS=False,            # soll einmal statt inline Formatierung css mit Klassen erzeugen
                       SCHRIFTART=False
-                      ): # die untersten 3 KWs werden noch nicht benutzt
+                      ): # die untersten 4 KWs werden noch nicht benutzt
         
         if self.mb.debug: log(inspect.stack)
         
@@ -164,12 +156,11 @@ class Text():
             
             while enum.hasMoreElements():
                 paras.append(enum.nextElement())
-            #pd()
+
             if SI:
                 StatusIndicator = self.mb.doc.CurrentController.Frame.createStatusIndicator()
                 StatusIndicator.start('Export ',len(paras))
             
-                        
             x = 0
             for par in paras:
                 
@@ -222,7 +213,6 @@ class Text():
                     ende = []
  
                     if FUSSNOTE:
-                        # fussnote
                         if portion.Footnote != None:
                             self.fuege_fussnote_ein(portion.Footnote)
                             self.fn_Anzahl += 1
@@ -245,13 +235,11 @@ class Text():
                             anfang.append(u'<span style="background-color: #{};">'.format(col))
                             ende.append(u'</span>')
                                                 
-                    # fett
                     if teste_fett:
                         if portion.CharWeight == 150:
                             anfang.append(u'<b>')
                             ende.insert(0,u'</b>')
                              
-                    # kursiv
                     if teste_kursiv:
                         if portion.CharPosture.value == 'ITALIC':
                             anfang.append(u'<em>')
@@ -267,10 +255,11 @@ class Text():
                         self.inhalt.append(heading_ende)
                         teste_kursiv = True
                         teste_fett = True
+                        
 #                 if 'Quotations' in par.ParaStyleName:
 #                     self.inhalt.append('\\end{quote}')
                     
-                
+                # wird bei Ueberschriften und Fussnoten nicht gesetzt
                 if ist_para:
                     self.inhalt.append(u'\n\t\t</p>\n')
              
