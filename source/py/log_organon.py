@@ -28,75 +28,32 @@ pd = pydevBrk
 
 class Log():
     
-    def __init__(self,path_to_extension,pdX,tbX):  
+    def __init__(self,path_to_extension,pdX,tbX,log_config):  
         
         global debug,pd,tb
         pd = pdX
         tb = tbX
         
         self.path_to_extension = path_to_extension
-        self.debug = False  
         self.timer_start = clock()
         self.path_to_project_settings = None
         
         # Default Debug Settings
-        self.location_debug_file = path_to_extension
-        self.output_console = 0
-        self.write_debug_file = 0
-        self.log_args = 0
+        if log_config['location_debug_file'] == '':
+            self.location_debug_file = path_to_extension
+        else:
+            # Fehlt: Pruefen, ob der Pfad existiert
+            self.location_debug_file = log_config['location_debug_file']
         
-        if not self.load_debug_config_file():
-            self.write_debug_config_file()
+        self.debug = log_config['output_console']
+        self.output_console = log_config['output_console']
+        self.write_debug_file = log_config['write_debug_file']
+        self.log_args = log_config['log_args']
+        
             
         if self.write_debug_file:
             self.schreibe_logfile_kopfzeile()
-        
-        
-    def write_debug_config_file(self):
-        
-        string = (
-                  'location_debug_file=' + self.location_debug_file,
-            'output_console=' + str(self.output_console),
-            'write_debug_file=' + str(self.write_debug_file),
-            'log_args=' + str(self.log_args)
-            )
-        
-        #print(string)
-        
-        path = path = join(self.path_to_extension,'log_config.txt')
-        
-        with open(path , "w") as file:
-            for s in string:
-                file.write(s +'\n')
-   
-    
-    def load_debug_config_file(self):
-        
-        path = join(self.path_to_extension,'log_config.txt')
-        
-        if not exists(path):
-            return False
 
-        with open(path , "r") as file:
-            
-            line = file.readline()
-            value = line.split('location_debug_file=')[1].replace('\n','')
-            self.location_debug_file = value
-            
-            line = file.readline()
-            value = line.split('output_console=')[1].replace('\n','')
-            self.output_console = int(value)
-            self.debug = int(value)
-
-            line = file.readline()
-            value = line.split('write_debug_file=')[1].replace('\n','')
-            self.write_debug_file = int(value)
-            
-            line = file.readline()
-            value = line.split('log_args=')[1].replace('\n','')
-            self.log_args = int(value)
-
-        return True
     
     def schreibe_logfile_kopfzeile(self):
         try:

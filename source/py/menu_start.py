@@ -6,8 +6,8 @@ import sys
 from os import walk,path,remove
 from codecs import open as codecs_open
 from inspect import stack as inspect_stack
+import json
 
-import konstanten as KONST
 
 tb = traceback.print_exc
 platform = sys.platform
@@ -26,12 +26,15 @@ class Menu_Start():
          debugX,
          factory,
          logX,
-         class_LogX) = args
+         class_LogX,
+         konst,
+         settings_orga) = args
         
-        global debug,log,class_Log
+        global debug,log,class_Log,KONST
         debug = debugX
         log = logX
         class_Log = class_LogX
+        KONST = konst
         
         if debug: log(inspect_stack)      
         
@@ -48,19 +51,20 @@ class Menu_Start():
             self.ctx = ctx
             self.smgr = self.ctx.ServiceManager
             self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
+            self.path_to_extension = path_to_extension
             self.programm = self.get_office_name()
             self.tabs = tabs
             self.platform = sys.platform
             self.language = None
             self.LANG = self.lade_Modul_Language()
-            self.path_to_extension = path_to_extension
+            self.settings_orga = settings_orga 
             self.zuletzt_geladene_Projekte = self.get_zuletzt_geladene_Projekte()
             self.win = win
             self.dict_sb = dict_sb
             
-            dialog.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
-        except:
-            log(inspect.stack,tb())
+            
+        except Exception as e:
+            log(inspect_stack,tb())
 
 
     def get_office_name(self):
@@ -85,7 +89,7 @@ class Menu_Start():
         PosX,PosY,Width,Height,Name,Color = Attr
         
         self.cont, model1 = self.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
-        model1.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model1.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
 
         self.dialog.addControl('Hauptfeld_aussen1',self.cont)  
 
@@ -97,7 +101,7 @@ class Menu_Start():
         
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/organon icon_120.png' 
         model.Border = False   
-        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         self.cont.addControl('Hauptfeld_aussen1',control)  
         
        
@@ -113,7 +117,7 @@ class Menu_Start():
         control.setActionCommand('neues_projekt')
         control.addActionListener(self.listener)
         model.Label = self.LANG.NEW_PROJECT
-        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
 
         
         self.cont.addControl('Hauptfeld_aussen1',control)  
@@ -124,7 +128,7 @@ class Menu_Start():
         control.setActionCommand('projekt_laden')
         control.addActionListener(self.listener)
         model.Label = self.LANG.OPEN_PROJECT
-        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
         self.cont.addControl('Hauptfeld_aussen1',control) 
         
@@ -135,36 +139,37 @@ class Menu_Start():
         control.setActionCommand('anleitung_laden')
         control.addActionListener(self.listener)
         model.Label = self.LANG.LOAD_DESCRIPTION
-        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
         self.cont.addControl('Hauptfeld_aussen1',control) 
         
         PosY += 150
         
-        if self.zuletzt_geladene_Projekte == None:
+        if self.zuletzt_geladene_Projekte == []:
             return
-        
+
         for proj in self.zuletzt_geladene_Projekte:
+            
+            
             name,pfad = proj
             
             control, model = self.createControl(self.ctx,"FixedText",PosX,PosY,200,20,(),() )  
             control.addMouseListener(self.listener)
             model.Label = name
+            model.TextColor = KONST.FARBE_SCHRIFT_DATEI
             model.HelpText = pfad
             self.cont.addControl('Hauptfeld_aussen1',control) 
             PosY += 25
 
-
-            
-            
+    
             
     
     def erzeuge_Menu(self):
         if debug: log(inspect_stack)
-        
+            
         try:   
             import menu_bar
-            
+
             args = (pd,
                     self.dialog,
                     self.ctx,
@@ -176,7 +181,8 @@ class Menu_Start():
                     self.factory,
                     self,
                     log,
-                    class_Log
+                    class_Log,
+                    self.settings_orga
                     )
             
             self.module_mb = menu_bar
@@ -184,7 +190,8 @@ class Menu_Start():
             self.Menu_Bar.erzeuge_Menu(self.dialog)
         except:
             log(inspect.stack,tb())    
-        
+    
+           
               
     def lade_Modul_Language(self):
         if debug: log(inspect_stack)
@@ -220,24 +227,17 @@ class Menu_Start():
         if debug: log(inspect_stack)
         
         try:
-            pfad = path.join(self.path_to_extension,'zuletzt_geladene_Projekte.txt')
-            
-            if not path.exists(pfad):
-                with codecs_open(pfad, "w",encoding='utf8') as file:
-                    file.write('') 
-            else:
-                with codecs_open(pfad, "r",encoding='utf8') as file:
-                    lines = file.readlines() 
-                
-            x = list(a.split('++oo++') for a in lines)
-            geladene_Projekte = list((a,b.replace('\n','')) for a,b in x if path.exists(b.replace('\n','')))
-            return geladene_Projekte
-        except:
+            pros = self.settings_orga['zuletzt_geladene_Projekte']
+            projekte = [(a+'.organon',pros[a]) for a in pros]
+
+            return projekte
+        except Exception as e:
+            print(e)
             try:
                 if debug: log(inspect_stack,tb())
             except:
                 pass
-        return None
+        return []
     
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
@@ -323,7 +323,7 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
         
         # Das Editfeld ueberdeckt kurzzeitig das Startmenu fuer eine bessere Anzeige
         control, model = self.menu.createControl(self.menu.ctx,"Edit",0,0,1500,1500,(),() )  
-        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         self.menu.cont.addControl('wer',control)
 
         self.menu.erzeuge_Menu()

@@ -157,6 +157,8 @@ class Version():
             log(inspect.stack,tb())
         self.version = '0.9.8.8b'
         
+    
+        
         
         
         

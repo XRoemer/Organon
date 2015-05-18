@@ -522,7 +522,7 @@ class Tabs():
         
         control, model = self.mb.createControl(self.mb.ctx, "Container", x4, y, 200, 20, (), ())  
         cont.addControl('icons_Baumansicht', control)
-        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         
         y += 30
@@ -954,7 +954,7 @@ class Tabs():
             tabsX.activateTab(tab_id)             
               
             win = self.mb.factory.CWHandler.window2
-            win.Model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+            win.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
 
             win.addWindowListener(self.mb.w_listener)
             
@@ -1244,7 +1244,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         # FARB_TAGS
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 120, 40, 80 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
-        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         model.Border = 0          
         
         for item in farb_tags:
@@ -1254,7 +1254,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         # NUTZER_TAGS
         control2, model2 = self.mb.createControl(self.mb.ctx, "ListBox", 220, 40, 280 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control2.setMultipleMode(False)
-        model2.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model2.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         model2.Border = 0
 
         for (item,url) in nutzer_tags:
@@ -1266,7 +1266,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         control_ausgewaehlte, model = self.mb.createControl(self.mb.ctx, "ListBox", 10, 40, KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control_ausgewaehlte.setMultipleMode(False)
         model.Border = 0
-        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         
         return control,control_ausgewaehlte,control2, breite
@@ -1459,14 +1459,14 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
 
         
         control_innen, model = self.mb.createControl(self.mb.ctx,"Container",20,0,posSize[2],posSize[3],(),() )  
-        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         y = self.erzeuge_treeview(control_innen)
         control_innen.setPosSize(0, 0,0,y + 20,8)
         
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
         fenster_cont.Model.Text = LANG.AUSWAHL
-        fenster_cont.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  
+        fenster_cont.Model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  
         
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
         

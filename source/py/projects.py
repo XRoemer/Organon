@@ -200,12 +200,11 @@ class Projekt():
     
             self.mb.doc.storeAsURL(Path2,())  
              
-        except PermissionError as e:
-            self.mb.nachricht("You don't have the permission to write into this folder " + str(e),"warningbox")
-            return False
+#         except PermissionError as e:
+#             self.mb.nachricht("You don't have the permission to write into this folder " + str(e),"warningbox")
+#             return False
         except Exception as e:
             self.mb.nachricht("ERROR: " + str(e),"warningbox")
-            log(inspect.stack,tb())
             return False
         
         return True
@@ -540,33 +539,16 @@ class Projekt():
     def trage_projekt_in_zuletzt_geladene_Projekte_ein(self,dateiname,filepath):
         if self.mb.debug: log(inspect.stack)
         
-        pfad = os.path.join(self.mb.path_to_extension,'zuletzt_geladene_Projekte.txt')
+        zuletzt = self.mb.settings_orga['zuletzt_geladene_Projekte']
         
-        with codecs_open(pfad, "r") as file:
-            zeilen = file.readlines() 
-        
-        neue_liste = []
-        neue_liste.append(dateiname + '++oo++' + filepath)
-        
-        i = 0
-        for zeile in zeilen:
-            name,pfadx = zeile.split('++oo++')
-            pfadx = pfadx.replace('\n','')
+        name = dateiname.split('.organon')[0]
 
-            if i < 9:
-                if os.path.exists(pfadx):
-                    z = name + '++oo++' + pfadx
-                    if z not in neue_liste:
-                        neue_liste.append(z)
-                        i += 1
-
-        with codecs_open(pfad, "w",encoding='utf8') as file:
-            file.write('')  
+        if name not in zuletzt:
+            zuletzt.update({name:filepath})
             
-        with codecs_open(pfad, "a",encoding='utf8') as file:
-            for eintrag in neue_liste:
-                file.write(eintrag+'\n') 
-        
+        # Fehlt: Wenn der Dateiname an einem anderen Ort nochmal existiert, wir er nicht in die Liste aufgenommen
+        self.mb.class_Funktionen.schreibe_settings_orga()
+
         
     def pruefe_auf_geladenes_organon_projekt(self):
         if self.mb.debug: log(inspect.stack)
@@ -843,12 +825,6 @@ class Projekt():
             'use_template' : self.mb.settings_proj['use_template'],
             'user_styles' : (),
             'formatierung' : 'Standard',
-            # keiner, strich, farbe, user
-            'trenner': 'farbe',
-            'trenner_farbe_hintergrund': KONST.FARBE_TRENNER_HINTERGRUND,
-            'trenner_farbe_schrift': KONST.FARBE_TRENNER_SCHRIFT,
-            'trenner_user_url':'',
-            'nutze_mausrad':False,
             }
             
         self.mb.speicher_settings("project_settings.txt", settings_proj)        
@@ -1143,46 +1119,71 @@ class Projekt():
 #             cont.addControl('',cont4)
             
 #############################################################################################
+            
+       
+            setts = self.mb.settings_orga
 
             
-
-            hf = self.mb.props[T.AB].Hauptfeld
-#             container = hf.Context.Context
-#             scrollLeiste = container.getControl('ScrollBar')
-#             
-#             hf.Context.addFocusListener(self.mb.test_listener)
-#             hf.Context.Context.addFocusListener(self.mb.test_listener)
-#             self.mb.win.addFocusListener(self.mb.test_listener)
-#             self.mb.dialog.addFocusListener(self.mb.test_listener)
-            #scrollLeiste.Model.ScrollValue = 20
-            
-            elements = (hf,hf.Context,hf.Context.Context,self.mb.win,self.mb.dialog)
-            #elements = (hf,)
-            
-#             for el in elements:
-#                 el.addFocusListener(self.mb.test_listener)
-#                 el.addMouseListener(self.mb.test_listener)
-#                 el.addMouseMotionListener(self.mb.test_listener)
-
-
-#             hauptfeld = self.mb.props[T.AB].Hauptfeld
-#             container = hauptfeld.Context.Context
-#             scrollLeiste = container.getControl('ScrollBar')
-#             
-#             RawInputReader1 = self.mb.RawInputReader(self.mb,pd,tb,log,inspect,hauptfeld,scrollLeiste)
-#             RawInputReader2 = self.mb.RawInputReader2(self.mb,pd,tb,log,inspect,hauptfeld,scrollLeiste)
-            
-            #self.mb.class_Einstellungen.start()
-            
-            #print('hier')
-            dict = self.mb.dict_sb_content
-
         except:
-            log(inspect.stack,tb())
+            #log(inspect.stack,tb())
             print(tb())
             pd()
         pd()
-        
+    
+    
+
+
+
+##### SIDEBARTHEME ######
+# https://addons.mozilla.org/de/firefox/addon/burling/
+
+# personen = self.mb.dict_sb['controls']['Tags_characters']
+# sb = personen[1]
+# 
+# window = personen[0].window
+# 
+# farbe = KONST.FARBE_HF_HINTERGRUND
+# farbe2 = KONST.FARBE_SCHRIFT_DATEI
+# 
+# for panel in self.mb.dict_sb['controls']:
+#     pan_window = self.mb.dict_sb['controls'][panel][0].window
+#     pan_window.Model.BackgroundColor = farbe
+#     pan_window.Model.TextColor = 502#KONST.FARBE_SCHRIFT_DATEI
+# 
+# theme = personen[0].Theme
+# 
+# 
+# tbb = theme.Paint_PanelTitleBarBackground
+# tbb.StartColor = farbe2
+# tbb.EndColor = farbe
+# theme.setPropertyValue('Paint_PanelTitleBarBackground', tbb)
+# 
+# tbb = theme.Paint_ToolBoxBackground
+# tbb.StartColor = farbe 
+# tbb.EndColor = farbe
+# theme.setPropertyValue('Paint_ToolBoxBackground', tbb)
+# 
+# theme.setPropertyValue('Paint_TabBarBackground', farbe)
+# theme.setPropertyValue('Paint_TabItemBackgroundNormal', farbe)
+# 
+# theme.setPropertyValue('Paint_PanelBackground', farbe)
+# theme.setPropertyValue('Paint_DeckBackground', farbe)
+# 
+# theme.setPropertyValue('Paint_ToolBoxBorderBottomRight', farbe)
+# theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', farbe)
+# theme.setPropertyValue('Paint_ToolBoxBorderTopLeft', farbe)
+# 
+# theme.setPropertyValue('Paint_HorizontalBorder', farbe)
+# theme.setPropertyValue('Paint_VerticalBorder', farbe)
+# 
+# theme.setPropertyValue('Color_DeckTitleFont', 502)
+# theme.setPropertyValue('Color_PanelTitleFont', 502)
+# 
+# sb.requestLayout()
+
+
+
+
 
 
 
@@ -1311,6 +1312,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
         if self.mb.debug: log(inspect.stack)
         
         try:
+            namen_pruefen = self.mb.class_Funktionen.verbotene_buchstaben_austauschen
             
             parent = ev.Source.AccessibleContext.AccessibleParent 
             cmd = ev.ActionCommand  
@@ -1324,6 +1326,8 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                 self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
             elif self.mb.speicherort_last_proj == None:
                 self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
+            elif self.model_proj_name.Text != namen_pruefen(self.model_proj_name.Text):
+                self.mb.nachricht(LANG.UNGUELTIGE_ZEICHEN,"warningbox")
             elif cmd == LANG.OK:
                 self.get_path()
                 parent.endDialog(1)

@@ -13,7 +13,7 @@ class Mausrad():
         
         # Der Code fuer das Mausrad funktioniert nur unter Windows.
         if sys.platform.lower() not in['win32','linux','linux2']:
-            self.mb.settings_proj['nutze_mausrad'] = False
+            self.mb.settings_orga['mausrad'] = False
  
         
     def starte_mausrad(self,called_from_treeview = False):
@@ -21,11 +21,11 @@ class Mausrad():
 
         try:
             try:               
-                if not self.mb.settings_proj['nutze_mausrad']:
+                if not self.mb.settings_orga['mausrad']:
                     return
             except:
                 # Die Property existiert noch nicht, deswegen setzen
-                self.mb.settings_proj['nutze_mausrad'] = False
+                self.mb.settings_orga['mausrad'] = False
                 return
             try:
                 if called_from_treeview:

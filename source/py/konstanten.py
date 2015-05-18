@@ -1,7 +1,22 @@
 # -*- coding: utf-8 -*-
- 
-Color_MenuBar_Container = 13027014 #16777215 #weiss
-MENU_DIALOG_FARBE = 14804725#13884141 #305099 # blau
+
+# FARBEN
+FARBE_ORGANON_FENSTER = 14804725
+
+FARBE_MENU_HINTERGRUND      = 0 # Wird im modul factory ueberschrieben
+FARBE_HF_HINTERGRUND        = 0 # Wird im modul factory ueberschrieben
+FARBE_AUSGEWAEHLTE_ZEILE    = 0 # Wird im modul factory ueberschrieben
+FARBE_EDITIERTE_ZEILE       = 0 # Wird im modul factory ueberschrieben
+FARBE_GEZOGENE_ZEILE        = 0 # Wird im modul factory ueberschrieben
+FARBE_MENU_SCHRIFT          = 0 # Wird im modul factory ueberschrieben
+FARBE_SCHRIFT_ORDNER        = 0 # Wird im modul factory ueberschrieben
+FARBE_SCHRIFT_DATEI         = 0 # Wird im modul factory ueberschrieben
+FARBE_GLIEDERUNG            = 0 # Wird im modul factory ueberschrieben
+
+FARBE_TRENNER_HINTERGRUND   = 0 # Wird im modul factory ueberschrieben
+FARBE_TRENNER_SCHRIFT       = 0 # Wird im modul factory ueberschrieben
+
+
 
 Breite_Menu_DropDown_Eintraege = 150
 BREITE_DROPDOWN_OPTIONEN = 220
@@ -27,21 +42,13 @@ IMG_DATEI_16 =          'vnd.sun.star.extension://xaver.roemers.organon/img/Date
 IMG_DATEI_NEU_24 =      'vnd.sun.star.extension://xaver.roemers.organon/img/neueDatei_24.png'
 
 
-FARBE_NAVIGATIONSFELD = 13880262 # 15790320 #LOO grau 16777215 # weiss
-FARBE_ZEILE_STANDARD = FARBE_NAVIGATIONSFELD 
 
-FARBE_AUSGEWAEHLTE_ZEILE = 14866636 #creme 16777075 # hellgelb
-FARBE_EDITIERTE_ZEILE = 16771014 #16777075 # hellgelb
-FARBE_GEZOGENE_ZEILE  = 16741376 # orange
-
-FARBE_TRENNER_HINTERGRUND = 15658734
-FARBE_TRENNER_SCHRIFT = 10066329
 
 ZEILENHOEHE = 22
 
 URL_TRENNER = 'vnd.sun.star.extension://xaver.roemers.organon/img/trenner.png'
 
-EXPORT_DIALOG_FARBE = 14804725 #305099
+ 
 
 BREITE_TAG1_CONTAINER = 100
 HOEHE_TAG1_CONTAINER = 350

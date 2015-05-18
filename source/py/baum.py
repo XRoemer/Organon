@@ -42,9 +42,9 @@ class Baumansicht():
          
         control2, model2 = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
 
-        model2.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model2.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         control1.addControl('Hauptfeld',control2)  
-    
+        self.mb.hauptfeld_aussen = control1
         return control2
 
   
@@ -61,7 +61,7 @@ class Baumansicht():
         
         control, model = self.mb.createControl(self.ctx,"Container",PosX,PosY,Width,Height,(),() )  
         model.Text = ordinal
-        model.BackgroundColor = KONST.FARBE_NAVIGATIONSFELD
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
             
         self.mb.props[tab_name].Hauptfeld.addControl(ordinal,control)
         
@@ -102,9 +102,12 @@ class Baumansicht():
                         bild_ordner = KONST.IMG_ORDNER_VOLL_16
 
                 model2.ImageURL = bild_ordner
+            schriftfarbe = KONST.FARBE_SCHRIFT_ORDNER
                 
         elif art == 'pg':
             model2.ImageURL = 'private:graphicrepository/res/sx03150.png' 
+            schriftfarbe = KONST.FARBE_SCHRIFT_DATEI
+            
         elif art == 'waste':
             if zustand == 'zu':
                 model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png' 
@@ -112,6 +115,7 @@ class Baumansicht():
                 model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_offen.png' 
             sicht_tag1 = sicht_tag2 = sicht_tag3 = False
             
+            schriftfarbe = KONST.FARBE_SCHRIFT_ORDNER
         
 
         control.addControl('icon',control2)                       
@@ -143,6 +147,7 @@ class Baumansicht():
             PosX,PosY,Width,Height = 0,2,16,16
             control_tag3, model_tag3 = self.mb.createControl(self.mb.ctx,"FixedText",x,2,16,16,(),() )
             model_tag3.Label = gliederung[ordinal]
+            model_tag3.TextColor = KONST.FARBE_GLIEDERUNG
             breite,hoehe = self.mb.kalkuliere_und_setze_Control(control_tag3,'w')
             control.addControl('tag3',control_tag3)
             x += breite + 4
@@ -152,8 +157,9 @@ class Baumansicht():
         control1, model1 = self.mb.createControl(self.ctx,"Edit",x,0,400,20,(),() )  
         model1.Text = name
         model1.Border = False
-        model1.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
+        model1.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         model1.ReadOnly = True
+        model1.TextColor = schriftfarbe
 
         control1.addMouseListener(class_Zeilen_Listener) 
         control1.addMouseMotionListener(class_Zeilen_Listener)
@@ -254,7 +260,7 @@ class Baumansicht():
                 SB.Maximum =  baum_hoehe  
                 SB.VisibleSize = sb_hoehe - 40
                 # Bei Mausradnutzung Mausradlistener einschalten
-                if self.mb.settings_proj['nutze_mausrad']:
+                if self.mb.settings_orga['mausrad']:
                     self.mb.mausrad_an = True
             else:
                 SB.Maximum  = 1
@@ -615,7 +621,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if self.mb.props[T.AB].selektierte_zeile_alt != None:
                 if self.mb.props[T.AB].selektierte_zeile != self.mb.props[T.AB].selektierte_zeile_alt:
                     ctrl = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].selektierte_zeile_alt).getControl('textfeld')
-                    ctrl.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
+                    ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
 
             # bei bearbeitetem Bereich: speichern  
             if self.mb.props[T.AB].selektierte_zeile_alt != None: 
@@ -1536,10 +1542,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             sec_trenner.Anchor.setString('')
             return
         
-        
-        trenner_hintergrund = self.mb.settings_proj['trenner']
+        sett_trenner = self.mb.settings_orga['trenner']
+        trenner_format = sett_trenner['trenner']
 
-        if trenner_hintergrund == 'farbe':
+        if trenner_format == 'farbe':
             
             if sec_xml.attrib['Zustand'] == 'zu':
                 datei_name = get_dateiname()
@@ -1547,12 +1553,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 datei_name = nachfolger_xml.attrib['Name']
             sec_trenner.Anchor.setString(datei_name)
             sec_trenner.Anchor.ParaAdjust = CENTER
-            sec_trenner.BackColor = self.mb.settings_proj['trenner_farbe_hintergrund']
-            sec_trenner.Anchor.CharColor = self.mb.settings_proj['trenner_farbe_schrift']
+            sec_trenner.BackColor = KONST.FARBE_TRENNER_HINTERGRUND
+            sec_trenner.Anchor.CharColor = KONST.FARBE_TRENNER_SCHRIFT 
             
             sec_trenner.setPropertyValue('BackGraphicURL','')
 
-        elif trenner_hintergrund == 'strich':
+        elif trenner_format == 'strich':
             bgl = sec_trenner.BackGraphicLocation
             bgl.value = 'MIDDLE_BOTTOM'
              
@@ -1561,13 +1567,13 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             sec_trenner.setPropertyValue('BackGraphicURL',KONST.URL_TRENNER)
             sec_trenner.setPropertyValue("BackGraphicLocation", bgl)
         
-        elif trenner_hintergrund == 'keiner':
+        elif trenner_format == 'keiner':
             sec_trenner.Anchor.setString('')
             sec_trenner.setPropertyValue('BackGraphicURL','')
         
-        elif trenner_hintergrund == 'user':
+        elif trenner_format == 'user':
             sec_trenner.Anchor.setString('')
-            sec_trenner.setPropertyValue('BackGraphicURL',self.mb.settings_proj['trenner_user_url'])
+            sec_trenner.setPropertyValue('BackGraphicURL',sett_trenner['trenner_user_url'])
 
                 
     def entferne_Trenner(self,sec):
@@ -1702,22 +1708,30 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             controls = []
             maus_listener = Symbol_Popup_Mouse_Listener(self.mb)
             
-            # IN PAPIERKORB VERSCHIEBEN
-            if ordinal not in(papierkorb,projektordner):
+            if ordinal == papierkorb:
                 prop_names = ('Label',)
-                prop_values = (LANG.IN_PAPIERKORB_VERSCHIEBEN,)
+                prop_values = ('Papierkorb leeren',)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 0,0, prop_names, prop_values)
                 control.addMouseListener(maus_listener)
                 controls.append(control)
+            else:
             
-            # PROJEKTORDNER AUSKLAPPEN
-            if ist_ordner:
-                if ordinal != papierkorb:
+                # IN PAPIERKORB VERSCHIEBEN
+                if ordinal not in(papierkorb,projektordner):
                     prop_names = ('Label',)
-                    prop_values = (LANG.ORDNER_AUSKLAPPEN,)
+                    prop_values = (LANG.IN_PAPIERKORB_VERSCHIEBEN,)
                     control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 0,0, prop_names, prop_values)
                     control.addMouseListener(maus_listener)
                     controls.append(control)
+                
+                # PROJEKTORDNER AUSKLAPPEN
+                if ist_ordner:
+                    if ordinal != papierkorb:
+                        prop_names = ('Label',)
+                        prop_values = (LANG.ORDNER_AUSKLAPPEN,)
+                        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 0,0, prop_names, prop_values)
+                        control.addMouseListener(maus_listener)
+                        controls.append(control)
                 
             b = 0
             h = 0
@@ -1789,6 +1803,9 @@ class Symbol_Popup_Mouse_Listener (unohelper.Base, XMouseListener):
         if label == LANG.IN_PAPIERKORB_VERSCHIEBEN:
             papierkorb = self.mb.props[T.AB].Papierkorb
             self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+            
+        if label == 'Papierkorb leeren':
+            self.mb.class_Baumansicht.leere_Papierkorb()   
 
         self.window.dispose()
                 

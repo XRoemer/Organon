@@ -869,7 +869,9 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
     
                 for eintrag in baum:
                     ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag  
-                    dict_baum.update({ordinal:(parent,name,lvl,art,zustand,sicht)})
+                    dict_baum.update({ordinal:(self.mb.class_Funktionen.verbotene_buchstaben_austauschen(parent),
+                                               self.mb.class_Funktionen.verbotene_buchstaben_austauschen(name),
+                                               lvl,art,zustand,sicht)})
                 
                 def suche_parent(ord_kind):
                     ord_parent = dict_baum[ord_kind][0]
@@ -878,7 +880,9 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 for eintrag in baum:
                     pfad2 = speicherordner
                     ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-    
+                    
+                    name = self.mb.class_Funktionen.verbotene_buchstaben_austauschen(name)
+                    
                     ordner = []
                     ordn = ordinal
                     for i in range(int(lvl)-1):
@@ -886,14 +890,15 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         ordner.append(dict_baum[ordn][1])
                     
                     ordner.reverse()  
-    
+
                     for ordn in ordner:
                         pfad2 = os.path.join(pfad2, ordn)
-                        
+
                     pfad2 = os.path.join(pfad2, dict_baum[ordinal][1])
+
                     if art in ('dir'):
                         pfad2 = os.path.join(pfad2, name)
-                        
+
                     pfade.update({ordinal:(name,pfad2,art)})
             
             
@@ -966,13 +971,11 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         cur.setString('')
                             
                         oOO.Text.removeTextContent(newSection)
-                        
-                        
-                        contr = self.mb.props[T.AB].Hauptfeld.getControl(sec_ordinal)
-                        tf = contr.getControl('textfeld')
-                        titel = tf.Model.Text
                          
                         if not sett['ordner_strukt']:
+                            contr = self.mb.props[T.AB].Hauptfeld.getControl(sec_ordinal)
+                            tf = contr.getControl('textfeld')
+                            titel = tf.Model.Text
                             pfad = os.path.join(speicherordner, titel)
                         else:
                             pfad = pfade[sec_ordinal][1]
@@ -992,17 +995,22 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         elif filterName == 'HtmlO':
                             extension = '.html'
                         
+                        
                         # pruefen, ob datei existiert; Namen aendern       
                         if os.path.exists(pfad+extension):
                             pfad = self.pruefe_dateiexistenz(pfad,extension)
                             
                         path = pfad + extension 
-                        path2 = uno.systemPathToFileUrl(path) 
                         
-#                         if filterName != 'LaTex':
-#                             oOO.storeToURL(path2,(prop,))
-#                         else:
-#                             self.mb.class_Latex.greek2latex(oOO.Text,pfad,self.mb.projekt_name)
+                        # Auf eventuelle Fehler untersuchen.
+                        # Die in Windows und Linux verbotenen Buchstaben in Pfaden sollten
+                        # bereits getauscht worden sein. Falls doch einer fehlt, wird die Datei
+                        # nicht gespeichert und ein Fehler in die Log Datei geschrieben
+                        try:
+                            path2 = uno.systemPathToFileUrl(path) 
+                        except Exception as e:
+                            log(inspect.stack.tb())
+                            continue
 
                         if filterName == 'LaTex':
                             self.mb.class_Latex.greek2latex(oOO.Text,pfad,self.mb.projekt_name)
@@ -1595,13 +1603,13 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
         # Listener um Position zu bestimmen
         fenster_cont.Model.Text = LANG.AUSWAHL
-        fenster_cont.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        fenster_cont.Model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         listenerF = AB_Fenster_Dispose_Listener(self.mb,self.cl_exp)
         fenster_cont.addEventListener(listenerF)
         self.cl_exp.auswahl_fenster = fenster
         
          
-        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         fenster_cont.addControl('Container_innen', control_innen)
         
         self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)

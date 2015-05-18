@@ -250,7 +250,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         #Inneres Fenster
         controlContainer, modelContainer = self.mb.createControl(self.mb.ctx,"Container",22,y ,400,2000,(),() )  
-        modelContainer.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        modelContainer.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         
         #Titel

@@ -27,8 +27,20 @@ class Menu_Bar():
         
         try:
         
-            pdk,dialog,ctx,tabsX,path_to_extension,win,dict_sb,debugX,factory,menu_start,logX,class_LogX = args
-            
+            (pdk,
+             dialog,
+             ctx,
+             tabsX,
+             path_to_extension,
+             win,
+             dict_sb,
+             debugX,
+             factory,
+             menu_start,
+             logX,
+             class_LogX,
+             settings_organon) = args
+
             
             ###### DEBUGGING ########
             global debug,log,load_reload
@@ -107,6 +119,7 @@ class Menu_Bar():
             self.texttools_geoeffnet = False
             
             # Settings
+            self.settings_orga = settings_organon
             self.settings_exp = None
             self.settings_imp = None
             self.settings_proj = {}
@@ -270,10 +283,11 @@ class Menu_Bar():
             
             # CONTAINER
             menuB_control, menuB_model = self.createControl(self.ctx, "Container", 2, 2, 1000, 20, (), ())          
-            menuB_model.BackgroundColor = KONST.Color_MenuBar_Container
+            menuB_model.BackgroundColor = KONST.FARBE_MENU_HINTERGRUND
     
             win.addControl('Organon_Menu_Bar', menuB_control)
-        
+            
+            bereich = self.props[T.AB].selektierte_zeile_alt
             
             Menueintraege = [
                 (LANG.FILE,'a'),
@@ -281,7 +295,9 @@ class Menu_Bar():
                 (LANG.ANSICHT,'a'),            
                 ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
                 ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
-                ('Papierkorb','b','vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png',LANG.CLEAR_RECYCLE_BIN)
+                #('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png',LANG.CLEAR_RECYCLE_BIN)
+                ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
+                 LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
                 ]
             
             x = 0
@@ -292,6 +308,7 @@ class Menu_Bar():
             
                     control, model = self.createControl(self.ctx, "FixedText", x, 2, 0, 20, (), ())           
                     model.Label = eintrag[0]  
+                    model.TextColor = KONST.FARBE_MENU_SCHRIFT
                     control.addMouseListener(listener)
                     breite = control.getPreferredSize().Width
                     control.setPosSize(0,0,breite,0,4)
@@ -299,22 +316,25 @@ class Menu_Bar():
                     menuB_control.addControl(eintrag[0], control)
                     
                     x += breite + 5
-                    
+                 
             x += 15
 
             # ICONS
             for eintrag in Menueintraege:
                 if eintrag[1] == 'b':  
                     
+                    h = 0
+                    
                     if T.AB != 'Projekt':
                         if eintrag[0] in ('Ordner','Datei'):
                             x += 22
                             continue 
                         
-                    if eintrag[0] == 'Papierkorb':
+                    if eintrag[0] == 'Speichern':
                         x += 20
+                        h = -2
                         
-                    control, model = self.createControl(self.ctx, "ImageControl", x, 0, 20, 20, (), ())           
+                    control, model = self.createControl(self.ctx, "ImageControl", x, 0 - h * .5, 20 + h, 20 + h, (), ())           
                     model.ImageURL = eintrag[2]
                     model.HelpText = eintrag[3]
                     model.Border = 0                    
@@ -334,7 +354,7 @@ class Menu_Bar():
         except Exception as e:
                 self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 log(inspect.stack,tb())
-  
+
      
     def erzeuge_Menu_DropDown_Eintraege(self,items):
         if self.debug: log(inspect.stack)
@@ -462,7 +482,7 @@ class Menu_Bar():
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
                         elif item[0] == LANG.SHOW_TAG2 and tag2 == 1:
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
-                        elif item[0] == LANG.SHOW_TAG3 and tag3 == 1:
+                        elif item[0] == LANG.GLIEDERUNG and tag3 == 1:
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png'
                             
                             
@@ -648,6 +668,9 @@ class Menu_Bar():
         self.dialog.removeWindowListener(self.w_listener)
         self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
         
+#         del(self.menu_start)
+#         del(self)
+        
     def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128):
         if self.debug: log(inspect.stack)
         
@@ -691,7 +714,7 @@ class Menu_Bar():
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-        cont_model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE  # 9225984
+        cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
@@ -742,7 +765,7 @@ class Menu_Bar():
                     locals()[name].Model.SelectedItems = extras['SelectedItems']
                 
                 ctrls.update({name:locals()[name]})    
-        
+
         return ctrls,pos_y
     
     def erzeuge_Scrollbar(self,fenster_cont,PosSize,control_innen):
@@ -961,7 +984,7 @@ def menuEintraege(LANG,menu):
         items = ((LANG.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
             (LANG.SHOW_TAG1,'Tag_TV'),
             (LANG.SHOW_TAG2,'Tag_TV'),
-            (LANG.SHOW_TAG3,'Tag_TV'),
+            (LANG.GLIEDERUNG,'Tag_TV'),
             ('SEP',''),
             (LANG.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift'),
             (LANG.SYNOPSIS,'Tag_SB'),
@@ -1214,11 +1237,8 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
                         controls = list((x,'') for x in controls)
 
                     loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
-                    #hauptfeld = self.mb.props['Projekt'].Hauptfeld
-                    #pos_hf = hauptfeld.AccessibleContext.LocationOnScreen
                     
                     x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
-                    #y = pos_hf.Y - loc_cont.Y
                     y = self.mb.dialog.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
                     posSize = x,y,Breite +20,Hoehe +20
 
@@ -1276,24 +1296,47 @@ class Menu_Leiste_Listener2 (unohelper.Base, XMouseListener):
             if self.mb.debug: log(inspect.stack)
             
             if self.mb.projekt_name != None:
+                
                 if ev.Source.Model.HelpText == LANG.INSERT_DOC:            
                     self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
+                    
                 if ev.Source.Model.HelpText == LANG.INSERT_DIR:            
                     self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
-                if ev.Source.Model.HelpText == LANG.CLEAR_RECYCLE_BIN:  
-                    self.mb.leere_Papierkorb()
                     
+                if ev.Source.Model.HelpText[:10] == LANG.FORMATIERUNG_SPEICHERN[:10]:
+
+                    props = self.mb.props[T.AB]
+                    zuletzt = props.selektierte_zeile_alt
+                    bereichsname = props.dict_bereiche['ordinal'][zuletzt]
+                    path = props.dict_bereiche['Bereichsname'][bereichsname]
+                    self.mb.props[T.AB].tastatureingabe = True
+
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(uno.systemPathToFileUrl(path),bereichsname)
+
                 self.mb.loesche_undo_Aktionen()
                 return False
         
     def mouseExited(self,ev):
         return False
     def mouseEntered(self,ev):
-        return False
+        if ev.Source.Model.HelpText[:10] == LANG.FORMATIERUNG_SPEICHERN[:10]:
+            ev.Source.Model.HelpText = LANG.FORMATIERUNG_SPEICHERN.format(self.get_zuletzt_benutzte_datei())
+            
     def mouseReleased(self,ev):
         return False
     def disposing(self,ev):
         return False
+    
+    def get_zuletzt_benutzte_datei(self):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            props = self.mb.props[T.AB]
+            zuletzt = props.selektierte_zeile_alt
+            xml = props.xml_tree
+            root = xml.getroot()
+            return root.find('.//' + zuletzt).attrib['Name']
+        except:
+            return 'None'
 
 class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
@@ -1486,9 +1529,9 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
                 nummer = 2
                 lang_show_tag = LANG.SHOW_TAG2
             
-            elif text == LANG.SHOW_TAG3:
+            elif text == LANG.GLIEDERUNG:
                 nummer = 3
-                lang_show_tag = LANG.SHOW_TAG3
+                lang_show_tag = LANG.GLIEDERUNG
             
             tag = 'tag%s'%nummer
             sett[tag] = not sett[tag]
@@ -1564,6 +1607,7 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
                     else:
                         PosX,PosY,Width,Height = 0,2,16,16
                         control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"FixedText",PosX,PosY,Width,Height,(),() )     
+                        model_tag1.TextColor = KONST.FARBE_GLIEDERUNG
                         
                     contr_zeile.addControl(tag_name,control_tag1)
                     self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
@@ -1885,7 +1929,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 return False
             #log(inspect.stack,extras=selected_ts.Name)
             s_name = selected_ts.Name
-            
+
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
@@ -1980,7 +2024,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
         if self.mb.props[T.AB].selektierte_zeile_alt != None: 
             ctrl = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].selektierte_zeile_alt).getControl('textfeld') 
-            ctrl.Model.BackgroundColor = KONST.FARBE_ZEILE_STANDARD
+            ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
             self.mb.class_Sidebar.passe_sb_an(textfeld)
         self.mb.props[T.AB].selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      

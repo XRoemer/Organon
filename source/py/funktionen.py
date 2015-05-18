@@ -3,7 +3,7 @@
 import unohelper
 from math import sqrt
 from shutil import copyfile
-
+import json
 
 class Funktionen():
     
@@ -73,7 +73,7 @@ class Funktionen():
                                        KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
         model.Border = 0
-        model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         items = ('leer',
                 'blau',
@@ -392,6 +392,79 @@ class Funktionen():
             self.mb.nachricht('teile_text ' + str(e),"warningbox")
             log(inspect.stack,tb())
 
+    
+    def verbotene_buchstaben_austauschen(self,term):
+                            
+        verbotene = '<>:"/\\|?*'
+
+        term =  ''.join(c for c in term if c not in verbotene)
+        if term != '':
+            return term
+        else:
+            return 'invalid_name'
+        
+    def waehle_farbe(self,initial_value=0):
+        if self.mb.debug: log(inspect.stack)
+        
+        cp = self.mb.createUnoService("com.sun.star.ui.dialogs.ColorPicker")
+        
+        values = cp.getPropertyValues()
+        values[0].Value = initial_value
+        cp.setPropertyValues(values)
+        
+        cp.execute()
+        cp.dispose()
+        
+        farbe = cp.PropertyValues[0].Value
+        
+        return farbe
+    
+    def schreibe_settings_orga(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        path = os.path.join(self.mb.path_to_extension,"organon_settings.json")
+
+        with open(path, 'w') as outfile:
+            json.dump(self.mb.settings_orga, outfile,indent=4, separators=(',', ': '))
+            
+    def folderpicker(self,filepath=None):
+        if self.mb.debug: log(inspect.stack)
+        
+        folderpicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
+        if filepath != None:
+            folderpicker.setDisplayDirectory(filepath)
+        folderpicker.execute()
+        
+        if folderpicker.Directory == '':
+            return None
+        
+        return uno.fileUrlToSystemPath(folderpicker.getDirectory())
+    
+    def filepicker(self,filepath=None,filter=None):
+        if self.mb.debug: log(inspect.stack)
+        
+        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
+        #Filepicker.appendFilter('Organon Project','*.organon')
+        #ofilter = Filepicker.getCurrentFilter()
+        Filepicker.execute()
+
+        if Filepicker.Files == '':
+            return None
+
+        return uno.fileUrlToSystemPath(Filepicker.Files[0])
+    
+    def oeffne_json(self,pfad):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            with codecs_open(pfad) as data:  
+                content = data.read().decode()  
+                odict = json.loads(content)
+                return odict
+        except:
+            log(inspect.stack,tb())  
+            return None
+        
      
 from com.sun.star.awt import XMouseListener,XItemListener
 class Tag_Container_Listener (unohelper.Base, XMouseListener):
@@ -511,7 +584,7 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
 
    
     def mouseExited(self, ev): 
-        ev.value.Source.Model.BackgroundColor = KONST.EXPORT_DIALOG_FARBE
+        ev.value.Source.Model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         return False
     def mouseEntered(self, ev):    
         ev.value.Source.Model.BackgroundColor = 102
@@ -572,7 +645,6 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         except:
             log(inspect.stack,tb())
 
-        
-        
+       
         
    

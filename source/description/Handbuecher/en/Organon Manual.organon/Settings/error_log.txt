@@ -1,0 +1,200 @@
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\projects.py", line 524, in lade_Projekt
+    self.mb.doc.storeAsURL(Path2,())
+com.sun.star.task.ErrorCodeIOException
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\bereiche.py", line 297, in datei_nach_aenderung_speichern
+    newDoc.storeToURL(zu_speicherndes_doc_path,())
+com.sun.star.frame.IllegalArgumentIOException
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\bereiche.py", line 297, in datei_nach_aenderung_speichern
+    newDoc.storeToURL(zu_speicherndes_doc_path,())
+com.sun.star.frame.IllegalArgumentIOException
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1249, in schalte_sichtbarkeit_der_Bereiche
+    sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\baum.py", line 1228, in finde_eltern_bereich
+    while sec.ParentSection != None:
+AttributeError: 'NoneType' object has no attribute 'ParentSection'
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\projects.py", line 523, in lade_Projekt
+    self.mb.doc.storeAsURL(Path2,())
+com.sun.star.task.ErrorCodeIOException
+
+### ERROR ### 
+Traceback (most recent call last):
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\sidebar.py", line 194, in lade_sidebar_dict
+    self.ueberpruefe_dict_sb_content(not backup_exists)
+  File "H:\Programmierung\Eclipse_Workspace\Organon\source\py\sidebar.py", line 218, in ueberpruefe_dict_sb_content
+    if ordinal not in self.mb.dict_sb_content['ordinal']:
+TypeError: 'NoneType' object has no attribute '__getitem__'
+
