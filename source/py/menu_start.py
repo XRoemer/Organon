@@ -162,7 +162,7 @@ class Menu_Start():
             PosY += 25
 
     
-            
+        
     
     def erzeuge_Menu(self):
         if debug: log(inspect_stack)

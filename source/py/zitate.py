@@ -495,6 +495,54 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
 
         return text,name
     
+        
+    def vergleiche_ordner(self,ordner1,ordner2,speicherordner):
+        '''
+        Bsp.
+        ordner1 = 'C:\\Users\\Homer\\Desktop\\Texte1'
+        ordner2 = 'C:\\Users\\Homer\\Desktop\\Texte2'
+        speicherordner = 'C:\\Users\\Homer\\Desktop\\Ergebnis'
+        self.vergleiche_ordner(ordner1,ordner2,speicherordner)
+        '''
+        
+        try:
+                    
+            
+            from zitate import Suche
+            
+            def oeffne_text(pfad):
+                extension = os.path.splitext(pfad)[1]
+                name = os.path.basename(pfad).split('.')[0]
+                
+                if extension == '.txt':
+         
+                    with codecs_open( pfad, "r",'utf-8') as file:
+                        text = file.readlines()
+                
+                return name,text
+            
+            
+            pfade_ordner1 = os.listdir(ordner1)
+            pfade_ordner2 = os.listdir(ordner2)
+            
+            for pfad1 in pfade_ordner1:
+                name1,text1 = oeffne_text(os.path.join(ordner1,pfad1))
+                
+                for pfad2 in pfade_ordner2:
+                    
+                    name2,text2  = oeffne_text(os.path.join(ordner2,pfad2))
+                    anz_SW = 6
+                    chronologisch = 1
+                    
+                    
+                    args = text1,text2,name1,name2,speicherordner,anz_SW,chronologisch
+                    s = Suche(args,self.mb) 
+                    s.run()
+
+        except:
+            log(inspect.stack,tb())
+
+    
 
 
 class Text_Intern_Listener(unohelper.Base, XActionListener):
@@ -570,7 +618,7 @@ class Suche():
             
             if len(uebereinstimmungen) == 0:
                 SI.end()
-                self.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
+                #self.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
                 return
             
             vks = {}     
@@ -595,7 +643,7 @@ class Suche():
                         
         except:
             log(inspect.stack,tb())
-        
+            
         SI.end()
         
     
@@ -1180,7 +1228,7 @@ class Suche():
         dst = os.path.join(pfad_content,'organon icon_120.png')
         copyfile(src, dst)
         
-        webbrowser.open(os.path.join(pfad,'main.html'))
+        #webbrowser.open(os.path.join(pfad,'main.html'))
         
 
     def erstelle_fundstellen(self,uebereinstimmungen,WoerterDict1,posDict1,posDict_O1,WoerterListe1,vks):  

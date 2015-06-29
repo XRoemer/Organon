@@ -26,7 +26,9 @@ class Version():
         '0.9.8.4':None,
         '0.9.8.5':None,
         '0.9.8.6':self.an_0987b_anpassen,
-        '0.9.8.7':self.an_0988b_anpassen
+        '0.9.8.7':self.an_0988b_anpassen,
+        '0.9.8.8':None,
+        '0.9.9.0':None,
         
         } 
         

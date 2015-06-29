@@ -1119,10 +1119,19 @@ class Projekt():
 #             cont.addControl('',cont4)
             
 #############################################################################################
-            
-       
-            setts = self.mb.settings_orga
 
+
+#             attributes = inspect.getmembers(win.StyleSettings, lambda a:not(inspect.isroutine(a)))
+#              
+#             for a in attributes:
+#                 try:
+#                     setattr(win.StyleSettings, a[0], 502)
+#                 except:
+#                     pass
+
+            
+            
+            
             
         except:
             #log(inspect.stack,tb())
@@ -1131,55 +1140,7 @@ class Projekt():
         pd()
     
     
-
-
-
-##### SIDEBARTHEME ######
-# https://addons.mozilla.org/de/firefox/addon/burling/
-
-# personen = self.mb.dict_sb['controls']['Tags_characters']
-# sb = personen[1]
-# 
-# window = personen[0].window
-# 
-# farbe = KONST.FARBE_HF_HINTERGRUND
-# farbe2 = KONST.FARBE_SCHRIFT_DATEI
-# 
-# for panel in self.mb.dict_sb['controls']:
-#     pan_window = self.mb.dict_sb['controls'][panel][0].window
-#     pan_window.Model.BackgroundColor = farbe
-#     pan_window.Model.TextColor = 502#KONST.FARBE_SCHRIFT_DATEI
-# 
-# theme = personen[0].Theme
-# 
-# 
-# tbb = theme.Paint_PanelTitleBarBackground
-# tbb.StartColor = farbe2
-# tbb.EndColor = farbe
-# theme.setPropertyValue('Paint_PanelTitleBarBackground', tbb)
-# 
-# tbb = theme.Paint_ToolBoxBackground
-# tbb.StartColor = farbe 
-# tbb.EndColor = farbe
-# theme.setPropertyValue('Paint_ToolBoxBackground', tbb)
-# 
-# theme.setPropertyValue('Paint_TabBarBackground', farbe)
-# theme.setPropertyValue('Paint_TabItemBackgroundNormal', farbe)
-# 
-# theme.setPropertyValue('Paint_PanelBackground', farbe)
-# theme.setPropertyValue('Paint_DeckBackground', farbe)
-# 
-# theme.setPropertyValue('Paint_ToolBoxBorderBottomRight', farbe)
-# theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', farbe)
-# theme.setPropertyValue('Paint_ToolBoxBorderTopLeft', farbe)
-# 
-# theme.setPropertyValue('Paint_HorizontalBorder', farbe)
-# theme.setPropertyValue('Paint_VerticalBorder', farbe)
-# 
-# theme.setPropertyValue('Color_DeckTitleFont', 502)
-# theme.setPropertyValue('Color_PanelTitleFont', 502)
-# 
-# sb.requestLayout()
+    
 
 
 

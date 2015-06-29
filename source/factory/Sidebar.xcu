@@ -44,11 +44,11 @@
 	            </prop>				
 		       	<prop oor:name="ContextList">
 	           		<value oor:separator=";">
-	           			any, any, visible ;
+	           			Writer, any, visible ;
 	               	</value>
 	           	</prop>
 				<prop oor:name="OrderIndex" oor:type="xs:int">
-					<value>1000</value>
+					<value>10000</value>
 				</prop>
 	       	</node>
 
@@ -69,7 +69,7 @@
             	</prop>
             	<prop oor:name="ContextList">
             		<value oor:separator=";">
-            			any, any, visible ;
+            			Writer, any, visible ;
                 	</value>
             	</prop>
             	<prop oor:name="ImplementationURL" oor:type="xs:string">
@@ -102,7 +102,7 @@
             	</prop>
             	<prop oor:name="ContextList">
             		<value oor:separator=";">
-            			any, any, visible ;
+            			Writer, any, visible ;
                 	</value>
             	</prop>
             	<prop oor:name="ImplementationURL" oor:type="xs:string">

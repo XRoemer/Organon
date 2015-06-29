@@ -67,13 +67,13 @@ ZEILE_AUSWAEHLEN = u'Choose a row beneath which the new content should be insert
 ERZEUGE_NEUE_ZEILE = u'                    creating row, please wait!                   '
 
 # TRENNER
-TRENNER_FORMATIERUNG = u'Format Seperator'
+TRENNER_FORMATIERUNG = u'Format Separator'
 LINIE = u'Line'
 FARBE = u'Color'
 FARBE_SCHRIFT = u'Color Font'
 FARBE_HINTERGRUND = u'Color Background'
 BENUTZER = u'User'
-KEIN_TRENNER = u'No Seperator'
+KEIN_TRENNER = u'No Separator'
 TRENNER_ANMERKUNG = u'The colors of the separator are part of the design \nand are set in "Preferences / Organon Design"'
         
 ## TREEVIEW
@@ -298,8 +298,98 @@ DESIGN_EXISTIERT = u'This design already exists'
 EXPORTNAMEN_EINGEBEN = u'Please enter a name for the file to be exported'
 DATEI_EXISTIERT = u'The file already exists'
 
+## PERSONAS 
+PERSONA = u'Persona'
+DESIGN_PERSONA = u'Design: Personas'
+DESIGN_ORGANON = u'Design: Organon'
+DESIGN_TRENNER = u'Design: Separator'
+DESIGN_OFFICE = u'Design: Office'
+THEMA_TITEL = u'Persona'
+THEMA_UNTERTITEL = u'Font color of menubar'
+NEUES_PERSONA_THEMA = u'New Persona'
+PERSONA_ANWENDEN = u'Set Persona'
+VORHANDENE_PERSONAS = u'Available Personas'
+PERSONANAMEN_EINGEBEN = u'Enter a name for the new Persona'
+HINTERGRUND_EINFARBIG = u'Background: Color'
+HINTERGRUND_GRADIENT = u'Background: Gradient'
+HINTERGRUND_NUTZER = u'Background: User'
+HINTERGRUND_2 = u'Background 2'
+FARBE2 = u'Color 2'
+URL = u'URL'
+ERZEUGE_GRADIENT = u'create Gradient'
+PERSONA_LOESCHEN = u'delete Persona'
+URL_INFO = u'Format: .png 2500px * 200px'
+PERSONANAMEN_EXISTIERT = u'Persona already exists'
+ORDNER_NICHT_ERSTELLT = u'Cannot create directory "{0}".\n '\
+                            u'Check, if the directory already exists and\n'\
+                            u'if you do have the permission to write into the directory.'\
+                            u'Create the folder yourself or use once a theme:\n'\
+                            u'Extras/Options/Personalisation/Own Theme\n'\
+                            u'and try it again.'
+KEIN_PERSONA_SELEKTIERT = u'No Persona selected'
+LOESCHEN_BESTAETIGEN = u'Do you really want to delete "{0}"?'
+ORDNER_NICHT_ENTFERNT = u"The directory '{0}' couldn't be deleted."
+AENDERUNG_NACH_NEUSTART = u'Changes will be visible after a restart of Writer.'
 
 
+## WRITER DESIGN
+WRITER_DESIGN = u'Writer Design'
+STATUSLEISTE = u'Status Bar'
+FELDER = 'Input Field'
+TRENNER_LICHT = u'Separator Light'
+TRENNER_SCHATTEN = u'Separator Shadow'
+LINEAL = u'Ruler'
+
+ANFASSER = u'Grabber'
+ZWISCHENRAUM = u'Gap'
+ANFASSER_TEXT = u'Grabber Text'
+TABSUMRANDUNG = u'Tabs Border'
+LINEAL_BG_INNEN = u'Background Inside'
+TAB_FUELLUNG = u'Grabber Background'
+TAB_TRENNER = u'Separator'
+
+SIDEBAR = u'Sidebar'
+
+TITEL_HINTERGRUND = u'Title Background'
+TITEL_SCHRIFT = u'Title Font'
+PANEL_TITEL_HINTERGRUND = u'Panel Title Background'
+PANEL_TITEL_SCHRIFT = u'Panel Title Font'
+LEISTE_HINTERGRUND = u'Tab Bar Background '
+LEISTE_SELEKTIERT_HINTERGRUND = u'Tab Bar Selected Background'
+LEISTE_ICON_UMRANDUNG = u'Tab Bar Icon Border'
+BORDER_HORIZONTAL = u'Separator horizontal'
+BORDER_VERTICAL = u'Separator vertical'
+EIGENE_FENSTER_HINTERGRUND = u'Organon Windows Background'
+SELECTED_HINTERGRUND = u'Selected Background'
+SELECTED_SCHRIFT = u'Selected Font'
+
+NUTZE_PERSONA = u'Use Persona'
+DOCUMENT = u'Document'
+
+NUTZE_DOK_FARBE = u'colorize document'
+WRITER_DESIGN_INFO = u'EXPERIMENTAL FEATURE\n'\
+        u'Please note the following when using Writer Design:\n\n' \
+        u'- The complete changes take effect only after a restart.\n\n'\
+        u'- More simultaneously open applications (Calc, Draw, etc.)\n'\
+        u'  will also be inked.\n'\
+        u'  When restarting with deactivated design the standard colors are \n'\
+        u'  used again.\n\n'\
+        u'- At the moment with active Writer Design no .odt Document can be opened\n'\
+        u'  by "open with" by Writer, since the surface of Writer is closed\n'\
+        u'  by Organon and re-started again. In this case the\n'\
+        u'  loaded document gets also closed.\n\n'\
+        u'- The sidebar will fully be inked when a Organon project is loaded\n'\
+        u'  and after the first click on the Organon icon.\n\n'\
+        u'- Changes in the document colors and the Persona (LO) are permanent.\n'\
+        u'  They might be be reversed in two ways:\n\n' \
+        u'  - via Writer menu bar: Extras/Options/Appearance  \n'\
+        u'               Set Document Background and Application Background \n' \
+        u'               to automatic again.\n'\
+        u'               (LO) Set Persona via Extras/Options/Personalisation back.\n\n'\
+        u'  - via Organon: Activate Writer Design and deactivate "use Persona" \n'\
+        u'               and "colorize document". Deactivate Writer Design\n\n'\
+        u'For more information, see the manual.\n'\
+        u' '
 
 
 ## DIVERSES

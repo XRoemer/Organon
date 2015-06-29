@@ -416,8 +416,24 @@ class Funktionen():
         cp.dispose()
         
         farbe = cp.PropertyValues[0].Value
-        
+
         return farbe
+    
+    def dezimal_to_rgb(self,farbe):
+        import struct
+             
+        f1 = hex(farbe).lstrip('0x')
+        if len(f1) < 6:
+            f1 = (6-len(f1)) * '0' + f1
+        return struct.unpack('BBB',bytes.fromhex(f1))   
+    
+    def dezimal_to_hex(self,farbe):
+        import struct
+             
+        f1 = hex(farbe).lstrip('0x')
+        if len(f1) < 6:
+            f1 = (6-len(f1)) * '0' + f1
+        return f1 
     
     def schreibe_settings_orga(self):
         if self.mb.debug: log(inspect.stack)

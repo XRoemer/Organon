@@ -135,7 +135,7 @@ UEBERSCHRIFT = u'Überschriften',
 FUSSNOTE = u'Fußnoten',
 FARBEN = u'Farben',
 AUSRICHTUNG = u'Ausrichtung',
-LINKS = u'Hyper Links',
+LINKS = u'Hyperlinks',
 ZITATE = u'Zitate',
 SCHRIFTART = u'Schriftart',
 SCHRIFTGROESSE = u'Schriftgröße',
@@ -293,8 +293,101 @@ LOESCHEN = u'Löschen'
 KEINE_JSON_DATEI = u'Dies ist keine gültige .json Datei'
 DESIGNNAMEN_EINGEBEN = u'Geben Sie einen Namen für das Design an'
 DESIGN_EXISTIERT = u'Das Design existiert bereits'
-EXPORTNAMEN_EINGEBEN = u'Geben Sie einen Naamen für die zu exportierende Datei ein'
+EXPORTNAMEN_EINGEBEN = u'Geben Sie einen Namen für die zu exportierende Datei ein'
 DATEI_EXISTIERT = u'Die Datei existiert schon'
+
+## PERSONAS 
+PERSONA = u'Persona'
+DESIGN_PERSONA = u'Design: Personas'
+DESIGN_ORGANON = u'Design: Organon'
+DESIGN_TRENNER = u'Design: Trenner'
+DESIGN_OFFICE = u'Design: Office'
+THEMA_TITEL = u'Persona'
+THEMA_UNTERTITEL = u'Farbe der Schrift in der Menüleiste'
+NEUES_PERSONA_THEMA = u'neues Persona'
+PERSONA_ANWENDEN = u'Persona anwenden'
+VORHANDENE_PERSONAS = u'Vorhandene Personas'
+PERSONANAMEN_EINGEBEN = u'Geben Sie einen Namen für das neue Persona an'
+HINTERGRUND_EINFARBIG = u'Hintergrund: Farbe'
+HINTERGRUND_GRADIENT = u'Hintergrund: Verlauf'
+HINTERGRUND_NUTZER = u'Hintergrund: Nutzer'
+HINTERGRUND_2 = u'Hintergrund 2'
+FARBE2 = u'Farbe 2'
+URL = u'URL'
+ERZEUGE_GRADIENT = u'erzeuge Gradient'
+PERSONA_LOESCHEN = u'Persona löschen'
+URL_INFO = u'Format: .png 2500px * 200px'
+PERSONANAMEN_EXISTIERT = u'Das Persona existiert schon'
+ORDNER_NICHT_ERSTELLT = u'Der Ordner "{0}" konnte nicht erstellt werden.\n '\
+                            u'Prüfen Sie, ob der Ordner bereits existiert und ob \n'\
+                            u'Sie die Schreibberechtigung für den Ordner haben.\n'\
+                            u'Erstellen Sie den Ordner selbst oder benutzen Sie einmal ein\n'\
+                            u'eigenes Thema: Extras/Optionen/Personalisierung/Eigenes Thema\n'\
+                            u'und versuchen Sie es dann erneut.'
+KEIN_PERSONA_SELEKTIERT = u'Es ist kein Persona ausgewählt.'
+LOESCHEN_BESTAETIGEN = u'Möchten Sie das Persona "{0}" wirklich löschen?'
+ORDNER_NICHT_ENTFERNT = u'Der Ordner "{0}" konnte nicht gelöscht werden.'
+AENDERUNG_NACH_NEUSTART = u'Die Änderungen werden erst nach einem Neustart von Writer sichtbar.'
+
+
+## WRITER DESIGN
+WRITER_DESIGN = u'Writer Design'
+STATUSLEISTE = u'Statusleiste'
+FELDER = 'Eingabefelder'
+TRENNER_LICHT = u'Trenner Licht'
+TRENNER_SCHATTEN = u'Trenner Schatten'
+LINEAL = u'Lineal'
+
+ANFASSER = u'Anfasser'
+ZWISCHENRAUM = u'Zwischenraum'
+ANFASSER_TEXT = u'Anfasser Text'
+TABSUMRANDUNG = u'Tabsumrandung'
+LINEAL_BG_INNEN = u'Hintergrund innen'
+TAB_FUELLUNG = u'Anfasser Füllung'
+TAB_TRENNER = u'Trenner'
+
+SIDEBAR = u'Seitenleiste'
+
+TITEL_HINTERGRUND = u'Titel Hintergrund'
+TITEL_SCHRIFT = u'Titel Schrift'
+PANEL_TITEL_HINTERGRUND = u'Panel Titel Hintergrund'
+PANEL_TITEL_SCHRIFT = u'Panel Titel Schrift'
+LEISTE_HINTERGRUND = u'Leiste Hintergrund '
+LEISTE_SELEKTIERT_HINTERGRUND = u'Leiste Ausgewählte Hintergrund'
+LEISTE_ICON_UMRANDUNG = u'Leiste Icon Umrandung'
+BORDER_HORIZONTAL = u'Trenner horizontal'
+BORDER_VERTICAL = u'Trenner vertikal'
+EIGENE_FENSTER_HINTERGRUND = u'Organon Fenster Hintergrund'
+SELECTED_HINTERGRUND = u'Ausgewählte Hintergrund'
+SELECTED_SCHRIFT = u'Ausgewählte Schrift'
+
+NUTZE_PERSONA = u'nutze Persona'
+DOCUMENT = u'Dokument'
+
+NUTZE_DOK_FARBE = u'färbe Dokument'
+WRITER_DESIGN_INFO = u'EXPERIMENTELLES FEATURE\n'\
+        u'Bitte beachten Sie bei der Verwendung von Writer Design Folgendes:\n\n' \
+        u'- Die kompletten Änderungen werden erst nach einem Neustart wirksam.\n\n'\
+        u'- Weitere gleichzeitig geöffneten Anwendungen (Calc,Draw etc.) einer \n'\
+        u'  Sitzung werden ebenfalls eingefärbt.\n'\
+        u'  Bei Neustart mit deaktiviertem Design werden wieder die Standardfarben \n'\
+        u'  genutzt.\n\n'\
+        u'- Z.Z. kann bei aktivem Writer Design kein .odt Dokument via "Öffnen mit"\n'\
+        u'  durch Writer geöffnet werden, da die Oberfläche von Writer durch Organon\n'\
+        u'  nach dem Öffnen geschlossen und erneut gestartet wird. Dabei wird das\n'\
+        u'  geladenen Dokument ebenfalls wieder geschlossen.\n\n'\
+        u'- Die Seitenleiste wird erst bei geöffnetem Organon Projekt und mit dem \n'\
+        u'  ersten Klick auf das Organon Symbol vollständig eingefärbt.\n\n'\
+        u'- Änderungen der Dokumentfarben und des Persona (LO) bleiben bestehen.\n'\
+        u'  Sie können auf zwei Arten rückgängig gemacht werden:\n\n' \
+        u'  - via Writer-Menüleiste: Extras/Optionen/Darstellung  \n'\
+        u'               Dokumenthintergrund und Hintergrund der Anwendung\n' \
+        u'               wieder auf "Automatisch" setzen.\n'\
+        u'               (LO) Persona über Extras/Optionen/Personalisierung zurücksetzen.\n\n'\
+        u'  - via Organon: Writer Design aktivieren und die Häkchen bei "nutze Persona" \n'\
+        u'               und "färbe Dokument" entfernen. Writer Design deaktivieren.\n\n'\
+        u'Diese und weitere Informationen finden Sie auch im Handbuch.\n'\
+        u' '
 
 
 ## DIVERSES

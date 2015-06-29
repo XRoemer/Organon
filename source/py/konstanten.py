@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# FARBEN
+# ORGANON DESIGN FARBEN
 FARBE_ORGANON_FENSTER = 14804725
 
 FARBE_MENU_HINTERGRUND      = 0 # Wird im modul factory ueberschrieben
@@ -15,7 +15,6 @@ FARBE_GLIEDERUNG            = 0 # Wird im modul factory ueberschrieben
 
 FARBE_TRENNER_HINTERGRUND   = 0 # Wird im modul factory ueberschrieben
 FARBE_TRENNER_SCHRIFT       = 0 # Wird im modul factory ueberschrieben
-
 
 
 Breite_Menu_DropDown_Eintraege = 150

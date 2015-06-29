@@ -168,10 +168,11 @@ class Menu_Bar():
             self.class_Latex =          self.lade_modul('latex_export','ExportToLatex') 
             self.class_Html =           self.lade_modul('export2html','ExportToHtml') 
             self.class_Zitate =         self.lade_modul('zitate','Zitate') 
-            self.class_werkzeug_wListe = self.lade_modul('werkzeug_wListe','WListe') 
+            self.class_werkzeug_wListe= self.lade_modul('werkzeug_wListe','WListe') 
             self.class_Index =          self.lade_modul('index','Index')
             self.class_Mausrad =        self.lade_modul('mausrad','Mausrad')
             self.class_Einstellungen =  self.lade_modul('einstellungen','Einstellungen')
+            self.class_Organon_Design = self.lade_modul('design','Organon_Design')
             
             # Plattformabhaengig
             if self.platform == 'win32':
@@ -715,6 +716,8 @@ class Menu_Bar():
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
         cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
+        #pd()
+        #cont_model.ForegroundColor = KONST.FARBE_SCHRIFT_DATEI
         cont.setModel(cont_model)
         # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
@@ -735,9 +738,14 @@ class Menu_Bar():
         pos_y = 0
         ctrls = {}
         
+        pos_y_max = [0]
+        
         for ctrl in controls:
             if isinstance(ctrl,int):
                 pos_y += ctrl
+            elif 'Y=' in ctrl:
+                pos_y_max.append(pos_y)
+                pos_y = int(ctrl.split('Y=')[1])
             else:
                 name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
                 locals()[name],locals()[name.replace('control','model')] = self.createControl(self.ctx,unoCtrl,X,pos_y+Y,width,height,prop_names,prop_values)
@@ -765,8 +773,9 @@ class Menu_Bar():
                     locals()[name].Model.SelectedItems = extras['SelectedItems']
                 
                 ctrls.update({name:locals()[name]})    
-
-        return ctrls,pos_y
+        
+        pos_y_max.append(pos_y)
+        return ctrls,max(pos_y_max)
     
     def erzeuge_Scrollbar(self,fenster_cont,PosSize,control_innen):
         if self.debug: log(inspect.stack)
@@ -870,6 +879,7 @@ class Menu_Bar():
             return (ctrl, ctrl_model)
         except:
             log(inspect.stack,tb())
+            
     
     def createUnoService(self,serviceName):
         sm = uno.getComponentContext().ServiceManager

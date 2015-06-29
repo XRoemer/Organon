@@ -11,8 +11,15 @@ class Einstellungen():
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-
         
+        # prop, um den Listener fuer die Writer Design LBs
+        # beim anfaenglichen Setzen nicht anzusprechen
+        self.setze_listboxen = False
+        # enthaelt die LB Eintraege und entsprechende Organon props
+        self.lb_dict = None
+        # vice versa
+        self.lb_dict2 = None
+
         
     def start(self):
         if self.mb.debug: log(inspect.stack)
@@ -51,7 +58,7 @@ class Einstellungen():
             # Hauptfenster erzeugen
             posSize = X,Y,breite,pos_y + 40
             fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-            fenster_cont.Model.Text = LANG.EXPORT
+            #fenster_cont.Model.Text = LANG.EXPORT
             
             #fenster_cont.addEventListener(listenerDis)
             self.haupt_fenster = fenster
@@ -70,8 +77,25 @@ class Einstellungen():
     def dialog_einstellungen(self,listener,breite_listbox,breite,hoehe):
         if self.mb.debug: log(inspect.stack)
         
-        lb_items = LANG.TRENNER,LANG.ORGANON_DESIGN,LANG.MAUSRAD,LANG.HTML_EXPORT,LANG.LOG
-
+        if self.mb.programm == 'LibreOffice':
+            lb_items = (
+                        LANG.DESIGN_TRENNER,
+                        LANG.DESIGN_ORGANON,
+                        LANG.DESIGN_PERSONA,
+                        LANG.MAUSRAD,
+                        LANG.HTML_EXPORT,
+                        LANG.LOG
+                        )
+        else:
+            lb_items = (
+                        LANG.DESIGN_TRENNER,
+                        LANG.DESIGN_ORGANON,
+                        LANG.MAUSRAD,
+                        LANG.HTML_EXPORT,
+                        LANG.LOG
+                        )
+            
+           
         controls = (
             10,
             ('controlE_calc',"FixedText",        
@@ -97,8 +121,9 @@ class Einstellungen():
             hoehe - 20,
             )
         return controls
-
-        
+    
+    
+              
 
 from com.sun.star.awt import XItemListener   
 class Auswahl_Item_Listener(unohelper.Base, XItemListener):
@@ -113,7 +138,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         try:     
             sel = ev.value.Source.Items[ev.value.Selected] 
-            
+
             for c in self.container.getControls():
                 c.dispose()
             
@@ -123,17 +148,19 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             elif sel == LANG.MAUSRAD:
                 self.dialog_mausrad()
                                         
-            elif sel == LANG.TRENNER:
+            elif sel == LANG.DESIGN_TRENNER:
                 self.dialog_trenner()
                 
             elif sel == LANG.HTML_EXPORT:
                 self.dialog_html_export()
                 
-            elif sel == LANG.ORGANON_DESIGN:
-                self.dialog_organon_farben()
+            elif sel == LANG.DESIGN_ORGANON:
+                self.mb.class_Organon_Design.container = self.container
+                self.mb.class_Organon_Design.dialog_organon_farben()
                 
-            elif sel == LANG.EINSTELLUNGEN_EXPORTIEREN:
-                self.dialog_einstellungen_exp()
+            elif sel == LANG.DESIGN_PERSONA:
+                self.mb.class_Organon_Design.container = self.container
+                self.mb.class_Organon_Design.dialog_persona()
 
         except:
             log(inspect.stack,tb())
@@ -246,7 +273,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
     def dialog_html_export_elemente(self,listener,html_exp_settings):
         if self.mb.debug: log(inspect.stack)
         
-
         controls = [
             10,
             ('controlE_calc',"FixedText",        
@@ -269,7 +295,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                                     {'setActionCommand':el,'addActionListener':(listener,)} 
                                     ),  
             25])
-            
             
         return controls
 
@@ -333,7 +358,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-
             sett = self.mb.settings_orga
             
             try:
@@ -361,7 +385,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                          
         except:
             log(inspect.stack,tb())
-            
             
     
     def dialog_trenner_elemente(self,trenner_dict,listener_CB,listener_URL):
@@ -472,8 +495,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
             listener_CB = Listener_Trenner(self.mb)
             listener_URL = Listener_Trenner(self.mb)
-#             design = self.mb.class_Design
-#             design.set_default(tabs)
             
             trenner = 'keiner', 'strich', 'farbe', 'user'
             trenner_dict = {}
@@ -511,495 +532,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         except:
             log(inspect.stack,tb())
             
-
-
-    def dialog_organon_farben_elemente(self,listener):
-        if self.mb.debug: log(inspect.stack)
-        
-        design_items = 'standard','olive','maritim','zander'
-        
-        controls = [
-            10,
-            ('control1',"FixedText",         
-                                    'tab0',0,168,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.ORGANON_DESIGN ,150),                                             
-                                    {} 
-                                    ),
-            30,
-            ('controlTit1',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.MENULEISTE,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control2',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_MENU_HINTERGRUND,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control3',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.HINTERGRUND,),                                                                    
-                                    {} 
-                                    ),  
-                    
-            20,
-            ('control4',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_MENU_SCHRIFT,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control5',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.SCHRIFT,),                                                                    
-                                    {} 
-                                    ),  
-            0,
-            ###############################################################
-            ('controlF1',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('controlTit2',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.BAUMANSICHT,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control6',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_HF_HINTERGRUND,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control7',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.HINTERGRUND,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control8',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_SCHRIFT_ORDNER,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control9',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.ORDNER,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control10',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_SCHRIFT_DATEI,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control11',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.DATEI,),                                                                    
-                                    {} 
-                                    ),  
-            0,
-            ###############################################################
-            ('controlF2',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('controlTit3',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.ZEILE,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control12',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_AUSGEWAEHLTE_ZEILE,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control13',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.AUSGEWAEHLTE_ZEILE,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control14',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_EDITIERTE_ZEILE,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control15',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.EDITIERTE_ZEILE,),                                                                    
-                                    {} 
-                                    ),  
-                    
-            20,
-            ('control16',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_GEZOGENE_ZEILE,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control17',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.GEZOGENE_ZEILE,),                                                                    
-                                    {} 
-                                    ),  
-            0,
-            ###############################################################
-            ('controlF3',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('control18',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_GLIEDERUNG,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control19',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.GLIEDERUNG,),                                                                    
-                                    {} 
-                                    ), 
-            ###############################################################
-            ('controlF4',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('controlTit4',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.TRENNER,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control20',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_TRENNER_HINTERGRUND,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control21',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.FARBE_HINTERGRUND,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control22',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_TRENNER_SCHRIFT,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control23',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.FARBE_SCHRIFT,),                                                                    
-                                    {} 
-                                    ), 
-
-                  
-            -296,
-            ###############################################################
-            ###############################################################
-            ######################  DESIGN ################################
-            ###############################################################
-            ('controlD1',"FixedText",        
-                                    'tab3',0,168,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.DESIGNS,150),                                                                    
-                                    {} 
-                                    ), 
-            25, 
-            ###############################################################
-            ###############################################################
-            ######################## SPEICHERN ############################
-            ###############################################################
-            ('controlE1',"Edit",          
-                                    'tab4',0,100,20,    
-                                    ('HelpText',),
-                                    (LANG.AUSWAHL,),                                                                         
-                                    {} 
-                                    ), 
-            30,
-            ('controlB1',"Button",          
-                                    'tab4',0,100,23,    
-                                    ('Label',),
-                                    (LANG.NEUES_DESIGN,),                                                                         
-                                    {'setActionCommand':'neues_design','addActionListener':(listener,)} 
-                                    ), 
-            30,
-            ('controlB3',"Button",          
-                                    'tab4',0,100,23,    
-                                    ('Label',),
-                                    (LANG.LOESCHEN,),                                                                         
-                                    {'setActionCommand':'loeschen','addActionListener':(listener,)} 
-                                    ), 
-            30,
-            ('controlB4',"Button",          
-                                    'tab4',0,100,23,    
-                                    ('Label',),
-                                    (LANG.EXPORT_2,),                                                                         
-                                    {'setActionCommand':'export','addActionListener':(listener,)} 
-                                    ), 
-            30,
-            ('controlB5',"Button",          
-                                    'tab4',0,100,23,    
-                                    ('Label',),
-                                    (LANG.IMPORT_2,),                                                                         
-                                    {'setActionCommand':'import','addActionListener':(listener,)} 
-                                    ), 
-            30,
-            
-            
-            ]
-        
-
-        
-        
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 42
-        tab2 = tab2x = 78
-        tab3 = tab3x = 220
-        tab4 = tab4x = 340
-        
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-
-        return controls2
-    
-    
-    def dialog_organon_design_elemente_RB(self,listener):
-        if self.mb.debug: log(inspect.stack)
-                
-        sett = self.mb.settings_orga
-        design_items = list(sett['designs'])
-        
-        
-        
-        
-        controls = []
-        aktiv = sett['organon_farben']['aktiv']
-            
-        for d in design_items:
-            state = int(aktiv == d)
-            design_control = [
-                                 
-            ('control%s'%d,"RadioButton",      
-                                    'tab3',70,100,20,    
-                                    ('Label','State'),
-                                    (d,state), 
-                                    {'setActionCommand':d,'addActionListener':(listener,)}      
-                                    ), 
-            20,]  
-
-            controls.extend(design_control)
-            
-        
-
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 42
-        tab2 = tab2x = 78
-        tab3 = tab3x = 220
-        tab4 = tab4x = 200
-        
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-        
-
-        return controls2
-    
-            
-    def dialog_organon_farben(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            
-            listener = Listener_Organon_Farben(self.mb,self)
-
-            controls = self.dialog_organon_farben_elemente(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
-
-            
-#             # UEBERGABE AN LISTENER
-            listener.ctrls = {
-                            'menu_hintergrund' : ctrls['control2'],
-                            'menu_schrift' : ctrls['control4'],
-                            'hf_hintergrund' : ctrls['control6'],
-                            'schrift_ordner' : ctrls['control8'],
-                            'schrift_datei' : ctrls['control10'],
-                            'ausgewaehlte_zeile' : ctrls['control12'],
-                            'editierte_zeile' : ctrls['control14'],
-                            'gezogene_zeile' : ctrls['control16'],
-                            'gliederung' : ctrls['control18'],
-                            'textfeld' : ctrls['controlE1'],
-                            'trenner_farbe_hintergrund' : ctrls['control20'],
-                            'trenner_farbe_schrift' : ctrls['control22'],
-                            }
-
-            
-            # Controls in Hauptfenster eintragen
-            for c in ctrls:
-                self.container.addControl(c,ctrls[c])
-                
-                
-            
-            
-            controls = self.dialog_organon_design_elemente_RB(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
-            
-            ctrls_RB = {}
-            
-            # Controls in Hauptfenster eintragen
-            for c in ctrls:
-                self.container.addControl(c,ctrls[c])
-                ctrls_RB.update({ ctrls[c].Model.Label : ctrls[c] })
-            
-            listener.RBs = ctrls_RB
-    
-        except:
-            log(inspect.stack,tb())
-            
-            
-    def dialog_einstellungen_exp_elemente(self,listener,nutze_mausrad):
-        if self.mb.debug: log(inspect.stack)
-        
-        controls = (
-            10,
-            ('controlE_calc',"FixedText",        
-                                    20,0,50,20,    
-                                    ('Label','FontWeight'),
-                                    (LANG.NUTZE_MAUSRAD ,150),                  
-                                    {} 
-                                    ), 
-            20,                                                  
-            ('control_CB_calc',"CheckBox",      
-                                    20,0,200,220,    
-                                    ('Label','State'),
-                                    (LANG.NUTZE_MAUSRAD,nutze_mausrad),       
-                                    {'addActionListener':(listener,)} 
-                                    ),  
-            30,
-            ('control_Container_calc',"FixedText",      
-                                    20,0,200,200,    
-                                    ('MultiLine','Label'),
-                                    (True,LANG.MAUSRAD_HINWEIS),              
-                                    {} 
-                                    ),  
-            200,
-            )
-        return controls
-    
-    
-    def dialog_einstellungen_exp(self): 
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-
-            sett = self.mb.settings_proj
-            
-            try:
-                if sett['nutze_mausrad']:
-                    nutze_mausrad = 1
-                else:
-                    nutze_mausrad = 0
-            except:
-                self.mb.settings_proj['nutze_mausrad'] = False
-                nutze_mausrad = 0
-            
-            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +20
-            Y = posSize_main.Y +20            
-
-            # Listener erzeugen 
-            listener = Listener_Mausrad_Einstellungen(self.mb)         
-            
-            controls = self.dialog_mausrad_elemente(listener,nutze_mausrad)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
-             
-            # Controls in Hauptfenster eintragen
-            for c in ctrls:
-                self.container.addControl(c,ctrls[c])
-                         
-        except:
-            log(inspect.stack,tb())
-
 
             
 
@@ -1106,6 +638,7 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
         self.conts = {}
         self.url_textfeld = None
         
+        
     def itemStateChanged(self, ev):  
         if self.mb.debug: log(inspect.stack)
 
@@ -1145,402 +678,168 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
         self.mb.class_Funktionen.schreibe_settings_orga()   
                 
                 
-class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
-    
-    def __init__(self,mb,auswahl_item_listener):
-        if mb.debug: log(inspect.stack)
-        
-        self.mb = mb
-        self.ctrls = {}
-        self.RBs = {}
-        self.auswahl_item_listener = auswahl_item_listener
-              
-    def mousePressed(self, ev):   
-        if self.mb.debug: log(inspect.stack) 
 
+   
+    
+import copy
+from os import path as PATH, listdir
+from codecs import open as codecs_open
+class Take_Over_Old_Settings():
+    '''
+    Settings have to be loaded while the old extension is still available
+    on the harddrive. During installation the old extension will be deleted.
+    So getting both needs to be done at the very beginning.
+    When an old extension is found, the newly created settings will
+    be extended by the old ones.
+    '''
+
+    def get_settings_of_previous_installation(self,package_folder, extension_folder):
         try:
-
-            for c in self.ctrls:
-                if self.ctrls[c] == ev.Source:
-                    #print(c)
-                    farbe = self.waehle_farbe(ev,c)
-                    
-                    if c =='hf_hintergrund':
-                        self.setze_farbe_hintergrund(farbe)
-                        
-                    elif c =='menu_hintergrund':
-                        self.setze_farbe_menuleiste_hintergrund(farbe)
-                    elif c =='menu_schrift':
-                        self.setze_farbe_menuleiste_schrift(farbe)
-                        
-                    elif c =='schrift_datei':
-                        self.setze_farbe_schrift_dateien(farbe)
-                    elif c =='schrift_ordner':
-                        self.setze_farbe_schrift_ordner(farbe)
-                        
-                        
-                    elif c == 'ausgewaehlte_zeile':
-                        KONST.FARBE_AUSGEWAEHLTE_ZEILE = farbe
-                    elif c == 'editierte_zeile':
-                        KONST.FARBE_EDITIERTE_ZEILE = farbe
-                    elif c == 'gezogene_zeile':
-                        KONST.FARBE_GEZOGENE_ZEILE = farbe
-                    
-                    elif c == 'gliederung':
-                        self.setze_farbe_gliederung(farbe)
-                    
-                    elif c == 'trenner_farbe_hintergrund':
-                        self.setze_farbe_trenner(farbe,c)
-                    elif c == 'trenner_farbe_schrift':
-                        self.setze_farbe_trenner(farbe,c)
-                    
-                    ev.Source.Model.BackgroundColor = farbe  
-                    self.mb.class_Funktionen.schreibe_settings_orga()
-                    break
-        except:
-            log(inspect.stack,tb())   
-    
-    def waehle_farbe(self,ev,art):  
-        if self.mb.debug: log(inspect.stack)
-
-        farbe = self.mb.class_Funktionen.waehle_farbe(self.mb.settings_orga['organon_farben'][art])
-        
-        self.mb.settings_orga['organon_farben'][art] = farbe
-        self.mb.class_Funktionen.schreibe_settings_orga()
-        return farbe  
-      
+            dirs = [name for name in listdir(package_folder) if PATH.isdir(PATH.join(package_folder, name))]
+            dirs.remove(extension_folder)
             
-    def mouseExited(self, ev):
-        return False
-    def mouseEntered(self,ev):
-        return False
-    def mouseReleased(self,ev):
-        return False
-    def disposing(self,ev):
-        return False
-    
-                
-    def actionPerformed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-
-        try:
-            cmd = ev.ActionCommand
-            
-            if cmd == 'neues_design':
-                self.erzeuge_neues_design()
-                
-            elif cmd == 'loeschen':
-                self.loesche_design()
-            
-            elif cmd == 'export':
-                self.export_design()
-                
-            elif cmd == 'import':
-                self.import_design()
-                
-            else:
-                self.setze_design(cmd)
-        except:
-            log(inspect.stack,tb()) 
-    
-    def import_design(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        sett = self.mb.settings_orga['designs'] 
-        
-        pfad = self.mb.class_Funktionen.filepicker()
-        if pfad == None: return
-        
-        odict = self.mb.class_Funktionen.oeffne_json(pfad)
-        if odict == None:
-            self.mb.nachricht(LANG.KEINE_JSON_DATEI,"warningbox")
-            return
-        
-        
-        for k in odict:
-            neu = copy.deepcopy(k)
-            while k in sett:
-                k = k+'x'
-            sett.update({ k : odict[neu] })
-        
-        self.mb.class_Funktionen.schreibe_settings_orga()
-        self.ansicht_erneuern()
-    
-    def export_design(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        sett = self.mb.settings_orga['designs'] 
-        
-        name = self.ctrls['textfeld'].Model.Text
-        if name == '':
-            self.mb.nachricht(LANG.EXPORTNAMEN_EINGEBEN,"infobox")
-            return
-        
-        pfad = self.mb.class_Funktionen.folderpicker()
-        
-        if pfad == None:
-            return
-        
-        pfad = os.path.join(pfad,name+'.json')
-        
-        if os.path.exists(pfad):
-            # 16777216 Flag fuer YES_NO
-            entscheidung = self.mb.nachricht(LANG.DATEI_EXISTIERT,"warningbox",16777216)
-            # 3 = Nein oder Cancel, 2 = Ja
-            if entscheidung == 3:
-                return
-            
-        with open(pfad, 'w') as outfile:
-            json.dump(sett, outfile,indent=4, separators=(',', ': '))
-        
-
-    def loesche_design(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        sett = self.mb.settings_orga['designs']  
-        active,act_name = None, None
-        
-        for c in self.RBs:
-            if self.RBs[c].State:
-                active,act_name = self.RBs[c], self.RBs[c].Model.Label
-        print(act_name)  
-
-        self.RBs.pop(act_name, None)
-        self.mb.settings_orga['designs'].pop(act_name,None)
-        
-        self.ansicht_erneuern()
+            files = None   
+            organon_in_files = False    
              
-    
-    def erzeuge_neues_design(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        sett = self.mb.settings_orga['designs']
-        
-        name = self.ctrls['textfeld'].Model.Text
-        if name == '':
-            self.mb.nachricht(LANG.DESIGNNAMEN_EINGEBEN,"infobox")
-            return
-        if name in sett:
-            self.mb.nachricht(LANG.DESIGN_EXISTIERT,"infobox")
-            return
-        
-        new_set = copy.deepcopy(self.mb.settings_orga['organon_farben'])
-        new_set.pop('aktiv',None)
-        
-        sett.update({ name : new_set })
-        self.mb.class_Funktionen.schreibe_settings_orga()
-        
-        self.ansicht_erneuern()
-        
+            for d in dirs:
+                files = listdir(PATH.join(package_folder,d))
+                if 'organon.oxt' in files:
+                    organon_in_files = True
+                    break
             
-    def setze_design(self,cmd):
-        if self.mb.debug: log(inspect.stack)
+            if files == None or organon_in_files == False :
+                return None
 
-        try:
+            json_pfad_alt = PATH.join(package_folder,d,'organon.oxt','organon_settings.json')
+            
+            with codecs_open(json_pfad_alt) as data:  
+                content = data.read().decode()  
+                settings_orga_prev = json.loads(content)
+            
+            return settings_orga_prev
+    
+        except Exception as e:
+            print(e)
+            return None
+    
+    designs = []
+    fehlende = []
 
-            sett = self.mb.settings_orga['designs'][cmd]
-            
-            self.setze_farbe_hintergrund(sett['hf_hintergrund'])
-            self.ctrls['hf_hintergrund'].Model.BackgroundColor = sett['hf_hintergrund']
-            
-            self.setze_farbe_menuleiste_hintergrund(sett['menu_hintergrund'])
-            self.ctrls['menu_hintergrund'].Model.BackgroundColor = sett['menu_hintergrund']
-            
-            self.setze_farbe_menuleiste_schrift(sett['menu_schrift'])
-            self.ctrls['menu_schrift'].Model.BackgroundColor = sett['menu_schrift']
-            
-            self.setze_farbe_schrift_dateien(sett['schrift_datei'])
-            self.ctrls['schrift_datei'].Model.BackgroundColor = sett['schrift_datei']
-            
-            self.setze_farbe_schrift_ordner(sett['schrift_ordner'])
-            self.ctrls['schrift_ordner'].Model.BackgroundColor = sett['schrift_ordner']
-            
-            self.setze_farbe_gliederung(sett['gliederung'])
-            self.ctrls['gliederung'].Model.BackgroundColor = sett['gliederung']
-            
-            KONST.FARBE_AUSGEWAEHLTE_ZEILE = sett['ausgewaehlte_zeile']
-            self.ctrls['ausgewaehlte_zeile'].Model.BackgroundColor = sett['ausgewaehlte_zeile']
-            
-            KONST.FARBE_EDITIERTE_ZEILE = sett['editierte_zeile']
-            self.ctrls['editierte_zeile'].Model.BackgroundColor = sett['editierte_zeile']
-            
-            KONST.FARBE_GEZOGENE_ZEILE = sett['gezogene_zeile']
-            self.ctrls['gezogene_zeile'].Model.BackgroundColor = sett['gezogene_zeile']
-            
-            KONST.FARBE_TRENNER_HINTERGRUND   = sett['trenner_farbe_hintergrund']
-            KONST.FARBE_TRENNER_SCHRIFT       = sett['trenner_farbe_schrift']
-            self.ctrls['trenner_farbe_hintergrund'].Model.BackgroundColor = sett['trenner_farbe_hintergrund']
-            self.ctrls['trenner_farbe_schrift'].Model.BackgroundColor = sett['trenner_farbe_schrift']
-            self.setze_farbe_trenner(sett['trenner_farbe_hintergrund'],'trenner_farbe_hintergrund')
-            
-            self.mb.settings_orga.update({'organon_farben': copy.deepcopy(sett) })
-            self.mb.settings_orga['organon_farben'].update({'aktiv': cmd})
-            
-            self.mb.class_Funktionen.schreibe_settings_orga()
-            
-        except:
-            log(inspect.stack,tb())  
-         
-    
-    def ansicht_erneuern(self):
-        if self.mb.debug: log(inspect.stack)
+    def _update_designs(self,a,b):
+        fehlende = set(b['designs']).difference( set(a['designs']) )
+        standard = copy.deepcopy(a['designs']['Standard'])
+        for f in fehlende:
+            a['designs'].update({f:standard})
         
-        for c in self.auswahl_item_listener.container.getControls():
-                c.dispose()
-        self.auswahl_item_listener.dialog_organon_farben()
+        return list(b['designs']), fehlende
         
     
-    def setze_farbe_trenner(self,farbe,cmd):
-        if self.mb.debug: log(inspect.stack)
+    def _compare_design(self,a1,b1): 
+        for k in b1:
+            if k in a1:
+                if b1[k] != a1[k]:
+                    return True  
+        return False
+    
+    def _treat_design(self,a,b,key,path):
         
-        if cmd == 'trenner_farbe_hintergrund':
-            KONST.FARBE_TRENNER_HINTERGRUND = farbe
+        if key in self.fehlende:
+            # Wenn Design nur im alten Dict vorhanden war,
+            # wird es direkt uebernommen
+            self.merge(a[key], b[key], path + [str(key)])
         else:
-            KONST.FARBE_TRENNER_SCHRIFT = farbe
-        
-        secs = self.mb.doc.TextSections
-        names = secs.ElementNames
-        
-        trenner = []
-        
-        for n in names:
-            if 'trenner' in n:
-                trenner.append(secs.getByName(n))
-        for t in trenner[:-1]:
-            t.BackColor = KONST.FARBE_TRENNER_HINTERGRUND
-            t.Anchor.CharColor = KONST.FARBE_TRENNER_SCHRIFT 
-
-               
-    def setze_farbe_menuleiste_hintergrund(self,farbe):
-        if self.mb.debug: log(inspect.stack)
-
-        for tab in self.mb.props:
-            # Hauptfeld
-            hf = self.mb.props[tab].Hauptfeld
-            menuleiste = hf.Context.Context.getControl('Organon_Menu_Bar')
-            menuleiste.Model.BackgroundColor = farbe
-        
-            try:
-                for c in menuleiste.Controls:
-                    c.Model.BackgroundColor = farbe
-            except Exception as e:
-                print(e)
+            # Wenn Designs gleichen Namens sich unterscheiden,
+            # wird eine neue Version "_old" eingefuegt
+            ungleich = self._compare_design(a[key],b[key])
+            if ungleich:
                 
-        KONST.FARBE_MENU_HINTERGRUND = farbe
-        
-            
-    def setze_farbe_menuleiste_schrift(self,farbe):
-        if self.mb.debug: log(inspect.stack)
-        
-        for tab in self.mb.props:
-            # Hauptfeld
-            hf = self.mb.props[tab].Hauptfeld
-            menuleiste = hf.Context.Context.getControl('Organon_Menu_Bar')
-        
-            try:
-                for c in menuleiste.Controls:
-                    try:
-                        c.Model.TextColor = farbe
-                    except:
-                        pass
-            except Exception as e:
-                print(e)
-                
-        KONST.FARBE_MENU_SCHRIFT = farbe
-        
-       
-    def setze_farbe_hintergrund(self,farbe):
-        if self.mb.debug: log(inspect.stack)
-        
-        # Dialog Fenster
-        self.mb.dialog.Model.BackgroundColor = farbe
-        
-        for tab in self.mb.props:
-            # Hauptfeld
-            hf = self.mb.props[tab].Hauptfeld
-            hf.Model.BackgroundColor = farbe
-            hf.Context.Context.Model.BackgroundColor = farbe
-            
-            # Zeilen im Hauptfeld
-            zeilen = hf.Controls
-                
-            for z in zeilen:
-                z.Model.BackgroundColor = farbe
-                #Controls in Zeilen
-                for el in z.Controls:
-                    el.Model.BackgroundColor = farbe
+                k = key
+                while k in a:
+                    k = k + '_old'
                     
-        KONST.FARBE_HF_HINTERGRUND = farbe
-
-
-    def setze_farbe_schrift_ordner(self,farbe):
-        if self.mb.debug: log(inspect.stack)
+                standard = copy.deepcopy(a['Standard'])
+                a[k] = standard
+                self.merge(a[k], b[key], path + [str(key)])
+            else:
+                pass
         
-        for tab in self.mb.props:
-            # Hauptfeld
-            hf = self.mb.props[tab].Hauptfeld
-            papierkorb = self.mb.props[tab].Papierkorb
-            
-            xml = self.mb.props[tab].xml_tree
-            root = xml.getroot()
-            ordner = root.findall(".//*[@Art='dir']")
-            
-            #Projektordner anhaengen
-            ordner.append(root.find('.//nr0'))
-            #Papierkorb anhaengen
-            ordner.append(root.find('.//{}'.format(papierkorb)))
-
-            for o in ordner:
-                zeile = hf.getControl(o.tag)
-                textfeld = zeile.getControl('textfeld')
-                textfeld.Model.TextColor = farbe
-
-        KONST.FARBE_SCHRIFT_ORDNER = farbe
         
-                
-    def setze_farbe_schrift_dateien(self,farbe):
-        if self.mb.debug: log(inspect.stack)
+    
+    def merge(self,a, b, path=None):
+        '''
+        This method is an adjusted version from:
+        http://stackoverflow.com/questions/7204805/python-dictionaries-of-dictionaries-merge
+        merges b into a
+        '''
+        if path is None: path = []
         
-        for tab in self.mb.props:
-            # Hauptfeld
-            hf = self.mb.props[tab].Hauptfeld
-            
-            xml = self.mb.props[tab].xml_tree
-            root = xml.getroot()
-            ordner = root.findall(".//*[@Art='pg']")
-                    
-            for o in ordner:
-                zeile = hf.getControl(o.tag)
-                textfeld = zeile.getControl('textfeld')
-                textfeld.Model.TextColor = farbe
-                    
-        KONST.FARBE_SCHRIFT_DATEI = farbe
+        try:
+            for key in b:
+                if key in a:
+                    if isinstance(a[key], dict) and isinstance(b[key], dict):
+                        if key == 'zuletzt_geladene_Projekte':
+                            a[key] = b[key]
+                        elif key in self.designs:
+                            self._treat_design(a, b, key, path)
+                        elif key == 'designs':
+                            self.designs,self.fehlende = self._update_designs(a,b)
+                            self.merge(a[key], b[key], path + [str(key)])
+                        else:
+                            self.merge(a[key], b[key], path + [str(key)])
+                    elif a[key] == b[key]:
+                        pass # same leaf value
+                    elif isinstance(a[key], list) and isinstance(b[key], list):
+                        for idx, val in enumerate(b[key]):
+                            a[key][idx] = self.merge(a[key][idx], b[key][idx], path + [str(key), str(idx)])
+                    else:
+                        # ueberschreiben der defaults mit alten Werten
+                        a[key] = b[key]
+                else:
+                    # hier werden nur in b vorhandene keys gesetzt
+                    # daher werden auch alte designs mit eigenem Namen ignoriert
+                    pass
+    
+            return a
+        except:
+            return None
+    
+    # wird nicht verwendet
+    def dict_to_list(self,odict,olist,predecessor=[]):
+    
+        for k in odict:
+            value = odict[k]
+            pre = predecessor[:]
+                            
+            if isinstance(value, dict):
+                pre.append(k)
+                self.dict_to_list(value,olist,pre)
+            else:
+                olist.append(predecessor+[k])
+                
+    # wird nicht verwendet
+    def exchange_values(self,old_dict,standard,olist):
 
-                    
-    def setze_farbe_gliederung(self,farbe):
-        if self.mb.debug: log(inspect.stack)
+        # Set a given data in a dictionary with position provided as a list
+        def setInDict(dataDict, mapList, value): 
+            for k in mapList[:-1]: dataDict = dataDict[k]
+            dataDict[mapList[-1]] = value
         
-        for tab in self.mb.props:
-            # Hauptfeld
-            hf = self.mb.props[tab].Hauptfeld
-            
-            # Zeilen im Hauptfeld
-            zeilen = hf.Controls
-            
-            for z in zeilen:   
-                gliederung = z.getControl('tag3')
-                if gliederung != None:
-                    gliederung.Model.TextColor = farbe
-        
-        KONST.FARBE_GLIEDERUNG = farbe
+        # Get a given data from a dictionary with position provided as a list
+        def getFromDict(dataDict, mapList):    
+            for k in mapList: dataDict = dataDict[k]
+            return dataDict
 
-                
-                
-        
+        value = getFromDict(old_dict,olist)
+        try:
+            # A value which is not member of the dict is ignored
+            setInDict(standard,olist,value)
+        except:
+            pass
 
 
-                
 
-                
-                
+   
+    
+    
+    
                 

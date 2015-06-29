@@ -10,10 +10,12 @@ class Sidebar():
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
-        self.mb = mb        
+        self.mb = mb     
+        self.design_gesetzt = False   
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
         self.mb.dict_sb['optionsfenster'] = self.optionsfenster
         self.mb.dict_sb['dict_sb_zuruecksetzen'] = self.dict_sb_zuruecksetzen
+        
         
         self.sb_panels_tup = ('Synopsis',
             'Notes',
@@ -270,6 +272,11 @@ class Sidebar():
         copy2(pfad, pfad_Backup)
         
     def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
+        
+        if not self.design_gesetzt:
+            if self.mb.settings_orga['organon_farben']['design_office']:
+                self.design_gesetzt = True
+                self.setze_sidebar_design()
         
         if xUIElement_name == 'empty_project':
             return
@@ -549,8 +556,97 @@ class Sidebar():
             
         except:
             log(inspect.stack,tb())        
+    def setze_sidebar_design(self):  
         
+        try:
+            
+            def get_farbe(value):
+                if isinstance(value, int):
+                    return value
+                else:
+                    return self.mb.settings_orga['organon_farben'][value]
+            
+            keys = [k for k in self.mb.dict_sb['controls']]
+            if len(keys) == 0:
+                self.design_gesetzt = False
+                return
+            
+            personen = self.mb.dict_sb['controls'][keys[0]]
+            theme = personen[0].Theme
+    
+            
+            sett = self.mb.settings_orga['organon_farben']['office']['sidebar']
+            
+            hintergrund = get_farbe(sett['hintergrund'])
+            
+            titel_hintergrund = get_farbe(sett['titel_hintergrund'])
+            titel_schrift = get_farbe(sett['titel_schrift'])
+            
+            panel_titel_hintergrund = get_farbe(sett['panel_titel_hintergrund'])
+            panel_titel_schrift = get_farbe(sett['panel_titel_schrift'])
+    
+            leiste_hintergrund = get_farbe(sett['leiste_hintergrund'])
+            leiste_selektiert_hintergrund = get_farbe(sett['leiste_selektiert_hintergrund'])
+            leiste_icon_umrandung = get_farbe(sett['leiste_icon_umrandung'])
+            
+            border_horizontal = get_farbe(sett['border_horizontal'])
+            border_vertical = get_farbe(sett['border_vertical'])
+            
+            # folgende muessen bereits in factory.py gesetzt werden
+            # selected_schrift, eigene_fenster_hintergrund, schrift, selected_hintergrund
+            
+            
+            # Tabbar  
+            theme.setPropertyValue('Paint_TabBarBackground', leiste_hintergrund)
+            theme.setPropertyValue('Paint_TabItemBackgroundNormal', leiste_hintergrund)
+            theme.setPropertyValue('Color_TabMenuSeparator', leiste_hintergrund)
+            theme.setPropertyValue('Paint_TabItemBackgroundHighlight', leiste_selektiert_hintergrund)
+            theme.setPropertyValue('Color_TabItemBorder', leiste_icon_umrandung)            
+            theme.setPropertyValue('Int_ButtonCornerRadius', 0)
+            
+            # Hintergruende
+            theme.setPropertyValue('Paint_PanelBackground', hintergrund)
+            theme.setPropertyValue('Paint_DeckBackground', hintergrund)
+            theme.setPropertyValue('Paint_DeckTitleBarBackground', titel_hintergrund)
+            
+            tbb = theme.Paint_PanelTitleBarBackground
+            tbb.StartColor = panel_titel_hintergrund
+            tbb.EndColor = panel_titel_hintergrund
+            theme.setPropertyValue('Paint_PanelTitleBarBackground', tbb)
+    
+            # Borders
+            theme.setPropertyValue('Paint_HorizontalBorder', border_horizontal)
+            theme.setPropertyValue('Paint_VerticalBorder', border_vertical)
+            
+            # Schriften
+            theme.setPropertyValue('Color_DeckTitleFont', titel_schrift)
+            theme.setPropertyValue('Color_PanelTitleFont', panel_titel_schrift)
+            
+    
+            theme.setPropertyValue('Paint_ToolBoxBorderBottomRight', hintergrund) # buttons Umrandung
+            theme.setPropertyValue('Paint_ToolBoxBorderTopLeft', hintergrund) # buttons Umrandung
+    
+            tbb = theme.Paint_ToolBoxBackground # buttons Hintergrund
+            tbb.StartColor = hintergrund 
+            tbb.EndColor = hintergrund
+            theme.setPropertyValue('Paint_ToolBoxBackground', tbb)
+            
+    #         theme.setPropertyValue('Paint_DropDownBackground', rot)
+    #         theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', rot) #??? 
+    #         theme.setPropertyValue('Color_Highlight', rot)
+    #         theme.setPropertyValue('Color_HighlightText', rot)
+    #         theme.setPropertyValue('Color_DropDownBorder', rot)
         
+            sb = personen[1]
+            sb.requestLayout()
+        
+        except:
+            log(inspect.stack,tb())
+            
+        
+
+       
+           
     
     def schalte_sidebar_button(self):
         if self.mb.debug: log(inspect.stack)
@@ -567,7 +663,6 @@ class Sidebar():
             e = d.AccessibleContext.AccessibleParent
             
             Seitenleiste_fenster = e.Windows[0]
-            self.mb.leiste = a
 
             for window in Seitenleiste_fenster.Windows:
                 if window.AccessibleContext.AccessibleDescription == 'Organon':
@@ -577,7 +672,7 @@ class Sidebar():
  
             n_button.setState(True)
             o_button.setState(True)
-
+            
         except:
             log(inspect.stack,tb())
 
