@@ -173,6 +173,7 @@ class Menu_Bar():
             self.class_Mausrad =        self.lade_modul('mausrad','Mausrad')
             self.class_Einstellungen =  self.lade_modul('einstellungen','Einstellungen')
             self.class_Organon_Design = self.lade_modul('design','Organon_Design')
+            self.class_Organizer =      self.lade_modul('organizer','Organizer')
             
             # Plattformabhaengig
             if self.platform == 'win32':
@@ -672,13 +673,16 @@ class Menu_Bar():
 #         del(self.menu_start)
 #         del(self)
         
-    def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128):
+    def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128,parent=None):
         if self.debug: log(inspect.stack)
         
         ctx = self.ctx
         smgr = self.smgr
         
         X,Y,Width,Height = posSize
+        
+        if parent == None:
+            parent = self.topWindow 
     
         toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
         oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
@@ -689,7 +693,7 @@ class Menu_Bar():
         # global oWindow
         oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
         oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = self.topWindow 
+        oWindowDesc.Parent = parent
         oWindowDesc.ParentIndex = -1
         oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
     
@@ -967,7 +971,8 @@ def menuEintraege(LANG,menu):
                 LANG.EINSTELLUNGEN)
             
     elif menu == LANG.BEARBEITEN_M:
-        items = (  
+        items = ( 
+            LANG.ORGANIZER,
             LANG.NEUER_TAB,
             'SEP',
             LANG.TRENNE_TEXT,
@@ -978,6 +983,8 @@ def menuEintraege(LANG,menu):
             )
         if T.AB != 'Projekt':
             items = (  
+                LANG.ORGANIZER,
+                'SEP',
                 LANG.NEUER_TAB,
                 LANG.SCHLIESSE_TAB,
                 LANG.IMPORTIERE_IN_TAB,
@@ -1433,6 +1440,9 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 
             elif sel == LANG.EINSTELLUNGEN:
                 self.mb.class_Einstellungen.start()
+                
+            elif sel == LANG.ORGANIZER:
+                self.mb.class_Organizer.run()
     
             self.mb.loesche_undo_Aktionen()
         except:
@@ -1624,6 +1634,7 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
                     
                     
     def pruefe_galerie_eintrag(self):
+        if self.mb.debug: log(inspect.stack)
         
         gallery = self.mb.createUnoService("com.sun.star.gallery.GalleryThemeProvider")
             
@@ -1755,10 +1766,13 @@ class Mitteilungen():
         tk = ParentWin.getToolkit()
         msgbox = tk.createWindow(aDescriptor)
         msgbox.MessageText = MsgText
-        
+
         x = msgbox.execute()
         msgbox.dispose()
         return x
+    
+    def kurze_mitteilung(self):
+        pass
 
 from com.sun.star.document import XUndoManagerListener 
 class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener): 

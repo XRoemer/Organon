@@ -1826,9 +1826,13 @@ class Tag1_Listener (unohelper.Base, XMouseListener):
         
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack)
-        if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:    
-            self.mb.class_Funktionen.erzeuge_Tag1_Container(ev)
-                
+        if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT: 
+            ord_source = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName 
+            X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.X +20
+            Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.Y
+            self.mb.class_Funktionen.erzeuge_Tag1_Container(ord_source,X,Y)
+        return False
+       
     def mouseEntered(self,ev):
         return False
     def mouseExited(self,ev):
@@ -1846,7 +1850,9 @@ class Tag2_Listener (unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:  
             ordinal = ev.Source.Context.AccessibleContext.AccessibleName  
-            self.mb.class_Funktionen.erzeuge_Tag2_Container(ev,ordinal)
+            X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.X +40
+            Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.Y -60
+            self.mb.class_Funktionen.erzeuge_Tag2_Container(ordinal,X,Y)
                 
     def mouseEntered(self,ev):
         return False

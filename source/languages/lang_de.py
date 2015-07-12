@@ -389,7 +389,57 @@ WRITER_DESIGN_INFO = u'EXPERIMENTELLES FEATURE\n'\
         u'Diese und weitere Informationen finden Sie auch im Handbuch.\n'\
         u' '
 
-
+## ORGANIZER
+ORGANIZER = u'Organizer'
+MENU = u'Menü'
+INFO = u'Info'
+UEBERNEHMEN = u'Übernehmen'
+PRJ_NAME_KEINE_AENDERUNG = u'Das Projekt kann nicht umbenannt werden'
+EIN_TAG_BEREITS_VORHANDEN = u'Einer der Tags ist bereits in einer anderen Kategorie vorhanden.'
+UEBERNOMMEN = u'Änderungen wurden übernommen'
+OO_ORGANIZER_INFO = u'Wenn in OpenOffice der Organizer benutzt wird, dann sind beim nächsten Neustart'\
+    u'von OpenOffice das Organon-Fenster und die Seitenleiste geschlossen und müssen \n'\
+    u'bei Bedarf vom Nutzer selbst wieder geöffnet werden.\n'
+ORGANIZER_INFO = u'Benutzung des Organizers:\n'\
+    u'\n'\
+    u'Der Organizer zeigt alle Tags eines Tabs in einer tabellarischen Übersicht.\n'\
+    u'\n'\
+    u'Änderungen werden durch neue Einträge in den jeweiligen '\
+    u'Feldern vorgenommen. Die Änderungen werden durch einen '\
+    u'Klick auf den Button "{0}" für das Projekt übernommen.\n'\
+    u'\n'\
+    u'Änderungen der linksseitigen Icons werden sofort und ohne Rückmeldung übernommen.\n'\
+    u'\n'\
+    u'Das Menü von Calc wird durch einen Klick auf "{1}" geöffnet, '\
+    u'wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)\n'\
+    u'Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das Dokument '\
+    u'sonstwie vom Menü her verändert werden, wenn es für Organon '\
+    u'weiterhin zur Verfügung stehen soll. Derartige Änderungen können zu '\
+    u'fehlerhaften Tags führen, gegebenenfalls wird das gesamte Organon Projekt beschädigt.\n'\
+    u'\n'\
+    u'Sollen Änderungen nicht übernommen werden, kann Calc einfach geschlossen werden.\n'\
+    u'\n'\
+    u'Die Tags "{2}" und "{3}" können Fließtext enthalten, '\
+    u'Zeilenumbrüche werden mit CTRL + Enter erzeugt.\n'\
+    u'Eingaben in die Tags "{4}", "{5}", etc. werden durch Kommata abgetrennt.\n'\
+    u'\n'\
+    u'Um die Tags der Baumansicht (Icons auf der linken Seite) zu setzen, '\
+    u'muss NEBEN und nicht auf sie geklickt werden. Dies ist leider eine  '\
+    u'technische Beschränkung, die sich nicht so einfach beseitigen läßt.\n'\
+    u'Auch neue Icons können eingefügt werden. Dazu muss ebenfalls neben '\
+    u'die Stelle geklickt werden, wo im Falle eines vorhandenen Tags sich '\
+    u'dieses befinden würde.\n'\
+    u'\n'\
+    u'Dateien können im Organizer zwar bereits umbenannt werden, aber diese Änderung '\
+    u'wird noch nicht übernommen.\n'\
+    u'\n'\
+    u'Der Organizer enthält noch nicht alle Funktionen. \n'\
+    u'(z.B. Zeit, Datum, versch. Ansichten) \n'\
+    u'Kommt.\n'\
+    u'\n'\
+    u'\n'
+            
+            
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
 WOERTERLISTE = u'Wörterliste erstellen'

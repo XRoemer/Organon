@@ -391,7 +391,53 @@ WRITER_DESIGN_INFO = u'EXPERIMENTAL FEATURE\n'\
         u'For more information, see the manual.\n'\
         u' '
 
-
+## ORGANIZER
+ORGANIZER = u'Organizer'
+MENU = u'Menu'
+INFO = u'Info'
+UEBERNEHMEN = u'Apply'
+PRJ_NAME_KEINE_AENDERUNG = u"The project can't be renamed"
+EIN_TAG_BEREITS_VORHANDEN = u'One of the tags is already in use in another category.'
+UEBERNOMMEN = u'Changes have been applied.'
+OO_ORGANIZER_INFO = u'If one makes use of the Organizer in OpenOffice, the Organon window '\
+    u'and the sidebar will be closed on the next restart. If required, one has to '\
+    u'open them again.\n'
+ORGANIZER_INFO = u'Usage of the Organizer:\n'\
+    u'\n'\
+    u'The Organizer displays all the tags of a tab in a table.\n'\
+    u'\n'\
+    u"Changes are made by new entries in the Fields. Changes are adopted "\
+    u'by a click on the button "{0}".\n'\
+    u'\n'\
+    u'Changes of the icons on the left side are immediatly adopted without a feedback.\n'\
+    u'\n'\
+    u'The menu of Calc can be opened by clicking on "{1}", '\
+    u'so the file can be used otherwise. (printing for example)\n'\
+    u'Do not insert rows or columns or change the document from the menu, '\
+    u'if you still want to use it with Organon. Such changes might cause '\
+    u'a corrupt tag file.\n'\
+    u'\n'\
+    u"If you don't want to apply any changes, Calc might simply be closed.\n"\
+    u'\n'\
+    u'The tags "{2}" and "{3}" may contain body text.\n'\
+    u'Line breaks are created with Ctrl + Enter.\n'\
+    u'Entries in the tags "{4}", "{5}", etc. are separated by commas.\n'\
+    u'\n'\
+    u'To set the tags of the tree view (icons on the left) one has to click '\
+    u'NEXT to them and not on them. Unfortunately, this is a technical restriction, '\
+    u'which can not so easily be eliminated.\n'\
+    u'Also new icons can be inserted. This requires likewise to click next to '\
+    u'the location, where in case of an existing tag this would be located.\n'\
+    u'\n'\
+    u'Files might be renamed in the Organizer, but this change is not applied to the document yet.\n'\
+    u'\n'\
+    u'The Organizer does not offer all functions yet. \n'\
+    u'(For example, time, date, different views) \n'\
+    u'Comming soon.\n'\
+    u'\n'\
+    u'\n'
+    
+    
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"
 WOERTERLISTE = u'Create List of all Words'

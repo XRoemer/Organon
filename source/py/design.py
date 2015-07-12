@@ -1049,6 +1049,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                     return self.mb.settings_orga['organon_farben'][value],value
             except:
                 log(inspect.stack,tb())
+                return 0,None
                 
         
         lb_items = (

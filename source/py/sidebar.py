@@ -965,10 +965,11 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
         
     def keyReleased(self,ev):
         # Hinzufuegen neuer Tags
-        if self.mb.debug: log(inspect.stack)
         
         if ev.KeyCode != 1280:
             return
+        # Nur nach einer Eingabe (=1280) loggen
+        if self.mb.debug: log(inspect.stack)
         
         ordinal = self.mb.props[T.AB].selektierte_zeile
         new_tag = ev.Source.Model.Text.replace('\n','')

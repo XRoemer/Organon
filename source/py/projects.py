@@ -1128,23 +1128,169 @@ class Projekt():
 #                     setattr(win.StyleSettings, a[0], 502)
 #                 except:
 #                     pass
+            
+#             cmp_win = self.mb.desktop.ActiveFrame.ComponentWindow
+#             win = cmp_win.Windows[0]
+#             
+#             width,height = win.Size.Width,win.Size.Height
+#             loc = win.AccessibleContext.LocationOnScreen
+#             
+#             loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+#             cont = self.mb.current_Contr.Frame.ContainerWindow
+#                     
+# #             x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + self.mb.dialog.PosSize.Width
+# #             y = self.mb.dialog.AccessibleContext.LocationOnScreen.Y - loc_cont.Y 
+#     
+#             from com.sun.star.util.MeasureUnit import POINT
+#             
+#             
+#             x,y = loc.X,loc.Y
+#             x,y = win.PosSize.X,62 + 31
+#             
+#             #x,y = new_point.X,new_point.Y
+#             frame = self.mb.desktop.ActiveFrame
+#             lmgr = frame.LayoutManager
+#             
+#             
+#             
+#             y = cmp_win.AccessibleContext.AccessibleParent.PosSize.Y + cmp_win.AccessibleContext.Location.Y
+#             
+#             cw = lmgr.DockingAreaAcceptor.ContainerWindow
+#             
+# #             point = cw.AccessibleContext.LocationOnScreen
+# #             y = cont.convertPointToPixel(point,POINT).Y
+#             y = cmp_win.PosSize.Y + 31
+#             posSize = x,y,width,height
+#             
+#             #win2,cont = self.mb.erzeuge_Dialog_Container(posSize,1+32+64+128)#Flags=1+512)#1+32+64+128)
+#             
+#             
+#             
+#             cont_win = frame.ContainerWindow
+#             
+#             for w in cont_win.Windows:
+#                 p = w.PosSize
+#                 #print(p.X,p.Y,p.Width,p.Height)
+#             
+#             lmgr.DockingAreaAcceptor.ContainerWindow.Background = 0
+#             
+#             for e in lmgr.Elements:
+#                 print(e.ResourceURL)
+#                 try:
+#                     p = e.RealInterface.PosSize
+#                     
+#                     print(p.X,p.Y,p.Width,p.Height)
+#                 except:
+#                     print('Fehler')
+                    
+            #pd()     
 
+            #pd()
+            
+            
+#             
+            #self.mb.btn.State = 1
+            #self.org.erzeuge_steuerung()
+#             ctx = self.mb.ctx
+#             smgr = self.mb.ctx.ServiceManager
+#                
+#             config_provider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",ctx)
+#       
+#             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+#             prop.Name = "nodepath"
+#             prop.Value = "/org.openoffice.Office.Views/Windows/"
+#                    
+#             config_access = config_provider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationUpdateAccess", (prop,))
+                 
+            #config_access.Persona = nutze_persona
+            #config_access.PersonaSettings = persona_url
+                    
+            #config_access.commitChanges()
+            #decklist = config_access.Content.DeckList
+            #decklist.replaceByName('GalleryDeck',decklist.OrganonsToolDeck)
+            
+            
+#             from organizer import Organizer
+#             self.org = Organizer(self.mb,pd,T,LANG,KONST)
+#             self.org.run()
             
             
             
             
+            #self.myDialog()
+            RESOURCE_URL = "private:resource/dockingwindow/9809"
+            #self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
+            #self.mb.desktop.ActiveFrame.LayoutManager.showElement(RESOURCE_URL)
+
         except:
             #log(inspect.stack,tb())
             print(tb())
             pd()
         pd()
     
+
+
+    def myDialog(self):
+        psm = uno.getComponentContext().ServiceManager
+        dp = psm.createInstance("com.sun.star.awt.DialogProvider")
     
+        dlg = dp.createDialog("vnd.sun.star.extension://xaver.roemers.organon//factory/Dialog1.xdl")     
+        dlg.Title = "Mitteilung"
+        
+        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 400, 40, (), ())           
+        model.Label = 'Mitteilung'
+        model.MultiLine = True
+        
+        
+        
+        dlg.addControl('mitteilung',control)
+        
+        pref_size = control.PreferredSize
+        
+        
+        
+        #dlg.getControl("TextField1").Text = " Here you can read your message "
+        dlg.execute()
+        #pd()
+#         control.setVisible(True)
+#         dlg.setVisible(True)
+#         time.sleep(3) ## 5 sec
+        dlg.dispose()   
+ 
+from com.sun.star.util import XModifyListener      
+class Change_Listener(unohelper.Base, XModifyListener):
+    """ Handles mouse click on the document. """
+    def __init__(self, mb):
+        self.mb = mb
+        self.pressed = False
+        
+    def modified(self,ev):
+        try:
+            pd()
+#             btn = ev[0].Source
+#             
+#             if btn.Label == LANG.MENU:
+#                 lmgr = self.Org.calc_frame.LayoutManager
+#                 
+#                 ResourceURL ='private:resource/menubar/menubar'
+#                 
+#                 if lmgr.isElementVisible(ResourceURL):
+#                     lmgr.hideElement(ResourceURL)
+#                 else:
+#                     lmgr.showElement(ResourceURL)
+#             
+#             
+#             else:
+#                 cell = self.Org.sheet.getCellByPosition(0,0)
+#                 prot = cell.CellProtection
+#                 pd()
+        except:
+            print(tb())
+            pd()
+        #pd()
     
-
-
-
-
+    def disposing(self,ev):
+        return False   
 
 
 

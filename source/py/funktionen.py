@@ -47,26 +47,26 @@ class Funktionen():
         self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
 
        
-    def erzeuge_Tag1_Container(self,ev):
+    def erzeuge_Tag1_Container(self,ord_source,X,Y,window_parent=None):
         if self.mb.debug: log(inspect.stack)
-        
+
         Width = KONST.BREITE_TAG1_CONTAINER
         Height = KONST.HOEHE_TAG1_CONTAINER
-        X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.X +20
-        Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.Y
+        
         posSize = X,Y,Width,Height 
         flags = 1+16+32+128
         #flags=1+32+64+128
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags)
+
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags,window_parent)
 
         # create Listener
         listener = Tag_Container_Listener()
         fenster_cont.addMouseListener(listener) 
         listener.ob = fenster  
-        
-        self.erzeuge_ListBox_Tag1(fenster, fenster_cont,ev.Source)
-        
-    def erzeuge_ListBox_Tag1(self,window,cont,source):
+
+        self.erzeuge_ListBox_Tag1(fenster, fenster_cont,ord_source,window_parent)
+            
+    def erzeuge_ListBox_Tag1(self,window,cont,ord_source,window_parent):
         if self.mb.debug: log(inspect.stack)
         
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 4 ,  4 , 
@@ -101,14 +101,16 @@ class Funktionen():
             model.setItemImage(pos,KONST.URL_IMGS+'punkt_%s.png' %item)
         
         
-        tag_item_listener = Tag1_Item_Listener(self.mb,window,source)
+        tag_item_listener = Tag1_Item_Listener(self.mb,window,ord_source)
+        tag_item_listener.window_parent = window_parent
+            
         control.addItemListener(tag_item_listener)
         
         cont.addControl('Eintraege_Tag1', control)
         
         
             
-    def erzeuge_Tag2_Container(self,ev,ordinal):
+    def erzeuge_Tag2_Container(self,ordinal,X,Y,window_parent=None):
         if self.mb.debug: log(inspect.stack)
         try:
             
@@ -120,6 +122,7 @@ class Funktionen():
             listener2 = Tag2_Images_Listener(self.mb)
             listener2.ordinal = ordinal
             listener2.icons_dict = {}
+            listener2.window_parent = window_parent
             
             y = 10
             x = 0            
@@ -201,14 +204,10 @@ class Funktionen():
 
             breite = sorted((prefW,prefW1,int(anzahl)*25,int(anzahl2)*25))[-1]
 
-
-            X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.X +40
-            Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.Y -60
-
             posSize = X,Y,breite + 20,y +25 
             flags = 1+16+32+128
 
-            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags)
+            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,flags,parent=window_parent)
             fenster_cont.addMouseListener(listener) 
             listener.ob = fenster  
             
@@ -517,19 +516,27 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
         self.mb = mb
         self.ordinal = None
         self.icons_dict = None
+        self.window_parent = None
        
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack) 
 
         url = ev.Source.Model.ImageURL
-
+        
         if url != '':
             self.galerie_icon_im_prj_ordner_evt_loeschen()
             url = self.galerie_icon_im_prj_ordner_speichern(url) 
         else:
-            self.galerie_icon_im_prj_ordner_evt_loeschen() 
-
+            if self.window_parent == None:
+                # Beim Aufruf aus Calc kann nicht geloescht werden,
+                # geloescht wird daher beim Schliessen von Calc
+                self.galerie_icon_im_prj_ordner_evt_loeschen()
+            
         self.tag2_in_allen_tabs_xml_anpassen(self.ordinal,url)
+
+        if self.window_parent != None:
+            self.icon_in_calc_anpassen(self.ordinal,url)
+              
 
     def tag2_in_allen_tabs_xml_anpassen(self,ord_source,url):
         if self.mb.debug: log(inspect.stack) 
@@ -579,25 +586,43 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
     def galerie_icon_im_prj_ordner_evt_loeschen(self): 
         if self.mb.debug: log(inspect.stack)
         
-        tree = self.mb.props['Projekt'].xml_tree
-        root = tree.getroot()
-        
-        ord_xml = root.find('.//' + self.ordinal)
-        url = ord_xml.attrib['Tag2']
-        
-        if 'uno_packages' in url:
-            return
-        all_xml = root.findall('.//')
-        
-        for el in all_xml:
-            if el.tag == self.ordinal:
-                continue
-            if el.attrib['Tag2'] == url:
+        try:
+            tree = self.mb.props['Projekt'].xml_tree
+            root = tree.getroot()
+            
+            ord_xml = root.find('.//' + self.ordinal)
+            url = ord_xml.attrib['Tag2']
+            
+            if 'uno_packages' in url:
                 return
-
-        # Wenn die url nicht mehr im Dokument vorhanden ist, wird sie geloescht
-        os.remove(uno.fileUrlToSystemPath(url))
-
+            all_xml = root.findall('.//')
+            
+            for el in all_xml:
+                if el.tag == self.ordinal:
+                    continue
+                if el.attrib['Tag2'] == url:
+                    return
+    
+            # Wenn die url nicht mehr im Dokument vorhanden ist, wird sie geloescht
+            os.remove(uno.fileUrlToSystemPath(url))
+        except:
+            log(inspect.stack,tb())
+            
+    
+    def icon_in_calc_anpassen(self,ord_source,url):
+        if self.mb.debug: log(inspect.stack) 
+        try:
+            # ctx von calc
+            ctx = uno.getComponentContext()
+            smgr = ctx.ServiceManager
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            
+            draw_page = desktop.CurrentComponent.DrawPages.getByIndex(0)
+            
+            form = draw_page.Forms.getByName('IMGU_'+ ord_source)
+            form.ControlModels[0].setPropertyValue('ImageURL',url)
+        except:
+            log(inspect.stack,tb())
    
     def mouseExited(self, ev): 
         ev.value.Source.Model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
@@ -612,26 +637,32 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
         
              
 class Tag1_Item_Listener(unohelper.Base, XItemListener):
-    def __init__(self,mb,window,source):
+    def __init__(self,mb,window,ord_source):
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.window = window
-        self.source = source
+        self.ord_source = ord_source
+        self.window_parent = None
         
     def itemStateChanged(self, ev):   
         if self.mb.debug: log(inspect.stack) 
-
-        sel = ev.value.Source.Items[ev.value.Selected]
-
-        # image tag1 aendern
-        self.source.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
         
-        # tag1 in xml datei einfuegen und speichern
-        ord_source = self.source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName
-        
-        self.tag1_in_allen_tabs_xml_anpassen(ord_source,sel)
-        
-        self.window.dispose()
+        try:
+            sel = ev.value.Source.Items[ev.value.Selected]
+    
+            # image tag1 aendern
+            src = self.mb.props[T.AB].Hauptfeld.getControl(self.ord_source).getControl('tag1')
+            src.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
+    
+            url = self.tag1_in_allen_tabs_xml_anpassen(self.ord_source,sel)
+            
+            # Wenn von Calc gerufen
+            if self.window_parent != None:
+                self.icon_in_calc_anpassen(self.ord_source,url)
+    
+            self.window.dispose()
+        except:
+            log(inspect.stack,tb())
 
     def tag1_in_allen_tabs_xml_anpassen(self,ord_source,sel):
         if self.mb.debug: log(inspect.stack) 
@@ -658,9 +689,26 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                     tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
                     
                     self.mb.tree_write(tree,Path)
+                    
+            return KONST.URL_IMGS+'punkt_%s.png' %sel
         except:
             log(inspect.stack,tb())
 
-       
-        
-   
+
+    def icon_in_calc_anpassen(self,ord_source,url):
+        if self.mb.debug: log(inspect.stack) 
+        try:
+            # ctx von calc
+            ctx = uno.getComponentContext()
+            smgr = ctx.ServiceManager
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            
+            draw_page = desktop.CurrentComponent.DrawPages.getByIndex(0)
+            
+            form = draw_page.Forms.getByName('IMG_'+ ord_source)
+            form.ControlModels[0].setPropertyValue('ImageURL',url)
+        except:
+            log(inspect.stack,tb())
+            
+            
+            

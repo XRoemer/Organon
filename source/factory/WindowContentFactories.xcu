@@ -18,6 +18,9 @@
                 <prop oor:name="Module">
                     <value/>
                 </prop>
+				<prop oor:name="Context" oor:type="xs:string">
+				  <value>com.sun.star.text.TextDocument</value>
+				</prop>
                 <prop oor:name="FactoryImplementation">
                     <value>xaver.roemers.organon.factory</value>
                 </prop>

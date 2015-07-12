@@ -14,6 +14,7 @@
         <prop oor:name="Target" oor:type="xs:string">
           <value>_self</value>
         </prop>
+		
 				
         <node oor:name="Submenu">
           <node oor:name="com.open.office.roemers.schalter" oor:op="replace">

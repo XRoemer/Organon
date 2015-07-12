@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from time import clock,sleep
-from os.path import join,exists
+from os.path import join,exists,basename
 from unohelper import Base
 from uno import fileUrlToSystemPath
 from traceback import print_exc as tb
@@ -100,27 +100,27 @@ class Log():
                 
             function = info[1][3]
             try:
-                modul = info[1][0].f_locals['self'].__class__.__name__
+                xclass = info[1][0].f_locals['self'].__class__.__name__
             except:
                 # Wenn aus einer Methode ohne Klasse gerufen wird, existiert kein 'self'
-                modul = str(info[1][0])
+                xclass = str(info[1][0])
                 
+            try:
+                modul = basename(info[1][1]).split('.')[0]
+            except:
+                modul = ''
 
-            if modul in ('ViewCursor_Selection_Listener'):
+            if xclass in ('ViewCursor_Selection_Listener'):
                 return
             
             if function in ('mouseEntered','mouseExited','entferne_Trenner'):
                 return
 
-            if len(modul) > 18:
-                modul = modul[0:18]
-            
             if self.log_args:
-                string = '%-7s %-18s %-40s %s( caller: %-60s args: %s ' %(self.debug_time(),modul,function,'',call,argues)
+                string = '{0: <8.8}  {1: <10.10}  {2: <22.22}  {3: <30.30}  ( caller: {4: <40.40}  args:{5}'.format(self.debug_time(),modul,xclass,function,call,argues)
             else:
-                string = '%-7s %-18s %-40s %s( caller: %s' %(self.debug_time(),modul,function,'',call)
-            
-            
+                string = '{0: <8.8}  {1: <10.10}  {2: <22.22}  {3: <30.30}  ( caller: {4: <40.40}'.format(self.debug_time(),modul,xclass,function,call)
+
             try:
                 print(string)
             except:
