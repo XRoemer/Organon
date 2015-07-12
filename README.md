@@ -11,6 +11,7 @@ In addition, Organon has a collection of text tools and extensive import and exp
 ####Features:
 * Drag and Drop
 * Awarding Tags
+* Organizer: fast and simple way to show and edit all tags
 * Open Parts of the Project in Tabs
 * When displaying the files in a folder, the relevant section of the folder is always highlighted while editing the document.
 * Separator, configurable by the user. When viewing a folder the separator separates the files optically from each other.
