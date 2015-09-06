@@ -1217,18 +1217,219 @@ class Projekt():
             
             
             
-            #self.myDialog()
-            RESOURCE_URL = "private:resource/dockingwindow/9809"
-            #self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
-            #self.mb.desktop.ActiveFrame.LayoutManager.showElement(RESOURCE_URL)
-
+            
+            
+            
+#             #self.myDialog()
+#             RESOURCE_URL = "private:resource/dockingwindow/9809"
+#             #self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
+#             #self.mb.desktop.ActiveFrame.LayoutManager.showElement(RESOURCE_URL)
+# #             self.mb.dialog.endDialog(0)
+# #             self.mb.dialog.endExecute()
+#             
+#             
+#             self.mb.win.invalidate(1)
+#             #self.mb.win.dispose()
+#             win = self.mb.win
+#             #win.setVisible(False)
+#             #self.mb.tabsX.Window.dispose()
+#             tabs = self.mb.tabsX
+#             #tabs.removeTab(0)
+#             win.enableClipSiblings(True)
+#             win.enableDialogControl(True)
+#             
+#             attributes = inspect.getmembers(win.StyleSettings, lambda a:not(inspect.isroutine(a)))
+#             attributes2 = inspect.getmembers(win.StyleSettings)
+#             
+#             ctx = uno.getComponentContext()
+#             smgr = ctx.ServiceManager
+#             desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+#             doc = desktop.getCurrentComponent() 
+#             current_Contr = doc.CurrentController
+#             viewcursor = current_Contr.ViewCursor
+#             
+#             object = doc
+#             max_lvl = 3
+#             
+#             def get_attribs(obj,lvl):
+#                 results = {}
+#                 for key in dir(obj):
+#                     
+#                     try:
+#                         value = getattr(obj, key)
+#                         if 'callable' in str(type(value)):
+#                             continue
+#                     except :
+#                         #print(key)
+#                         continue
+# 
+#                     if key not in results:
+#                         if type(value) in (
+#                                            type(None),
+#                                            type(True),
+#                                            type(1),
+#                                            type(.1),
+#                                            type('string'),
+#                                            type(()),
+#                                            type([]),
+#                                            type(b''),
+#                                            type(r''),
+#                                            type(u'')
+#                                            ):
+#                             results.update({key: value})
+#                             
+#                         elif lvl < max_lvl:
+#                             try:
+#                                 results.update({key: get_attribs(value,lvl+1)})
+#                             except:
+#                                 pass
+#                 
+#                 return results
+#             
+#             
+#             diff = []
+#             
+#             def findDiff(d1, d2, path=""):
+#                 for k in d1.keys():
+#                     if not d2.has_key(k):
+#                         print (path, ":")
+#                         print (k + " as key not in d2", "\n")
+#                     else:
+#                         if type(d1[k]) is dict:
+#                             if path == "":
+#                                 path = k
+#                             else:
+#                                 path = path + "->" + k
+#                             findDiff(d1[k],d2[k], path)
+#                         else:
+#                             if d1[k] != d2[k]:
+#                                 diff.append((path,k,d1[k],d2[k]))
+#                                 path = ''
+#             
+#             
+#             self.res1 = get_attribs(object,1)
+#             self.mb.viewcursor.gotoEnd(False)
+#             self.mb.viewcursor.setString('Test ')
+#             self.res2 = get_attribs(object,1)
+#             
+#             findDiff(self.res1, self.res2)
+#             
+#             for d in diff:
+#                 print(d)
+#                 time.sleep(.4)
+            
+#             for x in range(lvl-1):
+#                 
+#                 res = get_attribs(object)
+            
+            
+            
+            
+            ctx = self.mb.ctx
+            smgr = self.mb.ctx.ServiceManager
+               
+            config_provider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",ctx)
+      
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = "nodepath"
+            prop.Value = "org.openoffice.Office.Accelerators"
+                   
+            config_access = config_provider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationUpdateAccess", (prop,))
+                 
+            #config_access.Persona = nutze_persona
+            #config_access.PersonaSettings = persona_url
+                    
+            #config_access.commitChanges()
+            
+            glob = config_access.PrimaryKeys.Global 
+            modules = config_access.PrimaryKeys.Modules
+            textdoc = modules.getByName('com.sun.star.text.TextDocument')
+            
+            shortcuts = {}
+            
+            elements = textdoc.ElementNames
+            
+            for e in elements:
+                try:
+                    sc = textdoc.getByName(e)
+                    shortcuts.update({e:sc.Command})
+                except:
+                    shortcuts.update({e:'?'})
+                    
+            elements = glob.ElementNames
+            
+            for e in elements:
+                try:
+                    sc = textdoc.getByName(e)
+                    shortcuts.update({e:sc.Command})
+                except:
+                    shortcuts.update({e:'?'})
+            
+            
+            #einer = {}
+            zweier = {}
+            dreier = {}
+            vierer = {}
+            
+            mod1 = []
+            mod2 = []
+            shift = []
+            
+            mod1_mod2 = []
+            shift_mod1 = []
+            shift_mod2 = []
+            shift_mod1_mod2 = []
+            
+            for s in shortcuts:
+                cmd = s.split('_')
+                
+                if len(cmd) == 2:
+                    if len(cmd[0]) == 1:
+                        
+                        if 'MOD1' in s:
+                            mod1.append(cmd[0])
+                        elif 'MOD2' in s:
+                            mod2.append(cmd[0])
+                elif len(cmd) == 3:
+                    if len(cmd[0]) == 1:
+                        if 'SHIFT_MOD1' in s:
+                            shift_mod1.append(cmd[0])
+                        elif 'SHIFT_MOD2' in s:
+                            shift_mod2.append(cmd[0])
+                        elif 'MOD1_MOD2' in s:
+                            mod1_mod2.append(cmd[0])
+                elif len(cmd) == 4:
+                    if len(cmd[0]) == 1:
+                        if 'SHIFT_MOD1_MOD2' in s:
+                            shift_mod1_mod2.append(cmd[0])
+                
+                
+            used = {
+                    
+                    'MOD1':sorted(mod1),
+                    'MOD2':sorted(mod2),
+                    'SHIFT_MOD1':sorted(shift_mod1),
+                    'SHIFT_MOD2':sorted(shift_mod2),
+                    'MOD1_MOD2':sorted(mod1_mod2),
+                    'SHIFT_MOD1_MOD2':sorted(shift_mod1_mod2)
+                    
+                    }
+            
+     
+            
         except:
             #log(inspect.stack,tb())
             print(tb())
             pd()
         pd()
     
+    
+    
+    
+    
 
+            
+    
 
     def myDialog(self):
         psm = uno.getComponentContext().ServiceManager
@@ -1257,41 +1458,6 @@ class Projekt():
 #         time.sleep(3) ## 5 sec
         dlg.dispose()   
  
-from com.sun.star.util import XModifyListener      
-class Change_Listener(unohelper.Base, XModifyListener):
-    """ Handles mouse click on the document. """
-    def __init__(self, mb):
-        self.mb = mb
-        self.pressed = False
-        
-    def modified(self,ev):
-        try:
-            pd()
-#             btn = ev[0].Source
-#             
-#             if btn.Label == LANG.MENU:
-#                 lmgr = self.Org.calc_frame.LayoutManager
-#                 
-#                 ResourceURL ='private:resource/menubar/menubar'
-#                 
-#                 if lmgr.isElementVisible(ResourceURL):
-#                     lmgr.hideElement(ResourceURL)
-#                 else:
-#                     lmgr.showElement(ResourceURL)
-#             
-#             
-#             else:
-#                 cell = self.Org.sheet.getCellByPosition(0,0)
-#                 prot = cell.CellProtection
-#                 pd()
-        except:
-            print(tb())
-            pd()
-        #pd()
-    
-    def disposing(self,ev):
-        return False   
-
 
 
 def spiral(x, y):
@@ -1383,7 +1549,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             
             filepath = Filepicker.getDirectory()
             
-            with open( pfad, "w") as file:
+            with codecs_open( pfad, "w","utf-8") as file:
                 file.write(uno.fileUrlToSystemPath(filepath))
             
             self.mb.speicherort_last_proj = filepath
@@ -1465,6 +1631,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
                 self.mb.projekt_path = filepath
         except:
             log(inspect.stack,tb())
+            
             
     def vorlage_auswaehlen(self):        
         if self.mb.debug: log(inspect.stack)

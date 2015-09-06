@@ -95,6 +95,7 @@ BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'Wenn Sie selbstgewählte Symbole nutzen wo
 ## EXPORT SETTINGS
 EXPORT_2 = u'Export'
 EXPORT = u'EXPORT'
+EXPORT_ERFOLGREICH = u'Export erfolgreich'
 ALLES = u'Alles'
 SICHTBARE = u'Sichtbare'
 AUSWAHL = u'Auswahl'

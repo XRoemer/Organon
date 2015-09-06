@@ -96,6 +96,7 @@ BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'If you like to use self-defined icons, ' \
 ## EXPORT SETTINGS
 EXPORT_2 = u'Export'
 EXPORT = u'EXPORT'
+EXPORT_ERFOLGREICH = u'successfully exported'
 ALLES = u'All'
 SICHTBARE = u'Visible'
 AUSWAHL = u'Selection'

@@ -598,6 +598,8 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             self.exp_in_einzel_dat(sections)
         elif sett['neues_proj']:
             self.exp_in_neues_proj(sections)
+            
+        self.mb.nachricht(LANG.EXPORT_ERFOLGREICH,"infobox")
 
      
     def get_ausgewaehlte_bereiche(self):

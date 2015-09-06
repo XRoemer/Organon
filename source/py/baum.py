@@ -283,7 +283,7 @@ class Baumansicht():
             pd()
 
     
-    def erzeuge_neue_Zeile(self,ordner_oder_datei):
+    def erzeuge_neue_Zeile(self,ordner_oder_datei,neuer_Name=None):
         if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
@@ -307,7 +307,7 @@ class Baumansicht():
                 # Props ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3
                 ordinal = 'nr'+root.attrib['kommender_Eintrag']
                 parent = xml_sel_zeile.attrib['Parent']
-                name = ordinal
+                name = ordinal if neuer_Name == None else neuer_Name
                 lvl = xml_sel_zeile.attrib['Lvl']
                 tag1 = 'leer' #xml_sel_zeile.attrib['Tag1']
                 tag2 = xml_sel_zeile.attrib['Tag2']
@@ -555,6 +555,41 @@ class Baumansicht():
         self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
         self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
         
+    
+    def selektiere_zeile(self,ordinal):
+        
+        selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
+            
+        zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
+        textfeld = zeile.getControl('textfeld')
+        
+        try:
+            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
+     
+            # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
+            textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
+            ctrl = self.mb.props[T.AB].Hauptfeld.getControl(selektierte_zeile).getControl('textfeld')
+            ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+     
+            # bei bearbeitetem Bereich: speichern  
+            if self.mb.props[T.AB].tastatureingabe == True:
+                bereichsname_zeile_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][selektierte_zeile]
+                bereich_zeile_alt = self.mb.doc.TextSections.getByName(bereichsname_zeile_alt)
+ 
+                self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
+                self.mb.props[T.AB].tastatureingabe = False
+                     
+            self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
+            self.mb.props[T.AB].selektierte_zeile_alt = ordinal
+            self.mb.props[T.AB].selektierte_zeile = ordinal
+            self.mb.class_Sidebar.passe_sb_an(textfeld)
+             
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(zeilenordinal = ordinal)
+            
+            
+        except:
+            log(inspect.stack,tb())
+        
         
         
 from com.sun.star.style.ParagraphAdjust import CENTER 
@@ -615,7 +650,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext.AccessibleName
             # control 'textfeld'   
             zeile = ev.Source
-
+            
             # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
             zeile.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
             if self.mb.props[T.AB].selektierte_zeile_alt != None:

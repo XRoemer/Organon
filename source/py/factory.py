@@ -297,6 +297,7 @@ class Factory(unohelper.Base, XSingleComponentFactory):
         isn't editable anymore.
         '''
         self.ctx = ctx
+        
         print("factory init")
         
         if settings_orga['organon_farben']['design_office']:
@@ -360,10 +361,11 @@ class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
     def __init__(self, ctx):
         self.ctx = ctx
         self.window2 = None
+        
     
     # XContainerWindowEventHandler
     def callHandlerMethod(self, window, obj, name):
-
+        
         if name == "external_event":
             if obj == "initialize":
                 self.window2 = window

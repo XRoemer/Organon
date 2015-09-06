@@ -274,7 +274,7 @@ class Funktionen():
         find_parsection(sec)
         
         return self.parsection
-        
+    
     def teile_text(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -300,13 +300,19 @@ class Funktionen():
             bm.Name = 'kompliziertkompliziert'            
             text.insertTextContent(vc,bm,False)
             
+            # neuen dateinamen herausfinden
+            cur_text = self.mb.doc.Text.createTextCursor()
+            cur_text.gotoRange(bm.Anchor,False)
+            cur_text.goRight(30,True)
+            neuer_Name = cur_text.String.split('\n')[0]
+            
             # alte Datei in Helferdatei speichern
             orga_sec_name_alt = self.mb.props['Projekt'].dict_bereiche['ordinal'][zeilenordinal]
             self.mb.props[T.AB].tastatureingabe = True
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(helfer_url,orga_sec_name_alt)
              
             # erzeuge neue Zeile
-            nr_neue_zeile = self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
+            nr_neue_zeile = self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument',neuer_Name)
             ordinal_neue_zeile = 'nr'+ str(nr_neue_zeile)
        
             # aktuelle datei unsichtbar oeffnen        
@@ -390,8 +396,8 @@ class Funktionen():
         except Exception as e:
             self.mb.nachricht('teile_text ' + str(e),"warningbox")
             log(inspect.stack,tb())
-
-    
+            
+            
     def verbotene_buchstaben_austauschen(self,term):
                             
         verbotene = '<>:"/\\|?*'
@@ -480,6 +486,124 @@ class Funktionen():
             log(inspect.stack,tb())  
             return None
         
+    def get_zuletzt_benutzte_datei(self):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            props = self.mb.props[T.AB]
+            zuletzt = props.selektierte_zeile_alt
+            xml = props.xml_tree
+            root = xml.getroot()
+            return root.find('.//' + zuletzt).attrib['Name']
+        except:
+            return 'None'
+        
+    def mache_tag_sichtbar(self,sichtbar,tag_name):
+        if self.mb.debug: log(inspect.stack)
+        
+        sett = self.mb.settings_proj
+        tags = sett['tag1'],sett['tag2'],sett['tag3']
+        
+        for tab_name in self.mb.props:
+        
+            # alle Zeilen
+            controls_zeilen = self.mb.props[tab_name].Hauptfeld.Controls
+            tree = self.mb.props[tab_name].xml_tree
+            root = tree.getroot()
+            
+            gliederung  = None
+            if sett['tag3']:
+                gliederung = self.mb.class_Gliederung.rechne(tree)
+            
+            if not sichtbar:
+                for contr_zeile in controls_zeilen:
+                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
+                    if ord_zeile == self.mb.props[T.AB].Papierkorb:
+                        continue
+                    
+                    self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
+                    tag_contr = contr_zeile.getControl(tag_name)
+                    tag_contr.dispose()
+ 
+                    
+            if sichtbar:
+                for contr_zeile in controls_zeilen:                    
+
+                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
+                    if ord_zeile == self.mb.props[T.AB].Papierkorb:
+                        continue
+                    
+                    zeile_xml = root.find('.//'+ord_zeile)
+                    
+                    if tag_name == 'tag1':
+                        farbe = zeile_xml.attrib['Tag1']
+                        url = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % farbe
+                        listener = self.mb.class_Baumansicht.tag1_listener
+                    elif tag_name == 'tag2':
+                        url = zeile_xml.attrib['Tag2']
+                        listener = self.mb.class_Baumansicht.tag2_listener
+                    elif tag_name == 'tag3':
+                        url = ''
+                    
+                    if tag_name in ('tag1','tag2'):
+                        PosX,PosY,Width,Height = 0,2,16,16
+                        control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+                        model_tag1.ImageURL = url
+                        model_tag1.Border = 0
+                        control_tag1.addMouseListener(listener)
+                    else:
+                        PosX,PosY,Width,Height = 0,2,16,16
+                        control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"FixedText",PosX,PosY,Width,Height,(),() )     
+                        model_tag1.TextColor = KONST.FARBE_GLIEDERUNG
+                        
+                    contr_zeile.addControl(tag_name,control_tag1)
+                    self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
+                    
+                    
+    def pruefe_galerie_eintrag(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        gallery = self.mb.createUnoService("com.sun.star.gallery.GalleryThemeProvider")
+            
+        if 'Organon Icons' not in gallery.ElementNames:
+            
+            paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
+            gallery_pfad = uno.fileUrlToSystemPath(paths.Gallery_writable)
+            gallery_ordner = os.path.join(gallery_pfad,'Organon Icons')
+                    
+            entscheidung = self.mb.nachricht(LANG.BENUTZERDEFINIERTE_SYMBOLE_NUTZEN %gallery_ordner,"warningbox",16777216)
+            # 3 = Nein oder Cancel, 2 = Ja
+            if entscheidung == 3:
+                return False
+            elif entscheidung == 2:
+                try:
+                    iGal = gallery.insertNewByName('Organon Icons')  
+                    path_icons = os.path.join(self.mb.path_to_extension,'img','Organon Icons')
+                    
+                    from shutil import copy 
+                    
+                    # Galerie anlegen
+                    if not os.path.exists(gallery_ordner):
+                        os.makedirs(gallery_ordner)
+                    
+                    # Organon Icons einfuegen
+                    for (dirpath,dirnames,filenames) in os.walk(path_icons):
+                        for f in filenames:
+                            url_source = os.path.join(dirpath,f)
+                            url_dest   = os.path.join(gallery_ordner,f)
+                            
+                            copy(url_source,url_dest)
+ 
+                            url = uno.systemPathToFileUrl(url_dest)
+                            iGal.insertURLByIndex(url,0)
+                    
+                    return True
+                
+                except:
+                    log(inspect.stack,tb())
+        
+        return True
+    
+    
      
 from com.sun.star.awt import XMouseListener,XItemListener
 class Tag_Container_Listener (unohelper.Base, XMouseListener):

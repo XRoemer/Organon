@@ -51,6 +51,8 @@ files = [
     'py/werkzeug_wListe.py',
     'py/index.py',
     'py/design.py',
+    'py/organizer.py',
+    'py/shortcuts.py',
 
     'py/schalter.py',
 
@@ -112,11 +114,15 @@ for file in files:
 
 zip.close()
 
-# # .oxt in den Programmordner von LibreOffice kopieren
-# shutil.copy("organon.oxt", path_to_office)
+filename = os.path.join(path_to_office,'organon.oxt')
 
-# # in den programmordner von libreoffice wechseln und unopkg starten
-# os.chdir(path_to_office)
-# os.system(r"unopkg add -f --shared organon.oxt")
-# # swriter nach Installation erneut starten
-# os.system('swriter.exe')
+# .oxt in den Programmordner von LibreOffice kopieren
+# evt. muessen erst die Schreibrechte gesetzt werden
+# -> win7 Ordner 'program', Rechtsklick, Eigenschaften, erweitert
+shutil.copy("organon.oxt", filename)
+
+# in den programmordner von libreoffice wechseln und unopkg starten
+os.chdir(path_to_office)
+os.system(r"unopkg add -f --shared organon.oxt")
+# swriter nach Installation erneut starten
+os.system('swriter.exe')

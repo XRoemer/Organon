@@ -174,6 +174,7 @@ class Menu_Bar():
             self.class_Einstellungen =  self.lade_modul('einstellungen','Einstellungen')
             self.class_Organon_Design = self.lade_modul('design','Organon_Design')
             self.class_Organizer =      self.lade_modul('organizer','Organizer')
+            self.class_Shortcuts =      self.lade_modul('shortcuts','Shortcuts')
             
             # Plattformabhaengig
             if self.platform == 'win32':
@@ -557,8 +558,6 @@ class Menu_Bar():
         if self.debug: log(inspect.stack)
         
         try: 
-#             if load_reload:
-#                 load_reload_modul(modul,pyPath,self)
                 
             mod = __import__(modul)
             
@@ -720,7 +719,7 @@ class Menu_Bar():
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
         cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
-        #pd()
+        
         #cont_model.ForegroundColor = KONST.FARBE_SCHRIFT_DATEI
         cont.setModel(cont_model)
         # need createPeer just only the container
@@ -915,7 +914,7 @@ class Menu_Bar():
         
         listener.window = win
         listener.texttools = True
-        #pd()
+        
         listener.win2 = m_win
         
         for c in controls:
@@ -1544,7 +1543,7 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
                 lang_show_tag = LANG.SHOW_TAG1
                 
             elif text == LANG.SHOW_TAG2:
-                if not self.pruefe_galerie_eintrag():
+                if not self.mb.class_Funktionen.pruefe_galerie_eintrag():
                     return
                 nummer = 2
                 lang_show_tag = LANG.SHOW_TAG2
@@ -1556,7 +1555,7 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
             tag = 'tag%s'%nummer
             sett[tag] = not sett[tag]
             
-            self.mache_tag_sichtbar(sett[tag],tag)
+            self.mb.class_Funktionen.mache_tag_sichtbar(sett[tag],tag)
             ctrl = ev.Source.Context.getControl(lang_show_tag+'_icon')
             
             if sett[tag]:
@@ -1570,112 +1569,6 @@ class DropDown_Tags_TV_Listener(unohelper.Base, XMouseListener):
     
     
        
-    
-    def mache_tag_sichtbar(self,sichtbar,tag_name):
-        if self.mb.debug: log(inspect.stack)
-        
-        sett = self.mb.settings_proj
-        tags = sett['tag1'],sett['tag2'],sett['tag3']
-        
-        for tab_name in self.mb.props:
-        
-            # alle Zeilen
-            controls_zeilen = self.mb.props[tab_name].Hauptfeld.Controls
-            tree = self.mb.props[tab_name].xml_tree
-            root = tree.getroot()
-            
-            gliederung  = None
-            if sett['tag3']:
-                gliederung = self.mb.class_Gliederung.rechne(tree)
-            
-            if not sichtbar:
-                for contr_zeile in controls_zeilen:
-                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
-                    if ord_zeile == self.mb.props[T.AB].Papierkorb:
-                        continue
-                    
-                    self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
-                    tag_contr = contr_zeile.getControl(tag_name)
-                    tag_contr.dispose()
- 
-                    
-            if sichtbar:
-                for contr_zeile in controls_zeilen:                    
-
-                    ord_zeile = contr_zeile.AccessibleContext.AccessibleName
-                    if ord_zeile == self.mb.props[T.AB].Papierkorb:
-                        continue
-                    
-                    zeile_xml = root.find('.//'+ord_zeile)
-                    
-                    if tag_name == 'tag1':
-                        farbe = zeile_xml.attrib['Tag1']
-                        url = 'vnd.sun.star.extension://xaver.roemers.organon/img/punkt_%s.png' % farbe
-                        listener = self.mb.class_Baumansicht.tag1_listener
-                    elif tag_name == 'tag2':
-                        url = zeile_xml.attrib['Tag2']
-                        listener = self.mb.class_Baumansicht.tag2_listener
-                    elif tag_name == 'tag3':
-                        url = ''
-                    
-                    if tag_name in ('tag1','tag2'):
-                        PosX,PosY,Width,Height = 0,2,16,16
-                        control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
-                        model_tag1.ImageURL = url
-                        model_tag1.Border = 0
-                        control_tag1.addMouseListener(listener)
-                    else:
-                        PosX,PosY,Width,Height = 0,2,16,16
-                        control_tag1, model_tag1 = self.mb.createControl(self.mb.ctx,"FixedText",PosX,PosY,Width,Height,(),() )     
-                        model_tag1.TextColor = KONST.FARBE_GLIEDERUNG
-                        
-                    contr_zeile.addControl(tag_name,control_tag1)
-                    self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
-                    
-                    
-    def pruefe_galerie_eintrag(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        gallery = self.mb.createUnoService("com.sun.star.gallery.GalleryThemeProvider")
-            
-        if 'Organon Icons' not in gallery.ElementNames:
-            
-            paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
-            gallery_pfad = uno.fileUrlToSystemPath(paths.Gallery_writable)
-            gallery_ordner = os.path.join(gallery_pfad,'Organon Icons')
-                    
-            entscheidung = self.mb.nachricht(LANG.BENUTZERDEFINIERTE_SYMBOLE_NUTZEN %gallery_ordner,"warningbox",16777216)
-            # 3 = Nein oder Cancel, 2 = Ja
-            if entscheidung == 3:
-                return False
-            elif entscheidung == 2:
-                try:
-                    iGal = gallery.insertNewByName('Organon Icons')  
-                    path_icons = os.path.join(self.mb.path_to_extension,'img','Organon Icons')
-                    
-                    from shutil import copy 
-                    
-                    # Galerie anlegen
-                    if not os.path.exists(gallery_ordner):
-                        os.makedirs(gallery_ordner)
-                    
-                    # Organon Icons einfuegen
-                    for (dirpath,dirnames,filenames) in os.walk(path_icons):
-                        for f in filenames:
-                            url_source = os.path.join(dirpath,f)
-                            url_dest   = os.path.join(gallery_ordner,f)
-                            
-                            copy(url_source,url_dest)
- 
-                            url = uno.systemPathToFileUrl(url_dest)
-                            iGal.insertURLByIndex(url,0)
-                    
-                    return True
-                
-                except:
-                    log(inspect.stack,tb())
-        
-        return True
 
 class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
@@ -1716,7 +1609,7 @@ class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
                     xParent = controls[okey][0].xParentWindow
                     if xParent.isVisible():
                         self.mb.class_Sidebar.schalte_sidebar_button()
-                        #pd()
+                        
                         ev.Source.setFocus()
             except:
                 log(inspect.stack,tb()) 
@@ -1904,10 +1797,30 @@ class Key_Handler(unohelper.Base, XKeyHandler):
         mb.current_Contr.addKeyHandler(self)
         
     def keyPressed(self,ev):
-        #print(ev.KeyChar)
-        self.mb.props[T.AB].tastatureingabe = True
-        self.mb.props[T.AB].zuletzt_gedrueckte_taste = ev
+        
+        code = ev.KeyCode
+        mods = ev.Modifiers
+        
+        if mods == 6:
+            # 0 = keine Modifikation
+            # 1 = Shift
+            # 2 = Strg
+            # 3 = Shift + Strg
+            # 4 = Alt
+            # 5 = Shift + Alt
+            # 6 = Strg + Alt
+            # 7 = Shift + Strg + Alt
+            if self.mb.class_Shortcuts.nutze_shortcuts:
+                self.mb.class_Shortcuts.shortcut_ausfuehren(code)
+        
+        else:
+            self.mb.props[T.AB].tastatureingabe = True
+            self.mb.props[T.AB].zuletzt_gedrueckte_taste = ev
+            return False
+        
         return False
+    
+        
         
     def keyReleased(self,ev):
         
@@ -1983,7 +1896,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 s_name = selected_ts.Name
                 #log(inspect.stack,extras=s_name)
                 # steht nach test_for... selcted_text... nicht auf einer OrganonSec, 
-                # ist der Bereich außerhalb des Organon trees
+                # ist der Bereich ausserhalb des Organon trees
                 if 'OrganonSec' not in selected_ts.Name:
                     return False
                 
@@ -1995,7 +1908,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 ts_old_bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].selektierte_zeile_alt]
                 self.ts_old = self.mb.doc.TextSections.getByName(ts_old_bereichsname)            
                 self.so_name = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].selektierte_zeile_alt]
-            #pd()
+            
             if self.ts_old == 'nicht vorhanden':
                 #print('selek gewechs, old nicht vorhanden')
                 self.ts_old = selected_ts 
