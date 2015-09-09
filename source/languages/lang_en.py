@@ -14,7 +14,7 @@ SZENE = u'Scene'
 NEW_PROJECT = u'New Project'
 OPEN_PROJECT = u'Open Project'
 LOAD_DESCRIPTION = u'Load Manual'
-CLEAR_RECYCLE_BIN = u'Clear Recycle Bin'
+CLEAR_RECYCLE_BIN = u'Clear Waste Bin'
 INSERT_DOC = u'Insert New Document'
 INSERT_DIR = u'Insert New Folder'
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'An Organon Project is already loaded. \
@@ -60,7 +60,7 @@ KEIN_NAME = u"Enter a Project Name   "
 KEIN_SPEICHERORT = u"Select a Folder   "
 DOUBLE_PROJ_NAME = u"The name you entered is the same as the one of the current document. That doesn't work."
 PROJ_EXISTS = u"The project already exists. Should it be overwritten?"
-KANN_NICHT_VERSCHOBEN_WERDEN = u"%s canu't be moved to the waste bin, as it's still opened in the tab u'%s'." 
+KANN_NICHT_VERSCHOBEN_WERDEN = u"%s can't be moved to the waste bin, as it's still opened in the tab u'%s'." 
 UNGUELTIGE_ZEICHEN = u'The name you have chosen contains invalid letters\n  < > : " / \\ | ? *'
 
 ZEILE_AUSWAEHLEN = u'Choose a row beneath which the new content should be inserted    '
@@ -132,16 +132,16 @@ PROJEKT_NAMEN_EINGEBEN = u'Enter a name for the new project.'
 ## EXPORT HTML SETTINGS
 HTML_AUSWAHL = u'Choose text properties for export.'
 HTML_EXPORT = u'Html Export'
-FETT = u'Bold',
-KURSIV = u'Italic',
-UEBERSCHRIFT = u'Headings',
-FUSSNOTE = u'Footnotes',
-FARBEN = u'Colors',
-AUSRICHTUNG = u'Adjustment',
-LINKS = u'Hyper Links',
-ZITATE = u'Quotations',
-SCHRIFTART = u'Font',
-SCHRIFTGROESSE = u'Fontsize',
+FETT = u'Bold'
+KURSIV = u'Italic'
+UEBERSCHRIFT = u'Headings'
+FUSSNOTE = u'Footnotes'
+FARBEN = u'Colors'
+AUSRICHTUNG = u'Adjustment'
+LINKS = u'Hyper Links'
+ZITATE = u'Quotations'
+SCHRIFTART = u'Font'
+SCHRIFTGROESSE = u'Fontsize'
 CSS = u'Create css'
 
 
@@ -400,6 +400,7 @@ UEBERNEHMEN = u'Apply'
 PRJ_NAME_KEINE_AENDERUNG = u"The project can't be renamed"
 EIN_TAG_BEREITS_VORHANDEN = u'One of the tags is already in use in another category.'
 UEBERNOMMEN = u'Changes have been applied.'
+AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'There are unsaved changes. Do you want to apply these changes?'
 OO_ORGANIZER_INFO = u'If one makes use of the Organizer in OpenOffice, the Organon window '\
     u'and the sidebar will be closed on the next restart. If required, one has to '\
     u'open them again.\n'
@@ -438,9 +439,16 @@ ORGANIZER_INFO = u'Usage of the Organizer:\n'\
     u'\n'\
     u'\n'
     
-    
+## SHOTCUTS
+SHORTCUTS = u'Shortcuts'
+OEFFNE_ORGANIZER = u'open Organizer'
+SICHTBARKEIT = u'Visibility'
+FORMATIERUNG_SPEICHERN2 = u'Save last edited file'
+BAUMANSICHT_HOCH = u'Treeview one entry up'
+BAUMANSICHT_RUNTER = u'Treeview one entry down'
+   
 ## DIVERSES
-NICHT_VERSCHIEBBAR = u"Project Folder and Recycle Bin can't be moved"
+NICHT_VERSCHIEBBAR = u"Project Folder and Waste Bin can't be moved"
 WOERTERLISTE = u'Create List of all Words'
 UNGUELTIGE_FARBE = u'This is not a valid color'
 

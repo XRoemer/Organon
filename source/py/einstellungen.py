@@ -83,6 +83,7 @@ class Einstellungen():
                         LANG.DESIGN_ORGANON,
                         LANG.DESIGN_PERSONA,
                         LANG.MAUSRAD,
+                        LANG.SHORTCUTS,
                         LANG.HTML_EXPORT,
                         LANG.LOG
                         )
@@ -91,6 +92,7 @@ class Einstellungen():
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
                         LANG.MAUSRAD,
+                        LANG.SHORTCUTS,
                         LANG.HTML_EXPORT,
                         LANG.LOG
                         )
@@ -161,6 +163,9 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             elif sel == LANG.DESIGN_PERSONA:
                 self.mb.class_Organon_Design.container = self.container
                 self.mb.class_Organon_Design.dialog_persona()
+                
+            elif sel == LANG.SHORTCUTS:
+                self.dialog_shortcuts()
 
         except:
             log(inspect.stack,tb())
@@ -291,7 +296,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             ('control_{}'.format(el),"CheckBox",      
                                     20,0,200,20,    
                                     ('Label','State'),
-                                    (getattr(LANG, el)[0],html_exp_settings[el]),       
+                                    (getattr(LANG, el),html_exp_settings[el]),       
                                     {'setActionCommand':el,'addActionListener':(listener,)} 
                                     ),  
             25])
@@ -533,7 +538,199 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             log(inspect.stack,tb())
             
 
+    def dialog_shortcuts_elemente(self,listener):#,trenner_dict,listener_CB,listener_URL):
+        if self.mb.debug: log(inspect.stack)
+        
+        sett_trenner = self.mb.settings_orga['trenner']
+
+        controls = [
+            10,
+            ('control',"FixedText",         
+                                    'tab0',0,250,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.SHORTCUTS ,150),                                             
+                                    {} 
+                                    ),
+            50, 
+            ]
+        
+        
+        
+        from collections import OrderedDict
+        
+        shorts = [
+                 ['TRENNE_TEXT' , LANG.TRENNE_TEXT],
+                 ['INSERT_DOC' , LANG.INSERT_DOC],
+                 ['INSERT_DIR' , LANG.INSERT_DIR],
+                 ['IN_PAPIERKORB_VERSCHIEBEN' , LANG.IN_PAPIERKORB_VERSCHIEBEN],
+                 ['CLEAR_RECYCLE_BIN' , LANG.CLEAR_RECYCLE_BIN],
+                 ['FORMATIERUNG_SPEICHERN2' , LANG.FORMATIERUNG_SPEICHERN2],
+                 ['NEUER_TAB' , LANG.NEUER_TAB],
+                 ['SCHLIESSE_TAB' , LANG.SCHLIESSE_TAB],
+                 ['BACKUP' , LANG.BACKUP],
+                 ['OEFFNE_ORGANIZER' , LANG.OEFFNE_ORGANIZER],
+                 ['SHOW_TAG1' , LANG.SICHTBARKEIT + ' ' + LANG.SHOW_TAG1],
+                 ['SHOW_TAG2' , LANG.SICHTBARKEIT + ' ' + LANG.SHOW_TAG2],
+                 ['GLIEDERUNG' , LANG.SICHTBARKEIT + ' ' + LANG.GLIEDERUNG],
+                 ['BAUMANSICHT_HOCH' , LANG.BAUMANSICHT_HOCH],
+                 ['BAUMANSICHT_RUNTER' , LANG.BAUMANSICHT_RUNTER],
+                 ]
+        
+        shortcuts = OrderedDict()
+        
+        for s in shorts:
+            shortcuts.update({s[0]:s[1]})
+        
+        
+        sett = self.mb.settings_orga['shortcuts']
+        
+        # 0 = keine Modifikation
+        # 1 = Shift
+        # 2 = Strg
+        # 3 = Shift + Strg
+        # 4 = Alt
+        # 5 = Shift + Alt
+        # 6 = Strg + Alt
+        # 7 = Shift + Strg + Alt
+        
+        def get_settings(command):
+            for m in sett:
+                for n in sett[m]:
+                    for l in sett[m]:
+                        if sett[m][l] == command:
+                            if   m == '2': a,b,c = 0,1,0
+                            elif m == '3': a,b,c = 1,1,0
+                            elif m == '4': a,b,c = 0,0,1
+                            elif m == '5': a,b,c = 1,0,1
+                            elif m == '6': a,b,c = 0,1,1
+                            elif m == '7': a,b,c = 1,1,1
+                            return a,b,c,l
+                        
+            return 0,0,0,'-'   
+                        
+                        
+        
+        
+        for s in shortcuts:
             
+            shift,ctrl,alt,key = get_settings(s)
+            mods = shift*1 + ctrl*2 + alt*4
+            
+            try:
+                if mods > 1:
+                    items = self.mb.class_Shortcuts.get_moegliche_shortcuts(mods)
+                    i2 = list(items)
+                    i2.insert(1, key)
+                    
+                    items = tuple(i2)
+                    sel = 1
+                else:
+                    items = ('-',)
+                    sel = 0
+            except:
+                items = ('-',)
+                sel = 0
+
+            controls.extend([
+            ('control_{}'.format(s.strip()),"FixedText",      
+                                    'tab0',0,220,20,  
+                                    ('Label',),
+                                    (shortcuts[s] ,),                                             
+                                    {} 
+                                    ),  
+            0,
+            ('control_Shift{}'.format(s.strip()),"CheckBox",      
+                                    'tab1',0,50,20,    
+                                    ('Label','State'),
+                                    ('Shift',shift),       
+                                    {'setActionCommand':'shift+'+s.strip(),'addActionListener':(listener,)} 
+                                    ),  
+            0,
+            ('control_Ctrl{}'.format(s.strip()),"CheckBox",      
+                                    'tab2',0,50,20,    
+                                    ('Label','State'),
+                                    ('Ctrl',ctrl),       
+                                    {'setActionCommand':'ctrl+'+s.strip(),'addActionListener':(listener,)} 
+                                    ), 
+            0,
+            ('control_Alt{}'.format(s.strip()),"CheckBox",      
+                                    'tab3',0,40,20,    
+                                    ('Label','State'),
+                                    ('Alt',alt),       
+                                    {'setActionCommand':'alt+'+s.strip(),'addActionListener':(listener,)} 
+                                    ), 
+            -3,
+            ('control_List{}'.format(s.strip()),"ListBox",      
+                                    'tab4',0,50,18,    
+                                    ('Border','Dropdown','LineCount'),
+                                    (2,True,15),       
+                                    {'addItems':items,'SelectedItems':(sel,),'addItemListener':listener}
+                                    ), 
+            22,
+            
+            
+            
+            ])
+        
+    
+        
+        
+        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
+        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
+        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
+        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
+        tab0 = tab0x = 20
+        tab1 = tab1x = 260
+        tab2 = tab2x = 310
+        tab3 = tab3x = 360
+        tab4 = tab4x = 400
+        
+        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
+        
+        tabs_dict = {}
+        for a in tabs:
+            tabs_dict.update({a:locals()[a]  })
+
+        controls2 = []
+        
+        for c in controls:
+            if not isinstance(c, int):
+                c2 = list(c)
+                c2[2] = tabs_dict[c2[2]]
+                controls2.append(c2)
+            else:
+                controls2.append(c)
+        
+        return controls2
+            
+    def dialog_shortcuts(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            listener = Listener_Shortcuts(self.mb)             
+
+            controls = self.dialog_shortcuts_elemente(listener)
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)             
+            
+            listboxen = []
+            conts = {}
+            
+            # Controls in Hauptfenster eintragen
+            # Listboxen und controls an listener uebergeben
+            for c in ctrls:
+                self.container.addControl(c,ctrls[c])
+                if 'control_List' in c:
+                    name = c.split('control_List')[1]
+                    listboxen.append([ctrls[c],name])
+                    
+                conts.update({c.split('control')[1]:ctrls[c]})
+                    
+            listener.listboxen = listboxen
+            listener.ctrls = conts
+            
+        except:
+            log(inspect.stack,tb())
+
 
 from com.sun.star.awt import XActionListener
 class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
@@ -628,7 +825,6 @@ class Listener_HTML_Export_Einstellungen(unohelper.Base, XActionListener):
         return False    
     
     
-from com.sun.star.awt import XMouseListener   
 class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
     
     def __init__(self,mb):
@@ -678,8 +874,74 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
         self.mb.class_Funktionen.schreibe_settings_orga()   
                 
                 
+                
+class Listener_Shortcuts(unohelper.Base,XItemListener,XActionListener):
+    
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
+        self.mb = mb
+        self.listboxen = None
+        self.ctrls = None
+        
+        
+    def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
 
-   
+        try:
+            for l in self.listboxen:
+                if l[0] == ev.Source:
+                    cmd = l[1]
+                    break
+            
+            self.shortcut_loeschen(cmd)
+            
+            selektiert = ev.Source.getItem(ev.Selected)
+            mods = self.mb.class_Shortcuts.get_mods(cmd,self.ctrls)
+            
+            if selektiert != '-':
+                self.mb.settings_orga['shortcuts'][str(mods)].update({selektiert:cmd})
+            
+            self.mb.class_Funktionen.schreibe_settings_orga() 
+        except:
+            log(inspect.stack,tb())
+
+    def disposing(self,ev):
+        return False
+    
+    def shortcut_loeschen(self,cmd):
+        if self.mb.debug: log(inspect.stack)
+        
+        sett = self.mb.settings_orga['shortcuts']
+        for m in sett:
+            for n in sett[m]:
+                if sett[m][n] == cmd:
+                    del(sett[m][n])
+                    self.mb.class_Funktionen.schreibe_settings_orga() 
+                    return
+             
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            cmd = ev.ActionCommand.split('+')[1]
+            mods = self.mb.class_Shortcuts.get_mods(cmd,self.ctrls)
+            
+            self.shortcut_loeschen(cmd)
+
+            uebrige = self.mb.class_Shortcuts.get_moegliche_shortcuts(mods)
+            
+            listbox = self.ctrls['_List'+cmd]
+            item = listbox.getSelectedItem()
+            
+            listbox.removeItems(0,listbox.ItemCount)
+            listbox.addItems(uebrige,0)
+            listbox.selectItemPos(0,True)                      
+        except:
+            log(inspect.stack,tb())
+            
+        
+                
     
 import copy
 from os import path as PATH, listdir

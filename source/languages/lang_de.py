@@ -130,16 +130,16 @@ PROJEKT_NAMEN_EINGEBEN = u'Geben Sie einen Namen für das Projekt an.'
 ## EXPORT HTML SETTINGS
 HTML_AUSWAHL = u'Wählen Sie die Texteigenschaften, die exportiert werden sollen.'
 HTML_EXPORT = u'Html Export'
-FETT = u'Fett',
-KURSIV = u'Kursiv',
-UEBERSCHRIFT = u'Überschriften',
-FUSSNOTE = u'Fußnoten',
-FARBEN = u'Farben',
-AUSRICHTUNG = u'Ausrichtung',
-LINKS = u'Hyperlinks',
-ZITATE = u'Zitate',
-SCHRIFTART = u'Schriftart',
-SCHRIFTGROESSE = u'Schriftgröße',
+FETT = u'Fett'
+KURSIV = u'Kursiv'
+UEBERSCHRIFT = u'Überschriften'
+FUSSNOTE = u'Fußnoten'
+FARBEN = u'Farben'
+AUSRICHTUNG = u'Ausrichtung'
+LINKS = u'Hyperlinks'
+ZITATE = u'Zitate'
+SCHRIFTART = u'Schriftart'
+SCHRIFTGROESSE = u'Schriftgröße'
 CSS = u'Erzeuge css'
 
 
@@ -398,6 +398,7 @@ UEBERNEHMEN = u'Übernehmen'
 PRJ_NAME_KEINE_AENDERUNG = u'Das Projekt kann nicht umbenannt werden'
 EIN_TAG_BEREITS_VORHANDEN = u'Einer der Tags ist bereits in einer anderen Kategorie vorhanden.'
 UEBERNOMMEN = u'Änderungen wurden übernommen'
+AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'Sie haben noch ungespeicherte Änderungen. Wollen Sie die Änderungen übernehmen?'
 OO_ORGANIZER_INFO = u'Wenn in OpenOffice der Organizer benutzt wird, dann sind beim nächsten Neustart'\
     u'von OpenOffice das Organon-Fenster und die Seitenleiste geschlossen und müssen \n'\
     u'bei Bedarf vom Nutzer selbst wieder geöffnet werden.\n'
@@ -440,7 +441,14 @@ ORGANIZER_INFO = u'Benutzung des Organizers:\n'\
     u'\n'\
     u'\n'
             
-            
+## SHOTCUTS
+SHORTCUTS = u'Shortcuts'
+OEFFNE_ORGANIZER = u'öffne Organizer'
+SICHTBARKEIT = u'Sichtbarkeit'
+FORMATIERUNG_SPEICHERN2 = u'Speichern des zuletzt bearbeiteten Bereiches'
+BAUMANSICHT_HOCH = u'Baumansicht ein Eintrag hoch'
+BAUMANSICHT_RUNTER = u'Baumansicht ein Eintrag runter'
+           
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
 WOERTERLISTE = u'Wörterliste erstellen'

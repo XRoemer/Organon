@@ -12,6 +12,7 @@ class Shortcuts():
         
     
         AZ = [chr(i).upper() for i in range(ord('a'), ord('z')+1)]
+        F1F12 = ['F'+str(i) for i in range(1,13)]
         numbers = [i for i in range(10)]
         
         self.keycodes = {}
@@ -25,39 +26,52 @@ class Shortcuts():
         for a in ['DOWN','UP','LEFT','RIGHT']:
             co = uno.getConstantByName( "com.sun.star.awt.Key.{}".format(a) )
             self.keycodes.update({co:a})
+        for a in F1F12:
+            co = uno.getConstantByName( "com.sun.star.awt.Key.{}".format(a) )
+            self.keycodes.update({co:a})
         
-        self.nutze_shortcuts = True
-        self.shortcuts = {
-                         'd' : self.teile_text,
-                         'n' : self.erzeuge_neue_Datei,
-                         'm' : self.erzeuge_neuen_Ordner,
-                         'x' : self.in_Papierkorb_einfuegen,
-                         'y' : self.leere_Papierkorb,
-                         's' : self.datei_nach_aenderung_speichern,
-                         't' : self.starte_neuen_Tab,
-                         'w' : self.schliesse_Tab,
-                         'r' : self.erzeuge_Backup,
-                         'o' : self.oeffne_Organizer,
-                         'j' : self.toggle_tag1,
-                         'k' : self.toggle_tag2,
-                         'l' : self.toggle_tag3,
-                         'UP': self.tv_up,
-                         'DOWN':self.tv_down
-                        }  
+        
+        self.moegliche_shortcuts = AZ + numbers + F1F12 + ['DOWN','UP','LEFT','RIGHT']
+        
+        self.shortcuts = self.mb.settings_orga['shortcuts']
+        self.writer_shortcuts = self.mb.class_Funktionen.get_writer_shortcuts()
+        
+        
+        self.shortcuts_befehle = {
+                         'TRENNE_TEXT' : self.teile_text,
+                         'INSERT_DOC' : self.erzeuge_neue_Datei,
+                         'INSERT_DIR' : self.erzeuge_neuen_Ordner,
+                         'IN_PAPIERKORB_VERSCHIEBEN' : self.in_Papierkorb_einfuegen,
+                         'CLEAR_RECYCLE_BIN' : self.leere_Papierkorb,
+                         'FORMATIERUNG_SPEICHERN2' : self.datei_nach_aenderung_speichern,
+                         'NEUER_TAB' : self.starte_neuen_Tab,
+                         'SCHLIESSE_TAB' : self.schliesse_Tab,
+                         'BACKUP' : self.erzeuge_Backup,
+                         'OEFFNE_ORGANIZER' : self.oeffne_Organizer,
+                         'SHOW_TAG1' : self.toggle_tag1,
+                         'SHOW_TAG2' : self.toggle_tag2,
+                         'GLIEDERUNG' : self.toggle_tag3,
+                         'BAUMANSICHT_HOCH' : self.tv_up,
+                         'BAUMANSICHT_RUNTER' : self.tv_down                                  
+                          }
 
 
         
-    def shortcut_ausfuehren(self,code):
+    def shortcut_ausfuehren(self,code,mods):
         if self.mb.debug: log(inspect.stack)
-        print(code)
-        if code in self.keycodes:
-            keychar = self.keycodes[code]
-        else:
-            keychar = -1
-
-        if keychar in self.shortcuts:
-            self.shortcuts[keychar]()
-        print(keychar) 
+        
+        try:
+            if code in self.keycodes:
+                keychar = self.keycodes[code]
+            else:
+                keychar = -1
+            
+            if keychar.upper() in self.shortcuts[str(mods)]:
+                cmd = self.shortcuts[str(mods)][keychar.upper()]
+                self.shortcuts_befehle[cmd]()
+        except:
+            log(inspect.stack,tb())
+            
     
     def teile_text(self):
         if self.mb.debug: log(inspect.stack)
@@ -69,20 +83,30 @@ class Shortcuts():
         if self.mb.debug: log(inspect.stack)
         
         if T.AB != 'Projekt': return
-        self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
+        self.mb.class_Baumansicht.erzeuge_neue_Zeile('Dokument')
     
     def erzeuge_neuen_Ordner(self):
         if self.mb.debug: log(inspect.stack)
         
         if T.AB != 'Projekt': return
-        self.mb.class_Baumansicht.erzeuge_neue_Zeile('ordner')
+        self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
         
     def in_Papierkorb_einfuegen(self):
         if self.mb.debug: log(inspect.stack)
         
+        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
+        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
+        
         ordinal = self.mb.props[T.AB].selektierte_zeile
         papierkorb = self.mb.props[T.AB].Papierkorb
         self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+        
+        if nachfolger != None:
+            self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
+        else:
+            if vorgaenger != None:
+                self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
+
         
     def leere_Papierkorb(self):
         if self.mb.debug: log(inspect.stack)
@@ -96,8 +120,16 @@ class Shortcuts():
         bereichsname = props.dict_bereiche['ordinal'][zuletzt]
         path = props.dict_bereiche['Bereichsname'][bereichsname]
         self.mb.props[T.AB].tastatureingabe = True
-
+        
         self.mb.class_Bereiche.datei_nach_aenderung_speichern(uno.systemPathToFileUrl(path),bereichsname)
+        
+        # Bestaetigung ausgeben
+        tree = self.mb.props[T.AB].xml_tree
+        root = tree.getroot()        
+        source = root.find('.//'+zuletzt)  
+        name = source.attrib['Name']
+        
+        self.mb.nachricht_si(LANG.FORMATIERUNG_SPEICHERN.format(name),1)
             
     def starte_neuen_Tab(self):
         if self.mb.debug: log(inspect.stack)
@@ -157,68 +189,63 @@ class Shortcuts():
     def tv_up(self):
         if self.mb.debug: log(inspect.stack)
         
-        try:
-            selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
-            props = self.mb.props[T.AB]
-            
-            tree = self.mb.props[T.AB].xml_tree
-            root = tree.getroot()        
-            source = root.find('.//'+selektierte_zeile)            
-            
-            eintr = []
-            self.mb.class_XML.get_tree_info(root,eintr)
-            
-            vorgaenger = None
-            
-            for e in eintr:
-                if e[0] == selektierte_zeile:
-                    index = eintr.index(e)
-                    if index > 0:
-                        vorgaenger = eintr[index-1][0]
-                    
-            if vorgaenger != None:
-                self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
-            
-        except:
-            print(tb())
+        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
+        if vorgaenger != None:
+            self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
         
     def tv_down(self):
         if self.mb.debug: log(inspect.stack)
-        
-        try:
-            selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
-            props = self.mb.props[T.AB]
-            
-            tree = self.mb.props[T.AB].xml_tree
-            root = tree.getroot()        
-            source = root.find('.//'+selektierte_zeile)            
-            
-            eintr = []
-            self.mb.class_XML.get_tree_info(root,eintr)
-            
-            nachfolger = None
-            
-            for e in eintr:
-                if e[0] == selektierte_zeile:
-                    index = eintr.index(e)
-    
-                    if index < len(eintr)-1:
-                        nachfolger = eintr[index+1][0]
-                        
-            if nachfolger != None:
-                self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
 
-        except:
-            print(tb())
+        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
+        if nachfolger != None:
+            self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
+ 
+
+    def get_mods(self,cmd,ctrls):
+        if self.mb.debug: log(inspect.stack)
+        # 0 = keine Modifikation
+        # 1 = Shift
+        # 2 = Strg
+        # 3 = Shift + Strg
+        # 4 = Alt
+        # 5 = Shift + Alt
+        # 6 = Strg + Alt
+        # 7 = Shift + Strg + Alt
+                        
+        shift = ctrls['_Shift'+cmd].State
+        alt = ctrls['_Alt'+cmd].State
+        ctrl = ctrls['_Ctrl'+cmd].State
         
+        mods = 0
         
+        if shift: mods += 1
+        if alt: mods += 4
+        if ctrl: mods += 2
+        mods = shift*1 + ctrl*2 + alt*4
+        return mods
+    
+    def get_moegliche_shortcuts(self,mods,use_settings = True):
+        if self.mb.debug: log(inspect.stack)
         
+        moegliche = self.mb.class_Shortcuts.moegliche_shortcuts
         
+        if mods < 2:
+            return ('-',)
         
+        if use_settings:
+            in_settings = self.mb.settings_orga['shortcuts'][str(mods)]
+        else:
+            in_settings = []
+                                                                
+        uebrige = [str(m) for m in moegliche if str(m) not in self.writer_shortcuts[mods] and
+                                           str(m) not in in_settings
+                   ]
+        uebrige.insert(0, '-')
+        uebrige = tuple(uebrige)
         
+        return uebrige
         
-        
-        
+    
         
 #         elif code == 532 and mods == 6: # ctrl alt r
 #             ordinal = self.mb.props[T.AB].selektierte_zeile

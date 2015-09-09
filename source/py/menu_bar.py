@@ -154,6 +154,7 @@ class Menu_Bar():
             self.Key_Handler = Key_Handler(self)
             self.ET = ElementTree  
             self.nachricht = Mitteilungen(self.ctx,self).nachricht
+            self.nachricht_si = Mitteilungen(self.ctx,self).nachricht_si
             
             self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
             self.class_Projekt =        self.lade_modul('projects','Projekt')   
@@ -205,9 +206,12 @@ class Menu_Bar():
     
             self.use_UM_Listener = False
             
-    
-            
-            
+            try:
+                self.listener_doc_close = Document_Close_Listener(self)
+                self.doc.addDocumentEventListener(self.listener_doc_close)
+            except:
+                log(inspect.stack,tb())
+                pd()
     #         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
 
 
@@ -575,18 +579,33 @@ class Menu_Bar():
   
     def lade_Modul_Language(self):
         if self.debug: log(inspect.stack)
+   
+        config_provider = self.smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",self.ctx)
         
-        language = self.doc.CharLocale.Language
+        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop.Name = "nodepath"
+        prop.Value = "org.openoffice.Setup/L10N"
+               
+        config_access = config_provider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationUpdateAccess", (prop,))
+        locale = config_access.getByName('ooLocale')
         
-        if language not in ('de'):
-            language = 'en'
-            
-        self.language = language
+        lang = __import__('lang_en')
         
         try:
-            lang = __import__('lang_'+language)
+            loc = locale[0:2]
+            try:
+                lang2 = __import__('lang_{}'.format(loc))
+                
+                for l in dir(lang2):
+                    try:
+                        setattr(lang, l, getattr(lang2, l))
+                    except:
+                        if self.debug:log(inspect.stack,tb())
+            except:
+                if self.debug:log(inspect.stack,tb())
+            
         except:
-            lang = __import__('lang_en')
+            if self.debug:log(inspect.stack,tb())
 
         return lang
     
@@ -1328,6 +1347,14 @@ class Menu_Leiste_Listener2 (unohelper.Base, XMouseListener):
                     self.mb.props[T.AB].tastatureingabe = True
 
                     self.mb.class_Bereiche.datei_nach_aenderung_speichern(uno.systemPathToFileUrl(path),bereichsname)
+                    
+                    # Bestaetigung ausgeben
+                    tree = self.mb.props[T.AB].xml_tree
+                    root = tree.getroot()        
+                    source = root.find('.//'+zuletzt)  
+                    name = source.attrib['Name']
+                    
+                    self.mb.nachricht_si(LANG.FORMATIERUNG_SPEICHERN.format(name),1)
 
                 self.mb.loesche_undo_Aktionen()
                 return False
@@ -1664,8 +1691,18 @@ class Mitteilungen():
         msgbox.dispose()
         return x
     
-    def kurze_mitteilung(self):
-        pass
+    def nachricht_si(self,nachricht,zeit):
+        if self.mb.debug: log(inspect.stack)  
+        
+        if len(nachricht) < 200:
+            x = 200 - len(nachricht)
+            nachricht = int(x/2)*' ' + nachricht + int(x/2)*' '
+        
+        StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
+        StatusIndicator.start(nachricht,2)
+        StatusIndicator.setValue(2)
+        time.sleep(zeit)
+        StatusIndicator.end()
 
 from com.sun.star.document import XUndoManagerListener 
 class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener): 
@@ -1801,7 +1838,7 @@ class Key_Handler(unohelper.Base, XKeyHandler):
         code = ev.KeyCode
         mods = ev.Modifiers
         
-        if mods == 6:
+        if mods > 1:
             # 0 = keine Modifikation
             # 1 = Shift
             # 2 = Strg
@@ -1810,8 +1847,7 @@ class Key_Handler(unohelper.Base, XKeyHandler):
             # 5 = Shift + Alt
             # 6 = Strg + Alt
             # 7 = Shift + Strg + Alt
-            if self.mb.class_Shortcuts.nutze_shortcuts:
-                self.mb.class_Shortcuts.shortcut_ausfuehren(code)
+            self.mb.class_Shortcuts.shortcut_ausfuehren(code,mods)
         
         else:
             self.mb.props[T.AB].tastatureingabe = True
@@ -2047,5 +2083,23 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
         return False
 
 
- 
+from com.sun.star.document import XDocumentEventListener
+class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
+    '''
+    Lets Writer close without warning.
+    As everything is saved by Organon, a warning isn't necesarry.
+    Even more it might confuse the user.
+    
+    '''
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+
+    def documentEventOccured(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        if ev.EventName == 'OnPrepareViewClosing':
+            self.mb.doc.setModified(False)
+        
+        
+        
     

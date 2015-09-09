@@ -12,6 +12,14 @@
         "output_console": 0,
         "log_args": 0
     },
+    "shortcuts": {
+        "2" : {},
+        "3" : {},
+        "4" : {},
+        "5" : {},
+        "6" : {},
+        "7" : {}
+    },
     "zuletzt_geladene_Projekte": {},
     "organon_farben": {
     	"aktiv" : "OO Blue",

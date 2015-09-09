@@ -203,4 +203,43 @@ class XML_Methoden():
         for contr_zeile in zeilen:       
             self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
             
+            
+    def finde_nachfolger_oder_vorgaenger(self,nachbar):
+        
+        try:
+            selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
+            props = self.mb.props[T.AB]
+            
+            tree = self.mb.props[T.AB].xml_tree
+            root = tree.getroot()        
+            source = root.find('.//'+selektierte_zeile)            
+            
+            eintr = []
+            self.mb.class_XML.get_tree_info(root,eintr)
+            
+            gesuchter = None
+            
+            def nachf(value):
+                return value < len(eintr)-1
+            def vorg(value):
+                return value > 0
+            
+            if nachbar == 'nachfolger':
+                rechnung = nachf
+                x = 1
+            else:
+                rechnung = vorg
+                x = -1
+            
+            for e in eintr:
+                if e[0] == selektierte_zeile:
+                    index = eintr.index(e)
                     
+                    if rechnung(index):
+                        gesuchter = eintr[index+x][0]
+                        return gesuchter
+
+            return gesuchter
+        except:
+            log(inspect.stack,tb())
+            return None

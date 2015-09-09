@@ -303,7 +303,7 @@ class Funktionen():
             # neuen dateinamen herausfinden
             cur_text = self.mb.doc.Text.createTextCursor()
             cur_text.gotoRange(bm.Anchor,False)
-            cur_text.goRight(30,True)
+            cur_text.goRight(60,True)
             neuer_Name = cur_text.String.split('\n')[0]
             
             # alte Datei in Helferdatei speichern
@@ -603,7 +603,95 @@ class Funktionen():
         
         return True
     
-    
+    def get_writer_shortcuts(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        ctx = self.mb.ctx
+        smgr = self.mb.ctx.ServiceManager
+           
+        config_provider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",ctx)
+  
+        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop.Name = "nodepath"
+        prop.Value = "org.openoffice.Office.Accelerators"
+               
+        config_access = config_provider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationUpdateAccess", (prop,))
+        
+        glob = config_access.PrimaryKeys.Global 
+        modules = config_access.PrimaryKeys.Modules
+        textdoc = modules.getByName('com.sun.star.text.TextDocument')
+        
+        shortcuts = {}
+        
+        elements = textdoc.ElementNames
+        
+        for e in elements:
+            try:
+                sc = textdoc.getByName(e)
+                shortcuts.update({e:sc.Command})
+            except:
+                shortcuts.update({e:'?'})
+                
+        elements = glob.ElementNames
+        
+        for e in elements:
+            try:
+                sc = textdoc.getByName(e)
+                shortcuts.update({e:sc.Command})
+            except:
+                shortcuts.update({e:'?'})
+        
+        
+        
+        erweitert = ['F'+str(a) for a in range(1,13)]
+        erweitert.extend(['DOWN','LEFT','RIGHT','UP'])
+        
+        mod1 = []
+        mod2 = []
+        shift = []
+        
+        mod1_mod2 = []
+        shift_mod1 = []
+        shift_mod2 = []
+        shift_mod1_mod2 = []
+        
+        for s in shortcuts:
+            cmd = s.split('_')
+            
+            if len(cmd) == 2:
+                if len(cmd[0]) == 1 or cmd[0] in erweitert:
+                    
+                    if 'MOD1' in s:
+                        mod1.append(cmd[0])
+                    elif 'MOD2' in s:
+                        mod2.append(cmd[0])
+            elif len(cmd) == 3:
+                if len(cmd[0]) == 1 or cmd[0] in erweitert:
+                    if 'SHIFT_MOD1' in s:
+                        shift_mod1.append(cmd[0])
+                    elif 'SHIFT_MOD2' in s:
+                        shift_mod2.append(cmd[0])
+                    elif 'MOD1_MOD2' in s:
+                        mod1_mod2.append(cmd[0])
+            elif len(cmd) == 4:
+                if len(cmd[0]) == 1 or cmd[0] in erweitert:
+                    if 'SHIFT_MOD1_MOD2' in s:
+                        shift_mod1_mod2.append(cmd[0])
+            
+            
+        used = {
+                2:sorted(mod1),
+                3:sorted(shift_mod1),
+                4:sorted(mod2),
+                5:sorted(shift_mod2),
+                6:sorted(mod1_mod2),
+                7:sorted(shift_mod1_mod2)
+                }
+        return used
+        
+        
+        
+        
      
 from com.sun.star.awt import XMouseListener,XItemListener
 class Tag_Container_Listener (unohelper.Base, XMouseListener):

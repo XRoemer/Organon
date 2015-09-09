@@ -108,6 +108,8 @@ class Organizer():
             
             rangex = self.sheet.getCellRangeByPosition(0,0,0,0)
             self.sheet_controller.select(rangex)
+            
+            self.calc.setModified(False)
                         
         except:
             log(inspect.stack,tb())
@@ -272,13 +274,6 @@ class Organizer():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop.Name = 'Hidden'
-            prop.Value = True
-            
-            prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop2.Name = 'AsTemplate'
-            prop2.Value = True
                     
             URL="private:factory/scalc"
                     
@@ -302,9 +297,9 @@ class Organizer():
 
             RESOURCE_URL = "private:resource/dockingwindow/9809"
             self.calc_frame.LayoutManager.hideElement(RESOURCE_URL)
-#             pd()
-#             listener = Close_Listener(self.mb,self)
-#             self.calc_frame.addCloseListener(listener)
+            #pd()
+            listener2 = Organizer_Close_Listener(self.mb,self,self.calc)
+            self.calc.addDocumentEventListener(listener2)
         except:
             log(inspect.stack,tb())
             
@@ -560,7 +555,22 @@ class Organizer():
             log(inspect.stack,tb())
             
 
- 
+    def tags_uebernehmen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            sichtbare = self.mb.dict_sb_content['sichtbare']
+            self.mb.dict_sb_content = self.dict_sb_content
+            
+            for tag in sichtbare:
+                self.mb.class_Sidebar.erzeuge_sb_layout(tag,'focus_lost')
+            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','focus_lost')
+            
+            self.mb.nachricht(LANG.UEBERNOMMEN,'infobox') 
+            self.calc.setModified(False)           
+        except:
+            log(inspect.stack,tb())
+            
 
 from com.sun.star.beans import XPropertiesChangeListener      
 class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
@@ -607,29 +617,11 @@ class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
                          "infobox")
             # TAGS UEBERNEHMEN
             else:
-                self.tags_uebernehmen()
+                self.Org.tags_uebernehmen()
                 
         except:
             log(inspect.stack,tb())
-            
-    
-    
-    def tags_uebernehmen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            sichtbare = self.mb.dict_sb_content['sichtbare']
-            self.mb.dict_sb_content = self.Org.dict_sb_content
-            
-            for tag in sichtbare:
-                self.mb.class_Sidebar.erzeuge_sb_layout(tag,'focus_lost')
-            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','focus_lost')
-            
-            self.mb.nachricht(LANG.UEBERNOMMEN,'infobox')            
-        except:
-            log(inspect.stack,tb())
-            
-            
+                    
 
     def aendere_dateinamen(self):
         # fehlt
@@ -924,7 +916,7 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 
                 y1 += 1
         except:
-            print(tb())
+            log(inspect.stack,tb())
     
     def disposing(self,ev):
         return False
@@ -948,7 +940,6 @@ class Enhanced_MC_Handler(unohelper.Base, XEnhancedMouseClickHandler):
         if hasattr(ev.Target, 'Control'):
             if self.mb.debug: log(inspect.stack)
             
-            print(ev.Target.Control.Name)
         else:
             x0,y0,x1,y1 = self.Org.pos
             
@@ -978,71 +969,41 @@ class Enhanced_MC_Handler(unohelper.Base, XEnhancedMouseClickHandler):
         return True
     
 
-from com.sun.star.util import XCloseListener       
-class Close_Listener(unohelper.Base, XCloseListener):
-
-    def __init__(self, mb, Org):
+            
+from com.sun.star.document import XDocumentEventListener
+class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
+    '''
+    Lets Organizer close without warning when no changes had been made.
+    Else the user is asked if he wants to save the changes.
+    '''
+    def __init__(self,mb,Org,calc):
         if mb.debug: log(inspect.stack)
-        
         self.mb = mb
         self.Org = Org
-        
-    def queryClosing(self, ev):
-        pd()
-        RESOURCE_URL = "private:resource/dockingwindow/9809"
-        self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
-        self.mb.desktop.ActiveFrame.LayoutManager.showElement(RESOURCE_URL)
-        #pd()
-        return True  
-    
-    def notifyClosing(self, ev):
-        #pd()
-        RESOURCE_URL = "private:resource/dockingwindow/9809"
-        self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
-        self.mb.desktop.ActiveFrame.LayoutManager.showElement(RESOURCE_URL)
-        #pd()
-        return True          
+        self.calc = calc
+
+    def documentEventOccured(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            if ev.EventName == 'OnPrepareViewClosing':
+                if self.calc.isModified(): 
+                    entscheidung = self.mb.nachricht(LANG.AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN,"warningbox",16777216)
+                    # 3 = Nein oder Cancel, 2 = Ja
+                    if entscheidung == 3:
+                        pass
+                    elif entscheidung == 2:
+                        try:
+                            self.Org.tags_uebernehmen()
+                        except:
+                            log(inspect.stack,tb())
+                
+                self.calc.setModified(False)
+        except:
+            log(inspect.stack,tb())
             
-#                 
-# from com.sun.star.awt import XMouseClickHandler       
-# class Handler(unohelper.Base, XMouseClickHandler, object):
-#     """ Handles mouse click on the document. """
-#     def __init__(self, ctx, doc):
-#         self.ctx = ctx
-#         self.doc = doc
-#         self._register()
-#         
-#     def _register(self):
-#         self.doc.getCurrentController().addMouseClickHandler(self)
-#         self.ctx = uno.getComponentContext() 
-#       
-#     def unregister(self):
-#         """ Remove myself from broadcaster. """
-#         self.doc.getCurrentController().removeMouseClickHandler(self)
-# 
-#     def disposing(self, ev):
-#         return False
-#         global handler
-#         handler = None
-# 
-#     def mousePressed(self, ev):
-#         return False
-#    
-#     def mouseReleased(self, ev):
-#         
-#         try:
-#             selected = self.doc.getCurrentSelection()
-#         except:
-#             print(tb())
-#             
-#         
-#         return False
-#         if ev.Buttons == MB_LEFT:
-#             
-#             addr = selected.getRangeAddress()
-#  
-#         return False        
-#         
+          
+
+
 #         
 #   
 # import timeit
