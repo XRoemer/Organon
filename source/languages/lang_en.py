@@ -451,7 +451,7 @@ BAUMANSICHT_RUNTER = u'Treeview one entry down'
 NICHT_VERSCHIEBBAR = u"Project Folder and Waste Bin can't be moved"
 WOERTERLISTE = u'Create List of all Words'
 UNGUELTIGE_FARBE = u'This is not a valid color'
-
+LISTE_GESPEICHERT = u'The list has been successfully saved to {}'
 
 
 

@@ -102,6 +102,7 @@ class Projekt():
         except Exception as e:
             self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
             log(inspect.stack,tb())
+            pd()
 
                         
     def setze_pfade(self): 
@@ -1323,9 +1324,14 @@ class Projekt():
 #                 res = get_attribs(object)
             
             
+            dic = self.mb.dict_sb_content
+
+
+
+
             
         except:
-            #log(inspect.stack,tb())
+            log(inspect.stack,tb())
             print(tb())
             pd()
         pd()

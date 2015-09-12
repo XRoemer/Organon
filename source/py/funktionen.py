@@ -690,7 +690,80 @@ class Funktionen():
         return used
         
         
+    #def find_differences(self,obj):
+#         ctx = uno.getComponentContext()
+#         smgr = ctx.ServiceManager
+#         desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+#         doc = desktop.getCurrentComponent() 
+#         current_Contr = doc.CurrentController
+#         viewcursor = current_Contr.ViewCursor
+#         
+#         object = obj
+#         max_lvl = 3
         
+    def get_attribs(self,obj,max_lvl):
+        
+        results = {}
+        def get_attr(obj,lvl):
+            
+            for key in dir(obj):
+                
+                try:
+                    value = getattr(obj, key)
+                    if 'callable' in str(type(value)):
+                        continue
+                except :
+                    #print(key)
+                    continue
+        
+                if key not in results:
+                    if type(value) in (
+                                       type(None),
+                                       type(True),
+                                       type(1),
+                                       type(.1),
+                                       type('string'),
+                                       type(()),
+                                       type([]),
+                                       type(b''),
+                                       type(r''),
+                                       type(u'')
+                                       ):
+                        results.update({key: value})
+                        
+                    elif lvl < max_lvl:
+                        try:
+                            results.update({key: get_attr(value,lvl+1)})
+                        except:
+                            pass
+        
+        
+        get_attr(obj, 0)
+        return results
+        
+    def find_differences(self,dict1,dict2):
+        diff = []
+        
+        def findDiff(d1, d2, path=""):
+            for k in d1.keys():
+                if not d2.has_key(k):
+                    print (path, ":")
+                    print (k + " as key not in d2", "\n")
+                else:
+                    if type(d1[k]) is dict:
+                        if path == "":
+                            path = k
+                        else:
+                            path = path + "->" + k
+                        findDiff(d1[k],d2[k], path)
+                    else:
+                        if d1[k] != d2[k]:
+                            diff.append((path,k,d1[k],d2[k]))
+                            path = ''
+        findDiff(dict1,dict2)
+        return diff
+
+
         
      
 from com.sun.star.awt import XMouseListener,XItemListener

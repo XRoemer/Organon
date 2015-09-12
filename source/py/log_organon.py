@@ -7,6 +7,7 @@ from uno import fileUrlToSystemPath
 from traceback import print_exc as tb
 import uno
 import inspect
+from codecs import open as codecs_open
 
 
 #####  DEBUGGING ##########
@@ -66,7 +67,7 @@ class Log():
                     '\r\n'\
                     '################\r\n'
                     
-            with open(path , "a") as file:
+            with codecs_open( path, "a","utf-8") as file:
                 file.write(text)
                 
         except:
@@ -128,12 +129,12 @@ class Log():
             
             if self.write_debug_file:
                 path = join(self.location_debug_file,'organon_log.txt')
-                with open(path , "a") as file:
+                with codecs_open( path, "a","utf-8") as file:
                     file.write(string+'\n')
                 
                 if traceb != None:
                     print(traceb)
-                    with open(path , "a") as file:
+                    with codecs_open( path, "a","utf-8") as file:
                         file.write('### ERROR ### \r\n')
                         try:
                             file.write(traceb+'\r\n')
@@ -143,35 +144,37 @@ class Log():
                             
                     
                     path2 = join(self.location_debug_file,'error_log.txt')
-                    with open(path2 , "a") as file:
+                    with codecs_open( path2, "a","utf-8") as file:
                         file.write('### ERROR ### \r\n')
                         file.write(traceb+'\r\n')
                     
                     
                 if extras != None:
                     print(extras)
-                    with open(path , "a") as file:
-                        file.write(extras+'\r')
+                    with codecs_open( path, "a","utf-8") as file:
+                        file.write(extras+'\r\n')
             
-            #self.suche()        
+#             self.suche()        
 #             # HELFER          
 #             nachricht = self.suche()
 #             if nachricht != None:
 #                 with open(path , "a") as file:
 #                     file.write(nachricht+'\r\n')
             
+#             self.helfer()
+            
             # Fehler werden auf jeden Fall geloggt        
             if traceb != None:
                 
                 path2 = join(self.location_debug_file,'error_log.txt')
-                with open(path2 , "a") as file:
+                with codecs_open( path2, "a","utf-8") as file:
                     file.write('### ERROR ### \r\n')
                     file.write(traceb+'\r\n')
                 
                 
                 if self.path_to_project_settings != None:
                     path3 = join(self.path_to_project_settings,'error_log.txt')
-                    with open(path3 , "a") as file:
+                    with codecs_open( path3, "a","utf-8") as file:
                         file.write('### ERROR ### \r\n')
                         file.write(traceb+'\r\n')
                 
@@ -187,12 +190,12 @@ class Log():
                 print(e)
                 print(tb())
                 path = join(self.location_debug_file,'organon_log_error.txt')
-                with open(path , "a") as file:
+                with codecs_open( path, "a","utf-8") as file:
                     file.write(str(e) +'\r\n')
                     file.write(str(tb()) +'\r\n')
             except:
                 print(tb())
-                with open(path , "a") as file:
+                with codecs_open( path, "a","utf-8") as file:
                     file.write(str(tb()) +'\r\n')
                     
 
@@ -237,6 +240,17 @@ class Log():
             return e
         
         return None
+    
+    def helfer(self):
+        try:
+            pass#pd()
+        except Exception as e:
+            print(tb())
+            #pd()
+            return e
+        
+        
+        
         
         
              

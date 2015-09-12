@@ -453,7 +453,7 @@ BAUMANSICHT_RUNTER = u'Baumansicht ein Eintrag runter'
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
 WOERTERLISTE = u'Wörterliste erstellen'
 UNGUELTIGE_FARBE = u'Keine gültige Farbe'
-
+LISTE_GESPEICHERT = u'Die Liste wurde erfolgreich gespeichert unter {}'
 
 
 

@@ -2042,15 +2042,10 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
             nav_cont_aussen = win.getControl('Hauptfeld_aussen')
 
             # nav_cont_aussen ist None, wenn noch kein Projekt geoeffnet wurde
-            if nav_cont_aussen != None:
-                nav_cont = nav_cont_aussen.getControl('Hauptfeld')
-                  
+            if nav_cont_aussen != None:                  
                 MenuBar = win.getControl('Organon_Menu_Bar')
-                MBHoehe = MenuBar.PosSize.value.Height + MenuBar.PosSize.value.Y
-                NCHoehe = 0 #nav_cont.PosSize.value.Height
-                NCPosY  = nav_cont.PosSize.value.Y
-                Y =  NCHoehe + NCPosY + MBHoehe
-                Height = win.PosSize.value.Height - Y -25
+                MBHoehe = MenuBar.PosSize.Height + MenuBar.PosSize.Y
+                Height = win.PosSize.Height - MBHoehe -25
                 
                 scrll = win.getControl('ScrollBar')
                 scrll.setPosSize(0,0,0,Height,8)

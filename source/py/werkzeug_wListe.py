@@ -205,26 +205,34 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 speicherordner,
                 chronologisch) = args
                 
+                if not os.path.exists(speicherordner):
+                    self.nachricht(LANG.KEIN_SPEICHERORT)
+                    return
+                                                
+                SI = self.mb.desktop.getCurrentFrame().createStatusIndicator()
+                SI.start('',3)
                 
                 if benutze_txt1_intern == 0:             
                     if self.pruefe_pfad(pfad1,'Text 1'):           
                         text1,name1 = self.oeffne_text(pfad1)
+                        SI.setValue(1)
                     else:
+                        SI.end()
                         return
                 else:
                     text1 = self.get_internal_text(text1_intern)
                     name1 = self.class_Zitate.name['text1']
+                    SI.setValue(1)
                     
-
-                if not os.path.exists(speicherordner):
-                    ntext = LANG.KEIN_SPEICHERORT
-                    self.nachricht(ntext)
-                    return
-                
+                    
                 args = text1,name1,speicherordner,chronologisch
                 s = Liste_Erstellen(args,self.mb) 
+                
+                SI.setValue(2)
+                
                 s.run()
-
+                
+                SI.end()
 
             elif ev.ActionCommand == 'text1 intern':
                 self.class_Zitate.p['text1_intern'] = 1
@@ -259,13 +267,49 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             ordinale = [ordinal]
         
         text = []
-        for o in ordinale:
-            sec_name = props.dict_bereiche['ordinal'][o]
-            sec = self.mb.doc.TextSections.getByName(sec_name)
-            t = sec.Anchor.String.splitlines()
-            text.extend(t)
+#         for o in ordinale:
+#             sec_name = props.dict_bereiche['ordinal'][o]
+#             sec = self.mb.doc.TextSections.getByName(sec_name)
+#             t = sec.Anchor.String.splitlines()
+#             text.extend(t)
+
+        pfade = []
         
-        return text
+        for o in ordinale:
+            section = props.dict_bereiche['ordinal'][o]
+            pfade.append( props.dict_bereiche['Bereichsname'][section])
+
+        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop.Name = 'Hidden'
+        prop.Value = True
+        
+        URL="private:factory/swriter"
+        doc = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
+        
+        try:
+            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+
+            text = doc.Text
+            textSectionCursor = text.createTextCursor()
+            text.insertTextContent(textSectionCursor, newSection, False)
+            
+            lines = []
+
+            for p in pfade: 
+                SFLink.FileURL = p
+                SFLink.FilterName = 'writer8'
+                newSection.setPropertyValue('FileLink',SFLink)
+                
+                lines.extend( doc.Text.String.splitlines() )
+        except:
+            log(inspect.stack,tb())
+            doc.close(False)
+            return []
+        
+        doc.close(False)
+
+        return lines
     
     def get_interne_auswahl(self,text):  
         if self.mb.debug: log(inspect.stack)
@@ -426,7 +470,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 text1_intern,
                 benutze_txt1_intern,
                 speicherordner,chronologisch)
-
+        
         return args
     
     
@@ -521,10 +565,12 @@ class Liste_Erstellen():
                 cell = sheet.getCellByPosition(0, i)
                 cell.setString(woerter[i])
              
-            path = os.path.join(self.speicherordner,'test.odt')
+            path = os.path.join(self.speicherordner,'list_of_words.odt')
              
             self.calc.storeToURL(uno.systemPathToFileUrl(path),())    
             self.calc.close(False)
+            
+            self.nachricht(LANG.LISTE_GESPEICHERT.format(path),'infobox')
                                                 
         except:
             log(inspect.stack,tb())

@@ -108,6 +108,7 @@ class Organizer():
             
             rangex = self.sheet.getCellRangeByPosition(0,0,0,0)
             self.sheet_controller.select(rangex)
+            self.calc.CurrentController.freezeAtPosition(0,4)
             
             self.calc.setModified(False)
                         

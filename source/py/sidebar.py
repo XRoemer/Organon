@@ -977,7 +977,7 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
         if new_tag != '':
             if new_tag not in self.mb.dict_sb_content['tags']['Tags_general']:
                 self.mb.dict_sb_content['tags']['Tags_general'].append(new_tag)
-                
+                print('hier')
                 if new_tag not in self.mb.dict_sb_content['ordinal'][ordinal][self.tag]:
                     self.mb.dict_sb_content['ordinal'][ordinal][self.tag].append(new_tag)
                 
@@ -1099,9 +1099,13 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
     def pruefe_vorkommen_in_anderen_eintraegen(self,tag,tag_eintrag):  
         if self.mb.debug: log(inspect.stack)
         
+        self.ueberpruefe_dict()
+        
+        dic = self.mb.dict_sb_content['ordinal']
         for ordinal in self.mb.dict_sb_content['ordinal']:
             if tag_eintrag in self.mb.dict_sb_content['ordinal'][ordinal]['Tags_general']:
                 return True
+
         return False
     
     def loesche_vorkommen_in_allen_eintraegen(self,tag,tag_eintrag): 
@@ -1187,4 +1191,21 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         self.mb.class_Sidebar.erzeuge_sb_layout(tag,'sidebar')
         self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','sidebar')
 
+    
+    def ueberpruefe_dict(self):
+        '''
+        Fehler im dict wurden wahrscheinlich durch falsches Handling
+        von utf8 Characters erzeugt. Zur Sicherheit ist diese Methode
+        eingebaut, die richtige Eintraege im dict sicherstellt.
+        '''
+        dic = self.mb.dict_sb_content['ordinal']
+        zu_loeschende = [d for d in dic if 'nr' not in d]
+        
+        for d in zu_loeschende:
+            del(dic[d])
+
+            #pd()
+    
+    
+    
     
