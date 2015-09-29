@@ -788,15 +788,7 @@ class Teile_Text_Batch():
     def erzeuge_fenster(self):
         if self.mb.debug: log(inspect.stack)
         
-        LANG.GANZES_WORT = u'Ganzes Wort'
-        LANG.REGEX = u'Regular Expression'
-        LANG.UEBERSCHRIFTEN = u'Überschriften'
-        
-        LANG.TEXT_BATCH_DEVIDE = u'Teile Text (Stapel)'
-        LANG.NICHTS_AUSGEWAEHLT_BATCH = u'Es sind keine Optionen ausgewählt und es wurde kein Text eingegeben.'
-        LANG.KEINE_TRENNUNG = u'Es wurden keine Ergebnisse für die Trennung gefunden.'
-        LANG.ERSTELLT_WERDEN = u'Organon wird {} neue Dateien oder Ordner erstellen.\r\n Fortfahren?'
-        
+     
         try:
             self.dialog_batch_devide()
         except:
