@@ -75,7 +75,16 @@ FARBE_HINTERGRUND = u'Color Background'
 BENUTZER = u'User'
 KEIN_TRENNER = u'No Separator'
 TRENNER_ANMERKUNG = u'The colors of the separator are part of the design \nand are set in "Preferences / Organon Design"'
-        
+
+# TEILE TEXT BATCH
+GANZES_WORT = u'Whole Word'
+REGEX = u'Regular Expression'
+UEBERSCHRIFTEN = u'Headings'
+TEXT_BATCH_DEVIDE = u'Devide Text (Batch)'
+NICHTS_AUSGEWAEHLT_BATCH = u'No options are selected and no text has been entered.'
+KEINE_TRENNUNG = u'Your search has no results.'
+ERSTELLT_WERDEN = u'Organon will create {} new files or folders.\r\n Proceed?'
+      
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = u'Unfold folder'
 IN_PAPIERKORB_VERSCHIEBEN = u'Move to Waste Bin'
@@ -115,7 +124,7 @@ ORDNERTITEL = u'Use Folder Name'
 FORMAT = u'Format'
 DATEITITEL = u'Use File Name'
 ORT_DES_DOKUMENTS = u'Document'
-LEERZEILEN = u'Empty Rows'
+LEERZEILEN = u'Blank Lines'
 ANZAHL_LEERZEILEN = u'Amount of empty Rows to be inserted'
 DOK_EINFUEGEN = u'Insert Document'
 WAEHLEN = u'Select'
@@ -127,7 +136,9 @@ EXPORT_BITTE_WARTEN = u'Export. Please wait.'
 ORDNER_EXISTIERT_SCHON = u'The folder already contains a file/directory %s.organon'
 NEW_PROJECT2 = u'new Project'
 PROJEKT_NAMEN_EINGEBEN = u'Enter a name for the new project.'
-
+UNGESPEICHERTE_PFADE = u"Following files couldn't be exported.\r\n" \
+            u'Eventually their paths are too long. You might choose another folder for saving ' \
+            u'or shorten the names of the folders/files.\r\n\r\n{}'
 
 ## EXPORT HTML SETTINGS
 HTML_AUSWAHL = u'Choose text properties for export.'

@@ -24,13 +24,9 @@ class Einstellungen():
     def start(self):
         if self.mb.debug: log(inspect.stack)
         
-        try:
-            pass
-                
+        try:   
             self.erzeuge_einstellungsfenster()
-                
         except Exception as e:
-            self.mb.nachricht('Export.export '+ str(e),"warningbox")
             log(inspect.stack,tb())
 
 

@@ -75,6 +75,15 @@ BENUTZER = u'Benutzer'
 KEIN_TRENNER = u'kein Trenner'
 TRENNER_ANMERKUNG = u'Die Farben des Trenners sind Teil des Designs und \nwerden in "Einstellungen / Organon Design" gesetzt'
 
+# TEILE TEXT BATCH
+GANZES_WORT = u'Ganzes Wort'
+REGEX = u'Regulärer Ausdruck'
+UEBERSCHRIFTEN = u'Überschriften'
+TEXT_BATCH_DEVIDE = u'Teile Text (Stapel)'
+NICHTS_AUSGEWAEHLT_BATCH = u'Es sind keine Optionen ausgewählt und es wurde kein Text eingegeben.'
+KEINE_TRENNUNG = u'Es wurden keine Ergebnisse für die Trennung gefunden.'
+ERSTELLT_WERDEN = u'Organon wird {} neue Dateien oder Ordner erstellen.\r\n Fortfahren?'
+
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = u'Ordner ausklappen'
 IN_PAPIERKORB_VERSCHIEBEN = u'In Papierkorb verschieben'
@@ -126,6 +135,9 @@ EXPORT_BITTE_WARTEN = u'Exportiere. Bitte warten.'
 ORDNER_EXISTIERT_SCHON = u'Der Ordner enthält bereits eine Datei oder einen Ordner %s.organon'
 NEW_PROJECT2 = u'neues Projekt'
 PROJEKT_NAMEN_EINGEBEN = u'Geben Sie einen Namen für das Projekt an.'
+UNGESPEICHERTE_PFADE = u'Folgende Dateien konnten nicht gespeichert werden.\r\n' \
+            u'Eventuell sind die Pfade zu lang. Sie können einen anderen Speicherordner wählen oder ' \
+            u'den Dateinamen verkürzen.\r\n\r\n{}'
 
 ## EXPORT HTML SETTINGS
 HTML_AUSWAHL = u'Wählen Sie die Texteigenschaften, die exportiert werden sollen.'

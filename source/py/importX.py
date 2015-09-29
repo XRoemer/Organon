@@ -309,7 +309,7 @@ class ImportX():
                         
                         if 2 in flags:  
                             if 'bib' in extensions:
-                                pass #pd()
+                                pass 
 #                             time.sleep(0.04)
 #                             print(extensions)                    
                             # FilterName: Filter als Label, Extensions Endungen
@@ -429,7 +429,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 lade = self.ordner_importieren()
     
                 if lade:
-                    self.lade_Projekt()
+                    self.mb.class_Projekt.lade_Projekt2()
                     self.mb.nachricht(LANG.IMPORT_ABGESCHLOSSEN,'infobox')
                     
                 self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
@@ -742,7 +742,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         root = self.mb.props[T.AB].xml_tree.getroot()
         
         name_selek_zeile = self.mb.props[T.AB].selektierte_zeile
-        xml_selekt_zeile = self.mb.props[T.AB].xml_tree.getroot().find('.//'+name_selek_zeile)
+        xml_selekt_zeile = root.find('.//'+name_selek_zeile)
         
         parent = root.find('.//'+xml_selekt_zeile.tag+'/..')
         
@@ -1002,49 +1002,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                         return True,filter_det
 
             return False,None
-         
-            
-    def lade_Projekt(self,filepicker = True):
-        if self.mb.debug: log(inspect.stack)
-
-        try:
-            self.leere_hf()
-            self.mb.class_Projekt.setze_pfade()
-            self.mb.class_Bereiche.leere_Dokument() 
-            self.mb.class_Projekt.lade_settings()      
-            self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
-               
-            Eintraege = self.mb.class_Projekt.lese_xml_datei()
-            self.mb.class_Projekt.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
-            
-            # setzt die selektierte Zeile auf die erste Zeile
-            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
-            
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog)    
-            self.mb.class_Baumansicht.korrigiere_scrollbar()
-                         
-            # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
-            Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
-            Path2 = uno.systemPathToFileUrl(Path1)
-            self.mb.doc.storeAsURL(Path2,()) 
-             
-            self.mb.class_Projekt.selektiere_ersten_Bereich()
-                        
-        except Exception as e:
-            self.mb.nachricht('lade_Projekt '+ str(e),"warningbox")
-            log(inspect.stack,tb())
- 
-    
-    def leere_hf(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        contr = self.mb.dialog.getControl('Hauptfeld_aussen') 
-        contr.dispose()
-        contr = self.mb.dialog.getControl('ScrollBar')
-        contr.dispose()
-    
-    
+   
     def disposing(self,ev):
         return False
 

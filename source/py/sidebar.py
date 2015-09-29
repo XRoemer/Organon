@@ -290,7 +290,7 @@ class Sidebar():
         # sind noch keine Panels vorhanden
         if xUIElement_name not in self.mb.dict_sb['controls']:
             return
-                
+       
         try:
             ctx = self.mb.ctx
             
@@ -977,7 +977,7 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
         if new_tag != '':
             if new_tag not in self.mb.dict_sb_content['tags']['Tags_general']:
                 self.mb.dict_sb_content['tags']['Tags_general'].append(new_tag)
-                print('hier')
+                
                 if new_tag not in self.mb.dict_sb_content['ordinal'][ordinal][self.tag]:
                     self.mb.dict_sb_content['ordinal'][ordinal][self.tag].append(new_tag)
                 
@@ -1204,7 +1204,6 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         for d in zu_loeschende:
             del(dic[d])
 
-            #pd()
     
     
     

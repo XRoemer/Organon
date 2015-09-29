@@ -397,12 +397,18 @@ class Funktionen():
             self.mb.nachricht('teile_text ' + str(e),"warningbox")
             log(inspect.stack,tb())
             
+    def teile_text_batch(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        ttb = Teile_Text_Batch(self.mb)
+        ttb.erzeuge_fenster()
+    
             
     def verbotene_buchstaben_austauschen(self,term):
                             
         verbotene = '<>:"/\\|?*'
 
-        term =  ''.join(c for c in term if c not in verbotene)
+        term =  ''.join(c for c in term if c not in verbotene).strip()
         if term != '':
             return term
         else:
@@ -627,8 +633,9 @@ class Funktionen():
         
         for e in elements:
             try:
-                sc = textdoc.getByName(e)
-                shortcuts.update({e:sc.Command})
+                if e in textdoc.ElementNames:
+                    sc = textdoc.getByName(e)
+                    shortcuts.update({e:sc.Command})
             except:
                 shortcuts.update({e:'?'})
                 
@@ -636,8 +643,9 @@ class Funktionen():
         
         for e in elements:
             try:
-                sc = textdoc.getByName(e)
-                shortcuts.update({e:sc.Command})
+                if e in textdoc.ElementNames:
+                    sc = textdoc.getByName(e)
+                    shortcuts.update({e:sc.Command})
             except:
                 shortcuts.update({e:'?'})
         
@@ -762,7 +770,697 @@ class Funktionen():
                             path = ''
         findDiff(dict1,dict2)
         return diff
+    
+    
+    def leere_hf(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        contr = self.mb.dialog.getControl('Hauptfeld_aussen') 
+        contr.dispose()
+        contr = self.mb.dialog.getControl('ScrollBar')
+        contr.dispose()
 
+
+class Teile_Text_Batch():
+    def __init__(self,mb):
+        self.mb = mb
+        
+    def erzeuge_fenster(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        LANG.GANZES_WORT = u'Ganzes Wort'
+        LANG.REGEX = u'Regular Expression'
+        LANG.UEBERSCHRIFTEN = u'Überschriften'
+        
+        LANG.TEXT_BATCH_DEVIDE = u'Teile Text (Stapel)'
+        LANG.NICHTS_AUSGEWAEHLT_BATCH = u'Es sind keine Optionen ausgewählt und es wurde kein Text eingegeben.'
+        LANG.KEINE_TRENNUNG = u'Es wurden keine Ergebnisse für die Trennung gefunden.'
+        LANG.ERSTELLT_WERDEN = u'Organon wird {} neue Dateien oder Ordner erstellen.\r\n Fortfahren?'
+        
+        try:
+            self.dialog_batch_devide()
+        except:
+            log(inspect.stack,tb())
+            
+            
+    def dialog_batch_devide_elemente(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        listener = self.listener
+        
+        controls = [
+            10,
+            ('control_Titel',"FixedText",        
+                                    20,0,250,20,    
+                                    ('Label','FontWeight'),
+                                    (LANG.TEXT_BATCH_DEVIDE ,150),                  
+                                    {}
+                                    ), 
+            35,
+            ('control_Text',"Edit",        
+                                    20,0,350,20,    
+                                    (),
+                                    (),                  
+                                    {}
+                                    ), 
+                    
+                    
+            40, ]
+        
+        elemente = 'GANZES_WORT','REGEX','UEBERSCHRIFTEN','LEERZEILEN'
+                
+                
+        for el in elemente:
+            controls.extend([
+            ('control_{}'.format(el),"CheckBox",      
+                                    20,0,200,20,    
+                                    ('Label','State'),
+                                    (getattr(LANG, el),0),        
+                                    {'setActionCommand':el,'addActionListener':(listener,)} 
+                                    ),  
+            25 if el != 'REGEX' else 45])
+            
+        controls.extend([
+            -35,
+            ('control_start',"Button",      
+                                    290,0,80,30,    
+                                    ('Label',),
+                                    (LANG.START,),        
+                                    {'setActionCommand':'start','addActionListener':(listener,)} 
+                                    ),  
+            0])
+        
+           
+        return controls
+
+ 
+    def dialog_batch_devide(self): 
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
+            X = posSize_main.X +100
+            Y = posSize_main.Y +100          
+
+            # Listener erzeugen 
+            self.listener = Batch_Text_Devide_Listener(self.mb)         
+            
+            controls = self.dialog_batch_devide_elemente()
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)   
+            
+            self.listener.ctrls = ctrls
+            self.listener.ttb = self
+            
+            # Hauptfenster erzeugen
+            posSize = X,Y,380,210
+            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)             
+              
+            # Controls in Hauptfenster eintragen
+            for c in ctrls:
+                fenster_cont.addControl(c,ctrls[c])
+           
+            self.fenster = fenster
+           
+        except:
+            log(inspect.stack,tb())
+            
+            
+    def werte_controls_aus(self,ctrls):
+        if self.mb.debug: log(inspect.stack)
+        
+        text = ctrls['control_Text'].Text
+        ganzes_wort = ctrls['control_GANZES_WORT'].State
+        regex = ctrls['control_REGEX'].State
+        ueberschriften = ctrls['control_UEBERSCHRIFTEN'].State
+        leerzeilen = ctrls['control_LEERZEILEN'].State
+        
+        if text == '' and not ueberschriften and not leerzeilen:
+            self.mb.nachricht(LANG.NICHTS_AUSGEWAEHLT_BATCH,'infobox')
+        else:
+            args = text,ganzes_wort,regex,ueberschriften,leerzeilen
+            self.fenster.dispose()
+            self.run(args)
+
+
+    def run(self,args):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            text,ganzes_wort,regex,ueberschriften,leerzeilen = args
+            
+            ergebnis1 = []
+            ergebnis2 = []
+            ergebnis3 = []
+            
+            url = self.get_pfad() 
+            doc = self.lade_doc(url)  
+            
+            erster = self.get_ersten_paragraph(doc)    
+                   
+            if text != '':
+                ergebnis3 = self.get_suchbegriff(doc,suchbegriff=text,ganzes_wort=ganzes_wort,regex=regex)
+            if ueberschriften:
+                ergebnis1 = self.get_ueberschriften(doc)
+            if leerzeilen:
+                ergebnis2 = self.get_leerzeilen(doc)
+                
+            ordnung = sorted(erster + ergebnis1 + ergebnis2 + ergebnis3, key = lambda x : (x[2])) 
+    
+            ausgesonderte,ordnung = self.erstelle_bereiche(doc,ordnung)              
+            ordnung = [o for o in ordnung if o not in ausgesonderte] 
+            
+            if len(ordnung) > 10:
+                entscheidung = self.mb.nachricht(LANG.ERSTELLT_WERDEN.format(len(ordnung)),"warningbox",16777216)
+                # 3 = Nein oder Cancel, 2 = Ja
+                if entscheidung == 3:
+                    doc.close(False)
+                    return
+  
+            tree = self.erstelle_tree(ordnung)  
+            
+            root = tree.getroot()
+            anz = len(root.findall('.//'))
+            
+            if anz < 2:
+                self.mb.nachricht(LANG.KEINE_TRENNUNG,'infobox')
+                return
+  
+            
+            speicherordner = self.mb.pfade['odts']
+            pfad_helfer_system = os.path.join(speicherordner,'batchhelfer.odt')
+            pfad_helfer = uno.systemPathToFileUrl(pfad_helfer_system)
+            
+            doc.storeToURL(pfad_helfer,())
+            doc.close(False)
+               
+            tree_new = self.fuege_tree_in_xml_ein(tree)
+            anz = self.neue_Dateien_erzeugen(pfad_helfer, tree)
+            
+            os.remove(pfad_helfer_system)
+            self.schreibe_neuen_elementtree(tree_new,anz)
+            self.lege_dict_sbs_an(tree)
+            
+            self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
+            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
+            
+            self.mb.class_Projekt.lade_Projekt2()
+            
+        except:
+            log(inspect.stack,tb())
+            doc.close(False)
+            
+            
+        
+    def get_pfad(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        props = self.mb.props['Projekt']
+        selektiert = props.selektierte_zeile
+        
+        sec_name = props.dict_bereiche['ordinal'][selektiert]
+        pfad = props.dict_bereiche['Bereichsname'][sec_name]    
+        
+        url = uno.systemPathToFileUrl(pfad)
+        return url
+    
+    
+    def lade_doc(self,url):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+            
+            URL="private:factory/swriter"
+            doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
+                                                    
+            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink.FileURL = url
+            SFLink.FilterName = 'writer8'
+            
+            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            newSection.setPropertyValue('FileLink',SFLink)
+            newSection.setName('test')
+            
+            cur = doc.Text.createTextCursor()
+            doc.Text.insertTextContent(cur, newSection, True)
+
+            sections = doc.TextSections
+            secs = []
+            for i in range(sections.Count):
+                secs.append(sections.getByIndex(i))
+
+            for s in secs:
+                s.dispose()
+                
+            return doc
+        except:
+            log(inspect.stack,tb())
+            
+    
+     
+    def get_ueberschriften(self,doc):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            sd = doc.createSearchDescriptor()
+            sd.SearchStyles = True
+            viewcursor = doc.CurrentController.ViewCursor
+             
+            StyleFamilies = doc.StyleFamilies
+            ParagraphStyles = StyleFamilies.getByName("ParagraphStyles")
+             
+            headings = []
+            display_names = []
+
+            for p in ParagraphStyles.ElementNames:
+                if 'Heading' in p[0:7]:
+                    headings.append(p)
+                    elem = ParagraphStyles.getByName(p)
+                    display_names.append(elem.DisplayName)
+             
+            ergebnisse = []
+
+            for dn in range(len(display_names)):
+                sd.SearchString = display_names[dn]
+                ergebnisse.append(doc.findAll(sd))
+             
+            ordnung = []
+            x = 0
+
+            for e in ergebnisse:
+                for count in range(e.Count):
+                    erg = e.getByIndex(count)
+                    viewcursor.gotoRange(erg.Start,False)
+                    vd = int(doc.CurrentController.ViewData.split(';')[1])
+                    ordnung.append([erg.ParaStyleName,viewcursor.Page,vd,erg,erg.String])
+                    x += 1
+
+        except:
+            log(inspect.stack,tb())
+            ordnung = []
+         
+        return ordnung
+    
+    
+    def get_leerzeilen(self,doc):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            sd = doc.createSearchDescriptor()
+            viewcursor = doc.CurrentController.ViewCursor
+            
+            regex_leerzeile = '^$'
+            
+            ergebnisse = []
+
+            sd.SearchRegularExpression = True
+            sd.SearchString = regex_leerzeile
+
+            ergebnisse1 = doc.findAll(sd)
+            
+            sd.SearchString = '^\s*$'
+            ergebnisse2 = doc.findAll(sd)
+            
+            ordnung = []
+            zeilen = []
+            x = 0
+            
+            try:
+                for count in range(ergebnisse1.Count):
+                    erg = ergebnisse1.getByIndex(count)
+                    if erg.ParaStyleName == 'Footnote':
+                        continue
+                    viewcursor.gotoRange(erg.Start,False)
+                    vd = int(doc.CurrentController.ViewData.split(';')[1])
+                    zeilen.append(['leer',viewcursor.Page,vd,viewcursor.Start,erg.String])
+                    x += 1
+            except:
+                log(inspect.stack,tb())
+                
+            try: 
+                for count in range(ergebnisse2.Count):
+                    erg = ergebnisse2.getByIndex(count)
+                    if erg.ParaStyleName == 'Footnote':
+                            continue
+                    viewcursor.gotoRange(erg.Start,False)
+                    vd = int(doc.CurrentController.ViewData.split(';')[1])
+                    zeilen.append(['leer',viewcursor.Page,vd,viewcursor.Start,erg.String])
+                    x += 1
+            except:
+                log(inspect.stack,tb())
+                                
+        except:
+            log(inspect.stack,tb())
+            
+        
+        return zeilen
+    
+    
+    def get_suchbegriff(self,doc,suchbegriff,ganzes_wort,regex):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            zeilen = []
+            
+            sd = doc.createSearchDescriptor()
+            viewcursor = doc.CurrentController.ViewCursor
+
+            if regex:
+                sd.SearchRegularExpression = True
+            if ganzes_wort:
+                sd.SearchWords = True
+                
+            sd.SearchString = suchbegriff
+            ergebnisse = doc.findAll(sd)
+            
+            x = 0
+
+            for count in range(ergebnisse.Count):
+                
+                erg = ergebnisse.getByIndex(count)
+                #erg.CharBackColor = 502
+                viewcursor.gotoRange(erg.Start,False)
+
+                vd = int(doc.CurrentController.ViewData.split(';')[1])
+                #print(viewcursor.CharStyleName + viewcursor.ParaStyleName)
+                if 'footnote' not in viewcursor.ParaStyleName.lower():
+                    zeilen.append(['suchbegriff',viewcursor.Page,vd,erg,erg.String])
+                    x += 1
+               
+        except:
+            log(inspect.stack,tb())
+        
+        return zeilen
+               
+     
+    def erstelle_bereiche(self,doc,ordnung):
+        if self.mb.debug: log(inspect.stack)
+        
+        cur = doc.Text.createTextCursor()
+        cur2 = doc.Text.createTextCursor()
+        
+        x = self.mb.props['Projekt'].kommender_Eintrag
+        ausgesonderte = []
+        
+        try:                
+            # pro Ueberschrift 1 Ordner
+            for o in range(len(ordnung)):
+                 
+                fund = ordnung[o][3]
+                if o + 1 < len(ordnung):
+                    fund_ende = ordnung[o+1][3]
+                else:
+                    fund_ende = None
+                
+                # Cursor setzen
+                if ordnung[o][0] == 'leer':
+                    cur.gotoRange(fund.Start,False)
+                    cur.goRight(1,False)
+                    fund = cur.Start
+                                                
+                cur.gotoRange(fund.Start,False)
+                
+#                 cur.setString('ANFANG'+str(o))
+#                 cur.CharBackColor = 502
+                
+                if fund_ende != None:
+                    cur.gotoRange(fund_ende.Start,True)
+                else:
+                    cur.gotoEnd(True)
+                    
+                
+                # leere Bereiche aussparen
+                if cur.String.strip() == '':
+                    ausgesonderte.append(ordnung[o])
+                    continue
+                
+#                 cur2.gotoRange(cur,False)
+#                 cur2.collapseToEnd()
+#                 cur2.setString('ENDE'+str(o))
+#                 cur2.CharBackColor = 12765426
+                
+                try:
+                    newSection = doc.createInstance("com.sun.star.text.TextSection")
+                    doc.Text.insertTextContent(cur, newSection, True)
+                    newSection.setName('organon_nr{}'.format(x))
+                    ordnung[o][4] = cur.String
+                    x += 1
+                except:
+                    ausgesonderte.append(ordnung[o])
+                    
+        except:
+            log(inspect.stack,tb())
+        
+        return ausgesonderte,ordnung
+    
+     
+    def setze_attribute(self,element,name,art,level,parent):
+        if self.mb.debug: log(inspect.stack)
+        
+        if art == 'dir':
+            zustand = 'auf'
+        else:
+            zustand = '-'
+        
+        element.attrib['Name'] = name.split('\n')[0]
+        element.attrib['Zustand'] = zustand
+        element.attrib['Sicht'] = 'ja'
+        element.attrib['Parent'] = parent.tag
+        element.attrib['Lvl'] = str(level)
+        element.attrib['Art'] = art
+        
+        element.attrib['Tag1'] = 'leer'
+        element.attrib['Tag2'] = 'leer'
+        element.attrib['Tag3'] = 'leer'
+     
+     
+    def erstelle_tree(self,geordnete):
+        if self.mb.debug: log(inspect.stack)
+        
+        # XML TREE
+        et = self.mb.ET    
+        root = et.Element('root')
+        root.attrib['NameH'] = 'AAA'
+        tree = et.ElementTree(root)
+        
+        props = self.mb.props['Projekt']
+        
+        kE = props.kommender_Eintrag
+        el = root
+        
+        selektiert = props.selektierte_zeile
+        root_orig = props.xml_tree.getroot()
+        sel_xml = root_orig.find('.//'+selektiert)
+        lvl_sel = int(sel_xml.attrib['Lvl'])
+        
+        lvl = lvl_sel - 1
+        erste_pg = True
+        
+        try:
+            for o in range(len(geordnete)):
+                
+                heading = geordnete[o][0]
+                name = geordnete[o][4]
+                name = name.strip() if len(name) < 60 else name[0:60].strip()
+                
+                if heading in ['leer','suchbegriff','erster']:
+                    if erste_pg: 
+                        if el.tag == 'root':
+                            par = el
+                        else:
+                            par = root.find('.//'+el.tag)
+                        lvl += 1
+                    else:
+                        par = root.find('.//'+el.tag+'/..')
+                    el = et.SubElement(par,'nr'+str(o+kE))
+                    
+                    el.attrib['NameH'] = heading
+                
+                    par = root.find('.//'+el.tag+'/..')
+                    self.setze_attribute(el,name,'pg',lvl,par)
+                    erste_pg = False
+                    continue
+                
+                elif heading > el.attrib['NameH']:
+                    el = et.SubElement(el,'nr'+str(o+kE))
+                    lvl += 1
+                    
+                elif heading == el.attrib['NameH']:
+                    par = root.find('.//'+el.tag+'/..')
+                    el = et.SubElement(par,'nr'+str(o+kE))
+                     
+                else:
+                    par = el
+                    while heading <= par.attrib['NameH']:
+                        par = root.find('.//'+par.tag+'/..')
+                        lvl -= 1
+                    lvl += 1
+
+                    el = et.SubElement(par,'nr'+str(o+kE))
+                   
+                el.attrib['NameH'] = heading
+                
+                par = root.find('.//'+el.tag+'/..')
+                self.setze_attribute(el,name,'dir',lvl,par)
+                erste_pg = True
+        except:
+            log(inspect.stack,tb())
+            tree = None
+            
+        all = root.findall('.//')
+        for a in all:
+            del a.attrib['NameH']
+        
+        return tree
+    
+    
+    def get_ersten_paragraph(self,doc):
+        if self.mb.debug: log(inspect.stack)
+        
+        vc = doc.CurrentController.ViewCursor
+        vc.gotoStart(False)
+        erg = vc.Start
+        vd = 0
+        return [['erster',vc.Page,vd,erg,erg.String]]
+    
+    
+    def neue_Dateien_erzeugen(self,pfad_helfer,tree):
+        if self.mb.debug: log(inspect.stack)
+        
+        root = tree.getroot()
+        neue_dateien = root.findall('.//')
+        ordinale = [n.tag for n in neue_dateien]
+
+        StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
+        StatusIndicator.start(LANG.ERZEUGE_DATEI %(1,len(ordinale)),len(ordinale))
+        
+        speicherordner = self.mb.pfade['odts']
+        
+        zaehler = 0
+        
+        try:
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+            
+            URL="private:factory/swriter"
+            
+            for o in ordinale:
+                StatusIndicator.setValue(zaehler)
+                
+                new_doc = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
+                cur = new_doc.Text.createTextCursor()
+                
+                SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+                SFLink.FileURL = pfad_helfer
+                SFLink.FilterName = 'writer8'
+                
+                newSection = new_doc.createInstance("com.sun.star.text.TextSection")
+                newSection.Name = 'OrgInnerSec' + o.replace('nr','')
+                new_doc.Text.insertTextContent(cur, newSection, True)
+                
+                cur.goLeft(1,False)
+                cur.setString(' ')
+                
+                newSection2 = new_doc.createInstance("com.sun.star.text.TextSection")
+                newSection2.setPropertyValue('FileLink',SFLink)
+                newSection2.LinkRegion = 'organon_' + o
+                  
+                new_doc.Text.insertTextContent(cur, newSection2, True)
+                newSection2.dispose()
+                
+                cur.gotoEnd(False)
+                cur.goLeft(1,True)
+                cur.setString('')
+                
+                pfad = os.path.join(speicherordner,o +'.odt')
+                pfad2 = uno.systemPathToFileUrl(pfad)
+                new_doc.storeToURL(pfad2,())
+                new_doc.close(False)
+                
+                zaehler += 1
+            
+        except:
+            log(inspect.stack,tb())
+            StatusIndicator.end()
+            return 0
+            
+        StatusIndicator.end()
+        return zaehler
+    
+    
+    def fuege_tree_in_xml_ein(self,new_tree):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:        
+            tree_old = copy.deepcopy(self.mb.props[T.AB].xml_tree)
+            root = tree_old.getroot()
+            
+            name_selek_zeile = self.mb.props['Projekt'].selektierte_zeile
+            xml_selekt_zeile = root.find('.//'+name_selek_zeile)
+            
+            parent = root.find('.//'+xml_selekt_zeile.tag+'/..')
+            liste = list(parent)
+            index_sel = liste.index(xml_selekt_zeile)
+            
+            children_new_tree = list(new_tree.getroot())
+            
+            for c in range(len(children_new_tree)):
+                child = children_new_tree[c]
+                child.attrib['Parent'] = parent.tag
+                parent.insert(index_sel+1+c,child)  
+            
+            return tree_old
+        
+        except:
+            log(inspect.stack,tb())
+            
+            
+    def schreibe_neuen_elementtree(self,tree,zaehler):
+        root = tree.getroot()
+        kE = int(root.attrib['kommender_Eintrag'])  
+        root.attrib['kommender_Eintrag'] = str(kE + zaehler)
+        
+        self.mb.props['Projekt'].kommender_Eintrag += zaehler
+        
+        path = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
+        self.mb.tree_write(tree,path)
+        
+    def lege_dict_sbs_an(self,tree):
+        root = tree.getroot()
+        all = root.findall('.//')
+        for a in all:
+            self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(a.tag)
+            
+
+
+from com.sun.star.awt import XActionListener
+class Batch_Text_Devide_Listener (unohelper.Base, XActionListener):
+    def __init__(self,mb):
+        self.mb = mb
+        
+        self.ctrls = None
+        self.ttb = None
+       
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        cmd = ev.ActionCommand
+        
+        if cmd == 'GANZES_WORT':
+            ctrl = self.ctrls['control_REGEX']
+            ctrl.State = 0
+        elif cmd == 'REGEX':
+            ctrl = self.ctrls['control_GANZES_WORT']
+            ctrl.State = 0
+        elif cmd == 'start':
+            self.ttb.werte_controls_aus(self.ctrls)
+        
+        
+    def disposing(self,ev):
+        return False
 
         
      

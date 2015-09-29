@@ -302,6 +302,7 @@ class Bereiche():
             except:
                 log(inspect.stack,tb())
 
+
     def verlinkte_Bilder_einbetten(self,doc):
         if self.mb.debug: log(inspect.stack)
         

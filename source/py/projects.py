@@ -102,7 +102,7 @@ class Projekt():
         except Exception as e:
             self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
             log(inspect.stack,tb())
-            pd()
+            
 
                         
     def setze_pfade(self): 
@@ -504,8 +504,11 @@ class Projekt():
             self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
-            # setzt die selektierte Zeile auf die erste Zeile
-            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
+            # setzt die selektierte Zeile auf die erste Datei
+            erste_datei = self.mb.class_Tabs.get_erste_datei()
+            self.mb.props[T.AB].selektierte_zeile = erste_datei
+            self.mb.props[T.AB].selektierte_zeile_alt = erste_datei
+            self.mb.class_Tabs.setze_selektierte_zeile(erste_datei)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Baumansicht.erzeuge_Scrollbar()    
@@ -524,18 +527,53 @@ class Projekt():
             self.mb.doc.storeAsURL(Path2,()) 
             
             self.mb.class_Tabs.lade_tabs()
+            erste_datei = self.mb.class_Tabs.get_erste_datei()
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei)
             
             self.mb.class_Sidebar.lade_sidebar_dict()
             self.mb.class_Sidebar.lade_sidebar()
-            self.selektiere_ersten_Bereich()
+            #self.selektiere_ersten_Bereich()
             self.mb.use_UM_Listener = True    
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
         except Exception as e:
-            self.mb.nachricht('lade_Projekt ' + str(e),"warningbox")
+            self.mb.nachricht('ERROR: could not load project\r\n ' + str(e),"warningbox")
             log(inspect.stack,tb())
     
     
+    def lade_Projekt2(self):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            props = self.mb.props[T.AB]
+            
+            self.mb.class_Funktionen.leere_hf()
+            self.setze_pfade()
+            self.mb.class_Bereiche.leere_Dokument() 
+            self.lade_settings() 
+                 
+            props.Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
+               
+            Eintraege = self.lese_xml_datei()
+            self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
+            
+            # setzt die selektierte Zeile auf die erste Zeile
+            props.selektierte_zeile = props.Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
+            
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog)    
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
+                         
+            # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
+            Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
+            Path2 = uno.systemPathToFileUrl(Path1)
+            self.mb.doc.storeAsURL(Path2,()) 
+             
+            self.selektiere_ersten_Bereich()
+                        
+        except Exception as e:
+            self.mb.nachricht('ERROR: could not load project\r\n ' + str(e),"warningbox")
+            log(inspect.stack,tb())
     
     def trage_projekt_in_zuletzt_geladene_Projekte_ein(self,dateiname,filepath):
         if self.mb.debug: log(inspect.stack)
@@ -648,33 +686,34 @@ class Projekt():
     def erzeuge_helfer_bereich(self):
         if self.mb.debug: log(inspect.stack)
         
-        newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
-        newSection.setName('Organon_Sec_Helfer')
-        
-        newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
-        newSection2.setName('Organon_Sec_Helfer2')
-        
-        text = self.mb.doc.Text
-        textSectionCursor = text.createTextCursor()
-        
-        # Helfer Section 1
-        textSectionCursor.gotoEnd(False)
-        text.insertTextContent(textSectionCursor, newSection, False)
-        newSection.IsVisible = False
-        
-        # Helfer Section 2
-        textSectionCursor.gotoStart(False)
-        text.insertTextContent(textSectionCursor, newSection2, False)
-        newSection2.IsVisible = False
-        
-        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        SFLink.FileURL = os.path.join(self.mb.pfade['odts'],'empty_file.odt')
-        newSection2.setPropertyValue('FileLink',SFLink)
-        
-        
-        self.mb.sec_helfer = newSection
-        self.mb.sec_helfer2 = newSection2        
-        
+        try:
+            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
+            newSection.setName('Organon_Sec_Helfer')
+            self.mb.sec_helfer = newSection
+            
+            newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
+            newSection2.setName('Organon_Sec_Helfer2')
+            self.mb.sec_helfer2 = newSection2  
+            
+            text = self.mb.doc.Text
+            textSectionCursor = text.createTextCursor()
+            
+            # Helfer Section 1
+            textSectionCursor.gotoEnd(False)
+            text.insertTextContent(textSectionCursor, newSection, False)
+            newSection.IsVisible = False
+            
+            # Helfer Section 2
+            textSectionCursor.gotoStart(False)
+            text.insertTextContent(textSectionCursor, newSection2, False)
+            newSection2.IsVisible = False
+            
+            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink.FileURL = os.path.join(self.mb.pfade['odts'],'empty_file.odt')
+            newSection2.setPropertyValue('FileLink',SFLink)
+            
+        except:
+            log(inspect.stack,tb())
 
     def erzeuge_Eintraege_und_Bereiche2(self,Eintraege):
         if self.mb.debug: log(inspect.stack)
@@ -766,18 +805,17 @@ class Projekt():
             helfer.append(elem.tag)
             # hier wird self.mb.props[T.AB].dict_ordner geschrieben
             dict[tag] = helfer
-            if elem.attrib['Zustand'] == 'auf' or elem.attrib['Art'] == 'waste':
+            if elem.attrib['Zustand'] == 'auf':# or elem.attrib['Art'] == 'waste':
                 for child in list(elem):
                     get_tree_info(child, dict,tag,helfer)
 
-        
         # Fuer alle Ordner eine Liste ihrer Kinder erstellen -> self.mb.props[T.AB].dict_ordner       
         for tag in sorted(ordner):
             dir = root.find('.//'+tag)
             helfer = []
             get_tree_info(dir,self.mb.props[T.AB].dict_ordner,tag,helfer)
         
-
+        
 
     def lese_xml_datei(self):
         if self.mb.debug: log(inspect.stack)
@@ -969,6 +1007,8 @@ class Projekt():
         
         return flags
     
+    
+        
        
     def test(self):
 
@@ -1184,9 +1224,7 @@ class Projekt():
 #                 except:
 #                     print('Fehler')
                     
-            #pd()     
-
-            #pd()
+            
             
             
 #             
@@ -1324,24 +1362,168 @@ class Projekt():
 #                 res = get_attribs(object)
             
             
-            dic = self.mb.dict_sb_content
+            
+#             #####################################
+#             dic = self.mb.dict_sb_content
+# 
+#             
+#             props = self.mb.props
+#             
+#             #uno.systemPathToFileUrl(
+#             extension = self.mb.path_to_extension
+#             
+#             pfad = os.path.join(extension,'factory','Sidebar.xcu')
+#             pfad2 = os.path.join(extension,'factory','Sidebar_test.xcu')
+#                 
+#             xml_tree = self.mb.ET.parse(pfad)
+#             root = xml_tree.getroot() 
+#             
+#             panellist = root.find(".//*[@{http://openoffice.org/2001/registry}name='PanelList']")
+#             
+#             
+#             panels = [
+#                       'empty_project',
+#                       'Synopsis',
+#                       'Notes',
+#                       'Images',
+#                       'Tags_characters',
+#                       'Tags_locations',
+#                       'Tags_objects',
+#                       'Tags_time',
+#                       "Tags_user1",
+#                       "Tags_user2",
+#                       "Tags_user3"                      
+#                       ]
+#             
+#             
+#             synopsis = panellist.find(".//*[@{{http://openoffice.org/2001/registry}}name='{0}']".format(panels[0]))
+#             title = synopsis.find(".//*[@{http://openoffice.org/2001/registry}name='Title']")
+#             en = title.find(".//*[@{http://www.w3.org/XML/1998/namespace}lang='en']")
+#             
+#             for p in panels:
+#                 tit = self.find_titel(panellist,p,self.mb.language) 
+#                 print(tit)
+#                 
+#                 
+#                 
+#             #en.text = 'Synopsis 2'
+#             
+# #             xml_tree.write(pfad2)
+#             
+#             
+# #             with codecs_open( pfad, "r","utf-8") as file:
+# #                 lines = file.readlines() 
+# #             
+# #             for x in range(len(lines)):
+# #                 if u'<value xml:lang="en">Ärosol</value>' in lines[x]:
+# #                     text = lines[x].split(u'Ärosol')
+# #                     new_text = text[0]+u'Synopsis'+text[1]
+# #                     lines[x] = new_text
+# #             
+# #             txt = ''.join(lines)
+# #             with codecs_open( pfad, "w","utf-8") as file:
+# #                 file.write(txt)
+# ########################################
 
-
+            
+            #vc = self.mb.viewcursor
+            #text = self.mb.doc.Text
+            
 
 
             
+            
+
+                
+#                 pfad_split = os.path.split(pfad)
+#                 
+#                 pfad_neu = os.path.join(pfad_split[0],'batch_devide.odt')
+#                 
+#                 import shutil
+#                 shutil.copyfile(pfad,pfad_neu)
+#                 os.remove(url)
+                
+                
+
+                
+            
+            
+
+            
+#              
+# #             root.attrib['Name'] = 'root'
+# #             root.attrib['kommender_Eintrag'] = self.mb.props[T.AB].kommender_Eintrag
+#             # Version fuer eventuelle Kompabilitaetspruefung speichern
+#             # wird nur an dieser Stelle verwendet
+#             #root.attrib['Programmversion'] = self.mb.programm_version
+#             #print(dir(letztes_element))
+#                    
+#                      
+#                      
+#                 
+#             prop1 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+#             prop1.Name = 'Overwrite'
+#             prop1.Value = True
+#              
+#             #pfad = uno.systemPathToFileUrl(os.path.join(self.speicherordner,self.titel+'.odt'))
+#             url = os.path.join(self.mb.pfade['odts'],'test2.odt')
+#              
+#             url = uno.systemPathToFileUrl(url)
+#             #doc.storeToURL(url,(prop1,))
+                  
+              
+              
+              
+#             neue_ordinale = []
+#             for o in range(len(ordnung)-1,-1,-1):
+#                 fund = ordnung[o][3]
+#                 text = ordnung[o][4] if len(ordnung[o][4]) < 60 else ordnung[o][4][0:60]
+#                 print(text)
+#                 ordi = self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner',neuer_Name=text)
+#                 neue_ordinale.append(ordi)
+#              
+#              
+#              
+#              
+#             for o in range(len(neue_ordinale)-1,0,-1):
+#                  
+#                 source_xml = tree.find('.//X'+str(o))
+#                 target_xml = parent_map[source_xml]   root.find('.//'+par.tag+'/..')
+#                 #target_nr = 'nr' + target_xml.tag.split('X')[0]
+#                 nr = int(target_xml.tag.split('X')[1])
+#                  
+#                 source = 'nr' + str(neue_ordinale[o])
+#                 target = 'nr' + str(neue_ordinale[nr])
+#                  
+#                 action = 'inOrdnerEinfuegen'
+#                  
+#                 self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(source,target,action)
+#  
+            
+            
+
+             
         except:
             log(inspect.stack,tb())
-            print(tb())
             pd()
+
         pd()
-    
-    
-    
-    
+        
+        
     
 
-            
+    
+    
+    def find_titel(self,panellist,tag,lang):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            tag_xml = panellist.find(".//*[@{{http://openoffice.org/2001/registry}}name='{0}']".format(tag))
+            title_xml = tag_xml.find(".//*[@{http://openoffice.org/2001/registry}name='Title']")
+            name = title_xml.find(".//*[@{{http://www.w3.org/XML/1998/namespace}}lang='{0}']".format(lang))
+            return name.text
+        except:
+            return None
     
 
     def myDialog(self):
@@ -1365,7 +1547,7 @@ class Projekt():
         
         #dlg.getControl("TextField1").Text = " Here you can read your message "
         dlg.execute()
-        #pd()
+        
 #         control.setVisible(True)
 #         dlg.setVisible(True)
 #         time.sleep(3) ## 5 sec

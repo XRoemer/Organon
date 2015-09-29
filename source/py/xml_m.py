@@ -112,8 +112,7 @@ class XML_Methoden():
 
         self.xmlLevel_und_hfPosition_anpassen(root,source)
 
-        
-     
+             
     def drunter_einfuegen(self,source,target):
         if self.mb.debug: log(inspect.stack)
     
@@ -134,8 +133,6 @@ class XML_Methoden():
         self.xmlLevel_und_hfPosition_anpassen(root,source)
 
             
-
-     
     def in_Papierkorb_einfuegen(self,source,target):
         if self.mb.debug: log(inspect.stack)
         
@@ -153,8 +150,8 @@ class XML_Methoden():
         target.append(source)
         
         self.xmlLevel_und_hfPosition_anpassen(root,source)
-            
-     
+        
+
     def xmlLevel_und_hfPosition_anpassen(self,root,source):
         if self.mb.debug: log(inspect.stack)
          

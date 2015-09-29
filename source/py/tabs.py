@@ -212,12 +212,32 @@ class Tabs():
                 self.mb.erzeuge_Menu(win)
                 self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
                 
-                self.setze_selektierte_zeile('nr0')
+                erste_datei = self.get_erste_datei()
+                self.setze_selektierte_zeile(erste_datei)
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
             
         except:
             log(inspect.stack,tb())
 
+    
+    def get_erste_datei(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        tree = self.mb.props[T.AB].xml_tree
+        root = tree.getroot()
+        
+        ordinale = []
+        self.mb.class_XML.get_tree_info(root,ordinale)
+        
+        erste_datei = 'nr0'
+        
+        for o in ordinale:
+            if o[2] == 'Papierkorb':
+                return erste_datei
+            elif o[4] == 'pg':
+                return o[0]
+            
+        return erste_datei
     
     def lade_tab_Eintraege(self,tab_name):
         if self.mb.debug: log(inspect.stack)
@@ -265,6 +285,9 @@ class Tabs():
         
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)        
         self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext.AccessibleName
+        self.mb.props[T.AB].selektierte_zeile_alt = zeile.AccessibleContext.AccessibleName
+        textfeld = zeile.getControl('textfeld') 
+        textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
     
     def get_ordinale_seitenleiste(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)

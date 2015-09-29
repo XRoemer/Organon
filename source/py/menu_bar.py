@@ -153,8 +153,10 @@ class Menu_Bar():
             # Klassen   
             self.Key_Handler = Key_Handler(self)
             self.ET = ElementTree  
+            
             self.nachricht = Mitteilungen(self.ctx,self).nachricht
             self.nachricht_si = Mitteilungen(self.ctx,self).nachricht_si
+            self.popup = Mitteilungen(self.ctx,self).popup
             
             self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
             self.class_Projekt =        self.lade_modul('projects','Projekt')   
@@ -192,7 +194,6 @@ class Menu_Bar():
             self.w_listener             = Dialog_Window_Listener(self)    
             self.undo_mgr_listener      = Undo_Manager_Listener(self)
             self.tab_listener           = Tab_Listener(self)
-            #self.listener_top_window    = Top_Window_Listener(self)
                                                              
             self.Listener = {}
             self.Listener.update( {'Menu_Leiste_Listener': Menu_Leiste_Listener(self)} )
@@ -211,8 +212,7 @@ class Menu_Bar():
                 self.doc.addDocumentEventListener(self.listener_doc_close)
             except:
                 log(inspect.stack,tb())
-                pd()
-    #         UD_properties = self.doc.DocumentProperties.UserDefinedProperties
+                
 
 
         except:
@@ -593,6 +593,7 @@ class Menu_Bar():
         
         try:
             loc = locale[0:2]
+            self.language = loc
             try:
                 lang2 = __import__('lang_{}'.format(loc))
                 
@@ -606,7 +607,8 @@ class Menu_Bar():
             
         except:
             if self.debug:log(inspect.stack,tb())
-
+        
+        lang.SYNOPSIS = 'coole Backe'
         return lang
     
     def lade_RawInputReader(self):
@@ -994,6 +996,7 @@ def menuEintraege(LANG,menu):
             LANG.NEUER_TAB,
             'SEP',
             LANG.TRENNE_TEXT,
+            LANG.TEXT_BATCH_DEVIDE,
             LANG.TEXTTOOLS,
             'SEP',
             LANG.UNFOLD_PROJ_DIR,
@@ -1227,8 +1230,7 @@ class Tab_Listener(unohelper.Base,XTabListener):
                 if self.mb.props[T.AB].selektierte_zeile_alt != None:
                     ctrl_alt = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].selektierte_zeile_alt).getControl('textfeld')
                     self.mb.class_Sidebar.passe_sb_an(ctrl_alt)
-                    
-             
+                
             self.id_old = id
         except:
             log(inspect.stack,tb())
@@ -1469,6 +1471,10 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 
             elif sel == LANG.ORGANIZER:
                 self.mb.class_Organizer.run()
+            
+            elif sel == LANG.TEXT_BATCH_DEVIDE:
+                self.mb.class_Funktionen.teile_text_batch()
+                
     
             self.mb.loesche_undo_Aktionen()
         except:
@@ -1703,6 +1709,38 @@ class Mitteilungen():
         StatusIndicator.setValue(2)
         time.sleep(zeit)
         StatusIndicator.end()
+        
+    def popup(self,nachricht,zeit=2):
+        if self.mb.debug: log(inspect.stack)  
+        
+        posSize = 50,50,250,250
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128)
+        
+        ctrl, model = self.mb.createControl(self.ctx, "FixedText", 2, 2, 250, 20, (), ())          
+        model.Label = nachricht
+    
+        fenster_cont.addControl('Text', ctrl)
+        
+        if zeit != 'frei':
+            time.sleep(zeit)
+            fenster.dispose()
+            
+            
+        f,m = self.mb.popup(LANG.KEIN_NAME,'frei')
+#         f.draw(1,1)
+#         time.sleep(1)
+#         #pd()
+#         
+#         for x in range(10):
+#             m.Label = 'verbleibend: {}'.format(x)
+#             f.draw(1,1)
+#             time.sleep(.2)
+#         time.sleep(1)
+#         f.dispose()
+        
+        return fenster, model
+        
+        
 
 from com.sun.star.document import XUndoManagerListener 
 class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener): 
@@ -1738,7 +1776,7 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
                         self.bereich_in_OrganonSec_einfuegen(tbe)
     
     
-    def undoActionAdded(self,ev):return False
+    def undoActionAdded(self,ev):pass
     def actionUndone(self,ev):return False
     def actionRedone(self,ev):return False
     def allActionsCleared(self,ev):return False
@@ -2092,9 +2130,12 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
 
     def documentEventOccured(self,ev):
         if self.mb.debug: log(inspect.stack)
+        #print(ev.EventName)
         if ev.EventName == 'OnPrepareViewClosing':
             self.mb.doc.setModified(False)
-        
+            
+    def disposing(self,ev):
+        return False
         
         
     

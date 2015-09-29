@@ -580,6 +580,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         
         self.mb = mb
         self.feld_projekt_name = None
+        self.ungespeichert = []
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -598,10 +599,21 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             self.exp_in_einzel_dat(sections)
         elif sett['neues_proj']:
             self.exp_in_neues_proj(sections)
-            
+        
+        self.ueberpruefe_auf_ungespeicherte()    
         self.mb.nachricht(LANG.EXPORT_ERFOLGREICH,"infobox")
 
-     
+
+    def ueberpruefe_auf_ungespeicherte(self):
+        if self.mb.debug: log(inspect.stack)
+
+        if self.ungespeichert != []:
+            self.mb.nachricht(LANG.UNGESPEICHERTE_PFADE,"warningbox")
+        
+        self.ungespeichert = []
+        
+        
+          
     def get_ausgewaehlte_bereiche(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -900,7 +912,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
 
                     if art in ('dir'):
                         pfad2 = os.path.join(pfad2, name)
-
+                    
                     pfade.update({ordinal:(name,pfad2,art)})
             
             
@@ -909,6 +921,8 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             st_ind.start(LANG.EXPORT_BITTE_WARTEN,anz_sections)
             zaehler = 0
             
+            
+            ungespeichert = []
             
             while zaehler < anz_sections:
                  
@@ -978,6 +992,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                             contr = self.mb.props[T.AB].Hauptfeld.getControl(sec_ordinal)
                             tf = contr.getControl('textfeld')
                             titel = tf.Model.Text
+                            titel = "".join(i for i in titel if i not in r'\/:*?"<>|').strip()
                             pfad = os.path.join(speicherordner, titel)
                         else:
                             pfad = pfade[sec_ordinal][1]
@@ -1004,6 +1019,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                             
                         path = pfad + extension 
                         
+                        
                         # Auf eventuelle Fehler untersuchen.
                         # Die in Windows und Linux verbotenen Buchstaben in Pfaden sollten
                         # bereits getauscht worden sein. Falls doch einer fehlt, wird die Datei
@@ -1011,7 +1027,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         try:
                             path2 = uno.systemPathToFileUrl(path) 
                         except Exception as e:
-                            log(inspect.stack.tb())
+                            self.ungespeichert.append(path)
                             continue
 
                         if filterName == 'LaTex':
@@ -1030,6 +1046,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 st_ind.setValue(zaehler)
         except:
             log(inspect.stack,tb())
+
         st_ind.end()  
 
 

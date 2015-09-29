@@ -111,11 +111,11 @@ class Log():
             except:
                 modul = ''
 
-            if xclass in ('ViewCursor_Selection_Listener'):
-                return
-            
-            if function in ('mouseEntered','mouseExited','entferne_Trenner'):
-                return
+#             if xclass in ('ViewCursor_Selection_Listener'):
+#                 return
+#             
+#             if function in ('mouseEntered','mouseExited','entferne_Trenner'):
+#                 return
 
             if self.log_args:
                 string = '{0: <8.8}  {1: <10.10}  {2: <22.22}  {3: <30.30}  ( caller: {4: <40.40}  args:{5}'.format(self.debug_time(),modul,xclass,function,call,argues)
@@ -206,12 +206,16 @@ class Log():
             for arg in argues:
                 if arg in ('self','ev'):
                     continue
-                inhalt = str(argues[arg])
+                try:
+                    inhalt = str(argues[arg])
+                except Exception as e:
+                    inhalt = 'Fehler: ' + str(e) + '\r\n'
+                    
                 if 'pyuno object' in inhalt:
                     inhalt = 'pyuno object'
                 a.append((arg,inhalt))
             
-            a = str(a)[1:-1]
+            a = unicode(a)[1:-1]
             return a
         except:
             print(tb())
@@ -236,17 +240,15 @@ class Log():
             
         except Exception as e:
             print(tb())
-            #pd()
             return e
         
         return None
     
     def helfer(self):
         try:
-            pass#pd()
+            pass
         except Exception as e:
             print(tb())
-            #pd()
             return e
         
         

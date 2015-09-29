@@ -298,7 +298,7 @@ class Organizer():
 
             RESOURCE_URL = "private:resource/dockingwindow/9809"
             self.calc_frame.LayoutManager.hideElement(RESOURCE_URL)
-            #pd()
+            
             listener2 = Organizer_Close_Listener(self.mb,self,self.calc)
             self.calc.addDocumentEventListener(listener2)
         except:
@@ -391,8 +391,10 @@ class Organizer():
                 Eintraege = self.mb.class_Projekt.lese_xml_datei()
             else:
                 Eintraege = self.mb.class_Tabs.lade_tab_Eintraege(T.AB)
-                        
             
+            for e in range(len(Eintraege)):
+                Eintraege[e] = list(Eintraege[e])
+                    
             self.Eintraege = Eintraege
             self.modify_listener = Modify_Listener(self.mb,self,self.Eintraege)
             self.modify_listener.pos = self.pos
@@ -567,8 +569,15 @@ class Organizer():
                 self.mb.class_Sidebar.erzeuge_sb_layout(tag,'focus_lost')
             self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','focus_lost')
             
+            for ord in self.modify_listener.aenderung_dateinamen:
+                text = self.modify_listener.aenderung_dateinamen[ord]
+                self.mb.class_Zeilen_Listener.aendere_datei_namen(ord,text)
+            
             self.mb.nachricht(LANG.UEBERNOMMEN,'infobox') 
-            self.calc.setModified(False)           
+            self.calc.setModified(False)    
+            
+            
+                     
         except:
             log(inspect.stack,tb())
             
@@ -643,6 +652,7 @@ class Modify_Listener(unohelper.Base, XModifyListener):
         self.eintraege = eintraege
         self.pos = None
         self.icons = None
+        self.aenderung_dateinamen = {}
         
         self.new_data_array = []
         
@@ -832,13 +842,14 @@ class Modify_Listener(unohelper.Base, XModifyListener):
 
                 # PROJEKTNAME
                 if (col,row) == (self.Org.pos[0],self.Org.pos[1] + 1):
-                    self.wieder_loeschen(col,row,kateg,new_data_array)
+                    self.wieder_loeschen(col,row,kateg)
                     self.mb.nachricht(LANG.PRJ_NAME_KEINE_AENDERUNG,"infobox")
                     continue
                 # DATEINAME
                 if kateg == 'datei':
                     r = row-self.pos[1]-1
                     self.eintraege[r][2] = inhalt
+                    self.aenderung_dateinamen.update({ordinal:inhalt})
                     continue
                 # LEERER INHALT
                 if inhalt == '':
