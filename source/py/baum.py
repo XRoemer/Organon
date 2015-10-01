@@ -1209,8 +1209,10 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
         self.positioniere_elemente_im_baum_neu()          
         self.update_dict_zeilen_posY() 
-        
-        path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
+        if T.AB == 'Projekt':
+            path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
+        else:
+            path = os.path.join(self.mb.pfade['tabs'] ,  T.AB + '.xml' )
         tree = props.xml_tree
         self.mb.tree_write(tree,path)
          
