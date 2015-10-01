@@ -373,7 +373,7 @@ class Baumansicht():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)            
+            self.mb.remove_VC_selection_listener()            
             
             if T.AB != 'Projekt':
                 ordinal = sorted(list(self.mb.props[T.AB].dict_bereiche['ordinal']))[0]
@@ -557,15 +557,14 @@ class Baumansicht():
         
     
     def selektiere_zeile(self,ordinal):
+        if self.mb.debug: log(inspect.stack)
         
         selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
             
         zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
         textfeld = zeile.getControl('textfeld')
         
-        try:
-            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
-     
+        try:     
             # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
             textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
             ctrl = self.mb.props[T.AB].Hauptfeld.getControl(selektierte_zeile).getControl('textfeld')
@@ -578,14 +577,12 @@ class Baumansicht():
  
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
                 self.mb.props[T.AB].tastatureingabe = False
-                     
-            self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
+                
             self.mb.props[T.AB].selektierte_zeile_alt = ordinal
             self.mb.props[T.AB].selektierte_zeile = ordinal
             self.mb.class_Sidebar.passe_sb_an(textfeld)
              
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(zeilenordinal = ordinal)
-            
             
         except:
             log(inspect.stack,tb())
@@ -635,9 +632,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack)
-        
-        self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
-        
+                
         # Mauslistener starten
         try:
             self.mb.mausrad_an = True
@@ -646,29 +641,30 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             log(inspect.stack,tb())
 
         try:
+            props = self.mb.props[T.AB]
             # die gesamte Zeile, control (ordinal)
-            self.mb.props[T.AB].selektierte_zeile = ev.Source.Context.AccessibleContext.AccessibleName
+            props.selektierte_zeile = ev.Source.Context.AccessibleContext.AccessibleName
             # control 'textfeld'   
             zeile = ev.Source
             
             # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
             zeile.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
-            if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                if self.mb.props[T.AB].selektierte_zeile != self.mb.props[T.AB].selektierte_zeile_alt:
-                    ctrl = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].selektierte_zeile_alt).getControl('textfeld')
+            if props.selektierte_zeile_alt != None:
+                if props.selektierte_zeile != props.selektierte_zeile_alt:
+                    ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld')
                     ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
 
             # bei bearbeitetem Bereich: speichern  
-            if self.mb.props[T.AB].selektierte_zeile_alt != None: 
-                if self.mb.props[T.AB].tastatureingabe == True:
-                    bereichsname_zeile_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].selektierte_zeile_alt ]
+            if props.selektierte_zeile_alt != None: 
+                if props.tastatureingabe == True:
+                    bereichsname_zeile_alt = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt ]
                     bereich_zeile_alt = self.mb.doc.TextSections.getByName(bereichsname_zeile_alt)
     
-                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
-                    self.mb.props[T.AB].tastatureingabe = False
-                    
-            self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)      
-            self.mb.props[T.AB].selektierte_zeile_alt = self.mb.props[T.AB].selektierte_zeile
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,
+                                                                          bereichsname_zeile_alt)
+                    props.tastatureingabe = False
+
+            props.selektierte_zeile_alt = props.selektierte_zeile
             self.mb.class_Sidebar.passe_sb_an(zeile)
             
             # Bei Doppelclick Zeileneintrag bearbeiten
@@ -676,8 +672,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 if ev.ClickCount == 2: 
                     
                     # Projektordner von der Umbenennung ausnehmen
-                    root = self.mb.props[T.AB].xml_tree.getroot()
-                    zeile_xml = root.find('.//' + self.mb.props[T.AB].selektierte_zeile_alt )
+                    root = props.xml_tree.getroot()
+                    zeile_xml = root.find('.//' + props.selektierte_zeile_alt )
                     art = zeile_xml.attrib['Art']
                     
                     if art == 'prj':
@@ -730,18 +726,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     if source != target:
                         self.zeilen_neu_ordnen(source,target,action)   
     
-#             self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
-#                 
-#             zeilenordinal =  self.mb.props[T.AB].selektierte_zeile
-#             bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][zeilenordinal]
-#             bereich = self.mb.doc.TextSections.getByName(bereichsname)
-#     
-#             self.mb.viewcursor.gotoRange(bereich.Anchor,False)
-#             self.mb.viewcursor.gotoStart(False)
-#                 
-#             self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)
-#             
-#             self.mb.loesche_undo_Aktionen()
         
         except:
             log(inspect.stack,tb())
@@ -1240,7 +1224,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
-        self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
+        self.mb.remove_VC_selection_listener() 
                 
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot() 
@@ -1269,8 +1253,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
         self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
         self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
-        
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener)         
+
+        self.mb.add_VC_selection_listener()         
         
     def get_links(self):
         if self.mb.debug: log(inspect.stack)
@@ -1325,9 +1309,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             return None
         return sec 
         
-    def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal = None,action=None):
+    def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal=None,action=None,add_listener=True):
         if self.mb.debug: log(inspect.stack)
-        # sec_trenner.Anchor.BreakType = 'NONE'
+
         #self.mb.use_UM_Listener = False
         try:
             
@@ -1335,8 +1319,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             # Der VC Listener wird von IsVisible ausgeloest,
             # daher wird er vorher ab- und hinterher wieder angeschaltet
-            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
-            
+            self.mb.remove_VC_selection_listener() 
+
             if zeilenordinal == None:
                 if props.selektierte_zeile != None:
                     zeilenordinal = props.selektierte_zeile
@@ -1421,7 +1405,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                    
             else:
             # Seiten 
-                #self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
+                #self.mb.remove_VC_selection_listener() 
                 selekt_bereich_name = props.dict_bereiche['ordinal'][zeilenordinal]
                 selekt_bereich = self.mb.doc.TextSections.getByName(selekt_bereich_name)
                 
@@ -1451,7 +1435,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 self.mb.current_Contr.ViewSettings.ShowTextBoundaries = oBool
             
             self.mb.sec_helfer2.IsVisible = False
-            self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
+            if add_listener:
+                self.mb.add_VC_selection_listener() 
             #self.mb.use_UM_Listener = True
         except:
             log(inspect.stack,tb())
@@ -1463,7 +1448,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
    
         # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
-        self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener) 
+        #self.mb.remove_VC_selection_listener() 
 
         zeilenordinal =  self.mb.props[T.AB].selektierte_zeile
         bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][zeilenordinal]
@@ -1487,8 +1472,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     sec = self.mb.doc.TextSections.getByName(bereich)
                     sec.IsVisible = False 
                     self.entferne_Trenner(sec)      
-                               
-        self.mb.current_Contr.addSelectionChangeListener(self.mb.VC_selection_listener) 
+
+        #self.mb.add_VC_selection_listener() 
     
     def verlinke_Sektion(self,name,bereich,sections_uno):
         if self.mb.debug: log(inspect.stack)

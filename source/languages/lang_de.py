@@ -84,6 +84,11 @@ NICHTS_AUSGEWAEHLT_BATCH = u'Es sind keine Optionen ausgewählt und es wurde kei
 KEINE_TRENNUNG = u'Es wurden keine Ergebnisse für die Trennung gefunden.'
 ERSTELLT_WERDEN = u'Organon wird {} neue Dateien oder Ordner erstellen.\r\n Fortfahren?'
 
+# VEREINE DATEIEN
+FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'Diese Funktion kann nur im Projekt Tab genutzt werden.'
+KEINE_KOMBINATION_MOEGLICH = u'Die Dateien können nicht vereint werden.'
+DATEIEN_VEREINEN = u'Dateien vereinen'
+
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = u'Ordner ausklappen'
 IN_PAPIERKORB_VERSCHIEBEN = u'In Papierkorb verschieben'
@@ -460,6 +465,7 @@ SICHTBARKEIT = u'Sichtbarkeit'
 FORMATIERUNG_SPEICHERN2 = u'Speichern des zuletzt bearbeiteten Bereiches'
 BAUMANSICHT_HOCH = u'Baumansicht ein Eintrag hoch'
 BAUMANSICHT_RUNTER = u'Baumansicht ein Eintrag runter'
+BENENNE_DATEI_UM = u'Datei umbenennen'
            
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'

@@ -190,7 +190,8 @@ class Menu_Bar():
             #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
             
             # Listener  
-            self.VC_selection_listener  = ViewCursor_Selection_Listener(self)          
+            self.VC_selection_listener  = ViewCursor_Selection_Listener(self)  
+            self.VC_selection_listener_added = True
             self.w_listener             = Dialog_Window_Listener(self)    
             self.undo_mgr_listener      = Undo_Manager_Listener(self)
             self.tab_listener           = Tab_Listener(self)
@@ -222,7 +223,20 @@ class Menu_Bar():
             # Den User ueber den Fehler benachrichtigen
             
             
-            
+    
+    def add_VC_selection_listener(self):
+        if not self.VC_selection_listener_added:
+            if self.debug: log(inspect.stack)
+            self.current_Contr.addSelectionChangeListener(self.VC_selection_listener)
+            self.VC_selection_listener_added = True
+        else:
+            log(inspect.stack,extras=' versuchter Start *********')
+    
+    def remove_VC_selection_listener(self):
+        if self.debug: log(inspect.stack)
+        self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener)
+        self.VC_selection_listener_added = False
+        
     def get_doc(self):
         if self.debug: log(inspect.stack)
         
@@ -608,7 +622,6 @@ class Menu_Bar():
         except:
             if self.debug:log(inspect.stack,tb())
         
-        lang.SYNOPSIS = 'coole Backe'
         return lang
     
     def lade_RawInputReader(self):
@@ -685,7 +698,7 @@ class Menu_Bar():
         if self.debug: log(inspect.stack)
         
         #return
-        self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener) 
+        self.remove_VC_selection_listener()
         self.current_Contr.removeKeyHandler(self.keyhandler)
         self.dialog.removeWindowListener(self.w_listener)
         self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
@@ -997,6 +1010,7 @@ def menuEintraege(LANG,menu):
             'SEP',
             LANG.TRENNE_TEXT,
             LANG.TEXT_BATCH_DEVIDE,
+            LANG.DATEIEN_VEREINEN,
             LANG.TEXTTOOLS,
             'SEP',
             LANG.UNFOLD_PROJ_DIR,
@@ -1475,6 +1489,9 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
             elif sel == LANG.TEXT_BATCH_DEVIDE:
                 self.mb.class_Funktionen.teile_text_batch()
                 
+            elif sel == LANG.DATEIEN_VEREINEN:
+                self.mb.class_Funktionen.vereine_dateien()
+                
     
             self.mb.loesche_undo_Aktionen()
         except:
@@ -1710,26 +1727,35 @@ class Mitteilungen():
         time.sleep(zeit)
         StatusIndicator.end()
         
-    def popup(self,nachricht,zeit=2):
+    def popup(self,nachricht,zeit=3):
         if self.mb.debug: log(inspect.stack)  
         
-        posSize = 50,50,250,250
+        posSize = 50,50,0,0
         fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128)
         
-        ctrl, model = self.mb.createControl(self.ctx, "FixedText", 2, 2, 250, 20, (), ())          
+        ctrl, model = self.mb.createControl(self.ctx, "FixedText", 10, 15, 0, 0, (), ())          
         model.Label = nachricht
+        
+        pref_Size = ctrl.getPreferredSize()
+        Hoehe = pref_Size.Height + 30
+        Breite = pref_Size.Width + 20
+        ctrl.setPosSize(0,0,Breite,Hoehe,12)
+        fenster.setPosSize(0,0,Breite,Hoehe,12)
+        
     
         fenster_cont.addControl('Text', ctrl)
         
         if zeit != 'frei':
+            fenster.draw(1,1)
             time.sleep(zeit)
             fenster.dispose()
             
             
-        f,m = self.mb.popup(LANG.KEIN_NAME,'frei')
-#         f.draw(1,1)
-#         time.sleep(1)
-#         #pd()
+        #f,m = self.mb.popup(LANG.KEIN_NAME,'frei')
+        
+#         time.sleep(zeit)
+#         fenster.dispose()
+#         
 #         
 #         for x in range(10):
 #             m.Label = 'verbleibend: {}'.format(x)
@@ -1938,21 +1964,22 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             selected_ts = self.mb.current_Contr.ViewCursor.TextSection            
             if selected_ts == None:
                 return False
-            #log(inspect.stack,extras=selected_ts.Name)
+
             s_name = selected_ts.Name
+            props = self.mb.props[T.AB]
 
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
 
-                if self.mb.props[T.AB].zuletzt_gedrueckte_taste == None:
+                if props.zuletzt_gedrueckte_taste == None:
                     try:
                         self.mb.viewcursor.goDown(1,False)
                     except:
                         self.mb.viewcursor.goUp(1,False)
                     return False
                 # 1024,1027 Pfeil runter,rechts
-                elif self.mb.props[T.AB].zuletzt_gedrueckte_taste.KeyCode in (1024,1027):  
+                elif props.zuletzt_gedrueckte_taste.KeyCode in (1024,1027):  
                     self.mb.viewcursor.goDown(1,False)       
                 else:
                     self.mb.viewcursor.goUp(1,False)
@@ -1974,29 +2001,28 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 if 'OrganonSec' not in selected_ts.Name:
                     return False
                 
-            props = self.mb.props    
+            props = self.mb.props[T.AB]  
                 
             self.so_name =  None   
 
-            if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                ts_old_bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].selektierte_zeile_alt]
+            if props.selektierte_zeile_alt != None:
+                ts_old_bereichsname = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
                 self.ts_old = self.mb.doc.TextSections.getByName(ts_old_bereichsname)            
-                self.so_name = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].selektierte_zeile_alt]
+                self.so_name = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
             
             if self.ts_old == 'nicht vorhanden':
                 #print('selek gewechs, old nicht vorhanden')
                 self.ts_old = selected_ts 
-                ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][s_name]
-                self.mb.props[T.AB].selektierte_zeile = ordinal
-                self.mb.props[T.AB].selektierte_zeile_alt = ordinal
+                ordinal = props.dict_bereiche['Bereichsname-ordinal'][s_name]
+                props.selektierte_zeile = ordinal
+                props.selektierte_zeile_alt = ordinal
                 return False 
             
-            elif self.mb.props[T.AB].Papierkorb_geleert == True:
+            elif props.Papierkorb_geleert == True:
                 #print('selek gewechs, Papierkorb_geleert')
-                # fehlt: nur speichern, wenn die Datei nicht im Papierkorb gelandet ist
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.ts_old.FileLink.FileURL,self.so_name)
                 self.ts_old = selected_ts 
-                self.mb.props[T.AB].Papierkorb_geleert = False 
+                props.Papierkorb_geleert = False 
                 return False       
             else:
                 if self.ts_old == selected_ts:
@@ -2005,7 +2031,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 else:
                     #print('selek gewechs',self.so_name , s_name)                    
                     self.farbe_der_selektion_aendern(selected_ts.Name)
-                    if self.mb.props[T.AB].tastatureingabe:
+                    if props.tastatureingabe:
                         self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.ts_old.FileLink.FileURL,self.so_name)
                         
                     self.ts_old = selected_ts  
@@ -2025,19 +2051,22 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                   
     def farbe_der_selektion_aendern(self,bereichsname): 
         if self.mb.debug: log(inspect.stack)    
-
-        ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][bereichsname]
-        zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
+        
+        props = self.mb.props[T.AB]
+        ordinal = props.dict_bereiche['Bereichsname-ordinal'][bereichsname]
+        zeile = props.Hauptfeld.getControl(ordinal)
         textfeld = zeile.getControl('textfeld')
         
-        self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext.AccessibleName
+        props.selektierte_zeile = zeile.AccessibleContext.AccessibleName
         # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
         textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
-        if self.mb.props[T.AB].selektierte_zeile_alt != None: 
-            ctrl = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].selektierte_zeile_alt).getControl('textfeld') 
+        
+        if props.selektierte_zeile_alt != None: 
+            ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld') 
             ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
             self.mb.class_Sidebar.passe_sb_an(textfeld)
-        self.mb.props[T.AB].selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
+            
+        props.selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      
 
 from com.sun.star.awt import XAdjustmentListener

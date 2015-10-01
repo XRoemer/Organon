@@ -555,9 +555,11 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         from collections import OrderedDict
         
         shorts = [
-                 ['TRENNE_TEXT' , LANG.TRENNE_TEXT],
                  ['INSERT_DOC' , LANG.INSERT_DOC],
                  ['INSERT_DIR' , LANG.INSERT_DIR],
+                 ['TRENNE_TEXT' , LANG.TRENNE_TEXT],
+                 ['DATEIEN_VEREINEN' , LANG.DATEIEN_VEREINEN],
+                 ['BENENNE_DATEI_UM' , LANG.BENENNE_DATEI_UM],
                  ['IN_PAPIERKORB_VERSCHIEBEN' , LANG.IN_PAPIERKORB_VERSCHIEBEN],
                  ['CLEAR_RECYCLE_BIN' , LANG.CLEAR_RECYCLE_BIN],
                  ['FORMATIERUNG_SPEICHERN2' , LANG.FORMATIERUNG_SPEICHERN2],

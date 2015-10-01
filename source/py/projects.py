@@ -85,7 +85,6 @@ class Projekt():
                 
                 self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
-                #self.mb.doc.addDocumentEventListener(self.mb.doc_listener)
                 
                 self.mb.class_Sidebar.lege_dict_sb_content_an()
                 self.mb.class_Sidebar.lade_sidebar()
@@ -1501,8 +1500,8 @@ class Projekt():
 #  
             
             
-
-             
+            
+            
         except:
             log(inspect.stack,tb())
             pd()
@@ -1510,7 +1509,8 @@ class Projekt():
         pd()
         
         
-    
+        
+  
 
     
     

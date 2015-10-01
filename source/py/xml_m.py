@@ -135,7 +135,7 @@ class XML_Methoden():
             
     def in_Papierkorb_einfuegen(self,source,target):
         if self.mb.debug: log(inspect.stack)
-        
+
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()        
         # wird zum ersten Eintrag im Ordner

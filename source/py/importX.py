@@ -685,7 +685,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     def neue_Dateien_erzeugen(self,importXml,links_und_filter):
         if self.mb.debug: log(inspect.stack)
         
-        self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
+        self.mb.remove_VC_selection_listener()
         
         speicherordner = os.path.join(self.mb.pfade['odts'])
          

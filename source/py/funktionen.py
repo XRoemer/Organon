@@ -400,8 +400,172 @@ class Funktionen():
     def teile_text_batch(self):
         if self.mb.debug: log(inspect.stack)
         
+        if T.AB != 'Projekt':
+            self.mb.popup(LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB)
+            
         ttb = Teile_Text_Batch(self.mb)
         ttb.erzeuge_fenster()
+    
+    
+    def vereine_dateien(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            props = self.mb.props['Projekt']
+            selektiert = props.selektierte_zeile
+            
+            sichtbare = [props.dict_zeilen_posY[b][0] for b in sorted(props.dict_zeilen_posY)]
+            index = sichtbare.index(selektiert)
+            
+            
+            def pruefe_ob_kombi_moeglich():
+                            
+                if index > len(sichtbare) -2:
+                    self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                    return False
+                
+                nachfolger = sichtbare[index + 1]
+                
+                tree = props.xml_tree
+                root = tree.getroot()
+                sel_xml = root.find('.//'+selektiert)
+                nachfolger_xml = root.find('.//'+nachfolger)
+                
+                lvl_sel = sel_xml.attrib['Lvl']
+                lvl_nach = nachfolger_xml.attrib['Lvl']
+                
+                if T.AB != 'Projekt': 
+                    self.mb.popup(LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB)  
+                    return False, None    
+                  
+                elif nachfolger in props.dict_ordner[props.Papierkorb]:
+                    self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                    return False, None    
+                
+                elif lvl_sel > lvl_nach:
+                    self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                    return False, None    
+                
+                elif nachfolger in props.dict_ordner:
+                    elems = nachfolger_xml.findall('.//')
+                    if len(elems) > 0:
+                        self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                        return False, None    
+                    
+                return True, nachfolger
+            
+            ok, nachfolger = pruefe_ob_kombi_moeglich()
+            
+            if not ok:
+                return
+                    
+            url1 = self.get_pfad(selektiert)
+            sec_name1 = 'OrgInnerSec' + selektiert.replace('nr','')
+             
+             
+            url2 = self.get_pfad(nachfolger)
+            sec_name2 = 'OrgInnerSec' + nachfolger.replace('nr','')
+             
+            doc = self.lade_doc_kombi(url1,url2,sec_name1,sec_name2)
+             
+            self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
+             
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Overwrite'
+            prop.Value = True
+            doc.storeToURL(url1,(prop,))
+            doc.close(False)
+              
+            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink.FileURL = url1
+            sections = self.mb.doc.TextSections
+            sec = sections.getByName(sec_name1)
+                
+            par_sec = sec.ParentSection
+            SFLink_helfer = self.mb.sec_helfer.FileLink
+            
+            # Das Setzen des FileLinks löst den VC Listener aus
+            # Er wird via selektiere_zeile() und schalte_sichtbarkeit...() wieder gesetzt
+            self.mb.remove_VC_selection_listener()
+            par_sec.setPropertyValue('FileLink',SFLink_helfer)
+            par_sec.setPropertyValue('FileLink',SFLink)
+                
+            papierkorb = self.mb.props[T.AB].Papierkorb
+            ordinal = self.mb.props[T.AB].selektierte_zeile
+            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(nachfolger,papierkorb,'inPapierkorbEinfuegen')
+            self.mb.class_Baumansicht.selektiere_zeile(selektiert)
+
+        except:
+            log(inspect.stack,tb())
+    
+    
+    def get_pfad(self,ord):
+        if self.mb.debug: log(inspect.stack)
+        
+        props = self.mb.props['Projekt']
+        
+        sec_name = props.dict_bereiche['ordinal'][ord]
+        pfad = props.dict_bereiche['Bereichsname'][sec_name]    
+        
+        url = uno.systemPathToFileUrl(pfad)
+        return url   
+    
+    
+    def lade_doc_kombi(self,url1,url2,sec_name1,sec_name2):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+            
+            URL="private:factory/swriter"
+            doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,))
+            
+            newSection0 = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            newSection0.setName('parent')
+            
+            SFLink1 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink1.FileURL = url1
+            newSection1 = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            newSection1.setPropertyValue('FileLink',SFLink1)
+            newSection1.setName('test1')
+            
+            SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+            SFLink2.FileURL = url2
+            newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+            newSection2.setPropertyValue('FileLink',SFLink2)
+            newSection2.setName('test2')
+             
+            cur = doc.Text.createTextCursor()            
+            vc = doc.CurrentController.ViewCursor
+
+            doc.Text.insertTextContent(vc, newSection2, False)
+            vc.gotoStart(False)
+            doc.Text.insertTextContent(vc, newSection1, False)
+            
+            cur.gotoStart(False)
+            cur.gotoEnd(True)
+            doc.Text.insertTextContent(cur, newSection0, True)
+            
+            newSection1.dispose()
+            newSection2.dispose()
+            
+            cur.gotoEnd(False)
+            cur.goLeft(1,True)
+            cur.setString('')
+            
+            sections = doc.TextSections
+            sec = sections.getByName(sec_name1)
+            sec.dispose()
+            sec = sections.getByName(sec_name2)
+            sec.dispose()
+            
+            newSection0.setName(sec_name1)
+   
+            return doc
+        except:
+            log(inspect.stack,tb())  
     
             
     def verbotene_buchstaben_austauschen(self,term):
@@ -953,7 +1117,7 @@ class Teile_Text_Batch():
             self.lege_dict_sbs_an(tree)
             
             self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
-            self.mb.current_Contr.removeSelectionChangeListener(self.mb.VC_selection_listener)
+            self.mb.remove_VC_selection_listener()
             
             self.mb.class_Projekt.lade_Projekt2()
             
@@ -1341,6 +1505,7 @@ class Teile_Text_Batch():
             
             for o in ordinale:
                 StatusIndicator.setValue(zaehler)
+                StatusIndicator.setText(LANG.ERZEUGE_DATEI %(zaehler+1,len(ordinale)))
                 
                 new_doc = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
                 cur = new_doc.Text.createTextCursor()

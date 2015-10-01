@@ -36,7 +36,7 @@ class Shortcuts():
         self.shortcuts = self.mb.settings_orga['shortcuts']
         self.writer_shortcuts = self.mb.class_Funktionen.get_writer_shortcuts()
         
-        
+
         self.shortcuts_befehle = {
                          'TRENNE_TEXT' : self.teile_text,
                          'INSERT_DOC' : self.erzeuge_neue_Datei,
@@ -52,7 +52,9 @@ class Shortcuts():
                          'SHOW_TAG2' : self.toggle_tag2,
                          'GLIEDERUNG' : self.toggle_tag3,
                          'BAUMANSICHT_HOCH' : self.tv_up,
-                         'BAUMANSICHT_RUNTER' : self.tv_down                                  
+                         'BAUMANSICHT_RUNTER' : self.tv_down,
+                         'BENENNE_DATEI_UM' : self.datei_umbenennen,
+                         'DATEIEN_VEREINEN' :  self.mb.class_Funktionen.vereine_dateien,                    
                           }
 
 
@@ -91,6 +93,12 @@ class Shortcuts():
         if T.AB != 'Projekt': return
         self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
         
+    def vereine_dateien(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        if T.AB != 'Projekt': return
+        self.mb.class_Funktionen.vereine_dateien()
+        
     def in_Papierkorb_einfuegen(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -99,7 +107,10 @@ class Shortcuts():
         
         ordinal = self.mb.props[T.AB].selektierte_zeile
         papierkorb = self.mb.props[T.AB].Papierkorb
-        self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+        ok = self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+        
+        if not ok:
+            return
         
         if nachfolger != None:
             self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
@@ -199,7 +210,33 @@ class Shortcuts():
         nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
         if nachfolger != None:
             self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
- 
+            
+    def datei_umbenennen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        sel = self.mb.props[T.AB].selektierte_zeile
+        props = self.mb.props[T.AB]
+        
+        ctrl_zeile = props.Hauptfeld.getControl(sel)
+        ctrl_txt = ctrl_zeile.getControl('textfeld')
+        
+        txt = ctrl_txt.Text
+        
+        p = ctrl_txt.AccessibleContext.LocationOnScreen
+        x,y = p.X,p.Y
+        x = x + ctrl_txt.AccessibleContext.Size.Width
+        
+        posSize = x,y,400,50
+        win,cont = self.mb.erzeuge_Dialog_Container(posSize)
+        
+        ctrl, model = self.mb.createControl(self.mb.ctx, "Edit", 10, 10, 380, 30, (), ())   
+        ctrl.Text = txt
+        
+        cont.addControl('txt',ctrl)
+        
+        listener = Datei_Umbenennen_Listener(self.mb,sel,win)
+        ctrl.addKeyListener(listener)
+        
 
     def get_mods(self,cmd,ctrls):
         if self.mb.debug: log(inspect.stack)
@@ -247,10 +284,33 @@ class Shortcuts():
         
     
         
-#         elif code == 532 and mods == 6: # ctrl alt r
-#             ordinal = self.mb.props[T.AB].selektierte_zeile
-#             print(ordinal)
-#             print(self.mb.props['Projekt'].dict_ordner)
-#             if ordinal not in self.mb.props['Projekt'].dict_ordner:
-#                 return
-#             self.mb.class_Funktionen.projektordner_ausklappen(ordinal)
+from com.sun.star.awt import XKeyListener
+class Datei_Umbenennen_Listener (unohelper.Base, XKeyListener):
+    def __init__(self,mb,sel,win):
+        self.mb = mb
+        self.sel = sel
+        self.win = win
+       
+    def keyPressed(self,ev): pass
+    
+    def keyReleased(self,ev):
+        if ev.KeyCode != 1280:
+            return
+        # Nur nach einer Eingabe (=1280) loggen
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            txt = ev.Source.Text.strip()
+            self.mb.class_Zeilen_Listener.aendere_datei_namen(self.sel,txt)
+            self.win.dispose()
+        except:
+            log(inspect.stack,tb())
+            
+        
+    def disposing(self,ev):
+        return False
+
+
+
+
+

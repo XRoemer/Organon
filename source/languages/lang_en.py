@@ -84,6 +84,11 @@ TEXT_BATCH_DEVIDE = u'Devide Text (Batch)'
 NICHTS_AUSGEWAEHLT_BATCH = u'No options are selected and no text has been entered.'
 KEINE_TRENNUNG = u'Your search has no results.'
 ERSTELLT_WERDEN = u'Organon will create {} new files or folders.\r\n Proceed?'
+
+# VEREINE DATEIEN
+FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'This function can only be used from the project tab.'
+KEINE_KOMBINATION_MOEGLICH = u"These files can't be combined."
+DATEIEN_VEREINEN = u'Combine Files'
       
 ## TREEVIEW
 ORDNER_AUSKLAPPEN = u'Unfold folder'
@@ -452,11 +457,12 @@ ORGANIZER_INFO = u'Usage of the Organizer:\n'\
     
 ## SHOTCUTS
 SHORTCUTS = u'Shortcuts'
-OEFFNE_ORGANIZER = u'open Organizer'
+OEFFNE_ORGANIZER = u'Open Organizer'
 SICHTBARKEIT = u'Visibility'
-FORMATIERUNG_SPEICHERN2 = u'Save last edited file'
-BAUMANSICHT_HOCH = u'Treeview one entry up'
-BAUMANSICHT_RUNTER = u'Treeview one entry down'
+FORMATIERUNG_SPEICHERN2 = u'Save last edited File'
+BAUMANSICHT_HOCH = u'Treeview one Entry up'
+BAUMANSICHT_RUNTER = u'Treeview one Entry down'
+BENENNE_DATEI_UM = u'Rename File'
    
 ## DIVERSES
 NICHT_VERSCHIEBBAR = u"Project Folder and Waste Bin can't be moved"
