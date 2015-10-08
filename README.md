@@ -3,7 +3,7 @@
 Download:
 http://extensions.openoffice.org/en/project/organon
 
-Don't use Organon with LibreOffice 5x at the moment, use LO 4.4.5 instead.
+
 ###Organon is an organisation and navigation-tool for writer (LibreOffice and OpenOffice)
 
 Organon creates a project with a directory tree for easy navigation between files and folders of the project. Arbitrary parts of the project can be opened in Tabs.
