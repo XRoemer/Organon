@@ -32,7 +32,7 @@ class WListe():
     def start(self):
         if self.mb.debug: log(inspect.stack)
                 
-        X = self.mb.dialog.Size.Width 
+        X = self.mb.dialog.Size.Width
         Y = 30
         posSize = (X,Y,0,0)
         

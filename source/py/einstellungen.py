@@ -41,8 +41,8 @@ class Einstellungen():
             sett = self.mb.settings_exp
             
             posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +20
-            Y = posSize_main.Y +20            
+            X = self.mb.dialog.Size.Width
+            Y = posSize_main.Y            
 
             # Listener erzeugen 
             listener = {}           
@@ -73,12 +73,15 @@ class Einstellungen():
     def dialog_einstellungen(self,listener,breite_listbox,breite,hoehe):
         if self.mb.debug: log(inspect.stack)
         
+        LANG.TEMPLATES = u'Templates'
+        
         if self.mb.programm == 'LibreOffice':
             lb_items = (
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
                         LANG.DESIGN_PERSONA,
                         LANG.MAUSRAD,
+                        #LANG.TEMPLATES,
                         LANG.SHORTCUTS,
                         LANG.HTML_EXPORT,
                         LANG.LOG
@@ -88,6 +91,7 @@ class Einstellungen():
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
                         LANG.MAUSRAD,
+                        #LANG.TEMPLATES,
                         LANG.SHORTCUTS,
                         LANG.HTML_EXPORT,
                         LANG.LOG
@@ -938,8 +942,18 @@ class Listener_Shortcuts(unohelper.Base,XItemListener,XActionListener):
         except:
             log(inspect.stack,tb())
             
-        
-                
+# import sys 
+# platform = sys.platform  
+from traceback import format_exc as tb     
+# def pydevBrk():  
+#     # adjust your path 
+#     if platform == 'linux':
+#         sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
+#     else:
+#         sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
+#     from pydevd import settrace
+#     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
+# pd = pydevBrk               
     
 import copy
 from os import path as PATH, listdir
@@ -975,11 +989,10 @@ class Take_Over_Old_Settings():
             with codecs_open(json_pfad_alt) as data:  
                 content = data.read().decode()  
                 settings_orga_prev = json.loads(content)
-            
+
             return settings_orga_prev
     
         except Exception as e:
-            print(e)
             return None
     
     designs = []
@@ -1036,10 +1049,10 @@ class Take_Over_Old_Settings():
         try:
             for key in b:
                 if key in a:
-                    if isinstance(a[key], dict) and isinstance(b[key], dict):
-                        if key == 'zuletzt_geladene_Projekte':
-                            a[key] = b[key]
-                        elif key in self.designs:
+                    if key == 'zuletzt_geladene_Projekte':
+                        a[key] = b[key]
+                    elif isinstance(a[key], dict) and isinstance(b[key], dict):
+                        if key in self.designs:
                             self._treat_design(a, b, key, path)
                         elif key == 'designs':
                             self.designs,self.fehlende = self._update_designs(a,b)
@@ -1058,9 +1071,10 @@ class Take_Over_Old_Settings():
                     # hier werden nur in b vorhandene keys gesetzt
                     # daher werden auch alte designs mit eigenem Namen ignoriert
                     pass
-    
+            
             return a
-        except:
+        except Exception as e:
+            print(tb())
             return None
     
     # wird nicht verwendet

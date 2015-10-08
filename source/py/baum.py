@@ -8,7 +8,7 @@ class Baumansicht():
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
-        self.dialog = mb.dialog
+        self.dialog = mb.prj_tab
         self.ctx = mb.ctx
         self.mb = mb
         self.listener_treeview_symbol = TreeView_Symbol_Listener(self.ctx,self.mb)
@@ -18,7 +18,7 @@ class Baumansicht():
     def start(self):
         if self.mb.debug: log(inspect.stack)
 
-        self.mb.props[T.AB].Hauptfeld = self.erzeuge_Feld_Baumansicht(self.mb.dialog)  
+        self.mb.props[T.AB].Hauptfeld = self.erzeuge_Feld_Baumansicht(self.mb.prj_tab)  
         self.erzeuge_Scrollbar()
 
         
@@ -222,34 +222,41 @@ class Baumansicht():
         if self.mb.debug: log(inspect.stack)
         
         if win == None:
-            win = self.dialog
+            win = self.mb.prj_tab
         nav_cont_aussen = win.getControl('Hauptfeld_aussen')
         control_innen = nav_cont_aussen.getControl('Hauptfeld')
-          
-        MenuBar = win.getControl('Organon_Menu_Bar')
-        MBHoehe = MenuBar.PosSize.value.Height + MenuBar.PosSize.value.Y
+        
+        MBHoehe = 22
+        tableiste_hoehe = self.mb.tabsX.tableiste_hoehe 
 
-        ctrl_innen_posY  = control_innen.PosSize.value.Y
-        Y =  ctrl_innen_posY + MBHoehe
-        Height = win.PosSize.value.Height - Y - 25
-
-        PosSize = 0,Y,0,Height
+        Height = self.mb.win.Size.Height - MBHoehe - tableiste_hoehe
+        PosSize = 0,MBHoehe,0,Height
+        
         control = self.mb.erzeuge_Scrollbar(win,PosSize,control_innen)
         
-        self.mb.scrollbar = control
-
-
 
     def korrigiere_scrollbar(self):
         if self.mb.debug: log(inspect.stack)
-
-        active_tab = self.mb.active_tab_id
-        win = self.mb.tabs[active_tab][0]
-        SB = win.getControl('ScrollBar')        
+        
+        tabsX = self.mb.tabsX
+        
+        active_tab = tabsX.active_tab_id
+        
+        win = tabsX.tabs[active_tab][1]
+        SB = win.getControl('ScrollBar')   
+        
+        
+        MBHoehe = 22
+        tableiste_hoehe = self.mb.tabsX.tableiste_hoehe 
+        mb_hoehe = self.mb.win.Size.Height - MBHoehe - tableiste_hoehe
+        
+        if SB.Size.Height != mb_hoehe:
+            SB.setPosSize(0,0,0,mb_hoehe,8)
         
         hoehe = sorted(list(self.mb.props[T.AB].dict_zeilen_posY))
 
         sb_hoehe = SB.Size.Height
+        
         baum_hoehe = hoehe[-1] + 20
         if hoehe != []:
             max =  baum_hoehe - (sb_hoehe) 
@@ -270,8 +277,8 @@ class Baumansicht():
                 nav_cont.setPosSize(0, 0,0,0,2)
                 # Mausradlistener ausschalten
                 self.mb.mausrad_an = False
-           
-                
+        #pd()
+        
     # Nur fuers Debugging
     def finde_falschen_bereich(self):
         if self.mb.debug: log(inspect.stack)
@@ -373,7 +380,7 @@ class Baumansicht():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            self.mb.remove_VC_selection_listener()            
+            self.mb.Listener.remove_VC_selection_listener()            
             
             if T.AB != 'Projekt':
                 ordinal = sorted(list(self.mb.props[T.AB].dict_bereiche['ordinal']))[0]
@@ -580,7 +587,7 @@ class Baumansicht():
                 
             self.mb.props[T.AB].selektierte_zeile_alt = ordinal
             self.mb.props[T.AB].selektierte_zeile = ordinal
-            self.mb.class_Sidebar.passe_sb_an(textfeld)
+            self.mb.class_Sidebar.passe_sb_an()
              
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(zeilenordinal = ordinal)
             
@@ -653,7 +660,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 if props.selektierte_zeile != props.selektierte_zeile_alt:
                     ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld')
                     ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-
+            #pd()
             # bei bearbeitetem Bereich: speichern  
             if props.selektierte_zeile_alt != None: 
                 if props.tastatureingabe == True:
@@ -665,7 +672,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     props.tastatureingabe = False
 
             props.selektierte_zeile_alt = props.selektierte_zeile
-            self.mb.class_Sidebar.passe_sb_an(zeile)
+            self.mb.class_Sidebar.passe_sb_an()
             
             # Bei Doppelclick Zeileneintrag bearbeiten
             if ev.Buttons == MB_LEFT:   
@@ -1226,7 +1233,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 
         # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
-        self.mb.remove_VC_selection_listener() 
+        self.mb.Listener.remove_VC_selection_listener() 
                 
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot() 
@@ -1256,7 +1263,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
         self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
 
-        self.mb.add_VC_selection_listener()         
+        self.mb.Listener.add_VC_selection_listener()         
         
     def get_links(self):
         if self.mb.debug: log(inspect.stack)
@@ -1321,7 +1328,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             # Der VC Listener wird von IsVisible ausgeloest,
             # daher wird er vorher ab- und hinterher wieder angeschaltet
-            self.mb.remove_VC_selection_listener() 
+            self.mb.Listener.remove_VC_selection_listener() 
 
             if zeilenordinal == None:
                 if props.selektierte_zeile != None:
@@ -1407,7 +1414,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                    
             else:
             # Seiten 
-                #self.mb.remove_VC_selection_listener() 
+                #self.mb.Listener.remove_VC_selection_listener() 
                 selekt_bereich_name = props.dict_bereiche['ordinal'][zeilenordinal]
                 selekt_bereich = self.mb.doc.TextSections.getByName(selekt_bereich_name)
                 
@@ -1438,11 +1445,12 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             self.mb.sec_helfer2.IsVisible = False
             if add_listener:
-                self.mb.add_VC_selection_listener() 
+                self.mb.Listener.add_VC_selection_listener() 
             #self.mb.use_UM_Listener = True
         except:
             log(inspect.stack,tb())
             
+        
         
     
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
@@ -1450,7 +1458,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
    
         # Der VC Listener wird von IsVisible ausgeloest,
         # daher wird er vorher ab- und hinterher wieder angeschaltet
-        #self.mb.remove_VC_selection_listener() 
+        #self.mb.Listener.remove_VC_selection_listener() 
 
         zeilenordinal =  self.mb.props[T.AB].selektierte_zeile
         bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][zeilenordinal]
@@ -1475,7 +1483,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     sec.IsVisible = False 
                     self.entferne_Trenner(sec)      
 
-        #self.mb.add_VC_selection_listener() 
+        #self.mb.Listener.add_VC_selection_listener() 
     
     def verlinke_Sektion(self,name,bereich,sections_uno):
         if self.mb.debug: log(inspect.stack)
@@ -1905,7 +1913,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             
             y = pos_hf.Y - loc_cont.Y
             y +=  ev.Source.Context.PosSize.Y 
-            x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
+            x = self.mb.prj_tab.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
             posSize = x+20,y,BREITE +50,HOEHE +10
             
             # Fenster erzeugen

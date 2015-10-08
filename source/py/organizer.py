@@ -38,10 +38,10 @@ class Organizer():
            'Tags_characters', 
            'Tags_locations', 
            'Tags_objects', 
-           #'Tags_time', 
            'Tags_user1', 
            'Tags_user2', 
-           'Tags_user3']
+           'Tags_user3',
+           ]
             
         self.spalten2 = [
                 LANG.DATEI,
@@ -91,6 +91,10 @@ class Organizer():
                 if self.first_time_info:
                     self.first_time_info = False
                     self.mb.nachricht(LANG.OO_ORGANIZER_INFO,'infobox')
+                    
+            if len(self.mb.props['Projekt'].dict_zeilen_posY) == 0:
+                # Kein Projekt geladen
+                return
             
             self.dict_sb_content = copy.deepcopy(self.mb.dict_sb_content)
             
@@ -478,9 +482,7 @@ class Organizer():
             self.data_array = [list(zeile) for zeile in rangex.DataArray]
             abc = [list(z.replace('\n','') if zeile.index(z) not in (1,2) else z for z in zeile ) 
                    for zeile in rangex.DataArray]
-            
-            self.data_array_orig = copy.deepcopy(rangex.DataArray)
-            
+                        
             # Zellenabstaende innen            
             abstand = 200
             rangex.ParaLeftMargin = abstand
@@ -508,7 +510,7 @@ class Organizer():
         
         except:
             log(inspect.stack,tb())
-        
+
         
     def setze_icons(self): 
         if self.mb.debug: log(inspect.stack)

@@ -486,7 +486,7 @@ class Funktionen():
             
             # Das Setzen des FileLinks löst den VC Listener aus
             # Er wird via selektiere_zeile() und schalte_sichtbarkeit...() wieder gesetzt
-            self.mb.remove_VC_selection_listener()
+            self.mb.Listener.remove_VC_selection_listener()
             par_sec.setPropertyValue('FileLink',SFLink_helfer)
             par_sec.setPropertyValue('FileLink',SFLink)
                 
@@ -918,7 +918,7 @@ class Funktionen():
         
         def findDiff(d1, d2, path=""):
             for k in d1.keys():
-                if not d2.has_key(k):
+                if not k in d2:
                     print (path, ":")
                     print (k + " as key not in d2", "\n")
                 else:
@@ -939,9 +939,9 @@ class Funktionen():
     def leere_hf(self):
         if self.mb.debug: log(inspect.stack)
         
-        contr = self.mb.dialog.getControl('Hauptfeld_aussen') 
+        contr = self.mb.prj_tab.getControl('Hauptfeld_aussen') 
         contr.dispose()
-        contr = self.mb.dialog.getControl('ScrollBar')
+        contr = self.mb.prj_tab.getControl('ScrollBar')
         contr.dispose()
 
 
@@ -1015,8 +1015,8 @@ class Teile_Text_Batch():
         
         try:
             posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +100
-            Y = posSize_main.Y +100          
+            X = self.mb.dialog.Size.Width
+            Y = posSize_main.Y         
 
             # Listener erzeugen 
             self.listener = Batch_Text_Devide_Listener(self.mb)         
@@ -1116,14 +1116,17 @@ class Teile_Text_Batch():
             self.schreibe_neuen_elementtree(tree_new,anz)
             self.lege_dict_sbs_an(tree)
             
-            self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
-            self.mb.remove_VC_selection_listener()
+            self.mb.Listener.remove_Undo_Manager_Listener()
+            self.mb.Listener.remove_VC_selection_listener()
             
             self.mb.class_Projekt.lade_Projekt2()
             
         except:
             log(inspect.stack,tb())
-            doc.close(False)
+            try:
+                doc.close(False)
+            except:
+                pass
             
             
         
@@ -1699,7 +1702,8 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
                     
                     tag2_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag2')
-                    tag2_button.Model.ImageURL = url
+                    if tag2_button != None:
+                        tag2_button.Model.ImageURL = url
                         
                     self.mb.tree_write(tree,Path)
         except:
@@ -1792,7 +1796,8 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
     
             # image tag1 aendern
             src = self.mb.props[T.AB].Hauptfeld.getControl(self.ord_source).getControl('tag1')
-            src.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
+            if src != None:
+                src.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
     
             url = self.tag1_in_allen_tabs_xml_anpassen(self.ord_source,sel)
             
@@ -1826,7 +1831,8 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
                     
                     tag1_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag1')
-                    tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
+                    if tag1_button != None:
+                        tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
                     
                     self.mb.tree_write(tree,Path)
                     

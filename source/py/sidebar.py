@@ -76,10 +76,8 @@ class Sidebar():
         self.mb.dict_sb['sichtbare'] = self.mb.dict_sb_content['sichtbare']
                       
       
-    def passe_sb_an(self,textbereich):
+    def passe_sb_an(self):
         if self.mb.debug: log(inspect.stack)
-        
-        ordinal = textbereich.Context.Model.Text
         
         for panel in self.mb.dict_sb['sichtbare']:
             self.erzeuge_sb_layout(panel)
@@ -257,10 +255,6 @@ class Sidebar():
         fehlende = helfer      
         for f in fehlende:
             self.lege_dict_sb_content_ordinal_an(f)
-               
-        
-     
-
          
        
     def erzeuge_dict_sb_content_Backup(self):
@@ -321,6 +315,22 @@ class Sidebar():
                 y = 10
                 height = 20
                 
+                ################################# WARNING ####################################################
+                if xUIElement_name == 'Tags_general':
+
+                    destroy = '''Tags: General will be removed in Organon 1.0. With the introduction of the Organizer "tags general" are obsolete. ''' \
+                        '''They served as an overview for all tags. But the logic of their interaction with other tags isn't obvious on first sight. ''' \
+                        '''Don't use them anymore and spread out general tags to the others. ''' \
+                        '''There will be another possibility for deleting a tag throughout the whole document.'''
+                    
+                    prop_names = ('MultiLine','Label')
+                    prop_values = (True,destroy)
+                    control, model = self.mb.createControl(ctx, "FixedText", 10, y,300, 120, prop_names, prop_values)
+                    panelWin.addControl('Button', control) 
+                    
+                    y += 130
+                #############################################################################################
+                
                 prop_names = ('HelpText','MultiLine')
                 prop_values = (LANG.ENTER_NEW_TAG,True)
                 control, model = self.mb.createControl(ctx, "Edit", 170, y,100, height, prop_names, prop_values)
@@ -329,7 +339,6 @@ class Sidebar():
                 key_listener = Tags_Key_Listener(self.mb,xUIElement_name)
                 control.addKeyListener(key_listener)
 
-                
                 #y += height + 10
                 y_all_tags = y
                 y_all_tags += 30
@@ -387,7 +396,6 @@ class Sidebar():
                     panelWin.addControl('Remove_'+tag_eintrag, control) 
                     control.setActionCommand(xUIElement_name + SEP + ordinal + SEP + tag_eintrag + SEP + 'loeschen')
                     control.addActionListener(remove_or_add_button_listener)
-                    
                     
                     y += height + 3
                 
@@ -781,14 +789,17 @@ class Sidebar():
         
         prop = uno.createUnoStruct("com.sun.star.util.Time")
         
-        if zeit == None:
+        if zeit in [None,0]:
             prop.Hours = 0
             prop.Minutes = 0
             prop.Seconds = 0
             
         else:
             zeit_str = str(zeit)
-    
+            
+            if len(zeit_str) == 7:
+                zeit_str = '0' + zeit_str
+
             prop.Hours = int(zeit_str[0:2])
             prop.Minutes = int(zeit_str[2:4])
             prop.Seconds = int(zeit_str[4:6])
@@ -816,20 +827,29 @@ class Sidebar():
     def date_time_struct_nach_long_wandeln(self,prop,attribute):
         if self.mb.debug: log(inspect.stack)
         
-        if attribute == 'zeit':
-            stunden = self.pruefe_format(str(prop.Hours),2)
-            minuten = self.pruefe_format(str(prop.Minutes),2)
-            sekunden = self.pruefe_format(str(prop.Seconds),2)
-            nano = '00'
-            
-            value = int(stunden+minuten+sekunden+nano)
-        
-#         if attribute == 'datum':
-#             jahr = self.pruefe_format(str(prop.Year),4)
-#             monat = self.pruefe_format(str(prop.Month),2)
-#             tag = self.pruefe_format(str(prop.Day),2)
-#             
-#             value = int(jahr+monat+tag)
+        try:
+            if attribute == 'zeit':
+                if prop != None:
+                    stunden = str(prop.Hours)#self.pruefe_format(str(prop.Hours),2)
+                    minuten = self.pruefe_format(str(prop.Minutes),2)
+                    sekunden = self.pruefe_format(str(prop.Seconds),2)
+                    nano = '00'
+                else:
+                    stunden = '00'
+                    minuten = '00'
+                    sekunden = '00'
+                    nano = '00'
+                
+                value = int(stunden+minuten+sekunden+nano)
+                
+    #         if attribute == 'datum':
+    #             jahr = self.pruefe_format(str(prop.Year),4)
+    #             monat = self.pruefe_format(str(prop.Month),2)
+    #             tag = self.pruefe_format(str(prop.Day),2)
+    #             
+    #             value = int(jahr+monat+tag)
+        except:
+            log(inspect.stack,tb())
         
         return value
         

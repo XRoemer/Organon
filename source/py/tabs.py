@@ -15,9 +15,14 @@ class Tabs():
         self.win_seitenleiste = False
         self.win_baumansicht = False
         
+        self.prj = None
     
     def start(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
+        
+        xml_tree = self.mb.props['Projekt'].xml_tree
+        root = xml_tree.getroot()
+        self.prj = root.find(".//*[@Art='prj']").tag
         
         try:
             self.berechne_ordinale_in_baum_und_tab(in_tab_einfuegen)
@@ -50,7 +55,7 @@ class Tabs():
             
         tree = self.mb.props[tab].xml_tree
         root = tree.getroot()
-        
+
         self.baum = []
         self.mb.class_XML.get_tree_info(root,self.baum)
         
@@ -112,7 +117,7 @@ class Tabs():
         ordinale = self.sortiere_ordinale(ordinale)
         if tab_auswahl.zeitlich_anordnen == 1:
             ordinale = self.sortiere_ordinale_zeitlich(ordinale,tab_auswahl)
-       
+        
         return ordinale
         
     
@@ -129,28 +134,26 @@ class Tabs():
             self.erzeuge_props(tab_name)
             Eintraege = self.erzeuge_Eintraege(tab_name,ordinale)        
  
-            self.mb.tab_id_old = self.mb.active_tab_id
-            win,tab_id = self.get_tab(tab_name)
- 
-            self.mb.tabs.update({tab_id:(win,tab_name)})
+            self.mb.tabsX.tab_id_old = self.mb.tabsX.active_tab_id
+            win,tab_id = self.mb.tabsX.erzeuge_neuen_tab(tab_name)
  
             self.mb.erzeuge_Menu(win)
  
-            self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
- 
-            self.setze_selektierte_zeile('nr0')
+            self.erzeuge_Hauptfeld(win,tab_name,Eintraege)            
+            self.setze_selektierte_zeile(self.prj)
             self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             # zur Sicherung, damit der projekt xml nicht ueberschrieben wrd
-            if T.AB == 'Projekt' or self.mb.active_tab_id == 1:
-                self.mb.nachricht('ERROR',"warningbox",16777216)
+            if T.AB == 'Projekt' or self.mb.tabsX.active_tab_id == 1:
+                self.mb.nachricht('ERROR hier',"warningbox",16777216)
                 return
-             
+            
             tree = self.mb.props[T.AB].xml_tree
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
             self.mb.tree_write(tree,Path)
             
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
+            self.mb.tabsX.tab_umschalten(tab_name)
+            
         except:
             log(inspect.stack,tb())
 
@@ -171,14 +174,12 @@ class Tabs():
 
             Eintraege = self.erzeuge_neue_Eintraege_im_tab(tab_name,ordinale,tab_xml, ord_selektierter)        
 
-            self.mb.tab_id_old = self.mb.active_tab_id
-            win,tab_id = self.get_tab(tab_name)
- 
-            self.mb.tabs.update({tab_id:(win,tab_name)})
- 
+            self.mb.tabsX.tab_id_old = self.mb.tabsX.active_tab_id
+            win,tab_id = self.mb.tabsX.erzeuge_neuen_tab(tab_name)
+  
             self.mb.erzeuge_Menu(win)
             self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
-            self.setze_selektierte_zeile('nr0')
+            self.setze_selektierte_zeile(self.prj)
             self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             tree = self.mb.props[T.AB].xml_tree
@@ -188,7 +189,7 @@ class Tabs():
             self.mb.write_tab = False
         except:
             log(inspect.stack,tb())
- 
+
         
     def lade_tabs(self):
         if self.mb.debug: log(inspect.stack)
@@ -204,17 +205,20 @@ class Tabs():
                 self.erzeuge_props(tab_name)
                 Eintraege = self.lade_tab_Eintraege(tab_name)        
             
-                self.mb.tab_id_old = self.mb.active_tab_id
-                win,tab_id = self.get_tab(tab_name)
-    
-                self.mb.tabs.update({tab_id:(win,tab_name)})
+                self.mb.tabsX.tab_id_old = self.mb.tabsX.active_tab_id
                 
+                win,tab_id = self.mb.tabsX.erzeuge_neuen_tab(tab_name)
+                    
                 self.mb.erzeuge_Menu(win)
                 self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
                 
                 erste_datei = self.get_erste_datei()
                 self.setze_selektierte_zeile(erste_datei)
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
+                
+                self.mb.tabsX.Hauptfelder[tab_name].setVisible(False)
+            
+            T.AB = 'Projekt'
             
         except:
             log(inspect.stack,tb())
@@ -228,8 +232,8 @@ class Tabs():
         
         ordinale = []
         self.mb.class_XML.get_tree_info(root,ordinale)
-        
-        erste_datei = 'nr0'
+
+        erste_datei = self.prj
         
         for o in ordinale:
             if o[2] == 'Papierkorb':
@@ -282,12 +286,15 @@ class Tabs():
     
     def setze_selektierte_zeile(self,ordinal):
         if self.mb.debug: log(inspect.stack)
-        
-        zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)        
-        self.mb.props[T.AB].selektierte_zeile = zeile.AccessibleContext.AccessibleName
-        self.mb.props[T.AB].selektierte_zeile_alt = zeile.AccessibleContext.AccessibleName
-        textfeld = zeile.getControl('textfeld') 
-        textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+        try:
+            
+            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)  
+            self.mb.props[T.AB].selektierte_zeile = ordinal #zeile.AccessibleContext.AccessibleName
+            self.mb.props[T.AB].selektierte_zeile_alt = ordinal #zeile.AccessibleContext.AccessibleName
+            textfeld = zeile.getControl('textfeld') 
+            textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+        except:
+            log(inspect.stack,tb())
     
     def get_ordinale_seitenleiste(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
@@ -663,7 +670,7 @@ class Tabs():
             y += 20
             
             prop_names = ('Text',)
-            prop_values = ('Tab %s' %str(len(self.mb.tabs)+1),)
+            prop_values = ('Tab %s' %str(len(self.mb.tabsX.tabs)+1),)
             control, model = self.mb.createControl(self.mb.ctx, "Edit", x3, y, width2, 20, prop_names, prop_values) 
             cont.addControl('tab_name', control)
             
@@ -712,12 +719,13 @@ class Tabs():
 
         Eintraege = []
         
+        
         # Ordinal des Projekts muss enthalten sein und an erster Stelle stehen 
-        if 'nr0' not in ordinale:
-            ordinale.insert(0,'nr0')
+        if self.prj not in ordinale:
+            ordinale.insert(0,self.prj)
         else:
-            ordinale.remove('nr0')
-            ordinale.insert(0,'nr0')
+            ordinale.remove(self.prj)
+            ordinale.insert(0,self.prj)
         
         
         papierkorb = self.mb.props['Projekt'].Papierkorb
@@ -729,9 +737,9 @@ class Tabs():
             ordinal = elem.tag
             name    = elem.attrib['Name']
             art     = elem.attrib['Art']
-            if ordinal not in ('nr0',papierkorb):
+            if ordinal not in (self.prj,papierkorb):
                 lvl     = 1 
-                parent  = 'nr0'
+                parent  = self.prj
             else:
                 lvl = 0 #elem.attrib['Lvl'] 
                 parent  = 'root'
@@ -957,50 +965,6 @@ class Tabs():
         except:
             log(inspect.stack,tb())
 
-        
-    def get_tab(self,tab_name):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-
-            tabsX = self.mb.tabsX
-             
-            from com.sun.star.beans import NamedValue
-            dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
-            tab_id = tabsX.insertTab() # Create new tab, return value is tab id
-            # Valid properties are: 
-            # Title, ToolTip, PageURL, EventHdl, Image, Disabled.
-            v1 = NamedValue("PageURL", dialog1)
-            v2 = NamedValue("Title", tab_name)
-            v3 = NamedValue("EventHdl", self.mb.factory.CWHandler)
-            tabsX.setTabProps(tab_id, (v1, v2, v3))
-            tabsX.activateTab(tab_id)             
-              
-            win = self.mb.factory.CWHandler.window2
-            win.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-
-            win.addWindowListener(self.mb.w_listener)
-            
-            self.setMenuBar(win,self.mb.ctx)
-
-            return win,tab_id              
-  
-        except:
-            log(inspect.stack,tb())
-            
-    def setMenuBar(self,window,ctx):
-        try:
-            smgr = ctx.ServiceManager
-            oMenuBar = smgr.createInstanceWithContext('com.sun.star.awt.MenuBar', ctx)
-            oPopUp = smgr.createInstanceWithContext("com.sun.star.awt.PopupMenu", ctx)
-            oMenuBar.insertItem(0, "First0", 4, 0)
-            oMenuBar.insertItem(1, "First1firlefanz", 4, 0)
-            oMenuBar.insertItem(2, "First2", 4, 0)
-            oMenuBar.insertItem(3, "First3zuckerhut", 4, 0)
-            oMenuBar.insertItem(4, "First4", 4, 0)
-            window.setMenuBar(oMenuBar)
-        except:
-            log(inspect.stack,tb())
             
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege,tab_name):
         if self.mb.debug: log(inspect.stack)        
@@ -1045,56 +1009,41 @@ class Tabs():
         
         self.mb.class_Projekt.erzeuge_dict_ordner()
 
- 
-    def entferne_alle_listener(self,win):
-        if self.mb.debug: log(inspect.stack)
-        
-        #return
-        win.removeWindowListener(self.mb.w_listener)
-#         self.listener.dispose()
-#         self.listener2.dispose()
-#         self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener) 
-#         self.current_Contr.removeKeyHandler(self.keyhandler)
-#         win.removeWindowListener(self.w_listener)
-#         self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
         
     def schliesse_Tab(self,abfrage = True):
         if self.mb.debug: log(inspect.stack)
         
         try:
+            
+            if T.AB == 'Projekt':
+                return
+            
             if abfrage:
                 # Frage: Soll Tab wirklich geschlossen werden?
                 entscheidung = self.mb.nachricht(LANG.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
                 # 3 = Nein oder Cancel, 2 = Ja
                 if entscheidung == 3:
                     return
-                #print('active tab id', self.mb.active_tab_id,self.mb.tabs[self.mb.active_tab_id][1])
+                #print('active tab id', self.mb.tabsX.active_tab_id,self.mb.tabs[self.mb.tabsX.active_tab_id][1])
                 if T.AB == 'Projekt':
                     self.mb.nachricht("Project tab can't be closed" ,"warningbox",16777216)
                     return
-            
-            # loesche tab listener
-            win = self.mb.tabs[self.mb.active_tab_id][0]
-            self.entferne_alle_listener(win)
-            
+
+
             # loesche tab.xml
-            tab_name = self.mb.tabs[self.mb.active_tab_id][1]
+            tab_name = T.AB
             Path = os.path.join(self.mb.pfade['tabs'], '%s.xml' % tab_name)
 
             os.remove(Path)
             
-            # loesche Tab
-            self.mb.tabsX.removeTab(self.mb.active_tab_id)
-                        
-            # loesche props[tab]
+            self.mb.tabsX.loesche_tab_eintrag(tab_name)
             del self.mb.props[T.AB]
             
             T.AB = 'Projekt'
-            
+            self.mb.tabsX.tab_umschalten(T.AB)
         except:
             log(inspect.stack,tb())
-
-
+        
  
 
 from com.sun.star.awt import XActionListener,XTextListener
@@ -1144,6 +1093,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                         if ordinale == []:
                             return
                         self.mb.class_Tabs.erzeuge_neuen_tab(ordinale)
+
                 except:
                     log(inspect.stack,tb())
                     
@@ -1636,7 +1586,7 @@ class Listener_for_Win_dispose(unohelper.Base,XEventListener):
     
     def disposing(self,ev):
         if self.mb.debug: log(inspect.stack)
-
+        
         try:
             tabs = self.mb.class_Tabs
             if self.win == 'baumansicht':

@@ -51,7 +51,7 @@ class Log():
         self.write_debug_file = log_config['write_debug_file']
         self.log_args = log_config['log_args']
         
-            
+         
         if self.write_debug_file:
             self.schreibe_logfile_kopfzeile()
 
@@ -81,6 +81,7 @@ class Log():
     def log(self,args,traceb = None,extras = None):
 
         try:
+            
             info = args()
 
             try:
@@ -116,6 +117,11 @@ class Log():
 #             
 #             if function in ('mouseEntered','mouseExited','entferne_Trenner'):
 #                 return
+            
+            if function in ('mouseEntered','mouseExited'):
+                return
+            
+            
 
             if self.log_args:
                 string = '{0: <8.8}  {1: <10.10}  {2: <22.22}  {3: <30.30}  ( caller: {4: <40.40}  args:{5}'.format(self.debug_time(),modul,xclass,function,call,argues)
@@ -134,6 +140,7 @@ class Log():
                 
                 if traceb != None:
                     print(traceb)
+                    
                     with codecs_open( path, "a","utf-8") as file:
                         file.write('### ERROR ### \r\n')
                         try:
@@ -187,7 +194,7 @@ class Log():
             
         except Exception as e:
             try:
-                print(e)
+                print(str(e))
                 print(tb())
                 path = join(self.location_debug_file,'organon_log_error.txt')
                 with codecs_open( path, "a","utf-8") as file:

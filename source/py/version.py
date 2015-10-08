@@ -35,6 +35,7 @@ class Version():
         '0.9.9.4':None,
         '0.9.9.5':None,
         '0.9.9.6':None,
+        '0.9.9.7':None,
         
         } 
         

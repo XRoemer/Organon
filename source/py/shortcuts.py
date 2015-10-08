@@ -101,16 +101,22 @@ class Shortcuts():
         
     def in_Papierkorb_einfuegen(self):
         if self.mb.debug: log(inspect.stack)
-        
-        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
-        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
-        
+
         ordinal = self.mb.props[T.AB].selektierte_zeile
+        
         papierkorb = self.mb.props[T.AB].Papierkorb
+        projektordner = self.mb.props[T.AB].Projektordner
+        
+        if ordinal in [papierkorb,projektordner,None]:
+            return
+
         ok = self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
         
         if not ok:
             return
+        
+        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
+        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
         
         if nachfolger != None:
             self.mb.class_Baumansicht.selektiere_zeile(nachfolger)

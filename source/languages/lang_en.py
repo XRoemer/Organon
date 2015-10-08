@@ -211,7 +211,7 @@ TAGS_IM_GES_DOK_LOESCHEN = u'Tag will be deleted within the whole document.'
 TAGS_IN_AKT_DAT_LOESCHEN = u'Tag will be deleted within the selected file/folder only.'
 TAG_LOESCHEN = u'Removes tag from this panel'
 TAG_HINZUFUEGEN = u'Click to add tag'
-ENTER_NEW_TAG = u'Enter new tag and click into document window.'
+ENTER_NEW_TAG = u'Enter new tag and press return.'
 IN_PROJEKTORDNER_IMPORTIEREN = u'The selected image will be imported to the project-folder.'
 BILD_EINFUEGEN = u'Insert Image'
 BILD_LOESCHEN = u'Delete Image'
@@ -469,6 +469,12 @@ NICHT_VERSCHIEBBAR = u"Project Folder and Waste Bin can't be moved"
 WOERTERLISTE = u'Create List of all Words'
 UNGUELTIGE_FARBE = u'This is not a valid color'
 LISTE_GESPEICHERT = u'The list has been successfully saved to {}'
+
+# ERRORS
+ERROR_LOAD_PROJECT = u"ERROR: could not load project\r\nDon't use this document even if it looks ok."
+ERROR_PROJECT_LOCKED = u"ERROR: Project is locked. \r\nDon't use this document even if it looks ok.\r\n"\
+    "Might be in use by another instance of OO/LO.\r\n" \
+    "Or might be locked because of a crash. Have a look at the path and delete the lock file. \r\n{}"
 
 
 

@@ -26,11 +26,10 @@ class Menu_Bar():
     def __init__(self,args,tab = 'Projekt'):
         
         try:
-        
+            
             (pdk,
              dialog,
              ctx,
-             tabsX,
              path_to_extension,
              win,
              dict_sb,
@@ -39,7 +38,8 @@ class Menu_Bar():
              menu_start,
              logX,
              class_LogX,
-             settings_organon) = args
+             settings_organon,
+             templates) = args
 
             
             ###### DEBUGGING ########
@@ -66,13 +66,9 @@ class Menu_Bar():
             self.pd = pdk
             global pd,IMPORTS,LANG
             pd = pdk
-    
-            global T
+            
+            global T,prj_tab
             T = Tab()
-            
-            
-            
-            
             
             # Konstanten
             self.factory = factory
@@ -87,7 +83,6 @@ class Menu_Bar():
             self.programm = self.get_office_name() 
             self.undo_mgr = self.doc.UndoManager
             self.viewcursor = self.current_Contr.ViewCursor
-            self.tabsX = tabsX
             self.platform = sys.platform
             self.language = None
             LANG = self.lade_Modul_Language()
@@ -101,22 +96,27 @@ class Menu_Bar():
             self.projekt_name = None
             self.menu_start = menu_start
             self.sec_helfer = None
+            self.mb_hoehe = 0
             
-    
+            
             
             # Properties
             self.props = {}
             self.props.update({T.AB :Props()})
             self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
             self.dict_sb_content = None
-            
-            self.tabs = {tabsX.ActiveTabID:(dialog,'Projekt')}
-            self.active_tab_id = tabsX.ActiveTabID
-            self.tab_id_old = self.active_tab_id
+            self.templates = templates
             self.registrierte_maus_listener = []
             self.maus_fenster = None
             self.mausrad_an = False
             self.texttools_geoeffnet = False
+            
+            # TABS
+            self.tabsX = TabsX(self,self.win)
+            self.tabsX.run()
+            self.prj_tab,tab_id = self.tabsX.erzeuge_neuen_tab('Projekt')
+            self.dialog.addControl('tableiste',self.tabsX.tableiste)
+            
             
             # Settings
             self.settings_orga = settings_organon
@@ -151,7 +151,6 @@ class Menu_Bar():
             
             
             # Klassen   
-            self.Key_Handler = Key_Handler(self)
             self.ET = ElementTree  
             
             self.nachricht = Mitteilungen(self.ctx,self).nachricht
@@ -189,54 +188,32 @@ class Menu_Bar():
             
             #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
             
+            
+            
+            
             # Listener  
-            self.VC_selection_listener  = ViewCursor_Selection_Listener(self)  
-            self.VC_selection_listener_added = True
-            self.w_listener             = Dialog_Window_Listener(self)    
-            self.undo_mgr_listener      = Undo_Manager_Listener(self)
-            self.tab_listener           = Tab_Listener(self)
-                                                             
-            self.Listener = {}
-            self.Listener.update( {'Menu_Leiste_Listener': Menu_Leiste_Listener(self)} )
-            self.Listener.update( {'Menu_Leiste_Listener2': Menu_Leiste_Listener2(self)} )
-            self.Listener.update( {'ScrollBar': ScrollBar_Listener} )
-            
-            self.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
-            self.dialog.addWindowListener(self.w_listener)
-            self.dialog.AccessibleContext.AccessibleParent.addEventListener(self.w_listener)
-            self.tabsX.addTabListener(self.tab_listener)
-    
+            self.w_listener = Dialog_Window_Size_Listener(self)    
+            self.keyhandler = Key_Handler(self)                                           
+            self.scrollbar_listener = ScrollBar_Listener
             self.use_UM_Listener = False
+
+            self.Listener = Listener(self)  
+                        
+#             self.Listener.add_Undo_Manager_Listener()
+#             self.Listener.add_Dialog_Event_Listener()
+            self.Listener.add_Tab_Listener()
+#             self.Listener.add_Document_Close_Listener()
+#             self.Listener.add_Dialog_Window_Size_Listener()
             
-            try:
-                self.listener_doc_close = Document_Close_Listener(self)
-                self.doc.addDocumentEventListener(self.listener_doc_close)
-            except:
-                log(inspect.stack,tb())
-                
-
-
+            
         except:
-            logX(inspect.stack,tb())
-            
+            log(inspect.stack,tb())
             # fehlt:
             # Den User ueber den Fehler benachrichtigen
             
             
-    
-    def add_VC_selection_listener(self):
-        if not self.VC_selection_listener_added:
-            if self.debug: log(inspect.stack)
-            self.current_Contr.addSelectionChangeListener(self.VC_selection_listener)
-            self.VC_selection_listener_added = True
-        else:
-            log(inspect.stack,extras=' versuchter Start *********')
-    
-    def remove_VC_selection_listener(self):
-        if self.debug: log(inspect.stack)
-        self.current_Contr.removeSelectionChangeListener(self.VC_selection_listener)
-        self.VC_selection_listener_added = False
-        
+  
+
     def get_doc(self):
         if self.debug: log(inspect.stack)
         
@@ -307,7 +284,7 @@ class Menu_Bar():
             menuB_model.BackgroundColor = KONST.FARBE_MENU_HINTERGRUND
     
             win.addControl('Organon_Menu_Bar', menuB_control)
-            
+            win.setPosSize(0,self.tabsX.tableiste_hoehe,0,0,2)
             bereich = self.props[T.AB].selektierte_zeile_alt
             
             Menueintraege = [
@@ -618,7 +595,7 @@ class Menu_Bar():
                         if self.debug:log(inspect.stack,tb())
             except:
                 if self.debug:log(inspect.stack,tb())
-            
+
         except:
             if self.debug:log(inspect.stack,tb())
         
@@ -694,17 +671,6 @@ class Menu_Bar():
         zeit = "%0.2f" %(self.time.clock()-self.timer_start)
         return zeit
 
-    def entferne_alle_listener(self):
-        if self.debug: log(inspect.stack)
-        
-        #return
-        self.remove_VC_selection_listener()
-        self.current_Contr.removeKeyHandler(self.keyhandler)
-        self.dialog.removeWindowListener(self.w_listener)
-        self.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
-        
-#         del(self.menu_start)
-#         del(self)
         
     def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128,parent=None):
         if self.debug: log(inspect.stack)
@@ -828,13 +794,15 @@ class Menu_Bar():
         control.LineIncrement = fenster_cont.PosSize.Height/Height*50
         control.BlockIncrement = 200
         control.Maximum =  control_innen.PosSize.Height  
-        control.VisibleSize = fenster_cont.PosSize.Height - 40        
+        control.VisibleSize = Height      
 
-        listener = self.Listener['ScrollBar'](self.debug,control_innen)
+        listener = self.scrollbar_listener(self,control_innen)
+        listener.fenster_cont = control_innen
         control.addAdjustmentListener(listener) 
         
         fenster_cont.addControl('ScrollBar',control) 
-
+        height = fenster_cont.PosSize.Height - 40 
+        
         return control 
      
     def loesche_undo_Aktionen(self):
@@ -979,6 +947,207 @@ class Props():
         
         self.tab_auswahl = Tab_Auswahl()
         
+class Listener():
+    ''' Verwaltet alle Listener, die sich auf das Projekt und 
+    das Hauptfenster beziehen
+    '''
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
+        self.mb = mb
+        self.debug = self.mb.debug
+        
+        # Listener  
+        self.VC_selection_listener  = ViewCursor_Selection_Listener(self.mb)  
+        self.w_listener             = Dialog_Window_Size_Listener(self.mb)    
+        self.undo_mgr_listener      = Undo_Manager_Listener(self.mb)
+        #self.tab_listener           = Tab_Leiste_Listener(self.mb)
+        self.listener_doc_close     = Document_Close_Listener(self.mb)
+        
+        # Der Scrollbar Listener wird (noch ?) nicht zentral verwaltet
+
+        #self.use_UM_Listener = False
+        
+        '''
+        Der w_listener wird auch in den Tabs verwendet und braucht noch eine
+        Sonderbehandlung !!!
+        
+        '''
+        
+        
+        
+        
+        self.blocked = False
+
+        self.states = {f.replace('remove_',''):False for f in dir(self) if 'remove' in f}
+            
+        
+        
+    def alle_listener_ausschalten(self,ausnahmen = []):
+        if self.debug: log(inspect.stack,extras=listener)
+        
+        
+    def block(self):  
+        ''' blockiert alle Listener''' 
+        if self.debug: log(inspect.stack)
+
+        for key in self.states:
+            if self.states[key] == True:
+                fkt = getattr(self, 'remove_' + key)
+                fkt()
+                
+        self.blocked = True
+                
+    def unblock(self):   
+        ''' schaltet Blockade ab und die zuvor aktivierten Listener wieder an''' 
+        if self.debug: log(inspect.stack)
+        
+        self.blocked = False
+        
+        for key in self.states:
+            if self.states[key] == True:
+                fkt = getattr(self, 'add_' + key)
+                fkt()
+                
+    def entferne_alle_Listener(self):
+        if self.debug: log(inspect.stack)
+        for key in self.states:
+            try:
+                if self.states[key] == True:
+                    fkt = getattr(self, 'remove_' + key)
+                    fkt()
+                    self.states[key] = False
+            except:
+                pass
+                
+    def starte_alle_Listener(self):
+        if self.debug: log(inspect.stack)
+
+        for key in self.states:
+            if self.states[key] == False:
+                fkt = getattr(self, 'add_' + key)
+                fkt()
+                self.states[key] = True
+        
+    def versuchter_start(self,listener):
+        if self.debug: log(inspect.stack,extras=listener)
+          
+    
+    def add_VC_selection_listener(self):
+        if self.blocked : return
+        if not self.states['VC_selection_listener']:
+            if self.debug: log(inspect.stack)
+            self.mb.current_Contr.addSelectionChangeListener(self.VC_selection_listener)
+            self.states['VC_selection_listener'] = True
+        else:
+            self.versuchter_start('VC_selection_listener')
+    
+    def remove_VC_selection_listener(self):
+        if self.blocked : return
+        if self.debug: log(inspect.stack)
+        self.mb.current_Contr.removeSelectionChangeListener(self.VC_selection_listener)
+        self.states['VC_selection_listener'] = False
+        
+    def add_Dialog_Window_Size_Listener(self):
+        if self.blocked : return
+        if not self.states['Dialog_Window_Size_Listener']:
+            if self.debug: log(inspect.stack)
+            self.mb.win.addWindowListener(self.w_listener)
+            self.states['Dialog_Window_Size_Listener'] = True
+        else:
+            self.versuchter_start('Dialog_Window_Size_Listener')
+    
+    def remove_Dialog_Window_Size_Listener(self):
+        if self.blocked : return
+        if self.debug: log(inspect.stack)
+        self.mb.win.removeWindowListener(self.w_listener)
+        self.states['Dialog_Window_Size_Listener'] = False
+        
+    def add_Dialog_Event_Listener(self):
+        if self.blocked : return
+        if not self.states['Dialog_Event_Listener']:
+            if self.debug: log(inspect.stack)
+            self.mb.prj_tab.AccessibleContext.AccessibleParent.addEventListener(self.w_listener)
+            self.states['Dialog_Event_Listener'] = True
+        else:
+            self.versuchter_start('Dialog_Event_Listener')
+
+            
+    def remove_Dialog_Event_Listener(self):
+        if self.blocked : return
+        if self.debug: log(inspect.stack)
+        try:
+            self.mb.prj_tab.AccessibleContext.AccessibleParent.removeEventListener(self.w_listener)
+        except:
+            # Fehler, wenn Organon geschlossen wird:
+            # dialog hat bereits kein Fenster mehr
+            pass
+        self.states['Dialog_Event_Listener'] = False
+
+            
+
+    def add_Undo_Manager_Listener(self):
+        if self.blocked : return
+        if not self.states['Undo_Manager_Listener']:
+            if self.debug: log(inspect.stack)
+            self.mb.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
+            self.states['Undo_Manager_Listener'] = True
+        else:
+            self.versuchter_start('Undo_Manger_Listener')
+    
+    def remove_Undo_Manager_Listener(self):
+        if self.blocked : return
+        if self.debug: log(inspect.stack)
+        self.mb.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
+        self.states['Undo_Manager_Listener'] = False
+        
+    def add_Document_Close_Listener(self):
+        if self.blocked : return
+        if not self.states['Document_Close_Listener']:
+            if self.debug: log(inspect.stack)
+            self.mb.doc.addDocumentEventListener(self.listener_doc_close)
+            self.states['Document_Close_Listener'] = True
+        else:
+            self.versuchter_start('Document_Close_Listener')
+    
+    def remove_Document_Close_Listener(self):
+        if self.blocked : return
+        if self.debug: log(inspect.stack)
+        self.mb.doc.removeDocumentEventListener(self.listener_doc_close)
+        self.states['Document_Close_Listener'] = False
+        
+    def add_Tab_Listener(self):
+        self.versuchter_start('Tab_Listener')
+        return
+        if self.blocked : return
+        if not self.states['Tab_Listener']:
+            if self.debug: log(inspect.stack)
+            if self.mb.programm == 'LibreOffice':
+                self.mb.tabsX[1].addTabListener(self.tab_listener)  
+            else:
+                self.mb.tabsX.addTabListener(self.tab_listener)  
+            self.states['Tab_Listener'] = True
+        else:
+            self.versuchter_start('Tab_Listener')
+    
+    def remove_Tab_Listener(self):
+        return
+        if self.blocked : return
+        if self.debug: log(inspect.stack)
+        if self.mb.programm == 'LibreOffice':
+            self.mb.tabsX[1].removeTabListener(self.tab_listener) 
+        else:
+            self.mb.tabsX.removeTabListener(self.tab_listener)   
+        self.states['Tab_Listener'] = False
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+        
 
 def menuEintraege(LANG,menu):
     
@@ -1097,7 +1266,307 @@ class Tab ():
     def __init__(self):
         if debug: log(inspect.stack)
         self.AB = 'Projekt'
+
+
+class TabsX():
+    
+    def __init__(self,mb,organon_fenster):
+        if mb.debug: log(inspect.stack)
         
+        self.mb = mb
+        self.organon_fenster = organon_fenster
+        
+#         (kante,h_tabs,mindestgroesse,breite_sichtbar,
+#          breite_hauptfeld,hoehe_hauptfeld) = abmessungen
+        
+        
+        self.kante = 2
+        self.h_tabs = 20
+        self.mindestgroesse = 50
+        self.breite_sichtbar = self.organon_fenster.PosSize.Width
+        self.breite_sichtbar -= 2 * self.kante
+        self.breite_hauptfeld = 1800
+        self.hoehe_hauptfeld = 2000
+        
+        
+        self.Hauptfelder = {}
+        self.breiten_tabs = []
+        self.tabs = {}
+        self.tabsN = {}
+        
+        self.tab_listener = Tab_Leiste_Listener(self.mb,self.Hauptfelder,self.organon_fenster)
+        self.tableiste = None
+        self.tableiste_hoehe = 0
+        
+        self.active_tab_id = 0
+        self.tab_id_old = 0
+        self.sichtbar = 'Projekt'
+        
+    
+    def run(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        self.tableiste,tab_model = self.mb.createControl(self.mb.ctx,'Container',0,0,
+                                    self.breite_sichtbar + 2 * self.kante,0,
+                                   ('BackgroundColor',),(KONST.FARBE_GLIEDERUNG,))
+        return self.tableiste
+    
+    def erzeuge_neuen_tab(self,tab_name,sichtbar=True):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            
+            if tab_name in self.Hauptfelder:
+                # Nachricht
+                return
+            
+            tab_fenster = self.erzeuge_tabeintrag_und_fenster(tab_name)
+            
+            self.Hauptfelder.update({tab_name:tab_fenster})
+            
+            self.tableiste_hoehe = self.layout_tab_zeilen()
+            
+            nr = len(self.tabs)
+            
+            self.tabs.update({nr:[tab_name,tab_fenster]})
+            self.tabsN.update({tab_name:[nr,tab_fenster]})
+            
+            self.mb.dialog.addControl(tab_name,tab_fenster)
+            
+            return tab_fenster, nr
+            
+        except:
+            log(inspect.stack,tb())
+        
+        
+    
+    def loesche_tab_eintrag(self,tab_name):
+        if self.mb.debug: log(inspect.stack)
+        
+        tab_container = self.Hauptfelder[tab_name]
+        tab_container.dispose()
+        
+        for t in self.breiten_tabs:
+            if t[0] == tab_name:
+                ctrl = t[2]
+                ctrl.dispose()
+                index = self.breiten_tabs.index(t)
+                self.breiten_tabs.pop(index)
+                
+                nr = self.tabsN[tab_name][0]
+                del self.tabs[nr]
+                del self.tabsN[tab_name]
+                
+                break
+        
+        self.layout_tab_zeilen()
+    
+        
+    def pref_size(self,w,ctrl):
+        pref =  ctrl.PreferredSize.Width
+        if pref < self.mindestgroesse:
+            pref = self.mindestgroesse
+        ctrl.setPosSize(0,0,pref,0,4)
+        self.breiten_tabs.append([w,pref,ctrl])
+    
+    
+    def layout_tab_zeilen(self,breite=None):
+        if self.mb.debug: log(inspect.stack)
+        
+        if breite != None:
+            self.breite_sichtbar = breite - 2 * self.kante
+            self.tableiste.setPosSize(0,0,breite,0,4)
+        
+        zeilen,mehrraum = self.berechne_tab_zeilen()
+        hoehe = self.setze_tab_umbruch(zeilen, mehrraum)
+                    
+        self.tableiste.setPosSize(0,0,0,hoehe,8)
+        
+        for t_name in self.Hauptfelder:
+            self.Hauptfelder[t_name].setPosSize(0,hoehe,0,0,2)
+        
+        self.tableiste_hoehe = hoehe    
+        return hoehe
+      
+        
+    def erzeuge_tabeintrag_und_fenster(self,tab_name):
+        if self.mb.debug: log(inspect.stack)
+        
+        
+        # Eintrag in Tableiste
+        ctrl,model = self.mb.createControl(self.mb.ctx,'FixedText',0,0,0,self.h_tabs,
+                    ('Label','Border','BackgroundColor',
+                     'TextColor',
+                     'Align','VerticalAlign'),
+                    (tab_name,0,KONST.FARBE_HF_HINTERGRUND,
+                     KONST.FARBE_MENU_SCHRIFT,
+                     1,1))
+        
+        ctrl.addMouseListener(self.tab_listener)
+        self.tableiste.addControl(tab_name,ctrl)
+        
+        # Groesse zurechtschneiden
+        self.pref_size(tab_name,ctrl)
+        
+        
+        # Tabfenster
+        container_hf,model_hf = self.mb.createControl(self.mb.ctx,'Container',
+                                                      0,0,self.breite_hauptfeld,self.hoehe_hauptfeld,
+                                       ('BackgroundColor',),(KONST.FARBE_HF_HINTERGRUND,))
+
+        return container_hf
+    
+
+    def berechne_tab_zeilen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            x = 0
+            zeilen = {1:[]}
+            mehrraum = []
+            z = 1
+            for b in self.breiten_tabs:
+                x += b[1] 
+                if x < self.breite_sichtbar -10:
+                    zeilen[z].append(b)
+                    continue
+                else:
+                    z += 1
+                    zeilen.update({z:[b]})
+                    mehrraum.append(self.breite_sichtbar-x + b[1])
+                    x = b[1]
+            mehrraum.append(self.breite_sichtbar-x)
+            
+            if zeilen[1] == []:
+                zeilen = {x-1:zeilen[x] for x in zeilen}
+                del zeilen[0]
+                mehrraum.pop(0)
+
+            return zeilen,mehrraum
+        except:
+            print(tb())
+    
+
+    def setze_tab_umbruch(self,zeilen,mehrraum):
+        if self.mb.debug: log(inspect.stack)
+        
+        # Tabzeilen setzen    
+        for zeile in sorted(zeilen):
+            x = 0
+            X = 0
+            try:
+                if len(zeilen[zeile]) > 1:
+                    for z in zeilen[zeile]:
+                        if zeilen[zeile].index(z) != len(zeilen[zeile])-1:
+                            mehr = mehrraum[zeile-1]
+                            mehr -= self.kante * (len(zeilen[zeile]) -1 )
+                            mehr = int( mehr / len(zeilen[zeile]) )
+                            X = z[1] + mehr 
+                            y = ( self.h_tabs + self.kante ) * (zeile-1) + self.kante
+                            z[2].setPosSize(x + self.kante,y,X,0,7)
+                            x += X + self.kante
+                        else:
+                            # letzter Eintrag
+                            # um ein gleichmaessiges Ende zu bekommen
+                            X = self.breite_sichtbar  - x
+                            y = ( self.h_tabs + self.kante ) * (zeile-1) + self.kante
+                            z[2].setPosSize(x + self.kante,y,X,0,7)
+                            
+                else:
+                    z = zeilen[zeile][0]
+                    mehr = mehrraum[zeile-1]
+                    X = z[1] + mehr 
+                    y = ( self.h_tabs + self.kante) * (zeile-1) + self.kante
+                    z[2].setPosSize(x + self.kante,y,X,0,7)
+                    x += X + self.kante
+            except:
+                print(tb())
+        
+        hoehe = zeile * (self.h_tabs + self.kante) + self.kante
+        return hoehe
+        
+        
+    def tab_umschalten(self,tab_name):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            tabsX = self.mb.tabsX
+
+            tabsX.active_tab_id = tabsX.tabsN[tab_name][0]
+
+            if tabsX.active_tab_id != tabsX.tab_id_old:
+                
+                feld = self.Hauptfelder[tab_name]
+                
+                sichtbar = self.Hauptfelder[self.sichtbar]
+
+                feld.setVisible(True)
+                sichtbar.setVisible(False)
+                self.sichtbar = tab_name
+
+                tab_icon = tabsX.tableiste.getControl(tab_name)
+                tab_icon.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
+                
+                if tabsX.tab_id_old in tabsX.tabs:
+                    # Nur, wenn nicht geloescht wurde
+                    tab_name_alt = tabsX.tabs[tabsX.tab_id_old][0]
+                    tab_icon = tabsX.tableiste.getControl(tab_name_alt)
+                    tab_icon.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+                    
+                    if self.mb.props[T.AB].tastatureingabe:
+                        
+                        ordinal = self.mb.props[tab_name_alt].selektierte_zeile
+                        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
+    
+                        path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
+    
+                        self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)  
+                        self.mb.props[T.AB].tastatureingabe = False
+    
+                self.mb.tabsX.active_tab_id = tabsX.tabsN[tab_name][0]
+
+                T.AB = tab_name
+                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
+                self.mb.class_Baumansicht.korrigiere_scrollbar()
+                
+                if self.mb.props[T.AB].selektierte_zeile_alt != None:
+                    self.mb.class_Sidebar.passe_sb_an()
+                
+            tabsX.tab_id_old = tabsX.active_tab_id
+        except:
+            log(inspect.stack,tb())
+        
+        
+        
+        
+        
+        
+
+from com.sun.star.awt import XMouseListener
+from com.sun.star.awt.MouseButton import LEFT as MB_LEFT 
+    
+class Tab_Leiste_Listener (unohelper.Base, XMouseListener):
+    def __init__(self,mb,Hauptfelder,win=None):
+        if mb.debug: log(inspect.stack)  
+        
+        self.mb = mb 
+        self.Hauptfelder = Hauptfelder
+        self.sichtbar = 'Projekt'
+        self.win = win
+        
+    def mousePressed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+
+        tabsX = self.mb.tabsX
+        tab_name = ev.Source.Model.Label
+        tabsX.tab_umschalten(tab_name)
+            
+    def mouseReleased(self,ev):pass 
+    def mouseEntered(self,ev):pass 
+    def mouseExited(self,ev):pass
+    def disposing(self,ev):pass
+    
+     
 
 class Design():
     
@@ -1193,69 +1662,7 @@ class Gliederung():
 
         return gliederung 
      
-        
-from com.sun.star.awt import XTabListener
-class Tab_Listener(unohelper.Base,XTabListener):
-    
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        
-        self.mb = mb
-        # Obwohl der Tab_Listener nur einmal gesetzt wird, wird activated immer 2x aufgerufen (Bug?)
-        # Um den Code nicht doppelt auszufuehren, wird id_old verwendet
-        self.id_old = None
-        
 
-    def inserted(self,id):return False
-    def removed(self,id):return False
-    def changed(self,id):return False
-    def activated(self,id):
-        if self.mb.debug: log(inspect.stack)
-        
-        # activated wird beim Erzeugen eines neuen tabs
-        # gerufen, bevor self.mb.tabs gesetzt wurde. Daher hier try/except
-        # T.AB wird stattdessen in erzeuge_neuen_tab() gesetzt        
-        
-        try:
-            if id != self.id_old:
-                
-                if self.mb.props[T.AB].tastatureingabe:
-                    tab_name = self.mb.tabs[self.mb.tab_id_old][1]
-                    
-                    ordinal = self.mb.props[tab_name].selektierte_zeile
-                    bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-
-                    path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-
-                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)  
-                    self.mb.props[T.AB].tastatureingabe = False
-
-                self.mb.active_tab_id = id
-                sichtbare_bereiche = self.mb.props['Projekt'].sichtbare_bereiche
-                try:
-                    # Wenn neuer Tab erzeugt wird, wird hier ein Fehler erzeugt.
-                    # Ist aber egal
-                    T.AB = self.mb.tabs[id][1]
-                except:
-                    pass
-                self.mb.props['Projekt'].sichtbare_bereiche = sichtbare_bereiche
-                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
-
-                if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                    ctrl_alt = self.mb.props[T.AB].Hauptfeld.getControl(self.mb.props[T.AB].selektierte_zeile_alt).getControl('textfeld')
-                    self.mb.class_Sidebar.passe_sb_an(ctrl_alt)
-                
-            self.id_old = id
-        except:
-            log(inspect.stack,tb())
-
-        
-    def deactivated(self,id):
-        if self.mb.debug: log(inspect.stack)
-        
-        self.mb.tab_id_old = id
-        return False
-    def disposing(self,arg):return False
     
 
 from com.sun.star.awt import XMouseListener, XItemListener
@@ -1289,11 +1696,11 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
 
                     loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
                     
-                    x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
-                    y = self.mb.dialog.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
+                    x = self.mb.prj_tab.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
+                    y = self.mb.prj_tab.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
                     posSize = x,y,Breite +20,Hoehe +20
-
-                    oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+512)
+                    
+                    oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+512,parent=self.mb.win)
 
                     # Listener fuers Dispose des Fensters
                     listener2 = Schliesse_Menu_Listener(self.mb)
@@ -1869,9 +2276,9 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
             newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
             newSection.setName(sec_name)
             
-            self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
+            self.mb.Listener.remove_Undo_Manager_Listener()
             self.mb.doc.Text.insertTextContent(cur,newSection,False)
-            self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
+            self.mb.Listener.add_Undo_Manager_Listener()
             
             vc.goLeft(goLeft,False)
 
@@ -1894,7 +2301,6 @@ class Key_Handler(unohelper.Base, XKeyHandler):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.mb.keyhandler = self
         mb.current_Contr.addKeyHandler(self)
         
     def keyPressed(self,ev):
@@ -1960,10 +2366,26 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             if self.mb.selbstruf:
                 #if self.mb.debug: print('selection selbstruf')
                 return False
-    
-            selected_ts = self.mb.current_Contr.ViewCursor.TextSection            
+            
+            selectionvc = ev.Source.Selection.getByIndex(0)
+            vc = self.mb.viewcursor.Position
+            print(vc.X,vc.Y)
+            
+            
+#             self.att2 = self.mb.class_Funktionen.get_attribs(selectionvc,4)
+#             diffs = self.mb.class_Funktionen.find_differences(self.att1,self.att2)
+            
+            selected_ts = self.mb.current_Contr.ViewCursor.TextSection   
+
             if selected_ts == None:
-                return False
+                try:
+                    vc = ev.Source.ViewCursor
+                    anchor = vc.Text.Anchor
+                    inner_sec = anchor.TextSection
+                    selected_ts = self.mb.class_Zeilen_Listener.finde_eltern_bereich(inner_sec)
+                except:
+                    log(inspect.stack,tb())
+                    return False
 
             s_name = selected_ts.Name
             props = self.mb.props[T.AB]
@@ -2040,15 +2462,15 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
 
    
     def test_for_parent_section(self,selected_text_sectionX,sec):
-        if self.mb.debug: log(inspect.stack)
-        
-        if selected_text_sectionX.ParentSection != None:
-            selected_text_sectionX = selected_text_sectionX.ParentSection
-            self.test_for_parent_section(selected_text_sectionX,sec)
-        else:
-            sec.append(selected_text_sectionX)
-        
-                  
+        try:
+            if selected_text_sectionX.ParentSection != None:
+                selected_text_sectionX = selected_text_sectionX.ParentSection
+                self.test_for_parent_section(selected_text_sectionX,sec)
+            else:
+                sec.append(selected_text_sectionX)
+        except:
+            log(inspect.stack,tb())
+            
     def farbe_der_selektion_aendern(self,bereichsname): 
         if self.mb.debug: log(inspect.stack)    
         
@@ -2064,16 +2486,16 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         if props.selektierte_zeile_alt != None: 
             ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld') 
             ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-            self.mb.class_Sidebar.passe_sb_an(textfeld)
+            self.mb.class_Sidebar.passe_sb_an()
             
         props.selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      
 
 from com.sun.star.awt import XAdjustmentListener
 class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
-    def __init__(self,debug,fenster_cont):   
-        if debug: log(inspect.stack) 
-        self.fenster_cont = fenster_cont
+    def __init__(self,mb,fenster_cont):   
+        if mb.debug: log(inspect.stack) 
+        self.fenster_cont = None
     def adjustmentValueChanged(self,ev):
         self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
     def disposing(self,ev):
@@ -2082,7 +2504,7 @@ class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
             
 from com.sun.star.awt import XWindowListener
 from com.sun.star.lang import XEventListener
-class Dialog_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
+class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener):
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
@@ -2091,35 +2513,16 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
     
     def windowResized(self,ev):
         #print('windowResized')
-        self.korrigiere_hoehe_des_scrollbalkens()
+        self.mb.tabsX.layout_tab_zeilen(ev.Width)
         self.mb.class_Baumansicht.korrigiere_scrollbar()
+
     def windowMoved(self,ev):pass
         #print('windowMoved')
     def windowShown(self,ev):
-        self.korrigiere_hoehe_des_scrollbalkens()
+        self.korrigiere_hoehe_des_scrollbalkens(ev)
         #print('windowShown')
     def windowHidden(self,ev):pass
-
-    def korrigiere_hoehe_des_scrollbalkens(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            active_tab = self.mb.active_tab_id
-            win = self.mb.tabs[active_tab][0]
-            nav_cont_aussen = win.getControl('Hauptfeld_aussen')
-
-            # nav_cont_aussen ist None, wenn noch kein Projekt geoeffnet wurde
-            if nav_cont_aussen != None:                  
-                MenuBar = win.getControl('Organon_Menu_Bar')
-                MBHoehe = MenuBar.PosSize.Height + MenuBar.PosSize.Y
-                Height = win.PosSize.Height - MBHoehe -25
-                
-                scrll = win.getControl('ScrollBar')
-                scrll.setPosSize(0,0,0,Height,8)
-        except:
-            log(inspect.stack,tb())
-
-
+   
     def disposing(self,arg):
         if self.mb.debug: log(inspect.stack)
         
@@ -2136,12 +2539,12 @@ class Dialog_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
                 self.mb.class_Sidebar.speicher_sidebar_dict()       
                 self.mb.class_Sidebar.dict_sb_zuruecksetzen()
 
-            self.mb.entferne_alle_listener() 
+            #self.mb.Listener.entferne_alle_Listener() 
             self.mb = None
 
         except:
             log(inspect.stack,tb())
-        
+
         return False
 
 
@@ -2158,8 +2561,10 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
         self.mb = mb
 
     def documentEventOccured(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        #print(ev.EventName)
+        
+        if self.mb.debug: 
+            #log(inspect.stack,extras=self.mb.doc.StringValue)
+            pass#log(inspect.stack,extras=ev.EventName)
         if ev.EventName == 'OnPrepareViewClosing':
             self.mb.doc.setModified(False)
             

@@ -38,8 +38,7 @@ class Export():
             sett = self.mb.settings_exp
             
             # Position des 
-            posSize_main = self.mb.dialog.PosSize 
-            X = posSize_main.Width
+            X = self.mb.dialog.Size.Width
             Y = 80       
             
             # benoetigte Listner erzeugen            

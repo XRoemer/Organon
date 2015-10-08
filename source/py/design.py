@@ -1398,9 +1398,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
 
         try:
-            # Fuer den Tabhintergrund
-            # self.mb.tabsX.Window.setBackground(KONST.FARBE_HF_HINTERGRUND)
-            
+
             sett = self.mb.settings_orga['designs'][cmd]
             
             def setze_farbe(fkt,value):
@@ -1532,7 +1530,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         # Dialog Fenster
-        self.mb.dialog.Model.BackgroundColor = farbe
+        self.mb.prj_tab.Model.BackgroundColor = farbe
         
         for tab in self.mb.props:
             # Hauptfeld

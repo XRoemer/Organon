@@ -17,11 +17,7 @@ class ImportX():
     def importX(self):
         if self.mb.debug: log(inspect.stack)
         try:
-            
-            if T.AB != 'Projekt':
-                self.mb.nachricht('Import to tab is not implemented yet.',"infobox")
-                return
-                
+   
             if self.mb.filters_import == None:
                 self.erzeuge_filter()
             
@@ -45,10 +41,12 @@ class ImportX():
         hoehe = 460
         
         imp_set = self.mb.settings_imp
+        
+        
 
         posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-        X = posSize_main.X +20
-        Y = posSize_main.Y +20
+        X = self.mb.dialog.Size.Width 
+        Y = posSize_main.Y 
         Width = breite
         Height = hoehe
         
@@ -215,18 +213,20 @@ class ImportX():
     
     def get_flags(self,x):
         #if self.mb.debug: log(inspect.stack)
-         
-        x_bin_rev = bin(x).split('0b')[1][::-1]
-
-        flags = []
-        
-        for i in range(len(x_bin_rev)):
-            z = 2**int(i)*int(x_bin_rev[i])
-        
-            if z != 0:
-                flags.append(z)
-        
-        return flags
+        try:
+            x_bin_rev = bin(x).split('0b')[1][::-1]
+    
+            flags = []
+            
+            for i in range(len(x_bin_rev)):
+                z = 2**int(i)*int(x_bin_rev[i])
+            
+                if z != 0:
+                    flags.append(z)
+            
+            return flags
+        except:
+            return 'xxxxxx'
     
     
     def erzeuge_filter(self):
@@ -260,8 +260,8 @@ class ImportX():
             
             i = 0
             
-            for fil in fil2:
-                if fil.Name == 'Extensions':
+            for filx in fil2:
+                if filx.Name == 'Extensions':
                     extensions_pos = i
                      
                 i += 1   
@@ -291,10 +291,14 @@ class ImportX():
                     continue
 
                 f = FF.getByName(filt)
-    
                 if f[docSer_pos].Value == 'com.sun.star.text.TextDocument':
+                    # doppelt s.o. // sollte geaendert werden
+                    flags_pos = [f.index(i) for i in f if i.Name == 'Flags'][0]
+                    uiName_pos = [f.index(i) for i in f if i.Name == 'UIName'][0]
+                    type_pos = [f.index(i) for i in f if i.Name == 'Type'][0]
+                    
                     flags = self.get_flags(f[flags_pos].Value)
-    
+                    
                     if 1 in flags or 2 in flags:
                         uiName = f[uiName_pos].Value  
                         filter_typeDet = typeDet.getByName(f[type_pos].Value)
@@ -412,9 +416,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     self.fenster.toFront()
                     return
                 
-                self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
+                self.mb.Listener.remove_Undo_Manager_Listener()
                 self.datei_importieren('dokument',imp_set['url_dat'])
-                self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
+                self.mb.Listener.add_Undo_Manager_Listener()
                 
             else:
                 if imp_set['url_ord'] == '':
@@ -425,14 +429,14 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 self.fenster.dispose()
                 self.mb.class_Import.fenster_import = None
                 
-                self.mb.undo_mgr.removeUndoManagerListener(self.mb.undo_mgr_listener)
+                self.mb.Listener.remove_Undo_Manger_Listener()
                 lade = self.ordner_importieren()
     
                 if lade:
                     self.mb.class_Projekt.lade_Projekt2()
                     self.mb.nachricht(LANG.IMPORT_ABGESCHLOSSEN,'infobox')
                     
-                self.mb.undo_mgr.addUndoManagerListener(self.mb.undo_mgr_listener)
+                self.mb.Listener.add_Undo_Manager_Listener()
         except:
             log(inspect.stack,tb())
 
@@ -532,6 +536,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                             link.IsVisible = True
                             if 'OrganonSec' in link.Name:
                                 link.Name = 'OldOrgSec'+link.Name.split('OrganonSec')[1]
+    
         except:
             log(inspect.stack,tb())
     
@@ -542,12 +547,15 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         cur.gotoEnd(False)
         
         if cur.TextSection != None:
-            # Zur Sicherheit, falls der Text nur aus einem Textbereich besteht,
-            # wird eine Zeile angehangen
-            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop.Name = 'ParaStyleName'
-            prop.Value = 'Standard'   
-            oOO.Text.appendParagraph((prop,))
+            try:
+                # Zur Sicherheit, falls der Text nur aus einem Textbereich besteht,
+                # wird eine Zeile angehangen
+                prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                prop.Name = 'ParaStyleName'
+                prop.Value = 'Standard'   
+                oOO.Text.appendParagraph((prop,))
+            except:
+                pass
         
         cur.gotoStart(False)
         cur.gotoEnd(True)
@@ -685,7 +693,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     def neue_Dateien_erzeugen(self,importXml,links_und_filter):
         if self.mb.debug: log(inspect.stack)
         
-        self.mb.remove_VC_selection_listener()
+        self.mb.Listener.remove_VC_selection_listener()
         
         speicherordner = os.path.join(self.mb.pfade['odts'])
          

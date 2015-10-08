@@ -22,7 +22,7 @@ window of Organon.
 
 
 import sys
-from traceback import print_exc as tb
+from traceback import format_exc as tb
 import uno
 import unohelper
 from os import path as PATH, listdir
@@ -182,7 +182,7 @@ def set_konst():
         
         # KONST.FARBE_ORGANON_FENSTER
     except Exception as e:
-        print(tb())
+        log(inspect.stack,tb())
 
 set_konst()
 
@@ -254,7 +254,7 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             
         except Exception as e:
             #print('createUIElement '+ str(e))
-            tb()
+            log(inspect.stack,tb())
        
 g_ImplementationHelper = unohelper.ImplementationHelper()
 g_ImplementationHelper.addImplementation(
@@ -268,6 +268,67 @@ g_ImplementationHelper.addImplementation(
                 # TREEVIEW #
 ####################################################
 
+## LO
+def erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=None):
+                
+    ctx = uno.getComponentContext()
+    smgr = ctx.ServiceManager
+    desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+    
+    X,Y,Width,Height = posSize
+    
+    toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+    oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
+
+    # Create Uno Struct
+    oXIdlClass = oCoreReflection.forName("com.sun.star.awt.WindowDescriptor")
+    oReturnValue, oWindowDesc = oXIdlClass.createObject(None)
+    # global oWindow
+    oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "CONTAINER")
+    oWindowDesc.WindowServiceName = ""
+    oWindowDesc.Parent = desktop.CurrentFrame.ContainerWindow
+    oWindowDesc.ParentIndex = -1
+    oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
+
+    oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
+    oReturnValue, oRect = oXIdlClass.createObject(None)
+    oRect.X = X
+    oRect.Y = Y
+    oRect.Width = Width 
+    oRect.Height = Height 
+    
+    oWindowDesc.Bounds = oRect
+
+    # create window
+    oWindow = toolkit.createWindow(oWindowDesc)
+     
+    # create frame for window
+    oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame",ctx)
+    oFrame.initialize(oWindow)
+    oFrame.setCreator(desktop)
+    oFrame.activate()
+
+    # create new control container
+    cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
+    cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
+    cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
+    
+    #cont_model.ForegroundColor = KONST.FARBE_SCHRIFT_DATEI
+    cont.setModel(cont_model)
+    # need createPeer just only the container
+    cont.createPeer(toolkit, oWindow)
+    #cont.setPosSize(0, 0, 0, 0, 15)
+
+    oFrame.setComponent(cont, None)
+    cont.Model.Text = 'Gabriel' 
+    
+    # PosSize muss erneut gesetzt werden, um die Anzeige zu erneuern,
+    # sonst bleibt ein Teil des Fensters schwarz
+    oWindow.setPosSize(0,0,Width,Height,12)
+
+    return oWindow,cont
+
+
 
 from com.sun.star.lang import XSingleComponentFactory
 class Factory(unohelper.Base, XSingleComponentFactory):
@@ -280,7 +341,6 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     # the configuration node and FactoryImplementation value.
     IMPLE_NAME = "xaver.roemers.organon.factory"
     SERVICE_NAMES = IMPLE_NAME,
-    
     
 
     @classmethod
@@ -307,21 +367,36 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     def createInstanceWithArgumentsAndContext(self, args, ctx):
         
         try:
-            CWHandler = ContainerWindowHandler(ctx)
-            self.CWHandler = CWHandler
+            self.pypath_erweitern()
             
-            win,tabs = create_window(ctx,self)
-            window = self.CWHandler.window2
-
-            window.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-            start_main(window,ctx,tabs,path_to_extension,win,self)  
+            posSize = 0,0,0,0
+            win,cont = erzeuge_Dialog_Container(posSize)
+            start_main(cont,ctx,path_to_extension,win,self)
             
             return win
         
         except Exception as e:
-            print('Factory '+e)
-            tb()
-
+            print(str(e))
+            log(inspect.stack,tb())
+    
+    
+    def pypath_erweitern(self):
+        try:
+            ctx = uno.getComponentContext()
+            smgr = ctx.ServiceManager
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            frame = desktop.Frames.getByIndex(0)
+            
+            path_to_current = __file__.decode("utf-8")
+            pyPath = path_to_current.split('factory.py')[0]
+            sys.path.append(pyPath)
+            
+            pyPath_lang = pyPath.replace('py','languages')
+            sys.path.append(pyPath_lang)
+            
+        except Exception as e:
+            log(inspect.stack,tb())
+    
 
 g_ImplementationHelper.addImplementation(*Factory.get_imple())
 
@@ -331,63 +406,6 @@ from com.sun.star.beans import NamedValue
 
 RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
-
-def create_window(ctx,factory):
-
-    dialog1 = "vnd.sun.star.extension://xaver.roemers.organon/factory/Dialog1.xdl"
-
-    tabs = ctx.getServiceManager().createInstanceWithContext("com.sun.star.comp.framework.TabWindowService",ctx)
-    id = tabs.insertTab() # Create new tab, return value is tab id
-    # Valid properties are: 
-    # Title, ToolTip, PageURL, EventHdl, Image, Disabled.
-    v1 = NamedValue("PageURL", dialog1)
-    v2 = NamedValue("Title", "ORGANON")
-    v3 = NamedValue("EventHdl", factory.CWHandler)
-    tabs.setTabProps(id, (v1, v2, v3))
-    tabs.activateTab(id) 
-    
-    tabs.Window.setProperty('Name','ProjektFenster')
-    
-    window = tabs.Window # real window
-    
-    return window,tabs
-
-
-
-
-from com.sun.star.awt import XWindowListener,XActionListener,XContainerWindowEventHandler
-class ContainerWindowHandler(unohelper.Base, XContainerWindowEventHandler):
-    
-    def __init__(self, ctx):
-        self.ctx = ctx
-        self.window2 = None
-        
-    
-    # XContainerWindowEventHandler
-    def callHandlerMethod(self, window, obj, name):
-        
-        if name == "external_event":
-            if obj == "initialize":
-                self.window2 = window
-                self._initialize(window)
-    
-    def getSupportedMethodNames(self):
-        return "external_event",
-    
-    def _initialize(self, window):
-
-        path_to_current = __file__.decode("utf-8")
-        pyPath = path_to_current.split('factory.py')[0]
-        sys.path.append(pyPath)
-        
-        pyPath_lang = pyPath.replace('py','languages')
-        sys.path.append(pyPath_lang)
-
-    def disposing(self, ev):
-        pass
-    
-
-dict_sb.update({'CWHandler':ContainerWindowHandler(uno.getComponentContext())})
 
 
 
@@ -461,7 +479,7 @@ class Doc_Event_Listener(unohelper.Base,XDocumentEventListener):
 
 
 
-def start_main(window,ctx,tabs,path_to_extension,win,factory):
+def start_main(window,ctx,path_to_extension,win,factory):
 
     try:
         ctx = uno.getComponentContext()
@@ -488,7 +506,6 @@ def start_main(window,ctx,tabs,path_to_extension,win,factory):
         args = (pd,
                 dialog,
                 ctx,
-                tabs,
                 path_to_extension,
                 win,
                 dict_sb,
@@ -503,7 +520,6 @@ def start_main(window,ctx,tabs,path_to_extension,win,factory):
         Menu_Start.erzeuge_Startmenu()
 
     except Exception as e:
-        print(e)
         log(inspect.stack,tb())
         
 

@@ -63,9 +63,13 @@ class Projekt():
                   
             if geglueckt:
                 
+                
                 ok = self.erzeuge_Ordner_Struktur() 
                 if not ok:
                     return
+                
+                is_template, templ_pfad = self.pruefe_auf_template()
+                                
                 self.erzeuge_import_Settings()
                 self.erzeuge_export_Settings()  
                 self.erzeuge_proj_Settings()
@@ -89,7 +93,7 @@ class Projekt():
                 self.mb.class_Sidebar.lege_dict_sb_content_an()
                 self.mb.class_Sidebar.lade_sidebar()
                 self.mb.class_Sidebar.speicher_sidebar_dict()
-                
+
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
                 
                 self.mb.use_UM_Listener = True
@@ -98,12 +102,63 @@ class Projekt():
                 dateiname = "%s.organon" % self.mb.projekt_name
                 self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
                 
+                if is_template:
+                    self.mb.class_Projekt.mit_template_oeffnen(templ_pfad)
+                    return
+                
         except Exception as e:
             self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
             log(inspect.stack,tb())
             
-
-                        
+    def pruefe_auf_template(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        sett_prj = self.mb.settings_proj['use_template']
+        if not sett_prj[0]:
+            return False,None
+        elif sett_prj[1] == '':
+            return False,None
+        else:
+            if os.path.exists(sett_prj[1]):
+                return True,sett_prj[1]
+            return False,None
+        
+    
+    def besitzt_template(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        args = self.mb.doc.Args
+        pruef_pfad = ''
+        for a in args:
+            if a.Name == 'URL':
+                pruef_pfad = a.Value
+        
+        # Wenn der Pfad nicht leer ist, wurde das Dokument
+        # als Template von Organon gesteartet
+        if pruef_pfad != '':
+            return False,''
+        
+        
+        odt_pfad = self.mb.pfade['odts']
+        
+        files = []
+        for (dirpath, dirnames, filenames) in os.walk(odt_pfad):
+            files.extend(filenames)
+            break
+        
+        for f in files:
+            try:
+                endung = f.split('.')[1]
+                if endung == 'ott':
+                    template = f
+                    templ_pfad = os.path.join(dirpath,template)
+                    return True,templ_pfad
+            except:
+                pass
+            
+        return False,''
+            
+                      
     def setze_pfade(self): 
         if self.mb.debug: log(inspect.stack)
         
@@ -213,7 +268,8 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
         
         try:
-
+            self.mb.settings_proj['use_template'] = 0,''
+            
             if self.mb.speicherort_last_proj != None:
                 # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
                 # -> gespeicherten Pfad ueberpruefen!
@@ -241,6 +297,8 @@ class Projekt():
             modelForm1_State = not_state
             modelForm2_State = state
             
+            self.mb.user_styles,pfade = self.get_user_styles()
+            
             if self.mb.user_styles == ():
                 user_styles = (LANG.NO_TEMPLATES,)
                 controlLBF2_Enable = 0
@@ -249,14 +307,10 @@ class Projekt():
                 user_styles = self.mb.user_styles
                 controlLBF2_Enable = 1
 
-            self.mb.user_styles,pfade = self.get_user_styles()
-            templates = ('Minimal','Standard','Maximum')
-            
             # LISTENER
-            listenerS = Speicherordner_Button_Listener(self.mb)
+            #listenerS = Speicherordner_Button_Listener(self.mb)
             listener = neues_Projekt_Dialog_Listener(self.mb) 
             listenerCB = Neues_Projekt_CheckBox_Listener(self.mb)
-            listener_info = Neues_Projekt_InfoButton_Listener(self.mb)
 
             y = 0
             
@@ -282,45 +336,23 @@ class Projekt():
             43,
             ('controlP',"FixedText",        'tab0x',y,120,20,  ('Label','FontWeight'),(LANG.SPEICHERORT,150),               {} ),  
             0,
-            ('controlW',"Button",           'tab2x',y,80,20,   ('Label',),(LANG.AUSWAHL,),                                  {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listenerS,listener)}),              
+            ('controlW',"Button",           'tab2x',y,80,20,   ('Label',),(LANG.AUSWAHL,),                                  {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listener,)}),              
             30,
             ('controlU',"FixedText",        'tab0',y,300,20,   ('Label','State'),(modelU_Label,modelForm1_State),           {} ), 
             30,
             ('controlT',"FixedLine",        'tab0',y,360,40,   (),(),                                                       {} ), 
             40,
-#             ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(LANG.FORMATIERUNG,150),              {} ),
-#             0,  
-#             ('controlForm1',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(LANG.TEMPLATE_WRITER,modelForm1_State),   {'setActionCommand':'standard','addActionListener':(listenerCB,)} ),
-#             0,
-#             ('controlHelp',"Button",        'tab4',y ,30,30,   ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)} ), 
-#             25,
-#             ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label','State'),(LANG.TEMPLATE_USER,modelForm2_State),     {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
-#             22,
-#             ('controlLBF2',"ListBox",       'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'Enable':controlLBF2_Enable,'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
-#             20,
-#             ('controlT5',"FixedLine",       'tab2',y,238,40,   (),(),                                                       {} ),
-#             50,
-#             ('controlFormLBF4',"FixedText", 'tab2',y,300,20,   ('Label',),(LANG.EIGENES_TEMPL_ERSTELLEN,),                  {} ), 
-#             25,
-#             ('controlLBF5',"FixedText",     'tab2',y,50,20,    ('Label',),(LANG.NAME,),                                     {}),  
-#             0,
-#             ('controlLBF6',"Edit",          'tab3',y,130,20,   (),(),                                                       {} ),
-#             25,
-#             ('controlER',"Button",          'tab2x',y ,80,20,  ('Label',),(LANG.ERSTELLEN,),                                {'setActionCommand':'vorlage_erstellen','addActionListener':(listener,)} ),  
-#             30,
-#             ('controlT2',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
-#             40,
-#             ('controlTemp',"FixedText",     'tab0x',y,80,20,   ('Label',),(LANG.TEMPLATE,),                                 {}) ,
-#             -3,
-#             ('controlTempL',"ListBox",      'tab2',y,80,20,    ('Dropdown',),(True,),                                       {'addItems':templates,'Enable':False,'SelectedItems':0}) ,
-#             -10,
-#             ('controlHelpT',"Button",       'tab4',y,30,30,    ('ImageURL',),('vnd.sun.star.extension://xaver.roemers.organon/img/info_16.png',),{'setActionCommand':'formatierung','addActionListener':(listener_info,)}  ),
-#             30,
-#             ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
-#             40,
+            ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(LANG.FORMATIERUNG,150),              {} ),
+            0,  
+            
+            ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label',),(LANG.TEMPLATE_USER,),                            {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
+            22,
+            ('controlLBF2',"ListBox",       'tab1',y,100,20,    ('Dropdown',),(True,),                                       {'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
+            20,
+            ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+            40,
             ('control2',"Button",           'tab3',y,80,30,    ('Label',),(LANG.OK,),                                       {'setActionCommand':LANG.OK,'addActionListener':(listener,)} ) , 
             0,
-#             ('control3',"Button",           tab2+120,y,80,30,('Label',),(LANG.CANCEL,),                                  {'setActionCommand':LANG.CANCEL,'addActionListener':(listener,)} )  
             )
             
             
@@ -395,29 +427,18 @@ class Projekt():
             controlContainer.setPosSize(0,0,400,pos_y + 50,12)
 
             # UEBERGABE AN LISTENER
-            listenerS.control = locals()['controlU']
+            listener.control_sel = locals()['controlU']
             listener.model_proj_name = locals()['model1']
-            #listener.model_neue_vorl = locals()['modelLBF6']
-            #listener.control_CB = locals()['controlForm2']
-            #listener.control_LB = locals()['controlLBF2']
-            #listenerCB.modelStandard = locals()['modelForm1']
-            #listenerCB.modelUser = locals()['modelForm2']
-            #listenerCB.modelListBox = locals()['modelLBF2']
 
-
-            controlContainer.addTopWindowListener(listener)
-        
             geglueckt = controlContainer.execute()       
             controlContainer.dispose() 
-    
+            
             return geglueckt,locals()['model1'].Text
         
         except:
             log(inspect.stack,tb())
 
-                       
-   
-    
+ 
     def get_user_styles(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -466,15 +487,14 @@ class Projekt():
 
     def lade_Projekt(self,filepicker = True, filepath = ''):
         if self.mb.debug: log(inspect.stack)
-
+        
         try:
             if self.pruefe_auf_geladenes_organon_projekt():
                 return
-    
+
             if filepicker:
                 Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
                 Filepicker.appendFilter('Organon Project','*.organon')
-                #ofilter = Filepicker.getCurrentFilter()
                 Filepicker.execute()
                 # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
     
@@ -482,10 +502,10 @@ class Projekt():
                     return
     
                 filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
-                
+              
             dateiname = os.path.basename(filepath)
             dateiendung = os.path.splitext(filepath)[1]
-    
+
             # Wenn keine .organon Datei gewaehlt wurde
             if dateiendung  != '.organon':
                 return
@@ -495,12 +515,23 @@ class Projekt():
 
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
+            
+            # Vorlagen nicht als Vorlagen laden
+            # um beim Laden keine Schleife zu erzeugen
+            #if os.path.splitext(filepath)[1] != '.ott':
+                
+            has_template,templ_pfad = self.besitzt_template()
+            
+            if has_template:
+                self.mit_template_oeffnen(templ_pfad,True)
+                return
+
             self.lade_settings()  
             Eintraege = self.lese_xml_datei()
 
             self.mb.class_Version.pruefe_version()
 
-            self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
+            self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.prj_tab) 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Datei
@@ -511,7 +542,7 @@ class Projekt():
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Baumansicht.erzeuge_Scrollbar()    
-            self.mb.class_Baumansicht.korrigiere_scrollbar()
+            #self.mb.class_Baumansicht.korrigiere_scrollbar()
             self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['Projekt'].Hauptfeld.Context.Context)
 
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
@@ -526,8 +557,11 @@ class Projekt():
             self.mb.doc.storeAsURL(Path2,()) 
             
             self.mb.class_Tabs.lade_tabs()
+            
             erste_datei = self.mb.class_Tabs.get_erste_datei()
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei)
+
+            #self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche('nr0')
             
             self.mb.class_Sidebar.lade_sidebar_dict()
             self.mb.class_Sidebar.lade_sidebar()
@@ -535,10 +569,22 @@ class Projekt():
             self.mb.use_UM_Listener = True    
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
+            self.mb.tabsX.active_tab_id = 0
+            prj_ctrl = self.mb.tabsX.tableiste.getControl('Projekt')
+            prj_ctrl.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
+            
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
+            
+            self.mb.Listener.starte_alle_Listener()
+            
         except Exception as e:
-            self.mb.nachricht('ERROR: could not load project\r\n ' + str(e),"warningbox")
             log(inspect.stack,tb())
-    
+            log(inspect.stack,extras='Projekt nicht geladen\r\n' + str(e))
+            if e.typeName == 'com.sun.star.task.ErrorCodeIOException':
+                self.mb.nachricht(LANG.ERROR_PROJECT_LOCKED.format(filepath) + str(e),"warningbox")
+            else:
+                self.mb.nachricht(LANG.ERROR_LOAD_PROJECT + str(e),"warningbox")
+        
     
     def lade_Projekt2(self):
         if self.mb.debug: log(inspect.stack)
@@ -551,7 +597,7 @@ class Projekt():
             self.mb.class_Bereiche.leere_Dokument() 
             self.lade_settings() 
                  
-            props.Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.dialog) 
+            props.Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.prj_tab) 
                
             Eintraege = self.lese_xml_datei()
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
@@ -560,7 +606,7 @@ class Projekt():
             props.selektierte_zeile = props.Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.dialog)    
+            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.prj_tab)    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
                          
             # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
@@ -579,26 +625,48 @@ class Projekt():
         
         zuletzt = self.mb.settings_orga['zuletzt_geladene_Projekte']
         
-        name = dateiname.split('.organon')[0]
-
-        if name not in zuletzt:
-            zuletzt.update({name:filepath})
+        try:
+            # Fuer projekte erstellt vor v0.9.9.8b
+            if isinstance(zuletzt, dict):
+                list_proj = list(zuletzt)
+                zuletzt = [[p,zuletzt[p]] for p in list_proj]
             
-        # Fehlt: Wenn der Dateiname an einem anderen Ort nochmal existiert, wir er nicht in die Liste aufgenommen
-        self.mb.class_Funktionen.schreibe_settings_orga()
+            name = dateiname.split('.organon')[0]
+            
+            # Handbuecher ausschliessen
+            if name in ['Organon Handbuch','Organon Manual']:
+                return
+                        
+            namen = [n[0] for n in zuletzt]
+            
+            neu = [name,filepath]
+            
+            if neu not in zuletzt:
+                zuletzt.insert(0,[name,filepath])        
+            else:
+                index = zuletzt.index(neu)
+                del(zuletzt[index])
+                zuletzt.insert(0,[name,filepath])
 
-        
+            if len(zuletzt) > 9:
+                del(zuletzt[-1])
+            
+            self.mb.settings_orga['zuletzt_geladene_Projekte'] = zuletzt
+            self.mb.class_Funktionen.schreibe_settings_orga()
+        except:
+            log(inspect.stack,tb())
+
+    
     def pruefe_auf_geladenes_organon_projekt(self):
         if self.mb.debug: log(inspect.stack)
         
         # prueft, ob eine Organon Datei geladen ist
         UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
         has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
-        #self.mb.entferne_alle_listener() 
+
         if len(self.mb.props[T.AB].dict_bereiche) == 0:
             return False
         else:
-#         if has_prop:
             self.mb.nachricht(LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
             return True
         
@@ -953,27 +1021,27 @@ class Projekt():
        
     def beispieleintraege(self):
         
-        Eintraege = [('nr0','root','Vorbemerkung',0,'pg','-','ja'),
-                ('nr1','root','Projekt',0,'dir','auf','ja'),
-                ('nr2','nr1','Titelseite',1,'pg','-','ja'),
-                ('nr3','nr1','Kapitel1',1,'dir','auf','ja'),
-                ('nr4','nr3','Szene1',2,'pg','-','ja'),
-                ('nr5','nr3','Szene2',2,'pg','-','ja'),
-                ('nr6','nr1','Kapitel2',1,'dir','auf','ja'),
-                ('nr7','nr6','Szene1b',2,'pg','-','ja'),
-                ('nr8','nr6','Szene2b',2,'pg','-','ja'),
-                ('nr9','nr1','Interlude',1,'pg','-','ja'),
-                ('nr10','nr1','Kapitel3',1,'dir','auf','ja'),
-                ('nr11','nr1','Kapitel4',1,'dir','auf','ja'),
-                ('nr12','nr11','UnterKapitel',2,'dir','zu','ja'),
-                ('nr13','nr12','Szene3a',3,'pg','-','nein'),
-                ('nr14','nr12','Szene3b',3,'pg','-','nein'),
-                ('nr15','nr11','Szene3c',2,'pg','-','ja'),
-                ('nr16','nr11','Szene3d',2,'pg','-','ja'),
-                ('nr17','nr11','Kapitel4a',2,'dir','auf','ja'),
-                ('nr18','nr1','Kapitel4b',1,'dir','auf','ja'),
-                ('nr19','nr18','Szene4',2,'pg','-','ja'),
-                ('nr20','root','Papierkorb',0,'waste','zu','ja')]
+        Eintraege = [('nr0','root','Vorbemerkung',0,'pg','auf','ja','leer','leer','leer'),
+                ('nr1','root','Projekt',0,'prj','auf','ja','leer','leer','leer'),
+                ('nr2','nr1','Titelseite',1,'pg','-','ja','leer','leer','leer'),
+                ('nr3','nr1','Kapitel1',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr4','nr3','Szene1',2,'pg','-','ja','leer','leer','leer'),
+                ('nr5','nr3','Szene2',2,'pg','-','ja','leer','leer','leer'),
+                ('nr6','nr1','Kapitel2',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr7','nr6','Szene1b',2,'pg','-','ja','leer','leer','leer'),
+                ('nr8','nr6','Szene2b',2,'pg','-','ja','leer','leer','leer'),
+                ('nr9','nr1','Interlude',1,'pg','-','ja','leer','leer','leer'),
+                ('nr10','nr1','Kapitel3',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr11','nr1','Kapitel4',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr12','nr11','UnterKapitel',2,'dir','auf','ja','leer','leer','leer'),
+                ('nr13','nr12','Szene3a',3,'pg','-','ja','leer','leer','leer'),
+                ('nr14','nr12','Szene3b',3,'pg','-','ja','leer','leer','leer'),
+                ('nr15','nr11','Szene3c',2,'pg','-','ja','leer','leer','leer'),
+                ('nr16','nr11','Szene3d',2,'pg','-','ja','leer','leer','leer'),
+                ('nr17','nr11','Kapitel4a',2,'dir','auf','ja','leer','leer','leer'),
+                ('nr18','nr1','Kapitel4b',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr19','nr18','Szene4',2,'pg','-','ja','leer','leer','leer'),
+                ('nr20','root','Papierkorb',0,'waste','auf','ja','leer','leer','leer')]
         
         return Eintraege
 
@@ -1006,7 +1074,91 @@ class Projekt():
         
         return flags
     
+    def mit_template_oeffnen(self,templ_pfad,ist_vorhandenes_prj = False):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            # damit das Template geoeffnet werden kann, muss das Dokument unter einem
+            # anderen Namen gespeichert werden
+            Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name+'wird_geloescht'))
+            Path2 = uno.systemPathToFileUrl(Path1)
+
+            self.mb.doc.storeAsURL(Path2,()) 
+            
+            if ist_vorhandenes_prj:
+                url = templ_pfad
+            else:
+                url = self.mb.settings_proj['use_template'][1]
+            url = uno.systemPathToFileUrl(url)
+ 
+            self.mb.Listener.entferne_alle_Listener()            
+            
+            prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop2.Name = 'AsTemplate'
+            prop2.Value = True
+            
+            prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop3.Name = 'DocumentTitle'
+            prop3.Value = 'opened by Organon;'+Path2.replace('wird_geloescht','')
+            
+            doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(url,'_blank',0,(prop2,prop3))
+
+            self.mb.doc.close(False)
+            os.remove(Path1)
+            
+            if not ist_vorhandenes_prj:
+                neuer_templ_pfad = os.path.join(self.mb.pfade['odts'],'template.ott')
+                
+                import shutil
+                shutil.copyfile(templ_pfad, neuer_templ_pfad)
+
+        except:
+            log(inspect.stack,tb())
+        
+
+    def find_titel(self,panellist,tag,lang):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            tag_xml = panellist.find(".//*[@{{http://openoffice.org/2001/registry}}name='{0}']".format(tag))
+            title_xml = tag_xml.find(".//*[@{http://openoffice.org/2001/registry}name='Title']")
+            name = title_xml.find(".//*[@{{http://www.w3.org/XML/1998/namespace}}lang='{0}']".format(lang))
+            return name.text
+        except:
+            return None
     
+    
+    def ein_test(self):
+        if self.mb.debug: log(inspect.stack)
+        print('hier der test')
+    
+    
+    def myDialog(self):
+        psm = uno.getComponentContext().ServiceManager
+        dp = psm.createInstance("com.sun.star.awt.DialogProvider")
+    
+        dlg = dp.createDialog("vnd.sun.star.extension://xaver.roemers.organon//factory/Dialog1.xdl")     
+        dlg.Title = "Mitteilung"
+        
+        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 400, 40, (), ())           
+        model.Label = 'Mitteilung'
+        model.MultiLine = True
+        
+        
+        
+        dlg.addControl('mitteilung',control)
+        
+        pref_size = control.PreferredSize
+        
+        
+        
+        #dlg.getControl("TextField1").Text = " Here you can read your message "
+        dlg.execute()
+        
+#         control.setVisible(True)
+#         dlg.setVisible(True)
+#         time.sleep(3) ## 5 sec
+        dlg.dispose()      
         
        
     def test(self):
@@ -1159,400 +1311,69 @@ class Projekt():
 #             cont.addControl('',cont4)
             
 #############################################################################################
-
-
-#             attributes = inspect.getmembers(win.StyleSettings, lambda a:not(inspect.isroutine(a)))
-#              
-#             for a in attributes:
-#                 try:
-#                     setattr(win.StyleSettings, a[0], 502)
-#                 except:
-#                     pass
-            
-#             cmp_win = self.mb.desktop.ActiveFrame.ComponentWindow
-#             win = cmp_win.Windows[0]
-#             
-#             width,height = win.Size.Width,win.Size.Height
-#             loc = win.AccessibleContext.LocationOnScreen
-#             
-#             loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
-#             cont = self.mb.current_Contr.Frame.ContainerWindow
-#                     
-# #             x = self.mb.dialog.AccessibleContext.LocationOnScreen.X - loc_cont.X + self.mb.dialog.PosSize.Width
-# #             y = self.mb.dialog.AccessibleContext.LocationOnScreen.Y - loc_cont.Y 
-#     
-#             from com.sun.star.util.MeasureUnit import POINT
-#             
-#             
-#             x,y = loc.X,loc.Y
-#             x,y = win.PosSize.X,62 + 31
-#             
-#             #x,y = new_point.X,new_point.Y
-#             frame = self.mb.desktop.ActiveFrame
-#             lmgr = frame.LayoutManager
-#             
-#             
-#             
-#             y = cmp_win.AccessibleContext.AccessibleParent.PosSize.Y + cmp_win.AccessibleContext.Location.Y
-#             
-#             cw = lmgr.DockingAreaAcceptor.ContainerWindow
-#             
-# #             point = cw.AccessibleContext.LocationOnScreen
-# #             y = cont.convertPointToPixel(point,POINT).Y
-#             y = cmp_win.PosSize.Y + 31
-#             posSize = x,y,width,height
-#             
-#             #win2,cont = self.mb.erzeuge_Dialog_Container(posSize,1+32+64+128)#Flags=1+512)#1+32+64+128)
-#             
-#             
-#             
-#             cont_win = frame.ContainerWindow
-#             
-#             for w in cont_win.Windows:
-#                 p = w.PosSize
-#                 #print(p.X,p.Y,p.Width,p.Height)
-#             
-#             lmgr.DockingAreaAcceptor.ContainerWindow.Background = 0
-#             
-#             for e in lmgr.Elements:
-#                 print(e.ResourceURL)
-#                 try:
-#                     p = e.RealInterface.PosSize
-#                     
-#                     print(p.X,p.Y,p.Width,p.Height)
-#                 except:
-#                     print('Fehler')
-                    
+     
             
             
             
-#             
-            #self.mb.btn.State = 1
-            #self.org.erzeuge_steuerung()
-#             ctx = self.mb.ctx
-#             smgr = self.mb.ctx.ServiceManager
-#                
-#             config_provider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",ctx)
-#       
-#             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-#             prop.Name = "nodepath"
-#             prop.Value = "/org.openoffice.Office.Views/Windows/"
-#                    
-#             config_access = config_provider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationUpdateAccess", (prop,))
-                 
-            #config_access.Persona = nutze_persona
-            #config_access.PersonaSettings = persona_url
-                    
-            #config_access.commitChanges()
-            #decklist = config_access.Content.DeckList
-            #decklist.replaceByName('GalleryDeck',decklist.OrganonsToolDeck)
-            
-            
-#             from organizer import Organizer
-#             self.org = Organizer(self.mb,pd,T,LANG,KONST)
-#             self.org.run()
-            
-            
-            
-            
-            
-            
-            
-#             #self.myDialog()
-#             RESOURCE_URL = "private:resource/dockingwindow/9809"
-#             #self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
-#             #self.mb.desktop.ActiveFrame.LayoutManager.showElement(RESOURCE_URL)
-# #             self.mb.dialog.endDialog(0)
-# #             self.mb.dialog.endExecute()
-#             
-#             
-#             self.mb.win.invalidate(1)
-#             #self.mb.win.dispose()
-#             win = self.mb.win
-#             #win.setVisible(False)
-#             #self.mb.tabsX.Window.dispose()
-#             tabs = self.mb.tabsX
-#             #tabs.removeTab(0)
-#             win.enableClipSiblings(True)
-#             win.enableDialogControl(True)
-#             
-#             attributes = inspect.getmembers(win.StyleSettings, lambda a:not(inspect.isroutine(a)))
-#             attributes2 = inspect.getmembers(win.StyleSettings)
-#             
-#             ctx = uno.getComponentContext()
-#             smgr = ctx.ServiceManager
-#             desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-#             doc = desktop.getCurrentComponent() 
-#             current_Contr = doc.CurrentController
-#             viewcursor = current_Contr.ViewCursor
-#             
-#             object = doc
-#             max_lvl = 3
-#             
-#             def get_attribs(obj,lvl):
-#                 results = {}
-#                 for key in dir(obj):
-#                     
-#                     try:
-#                         value = getattr(obj, key)
-#                         if 'callable' in str(type(value)):
-#                             continue
-#                     except :
-#                         #print(key)
-#                         continue
-# 
-#                     if key not in results:
-#                         if type(value) in (
-#                                            type(None),
-#                                            type(True),
-#                                            type(1),
-#                                            type(.1),
-#                                            type('string'),
-#                                            type(()),
-#                                            type([]),
-#                                            type(b''),
-#                                            type(r''),
-#                                            type(u'')
-#                                            ):
-#                             results.update({key: value})
-#                             
-#                         elif lvl < max_lvl:
-#                             try:
-#                                 results.update({key: get_attribs(value,lvl+1)})
-#                             except:
-#                                 pass
-#                 
-#                 return results
-#             
-#             
-#             diff = []
-#             
-#             def findDiff(d1, d2, path=""):
-#                 for k in d1.keys():
-#                     if not d2.has_key(k):
-#                         print (path, ":")
-#                         print (k + " as key not in d2", "\n")
-#                     else:
-#                         if type(d1[k]) is dict:
-#                             if path == "":
-#                                 path = k
-#                             else:
-#                                 path = path + "->" + k
-#                             findDiff(d1[k],d2[k], path)
-#                         else:
-#                             if d1[k] != d2[k]:
-#                                 diff.append((path,k,d1[k],d2[k]))
-#                                 path = ''
-#             
-#             
-#             self.res1 = get_attribs(object,1)
-#             self.mb.viewcursor.gotoEnd(False)
-#             self.mb.viewcursor.setString('Test ')
-#             self.res2 = get_attribs(object,1)
-#             
-#             findDiff(self.res1, self.res2)
-#             
-#             for d in diff:
-#                 print(d)
-#                 time.sleep(.4)
-            
-#             for x in range(lvl-1):
-#                 
-#                 res = get_attribs(object)
-            
-            
-            
-#             #####################################
-#             dic = self.mb.dict_sb_content
-# 
-#             
-#             props = self.mb.props
-#             
-#             #uno.systemPathToFileUrl(
-#             extension = self.mb.path_to_extension
-#             
-#             pfad = os.path.join(extension,'factory','Sidebar.xcu')
-#             pfad2 = os.path.join(extension,'factory','Sidebar_test.xcu')
-#                 
-#             xml_tree = self.mb.ET.parse(pfad)
-#             root = xml_tree.getroot() 
-#             
-#             panellist = root.find(".//*[@{http://openoffice.org/2001/registry}name='PanelList']")
-#             
-#             
-#             panels = [
-#                       'empty_project',
-#                       'Synopsis',
-#                       'Notes',
-#                       'Images',
-#                       'Tags_characters',
-#                       'Tags_locations',
-#                       'Tags_objects',
-#                       'Tags_time',
-#                       "Tags_user1",
-#                       "Tags_user2",
-#                       "Tags_user3"                      
-#                       ]
-#             
-#             
-#             synopsis = panellist.find(".//*[@{{http://openoffice.org/2001/registry}}name='{0}']".format(panels[0]))
-#             title = synopsis.find(".//*[@{http://openoffice.org/2001/registry}name='Title']")
-#             en = title.find(".//*[@{http://www.w3.org/XML/1998/namespace}lang='en']")
-#             
-#             for p in panels:
-#                 tit = self.find_titel(panellist,p,self.mb.language) 
-#                 print(tit)
-#                 
-#                 
-#                 
-#             #en.text = 'Synopsis 2'
-#             
-# #             xml_tree.write(pfad2)
-#             
-#             
-# #             with codecs_open( pfad, "r","utf-8") as file:
-# #                 lines = file.readlines() 
-# #             
-# #             for x in range(len(lines)):
-# #                 if u'<value xml:lang="en">Ärosol</value>' in lines[x]:
-# #                     text = lines[x].split(u'Ärosol')
-# #                     new_text = text[0]+u'Synopsis'+text[1]
-# #                     lines[x] = new_text
-# #             
-# #             txt = ''.join(lines)
-# #             with codecs_open( pfad, "w","utf-8") as file:
-# #                 file.write(txt)
-# ########################################
-
-            
-            #vc = self.mb.viewcursor
-            #text = self.mb.doc.Text
-            
-
-
-            
-            
+     
 
                 
-#                 pfad_split = os.path.split(pfad)
-#                 
-#                 pfad_neu = os.path.join(pfad_split[0],'batch_devide.odt')
-#                 
-#                 import shutil
-#                 shutil.copyfile(pfad,pfad_neu)
-#                 os.remove(url)
-                
+            worte = ('ORGANON',u'zündorf','24 Wachteleier', u'Zusammenstoß',
+                     'Xenophob','Sansi oder...',
+                     'Karmeliter','Zoo','die phantastische Bibliothek',
+                     'Zzz','zi','op','zuZ','ZAT')
                 
 
-                
+             
             
             
-
+            #neue_tabs(aeusserer_container)
             
-#              
-# #             root.attrib['Name'] = 'root'
-# #             root.attrib['kommender_Eintrag'] = self.mb.props[T.AB].kommender_Eintrag
-#             # Version fuer eventuelle Kompabilitaetspruefung speichern
-#             # wird nur an dieser Stelle verwendet
-#             #root.attrib['Programmversion'] = self.mb.programm_version
-#             #print(dir(letztes_element))
-#                    
-#                      
-#                      
-#                 
-#             prop1 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-#             prop1.Name = 'Overwrite'
-#             prop1.Value = True
-#              
-#             #pfad = uno.systemPathToFileUrl(os.path.join(self.speicherordner,self.titel+'.odt'))
-#             url = os.path.join(self.mb.pfade['odts'],'test2.odt')
-#              
-#             url = uno.systemPathToFileUrl(url)
-#             #doc.storeToURL(url,(prop1,))
+            def erzeuge():
+                posSize = 200,200,400,600
+                fenster,self.organon_fenster = self.mb.erzeuge_Dialog_Container(posSize)
                   
-              
-              
-              
-#             neue_ordinale = []
-#             for o in range(len(ordnung)-1,-1,-1):
-#                 fund = ordnung[o][3]
-#                 text = ordnung[o][4] if len(ordnung[o][4]) < 60 else ordnung[o][4][0:60]
-#                 print(text)
-#                 ordi = self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner',neuer_Name=text)
-#                 neue_ordinale.append(ordi)
-#              
-#              
-#              
-#              
-#             for o in range(len(neue_ordinale)-1,0,-1):
-#                  
-#                 source_xml = tree.find('.//X'+str(o))
-#                 target_xml = parent_map[source_xml]   root.find('.//'+par.tag+'/..')
-#                 #target_nr = 'nr' + target_xml.tag.split('X')[0]
-#                 nr = int(target_xml.tag.split('X')[1])
-#                  
-#                 source = 'nr' + str(neue_ordinale[o])
-#                 target = 'nr' + str(neue_ordinale[nr])
-#                  
-#                 action = 'inOrdnerEinfuegen'
-#                  
-#                 self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(source,target,action)
-#  
+                self.t = Tabs(self.mb,self.organon_fenster)
+                self.tableiste = self.t.run()
+                self.organon_fenster.addControl('container',self.tableiste)
+                 
+                 
+                for w in worte:
+                     
+                    hoehe,hauptfeld = self.t.erzeuge_tabeintrag(w)
+                    self.organon_fenster.addControl(w,hauptfeld)
             
-            
-            
-            
+            tabsX = self.mb.tabsX
+            listener = self.mb.Listener
+            #erzeuge()
+            #self.t.loesche_tab_eintrag(worte[3])
+            #print(T.AB)
         except:
             log(inspect.stack,tb())
-            pd()
-
-        pd()
-        
-        
-        
-  
+            
 
     
+   
     
-    def find_titel(self,panellist,tag,lang):
-        if self.mb.debug: log(inspect.stack)
+    
+def createControl2(x,y,width,height,names,values):
+    try:
+        ctx = uno.getComponentContext()
+        smgr = ctx.getServiceManager()
+        ctrl = smgr.createInstanceWithContext("com.sun.star.awt.tab.UnoControlTabPageContainerModel",ctx)
+        ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoMultiPageModel",ctx)
+        ctrl_model.setPropertyValues(names,values)
+        #ctrl.setModel(ctrl_model)
+        #ctrl.setPosSize(x,y,width,height,15)
+        return (ctrl, ctrl_model)
+    except Exception as e:
+        
+        print(tb())
+        return ctrl,ctrl_model    
+    
+    
+    
 
-        try:
-            tag_xml = panellist.find(".//*[@{{http://openoffice.org/2001/registry}}name='{0}']".format(tag))
-            title_xml = tag_xml.find(".//*[@{http://openoffice.org/2001/registry}name='Title']")
-            name = title_xml.find(".//*[@{{http://www.w3.org/XML/1998/namespace}}lang='{0}']".format(lang))
-            return name.text
-        except:
-            return None
-    
-
-    def myDialog(self):
-        psm = uno.getComponentContext().ServiceManager
-        dp = psm.createInstance("com.sun.star.awt.DialogProvider")
-    
-        dlg = dp.createDialog("vnd.sun.star.extension://xaver.roemers.organon//factory/Dialog1.xdl")     
-        dlg.Title = "Mitteilung"
-        
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 400, 40, (), ())           
-        model.Label = 'Mitteilung'
-        model.MultiLine = True
-        
-        
-        
-        dlg.addControl('mitteilung',control)
-        
-        pref_size = control.PreferredSize
-        
-        
-        
-        #dlg.getControl("TextField1").Text = " Here you can read your message "
-        dlg.execute()
-        
-#         control.setVisible(True)
-#         dlg.setVisible(True)
-#         time.sleep(3) ## 5 sec
-        dlg.dispose()   
- 
 
 
 def spiral(x, y):
@@ -1615,17 +1436,58 @@ def draw(path):
             
 
 
-from com.sun.star.awt import XActionListener,XTopWindowListener,XKeyListener,XItemListener
-class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
-    
+from com.sun.star.awt import XActionListener,XKeyListener,XItemListener
+
+
+from com.sun.star.awt.Key import RETURN
+class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XKeyListener): 
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.model = None
-        self.control = None
+        self.model_proj_name = None
+        self.model_neue_vorl = None
+        self.control_CB = None
+        self.control_LB = None
+        self.control_sel = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
+        
+        try:
+            namen_pruefen = self.mb.class_Funktionen.verbotene_buchstaben_austauschen
+            
+            parent = ev.Source.AccessibleContext.AccessibleParent 
+            cmd = ev.ActionCommand  
+
+            if cmd == 'vorlage_erstellen':
+                self.vorlage_auswaehlen()
+                
+            elif cmd == LANG.WAEHLEN:
+                self.file_aussuchen()
+                
+            elif cmd == LANG.CANCEL:
+                parent.endDialog(0)
+                
+            elif self.model_proj_name.Text == '':
+                self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
+                
+            elif self.mb.speicherort_last_proj == None:
+                self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
+                
+            elif self.model_proj_name.Text != namen_pruefen(self.model_proj_name.Text):
+                self.mb.nachricht(LANG.UNGUELTIGE_ZEICHEN,"warningbox")
+                
+            elif cmd == LANG.OK:
+                self.get_path()
+                parent.endDialog(1)
+                
+        except:
+            log(inspect.stack,tb())
+    
+    
+    def file_aussuchen(self):
+        if self.mb.debug: log(inspect.stack)
+        
         try:
             filepath = None
             pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
@@ -1648,8 +1510,8 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 file.write(uno.fileUrlToSystemPath(filepath))
             
             self.mb.speicherort_last_proj = filepath
-            self.control.Model.Label = uno.fileUrlToSystemPath(filepath)
-            self.mb.kalkuliere_und_setze_Control(self.control)
+            self.control_sel.Model.Label = uno.fileUrlToSystemPath(filepath)
+            self.mb.kalkuliere_und_setze_Control(self.control_sel)
             
             if self.mb.debug: log(inspect.stack,None,filepath)
             
@@ -1658,51 +1520,8 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 if self.mb.debug: log(inspect.stack,tb(),filepath)
             else:
                 log(inspect.stack,tb())
-        
-        
-        
-    def disposing(self,ev):
-        return False
-
-
-
-from com.sun.star.awt.Key import RETURN
-class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowListener,XKeyListener): 
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
-        self.model_proj_name = None
-        self.model_neue_vorl = None
-        self.control_CB = None
-        self.control_LB = None
-        
-    def actionPerformed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            namen_pruefen = self.mb.class_Funktionen.verbotene_buchstaben_austauschen
-            
-            parent = ev.Source.AccessibleContext.AccessibleParent 
-            cmd = ev.ActionCommand  
-            if cmd == 'vorlage_erstellen':
-                self.vorlage_auswaehlen()
-            elif cmd == LANG.WAEHLEN:
-                return
-            elif cmd == LANG.CANCEL:
-                parent.endDialog(0)
-            elif self.model_proj_name.Text == '':
-                self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
-            elif self.mb.speicherort_last_proj == None:
-                self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
-            elif self.model_proj_name.Text != namen_pruefen(self.model_proj_name.Text):
-                self.mb.nachricht(LANG.UNGUELTIGE_ZEICHEN,"warningbox")
-            elif cmd == LANG.OK:
-                self.get_path()
-                parent.endDialog(1)
                 
-        except:
-            log(inspect.stack,tb())
-        
+                    
             
     def keyPressed(self,ev):
         if ev.KeyCode == RETURN:
@@ -1805,57 +1624,35 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XTopWindowLis
     
     def keyReleased(self,ev):
         return False
-    
-    # XTopWindowListener
-    def windowOpened(self,ev):
-        return False
-    def windowActivated(self,ev):
-        return False
-    def windowDeactivated(self,ev):
-        return False
-    def windowClosing(self,ev):
-        return False
-    def windowClosed(self,ev):
-        return False
-    def windowMinimized(self,ev):
-        return False
-    def windowNormalized(self,ev):
-        return False
     def disposing(self,ev):
         return False
-    
+ 
         
 class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListener):
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.modelStandard = None
         self.modelUser = None
         self.modelListBox = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
-        
-        # um sich nicht selbst abzuwaehlen
-        if ev.Source.State == 0:
-            ev.Source.State = 1
-            return
-        elif ev.ActionCommand == 'standard':
-            self.modelUser.State = False
-            self.mb.settings_proj['use_template'] = (False,None)
-        elif ev.ActionCommand == 'user':
-            self.modelStandard.State = False
-            pfad = self.get_template_pfad()
-            self.mb.settings_proj['use_template'] = (True,pfad)
-        
-    
-    def get_template_pfad(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        pfade = self.mb.user_styles_pfade
-        gewaehlt = self.modelListBox.SelectedItems[0]
-        pfad = pfade[gewaehlt]
 
+        pfad = self.mb.settings_proj['use_template'][1]
+        state = ev.Source.State
+        self.mb.settings_proj['use_template'] = (state,pfad)
+
+    
+    def get_template_pfad(self,ctrl):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            pfade = self.mb.user_styles_pfade
+            if len(pfade) == 0:
+                return ''
+            gewaehlt = ctrl.SelectedItemPos
+            pfad = pfade[gewaehlt]
+        except:
+            log(inspect.stack,tb())
         return pfad
         
     
@@ -1863,54 +1660,14 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
         if self.mb.debug: log(inspect.stack)
         
         use,pfad = self.mb.settings_proj['use_template']
-        self.mb.settings_proj['use_template'] = (use,self.get_template_pfad())
+        self.mb.settings_proj['use_template'] = (use,self.get_template_pfad(ev.Source))
     
     def disposing(self,ev):
         return False
 
 
 
-class Neues_Projekt_InfoButton_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
-        
-    def actionPerformed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            if ev.ActionCommand == 'formatierung':
-                path = os.path.join(self.mb.path_to_extension,'languages','info_format_%s.odt' % self.mb.language)
-                URL = uno.systemPathToFileUrl(path)
-            else:
-                path = os.path.join(self.mb.path_to_extension,'languages','info_template_%s.odt' % self.mb.language)
-                URL = uno.systemPathToFileUrl(path)
-            
-            self.new_doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
-            
-            contWin = self.new_doc.CurrentController.Frame.ContainerWindow               
-            contWin.setPosSize(0,0,870,900,12)
-            
-            lmgr = self.new_doc.CurrentController.Frame.LayoutManager
-            for elem in lmgr.Elements:
-            
-                if lmgr.isElementVisible(elem.ResourceURL):
-                    lmgr.hideElement(elem.ResourceURL)
-                    
-            lmgr.HideCurrentUI = True  
-            
-            
-            viewSettings = self.new_doc.CurrentController.ViewSettings
-            viewSettings.ZoomType = 3
-            viewSettings.ZoomValue = 100
-            viewSettings.ShowRulers = False
-            
-        except:
-            log(inspect.stack,tb())
 
-        
-    def disposing(self,ev):
-        return False
         
    
         

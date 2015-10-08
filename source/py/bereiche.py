@@ -30,7 +30,8 @@ class Bereiche():
         if URL == None:
             URL="private:factory/swriter"
             if self.mb.settings_proj['use_template'][0] == True:
-                URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
+                if self.mb.settings_proj['use_template'][1] != '':
+                    URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
                 
         self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
         
@@ -88,23 +89,28 @@ class Bereiche():
             nr = str(i) 
             
             text = self.oOO.Text
-            inhalt = 'nr. ' + nr + '\t' + inhalt
+            #inhalt = 'nr. ' + nr + '\t' + inhalt
             
             cursor = text.createTextCursor()
+            #cursor = self.oOO.CurrentController.ViewCursor
             cursor.gotoStart(False)
             cursor.gotoEnd(True)
-            
-            
-            
+
             newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
             newSection.setName('OrgInnerSec'+nr)
             text.insertTextContent(cursor, newSection, False)
-            cursor.goLeft(1,True)
+            
+            cursor.goLeft(2,True)
+            cursor.collapseToStart()
             
             if self.mb.debug:
                 text.insertString( cursor, inhalt, True )
             else:
                 text.insertString( cursor, ' ', True )
+            
+            cursor.collapseToEnd()
+            cursor.goRight(2,True)
+            cursor.setString('')
             
             Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
             Path2 = uno.systemPathToFileUrl(Path1)    

@@ -210,7 +210,7 @@ TAGS_IM_GES_DOK_LOESCHEN = u'Tag wird im gesamten Dokument gelöscht.'
 TAGS_IN_AKT_DAT_LOESCHEN = u'Tag wird nur in der aktuellen Datei gelöscht.'
 TAG_LOESCHEN = u'Entfernt Tag'
 TAG_HINZUFUEGEN = u'Klicken um Tag hinzuzufügen'
-ENTER_NEW_TAG = u'Geben Sie einen neuen Tag ein und klicken Sie danach in das Dokument.'
+ENTER_NEW_TAG = u'Geben Sie einen neuen Tag ein bestätigen Sie mit Enter.'
 IN_PROJEKTORDNER_IMPORTIEREN = u'Das ausgesuchte Bild wird in den Projektordner importiert.'
 BILD_EINFUEGEN = u'Bild einfügen'
 BILD_LOESCHEN = u'Bild löschen'
@@ -473,7 +473,11 @@ WOERTERLISTE = u'Wörterliste erstellen'
 UNGUELTIGE_FARBE = u'Keine gültige Farbe'
 LISTE_GESPEICHERT = u'Die Liste wurde erfolgreich gespeichert unter {}'
 
-
+# ERRORS
+ERROR_LOAD_PROJECT = u"FEHLER: konnte Projekt nicht laden\r\nNutzen Sie das Dokument nicht, auch wenn es intakt aussieht."
+ERROR_PROJECT_LOCKED = u"FEHLER: Projekt ist gesperrt. \r\nNutzen Sie das Dokument nicht, auch wenn es intakt aussieht.\r\n"\
+    u"Evt. wird es von einer anderen Instanz von OO/LO genutzt.\r\n" \
+    u"Oder ein Absturz hat die Lockdatei zurückgelassen. Schauen Sie nach dem Pfad und löschen Sie die Lockdatei.\r\n{}"
 
 
 
