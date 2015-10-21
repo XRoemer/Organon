@@ -535,15 +535,15 @@ class Projekt():
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             # setzt die selektierte Zeile auf die erste Datei
-            erste_datei = self.mb.class_Tabs.get_erste_datei()
+            erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
             self.mb.props[T.AB].selektierte_zeile = erste_datei
             self.mb.props[T.AB].selektierte_zeile_alt = erste_datei
-            self.mb.class_Tabs.setze_selektierte_zeile(erste_datei)
+            self.mb.tabsX.setze_selektierte_zeile(erste_datei,T.AB)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Baumansicht.erzeuge_Scrollbar()    
             #self.mb.class_Baumansicht.korrigiere_scrollbar()
-            self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['Projekt'].Hauptfeld.Context.Context)
+            self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['ORGANON'].Hauptfeld.Context.Context)
 
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
             UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
@@ -556,21 +556,17 @@ class Projekt():
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
             
-            self.mb.class_Tabs.lade_tabs()
+            self.mb.tabsX.lade_tabs()
             
-            erste_datei = self.mb.class_Tabs.get_erste_datei()
+            erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei)
-
-            #self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche('nr0')
             
             self.mb.class_Sidebar.lade_sidebar_dict()
             self.mb.class_Sidebar.lade_sidebar()
-            #self.selektiere_ersten_Bereich()
             self.mb.use_UM_Listener = True    
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
-            self.mb.tabsX.active_tab_id = 0
-            prj_ctrl = self.mb.tabsX.tableiste.getControl('Projekt')
+            prj_ctrl = self.mb.tabsX.tableiste.getControl('ORGANON')
             prj_ctrl.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
             
             self.mb.class_Baumansicht.korrigiere_scrollbar()
@@ -676,8 +672,7 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
         
         et = self.mb.ET    
-        #prj_name = self.mb.projekt_name.replace(' ','_')   
-        root = et.Element('Projekt')
+        root = et.Element('ORGANON')
         tree = et.ElementTree(root)
         self.mb.props[T.AB].xml_tree = tree
         root.attrib['Name'] = 'root'
@@ -720,7 +715,7 @@ class Projekt():
                 if sicht == 'ja':
                     # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                     self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                    self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
+                    self.mb.props['ORGANON'].sichtbare_bereiche.append('OrganonSec'+str(index2))
                     
                 # Bereiche   
                 inhalt = name
@@ -815,7 +810,7 @@ class Projekt():
             if sicht == 'ja':
                 # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                 self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                self.mb.props['Projekt'].sichtbare_bereiche.append('OrganonSec'+str(index2))
+                self.mb.props['ORGANON'].sichtbare_bereiche.append('OrganonSec'+str(index2))
                 
             # Bereiche   
             path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)
@@ -846,17 +841,21 @@ class Projekt():
         CB.loesche_leeren_Textbereich_am_Ende() 
            
                    
-    def erzeuge_dict_ordner(self):
+    def erzeuge_dict_ordner(self,tab_name=None):
         if self.mb.debug: log(inspect.stack)
 
-        tree = self.mb.props[T.AB].xml_tree
+        if tab_name:
+            TAB = tab_name
+        else:
+            TAB = T.AB
+            
+        tree = self.mb.props[TAB].xml_tree
         root = tree.getroot()
         
-        ordner = []
-        self.mb.props[T.AB].dict_ordner = {}
+        self.mb.props[TAB].dict_ordner = {}
         
         alle_eintraege = root.findall('.//')
-        
+        ordner = []
         
         ### Vielleicht gibt es eine Moeglichkeit, den Baum nur einmal zu durchlaufen?
         ### Statt 1) Baum komplett durchlaufen 2) jeden Eintrag nochmals rekursiv durchlaufen
@@ -880,7 +879,7 @@ class Projekt():
         for tag in sorted(ordner):
             dir = root.find('.//'+tag)
             helfer = []
-            get_tree_info(dir,self.mb.props[T.AB].dict_ordner,tag,helfer)
+            get_tree_info(dir,self.mb.props[TAB].dict_ordner,tag,helfer)
         
         
 
@@ -1022,7 +1021,7 @@ class Projekt():
     def beispieleintraege(self):
         
         Eintraege = [('nr0','root','Vorbemerkung',0,'pg','auf','ja','leer','leer','leer'),
-                ('nr1','root','Projekt',0,'prj','auf','ja','leer','leer','leer'),
+                ('nr1','root','ORGANON',0,'prj','auf','ja','leer','leer','leer'),
                 ('nr2','nr1','Titelseite',1,'pg','-','ja','leer','leer','leer'),
                 ('nr3','nr1','Kapitel1',1,'dir','auf','ja','leer','leer','leer'),
                 ('nr4','nr3','Szene1',2,'pg','-','ja','leer','leer','leer'),
@@ -1311,49 +1310,55 @@ class Projekt():
 #             cont.addControl('',cont4)
             
 #############################################################################################
-     
             
             
             
-     
-
                 
-            worte = ('ORGANON',u'zündorf','24 Wachteleier', u'Zusammenstoß',
-                     'Xenophob','Sansi oder...',
-                     'Karmeliter','Zoo','die phantastische Bibliothek',
-                     'Zzz','zi','op','zuZ','ZAT')
                 
-
              
+             
+#             organon_lang_files = self.get_organon_lang_files()
+#             lang_akt = self.langpy_auslesen()
+#             
+#             self.cont,self.container,self.fenster = self.container_erstellen()
+#             ctrls_ueber,ctrls,ctrls_konst = self.erstelle_Uebersetzungsfenster(lang_akt)
+#             self.dialog_uebersetzung(ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst)
+#              
+#             self.gefaerbte = list(ctrls_ueber.values())
+        
+        
+            props = self.mb.props
+            #self.mb.sec_helfer2.IsVisible = False
+            
+            sections_n = self.mb.doc.TextSections.ElementNames
+            ts = self.mb.doc.TextSections
+            secs = [ts.getByName(n) for n in sections_n]
+            #vis = [s.Name for s in secs]# if s.IsVisible and 'Inner' not in s.Name]
+            helfer = [s for s in secs if 'Helfer2'  in s.Name][0]
             
             
-            #neue_tabs(aeusserer_container)
-            
-            def erzeuge():
-                posSize = 200,200,400,600
-                fenster,self.organon_fenster = self.mb.erzeuge_Dialog_Container(posSize)
-                  
-                self.t = Tabs(self.mb,self.organon_fenster)
-                self.tableiste = self.t.run()
-                self.organon_fenster.addControl('container',self.tableiste)
-                 
-                 
-                for w in worte:
-                     
-                    hoehe,hauptfeld = self.t.erzeuge_tabeintrag(w)
-                    self.organon_fenster.addControl(w,hauptfeld)
-            
-            tabsX = self.mb.tabsX
-            listener = self.mb.Listener
-            #erzeuge()
-            #self.t.loesche_tab_eintrag(worte[3])
-            #print(T.AB)
+#             tabsx = self.mb.tabsX
+#             cl_tabs = self.mb.class_Tabs
+#             
+#             self.mb.sec_helfer2.IsVisible = False
+#             
+#             ctrl = props[T.AB].Hauptfeld.getControl('nr6')
+#             img = ctrl.getControl('icon')
+
+            try:
+                import platform as pl
+                if platform == 'linux':
+                    
+                    distro = pl.linux_distribution()
+            except Exception as e:
+                pass
         except:
             log(inspect.stack,tb())
-            
-
+            pd()
+        pd() 
+        
     
-   
+    
     
     
 def createControl2(x,y,width,height,names,values):
@@ -1363,8 +1368,7 @@ def createControl2(x,y,width,height,names,values):
         ctrl = smgr.createInstanceWithContext("com.sun.star.awt.tab.UnoControlTabPageContainerModel",ctx)
         ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoMultiPageModel",ctx)
         ctrl_model.setPropertyValues(names,values)
-        #ctrl.setModel(ctrl_model)
-        #ctrl.setPosSize(x,y,width,height,15)
+
         return (ctrl, ctrl_model)
     except Exception as e:
         

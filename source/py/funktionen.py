@@ -281,7 +281,7 @@ class Funktionen():
         try:
 
             zeilenordinal =  self.mb.props[T.AB].selektierte_zeile    
-            kommender_eintrag = self.mb.props['Projekt'].kommender_Eintrag
+            kommender_eintrag = self.mb.props['ORGANON'].kommender_Eintrag
             
             url_source = os.path.join(self.mb.pfade['odts'],zeilenordinal + '.odt')
             URL_source = uno.systemPathToFileUrl(url_source)
@@ -307,7 +307,7 @@ class Funktionen():
             neuer_Name = cur_text.String.split('\n')[0]
             
             # alte Datei in Helferdatei speichern
-            orga_sec_name_alt = self.mb.props['Projekt'].dict_bereiche['ordinal'][zeilenordinal]
+            orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
             self.mb.props[T.AB].tastatureingabe = True
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(helfer_url,orga_sec_name_alt)
              
@@ -359,7 +359,7 @@ class Funktionen():
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(ordinal_neue_zeile)
             
             # alte Datei speichern
-            orga_sec_name_alt = self.mb.props['Projekt'].dict_bereiche['ordinal'][zeilenordinal]
+            orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
             self.mb.props[T.AB].tastatureingabe = True
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
             
@@ -381,7 +381,7 @@ class Funktionen():
             # Einstellungen, tags der alten Datei fuer neue uebernehmen
             self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = copy.deepcopy(self.mb.dict_sb_content['ordinal'][zeilenordinal])
             
-            tree = self.mb.props['Projekt'].xml_tree
+            tree = self.mb.props['ORGANON'].xml_tree
             root = tree.getroot()
             alt = root.find('.//'+zeilenordinal)
             neu = root.find('.//'+ordinal_neue_zeile)
@@ -400,7 +400,7 @@ class Funktionen():
     def teile_text_batch(self):
         if self.mb.debug: log(inspect.stack)
         
-        if T.AB != 'Projekt':
+        if T.AB != 'ORGANON':
             self.mb.popup(LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB)
             
         ttb = Teile_Text_Batch(self.mb)
@@ -411,7 +411,7 @@ class Funktionen():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            props = self.mb.props['Projekt']
+            props = self.mb.props['ORGANON']
             selektiert = props.selektierte_zeile
             
             sichtbare = [props.dict_zeilen_posY[b][0] for b in sorted(props.dict_zeilen_posY)]
@@ -434,7 +434,7 @@ class Funktionen():
                 lvl_sel = sel_xml.attrib['Lvl']
                 lvl_nach = nachfolger_xml.attrib['Lvl']
                 
-                if T.AB != 'Projekt': 
+                if T.AB != 'ORGANON': 
                     self.mb.popup(LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB)  
                     return False, None    
                   
@@ -502,7 +502,7 @@ class Funktionen():
     def get_pfad(self,ord):
         if self.mb.debug: log(inspect.stack)
         
-        props = self.mb.props['Projekt']
+        props = self.mb.props['ORGANON']
         
         sec_name = props.dict_bereiche['ordinal'][ord]
         pfad = props.dict_bereiche['Bereichsname'][sec_name]    
@@ -618,7 +618,7 @@ class Funktionen():
         with open(path, 'w') as outfile:
             json.dump(self.mb.settings_orga, outfile,indent=4, separators=(',', ': '))
             
-    def folderpicker(self,filepath=None):
+    def folderpicker(self,filepath=None,sys=True):
         if self.mb.debug: log(inspect.stack)
         
         folderpicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
@@ -629,20 +629,33 @@ class Funktionen():
         if folderpicker.Directory == '':
             return None
         
-        return uno.fileUrlToSystemPath(folderpicker.getDirectory())
+        if sys:
+            return uno.fileUrlToSystemPath(folderpicker.getDirectory())
+        else:
+            return folderpicker.getDirectory()
     
-    def filepicker(self,filepath=None,filter=None):
+    def filepicker(self,filepath=None,filter=None,sys=True):
         if self.mb.debug: log(inspect.stack)
         
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-        #Filepicker.appendFilter('Organon Project','*.organon')
-        #ofilter = Filepicker.getCurrentFilter()
+        
+        # Bug in Office: funktioniert nicht
+        if filepath != None:
+            Filepicker.setDisplayDirectory(filepath)
+            
+            
+        if filter != None:
+            Filepicker.appendFilter('lang_py_file','*.' + filter)
+            
         Filepicker.execute()
+        fp = Filepicker.getDisplayDirectory()
 
         if Filepicker.Files == '':
             return None
-
-        return uno.fileUrlToSystemPath(Filepicker.Files[0])
+        if sys:
+            return uno.fileUrlToSystemPath(Filepicker.Files[0])
+        else:
+            return Filepicker.Files[0]
     
     def oeffne_json(self,pfad):
         if self.mb.debug: log(inspect.stack)
@@ -1133,7 +1146,7 @@ class Teile_Text_Batch():
     def get_pfad(self):
         if self.mb.debug: log(inspect.stack)
         
-        props = self.mb.props['Projekt']
+        props = self.mb.props['ORGANON']
         selektiert = props.selektierte_zeile
         
         sec_name = props.dict_bereiche['ordinal'][selektiert]
@@ -1320,7 +1333,7 @@ class Teile_Text_Batch():
         cur = doc.Text.createTextCursor()
         cur2 = doc.Text.createTextCursor()
         
-        x = self.mb.props['Projekt'].kommender_Eintrag
+        x = self.mb.props['ORGANON'].kommender_Eintrag
         ausgesonderte = []
         
         try:                
@@ -1404,7 +1417,7 @@ class Teile_Text_Batch():
         root.attrib['NameH'] = 'AAA'
         tree = et.ElementTree(root)
         
-        props = self.mb.props['Projekt']
+        props = self.mb.props['ORGANON']
         
         kE = props.kommender_Eintrag
         el = root
@@ -1558,7 +1571,7 @@ class Teile_Text_Batch():
             tree_old = copy.deepcopy(self.mb.props[T.AB].xml_tree)
             root = tree_old.getroot()
             
-            name_selek_zeile = self.mb.props['Projekt'].selektierte_zeile
+            name_selek_zeile = self.mb.props['ORGANON'].selektierte_zeile
             xml_selekt_zeile = root.find('.//'+name_selek_zeile)
             
             parent = root.find('.//'+xml_selekt_zeile.tag+'/..')
@@ -1583,7 +1596,7 @@ class Teile_Text_Batch():
         kE = int(root.attrib['kommender_Eintrag'])  
         root.attrib['kommender_Eintrag'] = str(kE + zaehler)
         
-        self.mb.props['Projekt'].kommender_Eintrag += zaehler
+        self.mb.props['ORGANON'].kommender_Eintrag += zaehler
         
         path = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
         self.mb.tree_write(tree,path)
@@ -1696,7 +1709,7 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
                 
                     source_xml.attrib['Tag2'] = url
                     
-                    if name == 'Projekt':
+                    if name == 'ORGANON':
                         Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
                     else:
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
@@ -1731,7 +1744,7 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            tree = self.mb.props['Projekt'].xml_tree
+            tree = self.mb.props['ORGANON'].xml_tree
             root = tree.getroot()
             
             ord_xml = root.find('.//' + self.ordinal)
@@ -1825,7 +1838,7 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                 
                     source_xml.attrib['Tag1'] = sel
                     
-                    if name == 'Projekt':
+                    if name == 'ORGANON':
                         Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
                     else:
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')

@@ -339,7 +339,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def erzeuge_auswahl(self,text):
         if self.mb.debug: log(inspect.stack)
         
-        tree = self.mb.props['Projekt'].xml_tree
+        tree = self.mb.props['ORGANON'].xml_tree
         root = tree.getroot()
         
         baum = []

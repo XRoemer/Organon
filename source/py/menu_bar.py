@@ -16,14 +16,14 @@ import inspect
 from pprint import pformat
 import webbrowser
 
-
+from tabs import TabsX
 platform = sys.platform
 
 
 
 class Menu_Bar():
     
-    def __init__(self,args,tab = 'Projekt'):
+    def __init__(self,args,tab = 'ORGANON'):
         
         try:
             
@@ -111,13 +111,7 @@ class Menu_Bar():
             self.mausrad_an = False
             self.texttools_geoeffnet = False
             
-            # TABS
-            self.tabsX = TabsX(self,self.win)
-            self.tabsX.run()
-            self.prj_tab,tab_id = self.tabsX.erzeuge_neuen_tab('Projekt')
-            self.dialog.addControl('tableiste',self.tabsX.tableiste)
-            
-            
+
             # Settings
             self.settings_orga = settings_organon
             self.settings_exp = None
@@ -177,6 +171,14 @@ class Menu_Bar():
             self.class_Organon_Design = self.lade_modul('design','Organon_Design')
             self.class_Organizer =      self.lade_modul('organizer','Organizer')
             self.class_Shortcuts =      self.lade_modul('shortcuts','Shortcuts')
+            
+            
+            # TABS
+            self.tabsX = self.lade_modul('tabs','TabsX')#(self,self.win,log)
+            self.tabsX.run(self.win)
+            self.prj_tab = self.tabsX.erzeuge_neuen_tab('ORGANON')
+            self.dialog.addControl('tableiste',self.tabsX.tableiste)
+            
             
             # Plattformabhaengig
             if self.platform == 'win32':
@@ -293,7 +295,6 @@ class Menu_Bar():
                 (LANG.ANSICHT,'a'),            
                 ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
                 ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
-                #('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leeren.png',LANG.CLEAR_RECYCLE_BIN)
                 ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
                  LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
                 ]
@@ -323,7 +324,7 @@ class Menu_Bar():
                     
                     h = 0
                     
-                    if T.AB != 'Projekt':
+                    if T.AB != 'ORGANON':
                         if eintrag[0] in ('Ordner','Datei'):
                             x += 22
                             continue 
@@ -352,7 +353,7 @@ class Menu_Bar():
         except Exception as e:
                 self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 log(inspect.stack,tb())
-
+                
      
     def erzeuge_Menu_DropDown_Eintraege(self,items):
         if self.debug: log(inspect.stack)
@@ -587,12 +588,18 @@ class Menu_Bar():
             self.language = loc
             try:
                 lang2 = __import__('lang_{}'.format(loc))
-                
-                for l in dir(lang2):
+                attributes = [a for a in dir(lang2) if '__' not in a]
+                for l in attributes:
                     try:
-                        setattr(lang, l, getattr(lang2, l))
+                        try:
+                            attr = getattr(lang2, l)
+                        except:
+                            attr = ''
+                        if attr.strip() not in ('','*******',None):
+                            setattr(lang, l, attr)
                     except:
                         if self.debug:log(inspect.stack,tb())
+                        
             except:
                 if self.debug:log(inspect.stack,tb())
 
@@ -650,7 +657,7 @@ class Menu_Bar():
             neuer_projekt_name = self.projekt_name + t
             pfad_zu_neuem_ordner = os.path.join(pfad_zu_backup_ordner,neuer_projekt_name)
             
-            tree = copy.deepcopy(self.props['Projekt'].xml_tree)
+            tree = copy.deepcopy(self.props['ORGANON'].xml_tree)
             root = tree.getroot()
             
             all_elements = root.findall('.//')
@@ -820,10 +827,20 @@ class Menu_Bar():
         with open(path , "w") as file:
             file.write(imp)
     
+    def pruefe(self):
+        
+        tree = self.props[T.AB].xml_tree
+        root = tree.getroot()
+        all = root.findall('.//')
+        pars = [a.attrib['Parent'] for a in all]
+        if 'Projekt' in pars:
+            print('Fehler')
+    
     def tree_write(self,tree,pfad):  
         if self.debug: log(inspect.stack) 
         # diese Methode existiert, um alle Schreibvorgaenge
         # des XML_trees bei Bedarf kontrollieren zu koennen
+        self.pruefe()
         tree.write(pfad)
     
     def prettyprint(self,pfad,oObject,w=600):
@@ -1165,7 +1182,7 @@ def menuEintraege(LANG,menu):
                 LANG.BACKUP,
                 LANG.EINSTELLUNGEN)
         
-        if T.AB != 'Projekt':
+        if T.AB != 'ORGANON':
             items = (
                 LANG.EXPORT_2, 
                 'SEP',
@@ -1185,7 +1202,7 @@ def menuEintraege(LANG,menu):
             LANG.UNFOLD_PROJ_DIR,
             LANG.CLEAR_RECYCLE_BIN
             )
-        if T.AB != 'Projekt':
+        if T.AB != 'ORGANON':
             items = (  
                 LANG.ORGANIZER,
                 'SEP',
@@ -1231,7 +1248,7 @@ def menuEintraege(LANG,menu):
                 LANG.WOERTERLISTE,
                 LANG.ERZEUGE_INDEX
                  )
-        
+      
     return items
 
 
@@ -1265,308 +1282,9 @@ class Tab_Auswahl():
 class Tab ():
     def __init__(self):
         if debug: log(inspect.stack)
-        self.AB = 'Projekt'
+        self.AB = 'ORGANON'
 
-
-class TabsX():
     
-    def __init__(self,mb,organon_fenster):
-        if mb.debug: log(inspect.stack)
-        
-        self.mb = mb
-        self.organon_fenster = organon_fenster
-        
-#         (kante,h_tabs,mindestgroesse,breite_sichtbar,
-#          breite_hauptfeld,hoehe_hauptfeld) = abmessungen
-        
-        
-        self.kante = 2
-        self.h_tabs = 20
-        self.mindestgroesse = 50
-        self.breite_sichtbar = self.organon_fenster.PosSize.Width
-        self.breite_sichtbar -= 2 * self.kante
-        self.breite_hauptfeld = 1800
-        self.hoehe_hauptfeld = 2000
-        
-        
-        self.Hauptfelder = {}
-        self.breiten_tabs = []
-        self.tabs = {}
-        self.tabsN = {}
-        
-        self.tab_listener = Tab_Leiste_Listener(self.mb,self.Hauptfelder,self.organon_fenster)
-        self.tableiste = None
-        self.tableiste_hoehe = 0
-        
-        self.active_tab_id = 0
-        self.tab_id_old = 0
-        self.sichtbar = 'Projekt'
-        
-    
-    def run(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        self.tableiste,tab_model = self.mb.createControl(self.mb.ctx,'Container',0,0,
-                                    self.breite_sichtbar + 2 * self.kante,0,
-                                   ('BackgroundColor',),(KONST.FARBE_GLIEDERUNG,))
-        return self.tableiste
-    
-    def erzeuge_neuen_tab(self,tab_name,sichtbar=True):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            
-            if tab_name in self.Hauptfelder:
-                # Nachricht
-                return
-            
-            tab_fenster = self.erzeuge_tabeintrag_und_fenster(tab_name)
-            
-            self.Hauptfelder.update({tab_name:tab_fenster})
-            
-            self.tableiste_hoehe = self.layout_tab_zeilen()
-            
-            nr = len(self.tabs)
-            
-            self.tabs.update({nr:[tab_name,tab_fenster]})
-            self.tabsN.update({tab_name:[nr,tab_fenster]})
-            
-            self.mb.dialog.addControl(tab_name,tab_fenster)
-            
-            return tab_fenster, nr
-            
-        except:
-            log(inspect.stack,tb())
-        
-        
-    
-    def loesche_tab_eintrag(self,tab_name):
-        if self.mb.debug: log(inspect.stack)
-        
-        tab_container = self.Hauptfelder[tab_name]
-        tab_container.dispose()
-        
-        for t in self.breiten_tabs:
-            if t[0] == tab_name:
-                ctrl = t[2]
-                ctrl.dispose()
-                index = self.breiten_tabs.index(t)
-                self.breiten_tabs.pop(index)
-                
-                nr = self.tabsN[tab_name][0]
-                del self.tabs[nr]
-                del self.tabsN[tab_name]
-                
-                break
-        
-        self.layout_tab_zeilen()
-    
-        
-    def pref_size(self,w,ctrl):
-        pref =  ctrl.PreferredSize.Width
-        if pref < self.mindestgroesse:
-            pref = self.mindestgroesse
-        ctrl.setPosSize(0,0,pref,0,4)
-        self.breiten_tabs.append([w,pref,ctrl])
-    
-    
-    def layout_tab_zeilen(self,breite=None):
-        if self.mb.debug: log(inspect.stack)
-        
-        if breite != None:
-            self.breite_sichtbar = breite - 2 * self.kante
-            self.tableiste.setPosSize(0,0,breite,0,4)
-        
-        zeilen,mehrraum = self.berechne_tab_zeilen()
-        hoehe = self.setze_tab_umbruch(zeilen, mehrraum)
-                    
-        self.tableiste.setPosSize(0,0,0,hoehe,8)
-        
-        for t_name in self.Hauptfelder:
-            self.Hauptfelder[t_name].setPosSize(0,hoehe,0,0,2)
-        
-        self.tableiste_hoehe = hoehe    
-        return hoehe
-      
-        
-    def erzeuge_tabeintrag_und_fenster(self,tab_name):
-        if self.mb.debug: log(inspect.stack)
-        
-        
-        # Eintrag in Tableiste
-        ctrl,model = self.mb.createControl(self.mb.ctx,'FixedText',0,0,0,self.h_tabs,
-                    ('Label','Border','BackgroundColor',
-                     'TextColor',
-                     'Align','VerticalAlign'),
-                    (tab_name,0,KONST.FARBE_HF_HINTERGRUND,
-                     KONST.FARBE_MENU_SCHRIFT,
-                     1,1))
-        
-        ctrl.addMouseListener(self.tab_listener)
-        self.tableiste.addControl(tab_name,ctrl)
-        
-        # Groesse zurechtschneiden
-        self.pref_size(tab_name,ctrl)
-        
-        
-        # Tabfenster
-        container_hf,model_hf = self.mb.createControl(self.mb.ctx,'Container',
-                                                      0,0,self.breite_hauptfeld,self.hoehe_hauptfeld,
-                                       ('BackgroundColor',),(KONST.FARBE_HF_HINTERGRUND,))
-
-        return container_hf
-    
-
-    def berechne_tab_zeilen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            x = 0
-            zeilen = {1:[]}
-            mehrraum = []
-            z = 1
-            for b in self.breiten_tabs:
-                x += b[1] 
-                if x < self.breite_sichtbar -10:
-                    zeilen[z].append(b)
-                    continue
-                else:
-                    z += 1
-                    zeilen.update({z:[b]})
-                    mehrraum.append(self.breite_sichtbar-x + b[1])
-                    x = b[1]
-            mehrraum.append(self.breite_sichtbar-x)
-            
-            if zeilen[1] == []:
-                zeilen = {x-1:zeilen[x] for x in zeilen}
-                del zeilen[0]
-                mehrraum.pop(0)
-
-            return zeilen,mehrraum
-        except:
-            print(tb())
-    
-
-    def setze_tab_umbruch(self,zeilen,mehrraum):
-        if self.mb.debug: log(inspect.stack)
-        
-        # Tabzeilen setzen    
-        for zeile in sorted(zeilen):
-            x = 0
-            X = 0
-            try:
-                if len(zeilen[zeile]) > 1:
-                    for z in zeilen[zeile]:
-                        if zeilen[zeile].index(z) != len(zeilen[zeile])-1:
-                            mehr = mehrraum[zeile-1]
-                            mehr -= self.kante * (len(zeilen[zeile]) -1 )
-                            mehr = int( mehr / len(zeilen[zeile]) )
-                            X = z[1] + mehr 
-                            y = ( self.h_tabs + self.kante ) * (zeile-1) + self.kante
-                            z[2].setPosSize(x + self.kante,y,X,0,7)
-                            x += X + self.kante
-                        else:
-                            # letzter Eintrag
-                            # um ein gleichmaessiges Ende zu bekommen
-                            X = self.breite_sichtbar  - x
-                            y = ( self.h_tabs + self.kante ) * (zeile-1) + self.kante
-                            z[2].setPosSize(x + self.kante,y,X,0,7)
-                            
-                else:
-                    z = zeilen[zeile][0]
-                    mehr = mehrraum[zeile-1]
-                    X = z[1] + mehr 
-                    y = ( self.h_tabs + self.kante) * (zeile-1) + self.kante
-                    z[2].setPosSize(x + self.kante,y,X,0,7)
-                    x += X + self.kante
-            except:
-                print(tb())
-        
-        hoehe = zeile * (self.h_tabs + self.kante) + self.kante
-        return hoehe
-        
-        
-    def tab_umschalten(self,tab_name):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            tabsX = self.mb.tabsX
-
-            tabsX.active_tab_id = tabsX.tabsN[tab_name][0]
-
-            if tabsX.active_tab_id != tabsX.tab_id_old:
-                
-                feld = self.Hauptfelder[tab_name]
-                
-                sichtbar = self.Hauptfelder[self.sichtbar]
-
-                feld.setVisible(True)
-                sichtbar.setVisible(False)
-                self.sichtbar = tab_name
-
-                tab_icon = tabsX.tableiste.getControl(tab_name)
-                tab_icon.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
-                
-                if tabsX.tab_id_old in tabsX.tabs:
-                    # Nur, wenn nicht geloescht wurde
-                    tab_name_alt = tabsX.tabs[tabsX.tab_id_old][0]
-                    tab_icon = tabsX.tableiste.getControl(tab_name_alt)
-                    tab_icon.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-                    
-                    if self.mb.props[T.AB].tastatureingabe:
-                        
-                        ordinal = self.mb.props[tab_name_alt].selektierte_zeile
-                        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-    
-                        path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-    
-                        self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)  
-                        self.mb.props[T.AB].tastatureingabe = False
-    
-                self.mb.tabsX.active_tab_id = tabsX.tabsN[tab_name][0]
-
-                T.AB = tab_name
-                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
-                self.mb.class_Baumansicht.korrigiere_scrollbar()
-                
-                if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                    self.mb.class_Sidebar.passe_sb_an()
-                
-            tabsX.tab_id_old = tabsX.active_tab_id
-        except:
-            log(inspect.stack,tb())
-        
-        
-        
-        
-        
-        
-
-from com.sun.star.awt import XMouseListener
-from com.sun.star.awt.MouseButton import LEFT as MB_LEFT 
-    
-class Tab_Leiste_Listener (unohelper.Base, XMouseListener):
-    def __init__(self,mb,Hauptfelder,win=None):
-        if mb.debug: log(inspect.stack)  
-        
-        self.mb = mb 
-        self.Hauptfelder = Hauptfelder
-        self.sichtbar = 'Projekt'
-        self.win = win
-        
-    def mousePressed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-
-        tabsX = self.mb.tabsX
-        tab_name = ev.Source.Model.Label
-        tabsX.tab_umschalten(tab_name)
-            
-    def mouseReleased(self,ev):pass 
-    def mouseEntered(self,ev):pass 
-    def mouseExited(self,ev):pass
-    def disposing(self,ev):pass
-    
-     
 
 class Design():
     
@@ -1847,7 +1565,7 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 self.mb.class_Tabs.start(False)
                 
             elif sel == LANG.SCHLIESSE_TAB:
-                self.mb.class_Tabs.schliesse_Tab()
+                self.mb.tabsX.schliesse_Tab()
                 
             elif sel == LANG.ZEIGE_TEXTBEREICHE:
                 oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
@@ -2360,16 +2078,12 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         return False
     
     def selectionChanged(self,ev):
-        if self.mb.debug: log(inspect.stack)
+        #if self.mb.debug: log(inspect.stack)
 
         try:
             if self.mb.selbstruf:
                 #if self.mb.debug: print('selection selbstruf')
                 return False
-            
-            selectionvc = ev.Source.Selection.getByIndex(0)
-            vc = self.mb.viewcursor.Position
-            print(vc.X,vc.Y)
             
             
 #             self.att2 = self.mb.class_Funktionen.get_attribs(selectionvc,4)
@@ -2519,7 +2233,7 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
     def windowMoved(self,ev):pass
         #print('windowMoved')
     def windowShown(self,ev):
-        self.korrigiere_hoehe_des_scrollbalkens(ev)
+        pass#self.mb.class_Baumansicht.korrigiere_scrollbar()
         #print('windowShown')
     def windowHidden(self,ev):pass
    

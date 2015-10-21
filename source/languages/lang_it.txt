@@ -1,0 +1,8 @@
+Translation by Alessandro Bugliazzini
+
+# IMPORTANT WORDS understandable by Italian user also in English. I TRANSLATED THEY, BUT IF NECESSARY THEY CAN WRITE ENGLISH:
+# Tag: IT=Etichetta; Tab: IT=Scheda; Treeview: IT=Vista ad Albero; Sidebar: IT=Barra laterale
+
+
+Thanks for your support,
+Xaver

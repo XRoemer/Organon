@@ -32,7 +32,7 @@ class XML_Methoden():
         root = tree.getroot()
         et = self.mb.ET             
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-        
+
         if parent == 'root':
             par = root
         else:
@@ -115,7 +115,7 @@ class XML_Methoden():
              
     def drunter_einfuegen(self,source,target):
         if self.mb.debug: log(inspect.stack)
-    
+            
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()       
         source = root.find('.//'+source)
@@ -129,9 +129,9 @@ class XML_Methoden():
         index_target = list(par_target).index(target)
         # Source hinter Target einfuegen
         par_target.insert(index_target+1,source)   
-
+        
         self.xmlLevel_und_hfPosition_anpassen(root,source)
-
+        
             
     def in_Papierkorb_einfuegen(self,source,target):
         if self.mb.debug: log(inspect.stack)
@@ -177,11 +177,11 @@ class XML_Methoden():
             
             par = root.find('.//'+ordinal+'/..')
 
-            if par.tag == T.AB:
+            if par.attrib['Name'] == 'root':
                 elem.attrib['Parent'] = 'root'
             else:
                 elem.attrib['Parent'] = par.tag
-                
+
             # Alle Zeilen X neu positionieren
             contr_zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
             icon = contr_zeile.getControl('icon')
@@ -240,3 +240,11 @@ class XML_Methoden():
         except:
             log(inspect.stack,tb())
             return None
+        
+        
+        
+        
+        
+        
+        
+        

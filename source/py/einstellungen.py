@@ -43,7 +43,7 @@ class Einstellungen():
             posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
             X = self.mb.dialog.Size.Width
             Y = posSize_main.Y            
-
+            
             # Listener erzeugen 
             listener = {}           
             listener.update( {'auswahl_listener': Auswahl_Item_Listener(self.mb)} )
@@ -74,7 +74,7 @@ class Einstellungen():
         if self.mb.debug: log(inspect.stack)
         
         LANG.TEMPLATES = u'Templates'
-        
+
         if self.mb.programm == 'LibreOffice':
             lb_items = (
                         LANG.DESIGN_TRENNER,
@@ -83,6 +83,7 @@ class Einstellungen():
                         LANG.MAUSRAD,
                         #LANG.TEMPLATES,
                         LANG.SHORTCUTS,
+                        LANG.UEBERSETZUNGEN,
                         LANG.HTML_EXPORT,
                         LANG.LOG
                         )
@@ -93,6 +94,7 @@ class Einstellungen():
                         LANG.MAUSRAD,
                         #LANG.TEMPLATES,
                         LANG.SHORTCUTS,
+                        LANG.UEBERSETZUNGEN,
                         LANG.HTML_EXPORT,
                         LANG.LOG
                         )
@@ -166,10 +168,14 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 
             elif sel == LANG.SHORTCUTS:
                 self.dialog_shortcuts()
+                
+            elif sel == LANG.UEBERSETZUNGEN:
+                u = Uebersetzungen(self.mb).run()
 
         except:
             log(inspect.stack,tb())
             
+
     def disposing(self,ev):
         return False
   
@@ -184,15 +190,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
             tab = 20
             tab1 = 40
-            
-            
-            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +20
-            Y = posSize_main.Y +20
-            Width = breite
-            Height = hoehe
-            
-            posSize = X,Y,Width,Height
+
             fenster_cont = self.container
             
             y = 10
@@ -310,10 +308,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         try:
 
             sett = self.mb.settings_exp['html_export']
-            
-            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +20
-            Y = posSize_main.Y +20            
 
             # Listener erzeugen 
             listener = Listener_HTML_Export_Einstellungen(self.mb)         
@@ -373,10 +367,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             except:
                 sett['mausrad'] = False
                 nutze_mausrad = 0
-            
-            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = posSize_main.X +20
-            Y = posSize_main.Y +20            
+                       
 
             # Listener erzeugen 
             listener = Listener_Mausrad_Einstellungen(self.mb)         
@@ -941,175 +932,745 @@ class Listener_Shortcuts(unohelper.Base,XItemListener,XActionListener):
             listbox.selectItemPos(0,True)                      
         except:
             log(inspect.stack,tb())
-            
-# import sys 
-# platform = sys.platform  
-from traceback import format_exc as tb     
-# def pydevBrk():  
-#     # adjust your path 
-#     if platform == 'linux':
-#         sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
-#     else:
-#         sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
-#     from pydevd import settrace
-#     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
-# pd = pydevBrk               
-    
-import copy
-from os import path as PATH, listdir
-from codecs import open as codecs_open
-class Take_Over_Old_Settings():
-    '''
-    Settings have to be loaded while the old extension is still available
-    on the harddrive. During installation the old extension will be deleted.
-    So getting both needs to be done at the very beginning.
-    When an old extension is found, the newly created settings will
-    be extended by the old ones.
-    '''
 
-    def get_settings_of_previous_installation(self,package_folder, extension_folder):
+
+class Uebersetzungen():
+    
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
+        self.mb = mb
+
+
+    def run(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        organon_lang_files = self.get_organon_lang_files()
+        lang_akt = self.langpy_auslesen()
+        
+        self.cont,self.container,self.fenster = self.container_erstellen()
+        ctrls_ueber,ctrls,ctrls_konst = self.erstelle_Uebersetzungsfenster(lang_akt)
+        self.dialog_uebersetzung(ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst)
+         
+        self.gefaerbte = list(ctrls_ueber.values())
+
+    def langpy_auslesen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        def formatiere_txt(txt):
+            
+            try:
+                
+                t = txt.strip()
+                
+                if "'''" in t:
+                    count = t.count("'''")
+                    if  t.count("'''") == 1:
+                        if "u'''" in t:
+                            t = t + "'''"  
+                        else:
+                            t = "u'''" + t
+                elif 'u"' in t:
+                    pass
+                elif "u'" in t:
+                    t = re.sub("u'", "u'''", t)
+                    t = t + "''"
+                else:
+                    t = "u'''" + t + "'''"
+
+                txt2 = eval(t)
+                
+                return txt2
+            except:
+                log(inspect.stack,tb())
+                return 'ERROR'
+        
+        
+        
+        pfad_imp = os.path.join(self.mb.path_to_extension,'languages','lang_en.py')
+        with codecs_open(pfad_imp , "r",'utf-8') as file:
+            lines = file.readlines()
+        
+        lines = [ l.strip() for l in lines[1:] ]                
+        kinder = {'aufpasser':0,'ist_kind' : False}
+        
+        def aufpasser(zaehler,zeile):
+            ind = zaehler - kinder['aufpasser']
+                    
+            if ind not in kinder:
+                kinder.update({ind:[formatiere_txt(zeile),zaehler-1]})
+                #print(zaehler-1,formatiere_txt(zeile))
+                #time.sleep(.1)
+            else:
+                kinder[ind].append(formatiere_txt(zeile))
+            
+            kinder['aufpasser'] += 1
+            
+        
+        def eintragen(value,zaehler):
+            
+            try:
+                line = value.split('=')
+                odic = {}
+
+                if len(line) == 1:
+                    zeile = line[0]
+                    
+                    if zeile.strip() == '':
+                        zeile_danach = lines[zaehler+1]
+                        zeile_d = '#' in zeile_danach or '=' in zeile_danach
+                        
+                        if kinder['ist_kind'] and not zeile_d:
+                            aufpasser(zaehler,u' ')
+                        else:
+                            odic.update({'art':'leer','txt':''})
+                            
+                    elif zeile[0] == '#':
+                        odic.update({'art':'kommentar','txt':zeile.replace('#','').strip()})
+                    else:
+                        aufpasser(zaehler,zeile)
+                        
+                    if zeile[-3:] == "'''":
+                        kinder['ist_kind'] = False    
+                    else:
+                        kinder['ist_kind'] = True  
+                else:
+                    odic.update( {'art':'uebersetzung',
+                                 'txt':formatiere_txt(line[1]),
+                                 'konst':line[0].strip(),
+                                 'kinder':[]
+                                 })  
+                    
+                    if line[1].strip()[-3:] == "'''":
+                        kinder['ist_kind'] = False    
+                    else:
+                        kinder['ist_kind'] = True  
+                
+                return odic 
+            except:
+                log(inspect.stack,tb())
+                  
+        
+        lines_dic = { i:eintragen(l,i) for i,l in enumerate(lines)}
+        lines_dic = {i:lines_dic[i] for i in lines_dic if lines_dic[i] != {} }
+        
+        del kinder['aufpasser']
+        del kinder['ist_kind']
+        
+        for k in kinder:
+            z = kinder[k][1]
+            kinder[k].pop(1)
+
+            lines_dic[z]['kinder'].extend(kinder[k])
+        
+        return lines_dic
+    
+    
+    
+    
+    
+    def dialog_uebersetzung_elemente(self,win_dispose_listener,button_listener,organon_lang_files):
+        if self.mb.debug: log(inspect.stack)            
+        
+        os_path = datei_pfad = os.path.join(self.mb.path_to_extension,'languages')
+        path_orga_lang = LANG.ORGANON_LANG_PATH + '\r\n\r\n' + os_path
+        
+        fensterhoehe = 600
+        fensterbreite = 800
+        
+        items = 'lang_en','lang_de'
+        sel = 0
+        
+        tab1 = 140
+        tab2 = 180
+        
+        breite = 160
+        
+        
+        controls = [
+            10,
+            ('control_dispose',"Button",        
+                                    fensterbreite - tab1,0,120,40,    
+                                    ('Label',),
+                                    (LANG.FENSTER_SCHLIESSEN,),                  
+                                    {'addActionListener':(win_dispose_listener,)} 
+                                    ), 
+            70,
+            ('control_ref',"FixedText",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('Label',),
+                                    (LANG.REFERENZ,),                  
+                                    {} 
+                                    ), 
+            20,
+            ('control_ref_lb',"ListBox",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('Border','Dropdown','LineCount'),
+                                    (2,True,15),       
+                                    {'addItems':items,'SelectedItems':(sel,),
+                                     'addItemListener':button_listener}
+                                    ), 
+            50,
+            ('control_odl',"FixedText",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('Label',),
+                                    (LANG.ORG_SPRACHDATEI_LADEN,),                  
+                                    {} 
+                                    ), 
+            20,
+            ('control_orga',"ListBox",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('Border','Dropdown','LineCount'),
+                                    (2,True,15),       
+                                    {'addItems':tuple(organon_lang_files),
+                                     'SelectedItems':(0,),
+                                     'addItemListener':button_listener}
+                                    ), 
+            50,
+            ('control_bdl',"Button",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('Label',),
+                                    (LANG.BENUTZER_DATEI_LADEN,),                  
+                                    {'setActionCommand':'nutzer_laden',
+                                     'addActionListener':(button_listener,)}
+                                    ), 
+            60,
+            ('control_txt',"Edit",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('HelpText',),
+                                    (LANG.EXPORTNAMEN_EINGEBEN,),                  
+                                    {}
+                                    ), 
+            
+            30,
+            ('control_speichern',"Button",        
+                                    fensterbreite - tab2,0,breite,25,    
+                                    ('Label',),
+                                    (LANG.UEBERSETZUNG_SPEICHERN,),                  
+                                    {'setActionCommand':'speichern',
+                                     'addActionListener':(button_listener,)}
+                                    ),  
+            100,
+            ('control_path',"Edit",        
+                                    fensterbreite - tab2,0,breite,25,     
+                                    ('Text','TextColor','MultiLine',
+                                    'Border','BackgroundColor'), 
+                                    (path_orga_lang,KONST.FARBE_SCHRIFT_DATEI, True,
+                                     0,KONST.FARBE_HF_HINTERGRUND),             
+                                    {} 
+                                    ),  
+            ]
+
+            
+        return controls
+
+ 
+    def dialog_uebersetzung(self,ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst): 
+        if self.mb.debug: log(inspect.stack)
+        
+        # Listener erzeugen 
+        win_dispose_listener = Window_Disposer(self.fenster,self.mb) 
+        button_listener = Uebersetzung_Button_Listener(self.mb,ctrls_ueber,lang_akt,self)        
+        
+        controls = self.dialog_uebersetzung_elemente(win_dispose_listener,button_listener,organon_lang_files)
+        ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
+          
+        # Controls in Hauptfenster eintragen
+        for c in ctrls:
+            ctrls[c].Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+            ct = ['control_' + f for f in ('ref','ref_lb','odl','txt','orga')]
+            if c in ct:
+                ctrls[c].Model.TextColor = KONST.FARBE_SCHRIFT_DATEI
+            self.cont.addControl(c,ctrls[c])
+        
+        ctrls['control_txt'].Model.BorderColor = KONST.FARBE_GEZOGENE_ZEILE
+        
+        button_listener.ctrls = ctrls_konst
+        button_listener.titel_feld = ctrls['control_txt']
+        button_listener.listbox_ref = [ctrls['control_ref_lb'],
+                                       ctrls['control_orga'] ]
+        
+        mS = ctrls['control_path'].getMinimumSize()
+        H = mS.Height
+        ctrls['control_path'].setPosSize(0,0,0,H,8)
+        
+        
+        # Scrollbar hinzufuegen
+        top_h = self.mb.topWindow.PosSize.Height
+        prozent = top_h - (top_h /10*9)
+
+        fensterhoehe = top_h - prozent
+        
+        PosSize = 0,0,20,fensterhoehe
+        scrollb = self.mb.erzeuge_Scrollbar(self.cont,PosSize,self.container)
+        self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.cont)
+
+                    
+    def container_erstellen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        top_h = self.mb.topWindow.PosSize.Height
+        prozent = top_h - (top_h /10*9)
+
+        fensterhoehe = top_h - prozent
+        fensterbreite = 800
+        posSize = (self.mb.win.Size.Width,prozent / 2,fensterbreite,fensterhoehe)
+        
+
+        if self.mb.platform == 'linux':
+            self.mb.nachricht(LANG.USE_CLOSE_BUTTON,'warningbox')
+
+        win, cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+16+32+64+512)
+        cont.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+        
+        container, model = self.mb.createControl(self.mb.ctx, "Container", 20,0,fensterbreite - 220, 1000, (), ())
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+        cont.addControl('Container_innen',container)
+        
+        
+        return cont,container,win
+    
+
+    
+    
+    def erstelle_Uebersetzungsfenster(self,odic):
+        if self.mb.debug: log(inspect.stack)
+                        
+        ctrls = {}
+        ctrls_konst = {}
+        ctrls_ueber = {}
+        
+        def pref_size(ctrl):
+            mS = ctrl.getMinimumSize()
+            H = mS.Height
+            # Effizienz:
+            # nur bei der rueckgabe setzen
+            # vorher mit if h > 20 abfragen
+            ctrl.setPosSize(0,0,0,H,8)
+            return H
+        
+        
+        def get_txt_neu(konst):
+            faerben = False
+            try:
+                txt = getattr(lang_user, konst)
+            except:
+                txt = '*******'
+            if txt == '*******':
+                faerben = True
+            return faerben,txt
+                           
+        
+        y = 10   
         try:
-            dirs = [name for name in listdir(package_folder) if PATH.isdir(PATH.join(package_folder, name))]
-            dirs.remove(extension_folder)
-            
-            files = None   
-            organon_in_files = False    
-             
-            for d in dirs:
-                files = listdir(PATH.join(package_folder,d))
-                if 'organon.oxt' in files:
-                    organon_in_files = True
-                    break
-            
-            if files == None or organon_in_files == False :
-                return None
+            for o in sorted(odic):
+                
+                art = odic[o]['art']
+                
+                if art == 'kommentar':
+                    txt = odic[o]['txt']
+                    control, model = self.mb.createControl(self.mb.ctx, "FixedText", 20,y+10,200, 20, 
+                                                           ('Label','TextColor','Weight'), 
+                                                           (txt,KONST.FARBE_SCHRIFT_ORDNER,150))
+                    self.container.addControl(o, control)
+                    ctrls.update({o:control})
+                    
+                    y += 35
+                else:
 
-            json_pfad_alt = PATH.join(package_folder,d,'organon.oxt','organon_settings.json')
-            
-            with codecs_open(json_pfad_alt) as data:  
-                content = data.read().decode()  
-                settings_orga_prev = json.loads(content)
+                    if art == 'uebersetzung':
+                        
+                        konst = odic[o]['konst']
+                        txt = [odic[o]['txt']]
+                        
+                        for k in odic[o]['kinder']:
+                            txt.append(k)
+                        
+                        txt = '\r\n'.join(txt)
+                         
+                        control, model = self.mb.createControl(self.mb.ctx, "Edit", 20,y,500, 20, 
+                                                               ('Text','TextColor','MultiLine',
+                                                                'Border','BackgroundColor'), 
+                                                               ( txt,KONST.FARBE_SCHRIFT_DATEI, True,
+                                                                 0,KONST.FARBE_HF_HINTERGRUND) )
+                        
+                        self.container.addControl(str(o)+'txt', control)
+                        ctrls.update({o:control})
+                        ctrls_konst.update({konst:control})
+                        
+                        hoehe = pref_size(control)
+                         
+                        y += hoehe + 1
+                                                        
+                        control, model = self.mb.createControl(self.mb.ctx, "Edit", 40,y,500, hoehe +5, 
+                                                                       ('Text','TextColor','Border',
+                                                                        'MultiLine','BorderColor'), 
+                                                                       ('*******',KONST.FARBE_SCHRIFT_DATEI,1,
+                                                                        True,KONST.FARBE_GEZOGENE_ZEILE) )
+                        model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+                        self.container.addControl(str(o)+'ueber', control)
 
-            return settings_orga_prev
+                        ctrls_ueber.update({konst:control})
+                        
+                        y += hoehe + 1 + 5
+                        
+
+            self.container.setPosSize(0,0,0,y,8)
+            
+            return ctrls_ueber,ctrls,ctrls_konst
+        
+        except:
+            log(inspect.stack,tb())
     
+    
+    def get_organon_lang_files(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        datei_pfad = os.path.join(self.mb.path_to_extension,'languages')
+        
+        files = []
+        for (dirpath, dirnames, filenames) in os.walk(datei_pfad):
+            break
+        
+        for f in filenames:
+            endung = f.split('.')[1]
+
+            if 'lang_' in f and endung == 'py' and len(f) == 10:
+                files.append(f.split('.')[0])
+        return files
+            
+        
+    def lade_uebersetzung(self,ctrls_ueber,lang_user):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            
+            for c in self.gefaerbte:
+                c.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+            self.gefaerbte = []
+            
+            for konst in ctrls_ueber:
+
+                faerben = False
+                try:
+                    txt = getattr(lang_user, konst)
+                except:
+                    txt = '*******'
+                if txt == '*******':
+                    faerben = True
+                
+            
+                ctrls_ueber[konst].Model.Text = txt
+                if faerben:
+                    ctrls_ueber[konst].Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+                    self.gefaerbte.append(ctrls_ueber[konst])
+        except:
+            log(inspect.stack,tb())     
+        
+    def lade_modul_aus_datei(self,pfad):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            global_env1 = {}
+            helfer = {}
+            code = "class Helfer():pass"
+            code = compile(code, "new_lang", "exec")
+            exec(code, global_env1, helfer)
+            
+            with codecs_open(pfad , "r",'utf-8') as file:
+                f = file.readlines()
+                f = ''.join(f[1:])
+            
+            global_env2 = {}
+            local_env = {}
+            code2 = compile(f, "new_lang", "exec")
+            exec(code2, global_env2, local_env)
+            
+            lang_user = helfer['Helfer']
+            for k,v in local_env.items():
+                setattr(lang_user, k, v)
+                
+            return lang_user,True
+        
         except Exception as e:
-            return None
+            try:
+                self.mb.nachricht(LANG.IMPORT_GESCHEITERT.format(str(e)))
+            except:
+                pass
+            return None,False
     
-    designs = []
-    fehlende = []
+    
+    def lang_eintrag_ueberpruefen(self,neuer_eintrag,konst):
+        
+        if neuer_eintrag == '*******':
+            return True
+        if neuer_eintrag == '':
+            return True
+        
+        eintrag = getattr(LANG, konst)
+        
+        verbotene = ['=','#','\\']
+        
+        for v in verbotene:
+            if v in neuer_eintrag:
+                if konst != 'UNGUELTIGE_ZEICHEN':
+                    self.mb.nachricht(LANG.EINTRAG_MIT_UNZULAESSIGEN_ZEICHEN.format(v,neuer_eintrag))
+                    return False
 
-    def _update_designs(self,a,b):
-        fehlende = set(b['designs']).difference( set(a['designs']) )
-        standard = copy.deepcopy(a['designs']['Standard'])
-        for f in fehlende:
-            a['designs'].update({f:standard})
-        
-        return list(b['designs']), fehlende
+        if eintrag.count('%s') != neuer_eintrag.count('%s'):
+            self.mb.nachricht(LANG.UNGUELTIGE_ANZAHL1.format(neuer_eintrag))
+
+        expr = '\{\d?\}' 
+         
+        if len(re.findall(expr,eintrag)) != len(re.findall(expr,neuer_eintrag)):
+            self.mb.nachricht(LANG.UNGUELTIGE_ANZAHL2.format(neuer_eintrag))
+
+        return True
         
     
-    def _compare_design(self,a1,b1): 
-        for k in b1:
-            if k in a1:
-                if b1[k] != a1[k]:
-                    return True  
+        
+    def format_lang_user_an_lang_akt_anpassen(self,ctrls_ueber,lang_en):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            # auslesen
+            
+            new_dict = {}
+            
+            for c in ctrls_ueber:
+                txt = ctrls_ueber[c].Text
+                new_dict.update( {c: {'txt':txt,'kinder':[] } })
+            
+            # eintragen
+            
+            new_lang = copy.deepcopy(lang_en)
+            
+            for l in new_lang:
+                if 'konst' in new_lang[l]:
+                    konst = new_lang[l]['konst'] 
+                    ok = self.lang_eintrag_ueberpruefen(new_dict[konst]['txt'],konst)
+                    if not ok:
+                        return None, False
+                    new_lang[l]['txt'] = new_dict[konst]['txt']                    
+            
+            return new_lang, True
+            
+        except:
+            log(inspect.stack,tb())                
+        
+
+
+
+from com.sun.star.awt import XAdjustmentListener
+class Scroll_Listener (unohelper.Base,XAdjustmentListener):
+    def __init__(self,mb,fenster_cont):   
+        self.fenster_cont = fenster_cont
+    def adjustmentValueChanged(self,ev):
+        try:
+            self.fenster_cont.setPosSize(0, -ev.Value,0,0,2)
+        except Exception as e:
+            print(e)
+    def disposing(self,ev):
         return False
     
-    def _treat_design(self,a,b,key,path):
+    
+from com.sun.star.awt import XActionListener,XItemListener
+class Window_Disposer(unohelper.Base, XActionListener):
+    def __init__(self,win,mb):
+        if mb.debug: log(inspect.stack)
+        self.win = win 
+        self.mb = mb     
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        self.win.dispose()
+    def disposing(self,ev):
+        pass  
+    
+class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener):
+    def __init__(self,mb,ctrls_ueber,lang_akt,class_Uebersetzung):
+        if mb.debug: log(inspect.stack)
         
-        if key in self.fehlende:
-            # Wenn Design nur im alten Dict vorhanden war,
-            # wird es direkt uebernommen
-            self.merge(a[key], b[key], path + [str(key)])
-        else:
-            # Wenn Designs gleichen Namens sich unterscheiden,
-            # wird eine neue Version "_old" eingefuegt
-            ungleich = self._compare_design(a[key],b[key])
-            if ungleich:
-                
-                k = key
-                while k in a:
-                    k = k + '_old'
+        self.mb = mb  
+        self.ctrls = None
+        self.ctrls_ueber = ctrls_ueber
+        self.lang_akt = lang_akt
+        self.titel_feld = None
+        self.listbox_ref = None
+        
+        self.class_Uebersetzung = class_Uebersetzung
+        
+        
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        cmd = ev.ActionCommand
+        try:
+            if cmd == 'speichern':
+                new_lang,ok = self.class_Uebersetzung.format_lang_user_an_lang_akt_anpassen(self.ctrls_ueber,self.lang_akt)
+                if ok:
+                    self.lang_speichern(new_lang)
                     
-                standard = copy.deepcopy(a['Standard'])
-                a[k] = standard
-                self.merge(a[k], b[key], path + [str(key)])
-            else:
-                pass
-        
-        
-    
-    def merge(self,a, b, path=None):
-        '''
-        This method is an adjusted version from:
-        http://stackoverflow.com/questions/7204805/python-dictionaries-of-dictionaries-merge
-        merges b into a
-        '''
-        if path is None: path = []
-        
-        try:
-            for key in b:
-                if key in a:
-                    if key == 'zuletzt_geladene_Projekte':
-                        a[key] = b[key]
-                    elif isinstance(a[key], dict) and isinstance(b[key], dict):
-                        if key in self.designs:
-                            self._treat_design(a, b, key, path)
-                        elif key == 'designs':
-                            self.designs,self.fehlende = self._update_designs(a,b)
-                            self.merge(a[key], b[key], path + [str(key)])
-                        else:
-                            self.merge(a[key], b[key], path + [str(key)])
-                    elif a[key] == b[key]:
-                        pass # same leaf value
-                    elif isinstance(a[key], list) and isinstance(b[key], list):
-                        for idx, val in enumerate(b[key]):
-                            a[key][idx] = self.merge(a[key][idx], b[key][idx], path + [str(key), str(idx)])
-                    else:
-                        # ueberschreiben der defaults mit alten Werten
-                        a[key] = b[key]
-                else:
-                    # hier werden nur in b vorhandene keys gesetzt
-                    # daher werden auch alte designs mit eigenem Namen ignoriert
-                    pass
-            
-            return a
-        except Exception as e:
-            print(tb())
-            return None
-    
-    # wird nicht verwendet
-    def dict_to_list(self,odict,olist,predecessor=[]):
-    
-        for k in odict:
-            value = odict[k]
-            pre = predecessor[:]
-                            
-            if isinstance(value, dict):
-                pre.append(k)
-                self.dict_to_list(value,olist,pre)
-            else:
-                olist.append(predecessor+[k])
+            if cmd == 'orga_laden':
+                self.lang_user_laden()
+            if cmd == 'nutzer_laden':
+                self.lang_user_laden(False)
                 
-    # wird nicht verwendet
-    def exchange_values(self,old_dict,standard,olist):
-
-        # Set a given data in a dictionary with position provided as a list
-        def setInDict(dataDict, mapList, value): 
-            for k in mapList[:-1]: dataDict = dataDict[k]
-            dataDict[mapList[-1]] = value
-        
-        # Get a given data from a dictionary with position provided as a list
-        def getFromDict(dataDict, mapList):    
-            for k in mapList: dataDict = dataDict[k]
-            return dataDict
-
-        value = getFromDict(old_dict,olist)
-        try:
-            # A value which is not member of the dict is ignored
-            setInDict(standard,olist,value)
         except:
-            pass
+            log(inspect.stack,tb())
+            
+    def itemStateChanged(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        sel = ev.Source.SelectedItem
 
+        if ev.Source == self.listbox_ref[0]:
+            self.referenz_laden(sel)
+        if ev.Source == self.listbox_ref[1]:
+            datei_pfad = os.path.join(self.mb.path_to_extension,'languages',sel+'.py')
+            lang_user,ok = self.class_Uebersetzung.lade_modul_aus_datei(datei_pfad)
+            
+            if not ok:
+                return
+            
+            self.class_Uebersetzung.lade_uebersetzung(self.ctrls_ueber,lang_user)
+        else:
+            self.sprachdatei_setzen(sel)
+        
+    
+#     def sprachdatei_setzen(self,sel):
+#         return
+#         if self.mb.debug: log(inspect.stack)
+#         
+#         try:
+#             konsts = [l for l in dir(LANG) if l.isupper()]
+#             
+#             datei_pfad = os.path.join(self.mb.path_to_extension,'languages',sel+'.py')
+#             lang_ref,ok = self.mb.class_Projekt.lade_modul_aus_datei(datei_pfad)
+#             
+#             if not ok:
+#                 return
+#             
+#             omb = self.mb.props[T.AB].Hauptfeld.Context.Context.getControl('Organon_Menu_Bar')
+#             
+#             lang_file       = getattr(lang_ref, 'FILE')
+#             lang_bearbeiten = getattr(lang_ref, 'BEARBEITEN_M')
+#             lang_ansicht    = getattr(lang_ref, 'ANSICHT')
+#             
+#             #help_ordner     = getattr(lang_ref, 'INSERT_DIR')
+#             #help_datei      = getattr(lang_ref, 'INSERT_DOC')
+#             #help_speichern  = getattr(lang_ref, 'FORMATIERUNG_SPEICHERN')
+#             
+#             ctrl_file       = omb.getControl(LANG.FILE)
+#             ctrl_bearbeiten = omb.getControl(LANG.BEARBEITEN_M)
+#             ctrl_ansicht    = omb.getControl(LANG.ANSICHT)
+#             #ctrl_ordner
+#             #ctrl_datei
+#             #ctrl_speichern
+#             
+#             
+#             ctrl_file.Model.Label       = lang_file
+#             ctrl_bearbeiten.Model.Label = lang_bearbeiten
+#             ctrl_ansicht.Model.Label    = lang_ansicht
+#             
+#             
+# #             Menueintraege = [
+# #                 (LANG.FILE,'a'),
+# #                 (LANG.BEARBEITEN_M,'a'),
+# #                 (LANG.ANSICHT,'a'),            
+# #                 ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
+# #                 ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
+# #                 ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
+# #                  LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
+# #                 ]
+# 
+#             for k in konsts:
+#                 value = getattr(lang_ref, k)
+#                 setattr(LANG, k, value)
+#             
+#      
+#         except:
+#             log(inspect.stack,tb())
+       
+        
+    def referenz_laden(self,sel):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            datei_pfad = os.path.join(self.mb.path_to_extension,'languages',sel+'.py')
+            lang_ref,ok = self.class_Uebersetzung.lade_modul_aus_datei(datei_pfad)
+            
+            if not ok:
+                return
+            
+            for konst in self.ctrls:
+                self.ctrls[konst].Model.Text = getattr(lang_ref, konst)
+        except:
+            log(inspect.stack,tb())  
+
+            
+    def lang_user_laden(self,use_path=True):
+        if self.mb.debug: log(inspect.stack)
+        
+        if use_path:
+            pfad = os.path.join(self.mb.path_to_extension,'languages')
+            datei_pfad = self.mb.class_Funktionen.filepicker(filepath=pfad,filter='py')
+        else:
+            datei_pfad = self.mb.class_Funktionen.filepicker(filter='py')
+        if datei_pfad:
+            lang_user,ok = self.class_Uebersetzung.lade_modul_aus_datei(datei_pfad)
+            
+            if not ok:
+                return
+            
+            self.class_Uebersetzung.lade_uebersetzung(self.ctrls_ueber,lang_user)
+                
+    def lang_speichern(self,new_lang):
+        if self.mb.debug: log(inspect.stack)
+        
+        name = self.titel_feld.Model.Text
+        if name.strip() == '':
+            self.mb.nachricht(LANG.KEIN_NAME)
+            return
+        
+        name = name + '.py'
+        
+        folder = self.mb.class_Funktionen.folderpicker()
+        if not folder:
+            return
+        pfad = os.path.join(folder,name)
+        
+        
+        txt_list = []
+        
+        txt_list.append('# -*- coding: utf-8 -*-\r\n\r\n')
+        
+        for l in sorted(new_lang):
+            
+            eintrag = new_lang[l]
+            
+            art = eintrag['art']
+            
+            txt = "'''\\\r\nu'''".join(eintrag['txt'].split('\r\n'))
+
+            if art == 'kommentar':
+                txt_list.append('# ' + txt + '\r\n')
+            elif art == 'leer':
+                txt_list.append('\r\n')
+            elif art == 'uebersetzung':
+                konst = new_lang[l]['konst']
+                txt_list.append(konst + " = u'''" + txt  + "'''" + "\r\n")
+        
+        text = ''.join(txt_list)
+        
+        with codecs_open(pfad , "w",'utf-8') as file:
+            file.write(text)  
+              
+    
+    
+        
+    def disposing(self,ev):
+        pass
+   
 
 
    

@@ -92,7 +92,7 @@ class Organizer():
                     self.first_time_info = False
                     self.mb.nachricht(LANG.OO_ORGANIZER_INFO,'infobox')
                     
-            if len(self.mb.props['Projekt'].dict_zeilen_posY) == 0:
+            if len(self.mb.props['ORGANON'].dict_zeilen_posY) == 0:
                 # Kein Projekt geladen
                 return
             
@@ -391,10 +391,10 @@ class Organizer():
             dict_sb = self.dict_sb_content
             tags_ord = dict_sb['ordinal']
 
-            if T.AB == 'Projekt':
+            if T.AB == 'ORGANON':
                 Eintraege = self.mb.class_Projekt.lese_xml_datei()
             else:
-                Eintraege = self.mb.class_Tabs.lade_tab_Eintraege(T.AB)
+                Eintraege = self.mb.tabsX.get_tab_Eintraege(T.AB)
             
             for e in range(len(Eintraege)):
                 Eintraege[e] = list(Eintraege[e])
@@ -442,7 +442,7 @@ class Organizer():
             # EINTRAEGE
             for e in Eintraege:
                 pass
-                if e[0] == self.mb.props['Projekt'].Papierkorb:
+                if e[0] == self.mb.props['ORGANON'].Papierkorb:
                     y1 += 1
                     break
 
@@ -534,7 +534,7 @@ class Organizer():
             
             for e in self.Eintraege:
                 
-                if e[0] == self.mb.props['Projekt'].Papierkorb:
+                if e[0] == self.mb.props['ORGANON'].Papierkorb:
                     y1 += 1
                     break
                 
@@ -914,7 +914,7 @@ class Modify_Listener(unohelper.Base, XModifyListener):
         try:
             for e in self.eintraege:
                 
-                if e[0] == self.mb.props['Projekt'].Papierkorb:
+                if e[0] == self.mb.props['ORGANON'].Papierkorb:
                     y1 += 1
                     break
                 

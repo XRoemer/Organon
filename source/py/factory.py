@@ -31,8 +31,6 @@ import json,copy
 from codecs import open as codecs_open
 
 
-
-
 ####################################################
             # DEBUGGING / REMOTE CONTROL #
 ####################################################
@@ -124,8 +122,164 @@ package_folder, extension_folder, path_to_extension = get_paths()
 ###### GET SETTINGS ######
 sys.path.append(PATH.join(path_to_extension,'py'))
 
-from einstellungen import Take_Over_Old_Settings as TO
 
+class Take_Over_Old_Settings():
+    '''
+    Settings have to be loaded while the old extension is still available
+    on the harddrive. During installation the old extension will be deleted.
+    So getting both needs to be done at the very beginning.
+    When an old extension is found, the newly created settings will
+    be extended by the old ones.
+    '''
+    def __init__(self):
+        pass
+    
+    def get_settings_of_previous_installation(self,package_folder, extension_folder):
+        try:
+            dirs = [name for name in listdir(package_folder) if PATH.isdir(PATH.join(package_folder, name))]
+            dirs.remove(extension_folder)
+            
+            files = None   
+            organon_in_files = False    
+             
+            for d in dirs:
+                files = listdir(PATH.join(package_folder,d))
+                if 'organon.oxt' in files:
+                    organon_in_files = True
+                    break
+            
+            if files == None or organon_in_files == False :
+                return None
+
+            json_pfad_alt = PATH.join(package_folder,d,'organon.oxt','organon_settings.json')
+            
+            with codecs_open(json_pfad_alt) as data:  
+                content = data.read().decode()  
+                settings_orga_prev = json.loads(content)
+
+            return settings_orga_prev
+    
+        except Exception as e:
+            return None
+    
+    designs = []
+    fehlende = []
+
+    def _update_designs(self,a,b):
+        fehlende = set(b['designs']).difference( set(a['designs']) )
+        standard = copy.deepcopy(a['designs']['Standard'])
+        for f in fehlende:
+            a['designs'].update({f:standard})
+        
+        return list(b['designs']), fehlende
+        
+    
+    def _compare_design(self,a1,b1): 
+        for k in b1:
+            if k in a1:
+                if b1[k] != a1[k]:
+                    return True  
+        return False
+    
+    def _treat_design(self,a,b,key,path):
+        
+        if key in self.fehlende:
+            # Wenn Design nur im alten Dict vorhanden war,
+            # wird es direkt uebernommen
+            self.merge(a[key], b[key], path + [str(key)])
+        else:
+            # Wenn Designs gleichen Namens sich unterscheiden,
+            # wird eine neue Version "_old" eingefuegt
+            ungleich = self._compare_design(a[key],b[key])
+            if ungleich:
+                
+                k = key
+                while k in a:
+                    k = k + '_old'
+                    
+                standard = copy.deepcopy(a['Standard'])
+                a[k] = standard
+                self.merge(a[k], b[key], path + [str(key)])
+            else:
+                pass
+        
+        
+    
+    def merge(self,a, b, path=None):
+        '''
+        This method is an adjusted version from:
+        http://stackoverflow.com/questions/7204805/python-dictionaries-of-dictionaries-merge
+        merges b into a
+        '''
+        if path is None: path = []
+        
+        try:
+            for key in b:
+                if key in a:
+                    if key == 'zuletzt_geladene_Projekte':
+                        a[key] = b[key]
+                    elif isinstance(a[key], dict) and isinstance(b[key], dict):
+                        if key in self.designs:
+                            self._treat_design(a, b, key, path)
+                        elif key == 'designs':
+                            self.designs,self.fehlende = self._update_designs(a,b)
+                            self.merge(a[key], b[key], path + [str(key)])
+                        else:
+                            self.merge(a[key], b[key], path + [str(key)])
+                    elif a[key] == b[key]:
+                        pass # same leaf value
+                    elif isinstance(a[key], list) and isinstance(b[key], list):
+                        for idx, val in enumerate(b[key]):
+                            a[key][idx] = self.merge(a[key][idx], b[key][idx], path + [str(key), str(idx)])
+                    else:
+                        # ueberschreiben der defaults mit alten Werten
+                        a[key] = b[key]
+                else:
+                    # hier werden nur in b vorhandene keys gesetzt
+                    # daher werden auch alte designs mit eigenem Namen ignoriert
+                    pass
+            
+            return a
+        except Exception as e:
+            print(tb())
+            return None
+    
+    # wird nicht verwendet
+    def dict_to_list(self,odict,olist,predecessor=[]):
+    
+        for k in odict:
+            value = odict[k]
+            pre = predecessor[:]
+                            
+            if isinstance(value, dict):
+                pre.append(k)
+                self.dict_to_list(value,olist,pre)
+            else:
+                olist.append(predecessor+[k])
+                
+    # wird nicht verwendet
+    def exchange_values(self,old_dict,standard,olist):
+
+        # Set a given data in a dictionary with position provided as a list
+        def setInDict(dataDict, mapList, value): 
+            for k in mapList[:-1]: dataDict = dataDict[k]
+            dataDict[mapList[-1]] = value
+        
+        # Get a given data from a dictionary with position provided as a list
+        def getFromDict(dataDict, mapList):    
+            for k in mapList: dataDict = dataDict[k]
+            return dataDict
+
+        value = getFromDict(old_dict,olist)
+        try:
+            # A value which is not member of the dict is ignored
+            setInDict(standard,olist,value)
+        except:
+            pass
+
+
+
+TO = Take_Over_Old_Settings
 settings_orga = get_organon_settings(path_to_extension)
 settings_orga_prev = TO().get_settings_of_previous_installation(package_folder, extension_folder) 
 
@@ -267,9 +421,28 @@ g_ImplementationHelper.addImplementation(
 ####################################################
                 # TREEVIEW #
 ####################################################
+def get_parent():
+    
+    ctx = uno.getComponentContext()
+    smgr = ctx.ServiceManager
+    desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+    
+    if desktop.CurrentFrame:
+        parent = desktop.CurrentFrame.ContainerWindow
+    else:
+        enum = desktop.Components.createEnumeration()
+        comps = []
+        
+        while enum.hasMoreElements():
+            comps.append(enum.nextElement())
 
-## LO
-def erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=None):
+        doc = comps[0]
+        parent = doc.CurrentController.Frame.ContainerWindow
+    
+    return parent
+    
+
+def erzeuge_Dialog_Container(posSize,Flags=1+32+64+128):
                 
     ctx = uno.getComponentContext()
     smgr = ctx.ServiceManager
@@ -286,7 +459,7 @@ def erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=None):
     # global oWindow
     oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "CONTAINER")
     oWindowDesc.WindowServiceName = ""
-    oWindowDesc.Parent = desktop.CurrentFrame.ContainerWindow
+    oWindowDesc.Parent = get_parent()
     oWindowDesc.ParentIndex = -1
     oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
 

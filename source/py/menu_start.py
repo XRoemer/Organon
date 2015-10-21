@@ -266,17 +266,19 @@ class Menu_Start():
                 comps.append(enum.nextElement())
     
             language = comps[0].CharLocale.Language
-    
-            if language not in ('de'):
-                language = 'en'
+            
+#             if language not in ('de'):
+#                 language = 'en'
                 
             self.language = language
             
             import lang_en 
+            
             try:
                 exec('import lang_' + language)
             except Exception as e:
-                log(inspect_stack,tb())    
+                pass
+                #log(inspect_stack,tb())    
     
             if 'lang_' + language in vars():
                 lang = vars()['lang_' + language]

@@ -36,6 +36,7 @@ class Version():
         '0.9.9.5':None,
         '0.9.9.6':None,
         '0.9.9.7':None,
+        '0.9.9.8':self.an_09981b_anpassen,
         
         } 
         
@@ -52,7 +53,7 @@ class Version():
             loslegen = False
             
             if self.version != self.mb.programm_version:
-            
+                ver = sorted(self.vers_dict)
                 for vers in sorted(self.vers_dict):
                     if v == vers:
                         loslegen = True
@@ -60,10 +61,8 @@ class Version():
                         if self.vers_dict[vers] != None:
                             self.vers_dict[vers]()
                 
-                
-                
                 self.neue_programmversion_eintragen()
-
+            
         except:
             log(inspect.stack,tb())
 
@@ -75,7 +74,7 @@ class Version():
         xml_root = self.mb.props[T.AB].xml_tree.getroot()
         xml_root.attrib['Programmversion'] = self.mb.programm_version
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        self.mb.tree_write(self.mb.props['Projekt'].xml_tree,Path)
+        self.mb.tree_write(self.mb.props['ORGANON'].xml_tree,Path)
         
     
     def an_091b_anpassen(self):
@@ -168,6 +167,17 @@ class Version():
         
     
         
+    def an_09981b_anpassen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        props = self.mb.props['ORGANON']
+        
+        tree = props.xml_tree
+        root = tree.getroot()
+        root.tag = 'ORGANON'
+        
+        Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
+        self.mb.tree_write(self.mb.props['ORGANON'].xml_tree,Path)
         
         
         

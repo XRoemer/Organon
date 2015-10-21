@@ -17,8 +17,8 @@ LOAD_DESCRIPTION = u'Anleitung laden'
 CLEAR_RECYCLE_BIN = u'Papierkorb leeren'
 INSERT_DOC = u'Neues Dokument einfügen'
 INSERT_DIR = u'Neuen Ordner einfügen'
-PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen, bevor Sie ein neues Projekt \
-beginnen oder laden. Menüleiste: Organon>open/close'
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen, bevor Sie ein neues Projekt
+beginnen oder laden. Menüleiste: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'Zeige Textbereiche'
 SICHTBARE_TAGS_BAUMANSICHT = u'Sichtbare Tags in der Baumansicht'
 SICHTBARE_TAGS_SEITENLEISTE = u'Sichtbare Tags in der Sidebar'
@@ -60,12 +60,13 @@ KEIN_SPEICHERORT = u'Sie haben noch keinen Speicherort ausgesucht.'
 DOUBLE_PROJ_NAME = u'Das Projekt soll den gleichen Namen wie das zur Zeit geöffnete Dokument erhalten. Das funktioniert nicht.'
 PROJ_EXISTS = u'Das Projekt existiert schon. Soll es gelöscht und überschrieben werden?'
 KANN_NICHT_VERSCHOBEN_WERDEN = u'%s kann nicht in den Papierkorb verschoben werden, da die Datei noch im Tab "%s" geöffnet ist.' 
-UNGUELTIGE_ZEICHEN = u'Der Projektname enthält ungültige Zeichen\n  < > : " / \\ | ? *'
+UNGUELTIGE_ZEICHEN = u'''Der Projektname enthält ungültige Zeichen.
+  < > : " / \\ | ? *'''
 
 ZEILE_AUSWAEHLEN = u'Wählen Sie bitte erst eine Zeile aus, unter der eingefügt werden soll    '
 ERZEUGE_NEUE_ZEILE = u'                    erzeuge neue Zeile, bitte warten!                   '
 
-# TRENNER
+# SEPARATOR
 TRENNER_FORMATIERUNG = u'Trenner Formatierung'
 LINIE = u'Linie'
 FARBE = u'Farbe'
@@ -73,40 +74,47 @@ FARBE_SCHRIFT = u'Farbe Schrift'
 FARBE_HINTERGRUND = u'Farbe Hintergrund'
 BENUTZER = u'Benutzer'
 KEIN_TRENNER = u'kein Trenner'
-TRENNER_ANMERKUNG = u'Die Farben des Trenners sind Teil des Designs und \nwerden in "Einstellungen / Organon Design" gesetzt'
+TRENNER_ANMERKUNG = u'''Die Farben des Trenners sind Teil des Designs und 
+werden in "Einstellungen / Organon Design" gesetzt'''
 
-# TEILE TEXT BATCH
+# DEVIDE TEXT BATCH
 GANZES_WORT = u'Ganzes Wort'
 REGEX = u'Regulärer Ausdruck'
 UEBERSCHRIFTEN = u'Überschriften'
 TEXT_BATCH_DEVIDE = u'Teile Text (Stapel)'
 NICHTS_AUSGEWAEHLT_BATCH = u'Es sind keine Optionen ausgewählt und es wurde kein Text eingegeben.'
 KEINE_TRENNUNG = u'Es wurden keine Ergebnisse für die Trennung gefunden.'
-ERSTELLT_WERDEN = u'Organon wird {} neue Dateien oder Ordner erstellen.\r\n Fortfahren?'
+ERSTELLT_WERDEN = u'''Organon wird {} neue Dateien oder Ordner erstellen.
+Fortfahren?'''
 
-# VEREINE DATEIEN
+# COMBINE FILES
 FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'Diese Funktion kann nur im Projekt Tab genutzt werden.'
 KEINE_KOMBINATION_MOEGLICH = u'Die Dateien können nicht vereint werden.'
 DATEIEN_VEREINEN = u'Dateien vereinen'
 
-## TREEVIEW
+# TREEVIEW
 ORDNER_AUSKLAPPEN = u'Ordner ausklappen'
 IN_PAPIERKORB_VERSCHIEBEN = u'In Papierkorb verschieben'
 SHOW_TAG1 = u'Farbige Icons'
 SHOW_TAG2 = u'Benutzerdefinierte Icons'
 GLIEDERUNG = u'Gliederung'
-BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'Wenn Sie selbstgewählte Symbole nutzen wollen, ' \
-    u'legt Organon den Ordner "Organon Icons" in Ihrer Galerie an.\r\n\r\n'\
-    u'Außerdem wird folgender Ordner im Dateisystem angelegt:\r\n' \
-    u'%s ' \
-    u'\r\n\r\nDie Galerie kann über das Bild Icon der Standard Symbolleiste oder der Seitenleiste ' \
-    u'geöffnet werden. \r\n\r\n' \
-    u'Organon speichert bereits eine kleine Anzahl von Symbolen in diesem Ordner, dem Sie jederzeit eigene ' \
-    u'hinzufügen können. Die Symbole werden per Rechtsklick in der Baumansicht auf den leeren Platz zwischen ' \
-    u'Ordner-/Dateisymbol und Titel ausgewählt.\r\n\r\n' \
-    u'Soll ein Eintrag in der Galerie angelegt werden?\r\n\r\n'
+BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'''Wenn Sie selbstgewählte Symbole nutzen wollen,
+legt Organon den Ordner "Organon Icons" in Ihrer Galerie an.
 
-## EXPORT SETTINGS
+Außerdem wird folgender Ordner im Dateisystem angelegt:
+%s 
+
+Die Galerie kann über das Bild Icon der Standard Symbolleiste oder der Seitenleiste 
+geöffnet werden. 
+
+Organon speichert bereits eine kleine Anzahl von Symbolen in diesem Ordner, dem Sie jederzeit eigene 
+hinzufügen können. Die Symbole werden per Rechtsklick in der Baumansicht auf den leeren Platz zwischen 
+Ordner-/Dateisymbol und Titel ausgewählt.
+
+Soll ein Eintrag in der Galerie angelegt werden?
+'''
+
+# EXPORT SETTINGS
 EXPORT_2 = u'Export'
 EXPORT = u'EXPORT'
 EXPORT_ERFOLGREICH = u'Export erfolgreich'
@@ -140,11 +148,12 @@ EXPORT_BITTE_WARTEN = u'Exportiere. Bitte warten.'
 ORDNER_EXISTIERT_SCHON = u'Der Ordner enthält bereits eine Datei oder einen Ordner %s.organon'
 NEW_PROJECT2 = u'neues Projekt'
 PROJEKT_NAMEN_EINGEBEN = u'Geben Sie einen Namen für das Projekt an.'
-UNGESPEICHERTE_PFADE = u'Folgende Dateien konnten nicht gespeichert werden.\r\n' \
-            u'Eventuell sind die Pfade zu lang. Sie können einen anderen Speicherordner wählen oder ' \
-            u'den Dateinamen verkürzen.\r\n\r\n{}'
+UNGESPEICHERTE_PFADE = u'''Folgende Dateien konnten nicht gespeichert werden.
+Eventuell sind die Pfade zu lang. Sie können einen anderen Speicherordner wählen oder
+den Dateinamen verkürzen.
+{}'''
 
-## EXPORT HTML SETTINGS
+# EXPORT HTML SETTINGS
 HTML_AUSWAHL = u'Wählen Sie die Texteigenschaften, die exportiert werden sollen.'
 HTML_EXPORT = u'Html Export'
 FETT = u'Fett'
@@ -159,8 +168,7 @@ SCHRIFTART = u'Schriftart'
 SCHRIFTGROESSE = u'Schriftgröße'
 CSS = u'Erzeuge css'
 
-
-## IMPORT SETTINGS
+# IMPORT SETTINGS
 IMPORT_2 = u'Import'
 IMPORT = u'IMPORT'
 DATEIFILTER = u'Dateifilter'
@@ -176,18 +184,16 @@ ERST_DATEI_AUSWAEHLEN = u'Sie haben noch keine Datei ausgewählt'
 ERST_ORDNER_AUSWAEHLEN = u'Sie haben noch keinen Ordner ausgewählt'
 IMPORT_ABGESCHLOSSEN = u'Import abgeschlossen'
 IMPORT_FILTER_WARNUNG = u'''WARNUNG:
-
 Dies ist ein experimentelles Feature und nicht alle gelisteten Filter funktionieren. (z.B. Pdf)
 
-Probieren Sie Filter an einem neuen Projekt erst aus. \
+Probieren Sie Filter an einem neuen Projekt erst aus.
+
 Exportieren Sie importierte Dateien aus dem neuen Projekt als .odt Files und reimportieren Sie sie ins Zielprojekt.'''
 ERZEUGE_DATEI = u'erzeuge Datei %s von %s'
 NO_FILES = u'Es existieren keine Dateien mit dem ausgesuchten Filter im selektierten Ordner'
 IMP_FORTFAHREN = u'Es sollen %s Dateien importiert werden. Wollen Sie wirklich fortfahren?'
 
-
-###### SIDEBAR  #######
-
+# SIDEBAR
 
 SYNOPSIS = u'Synopsis'
 NOTIZEN = u'Notizen'
@@ -214,24 +220,21 @@ ENTER_NEW_TAG = u'Geben Sie einen neuen Tag ein bestätigen Sie mit Enter.'
 IN_PROJEKTORDNER_IMPORTIEREN = u'Das ausgesuchte Bild wird in den Projektordner importiert.'
 BILD_EINFUEGEN = u'Bild einfügen'
 BILD_LOESCHEN = u'Bild löschen'
-NUTZE_ZEIT = u'Zeitpunkt aktivieren'
-NUTZE_DATUM = u'Datum aktivieren'
 ZEIT2 = u'Zeit:'
 DATUM = u'Datum:'
 
-
-###### TABS ######
+# TABS
 ERZEUGE_NEUEN_TAB_AUS = u'Erzeuge neuen Tab aus:'
 MEHRFACHE_AUSWAHL = u'(Mehrfachauswahl möglich)'
-EIGENE_AUSWAHL = u'Eigene Auswahl'
 TAGS_SEITENLEISTE = u'Tags Seitenleiste'
 TAGS_BAUMANSICHT = u'Tags Baumansicht'
 SUCHE = u'Suche'
 TABNAME = u'Tabname:'
-TAB_HELP_TEXT = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt. \
-\rV (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt.'
-TAB_HELP_TEXT_NOT_IMPLEMENTED = u'\u039B'+ u' (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt. \
-\rV (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt. \r(noch nicht implementiert)'
+TAB_HELP_TEXT = u'''Λ (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt.
+V (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt.''' 
+TAB_HELP_TEXT_NOT_IMPLEMENTED = u'''Λ (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt.
+V (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt. 
+(noch nicht implementiert)'''
 AUSGEWAEHLTE = u'Ausgewählte'
 BENUTZTE = u'Im Projekt genutzte Tags'
 ZEITLICH_ANORDNEN = u'zeitlich anordnen'
@@ -241,7 +244,7 @@ NUTZE_DATUM = u'nutze Datum'
 NUTZE_ZEIT_UND_DATUM = u'nutze Zeit und Datum'
 IMPORTIERE_IN_TAB = u'Importiere in Tab'
 
-###### LOGGING ######
+# LOGGING
 LOG = u'Logging'
 LOGGING = u'Erzeuge Logdatei'
 EINSTELLUNGEN_LOGDATEI = u'Einstellungen Logdatei'
@@ -249,7 +252,7 @@ KONSOLENAUSGABE = u'Konsolenausgabe'
 LOGDATEI_ERZEUGEN = u'Logdatei erzeugen'
 ARGUMENTE_LOGGEN = u'Argumente loggen'
 
-###### ZITATE FINDEN ######
+# FIND QUOTATIONS
 DATEI_AUSSUCHEN = u'Datei aussuchen'
 ORDNER_AUSSUCHEN = u'Ordner aussuchen'
 TEXTVERGLEICH = u'Textvergleich: Zitate finden '
@@ -273,9 +276,9 @@ EXTERN = u'extern'
 ALPHABETISCH = u'alphabetisch'
 CHRONOLOGISCH = u'chronologisch'
 
-#### EINSTELLUNGEN ####
+# PREFERENCES
 
-## MAUSRAD
+## MOUSE WHEEL
 MAUSRAD = u'Mausrad'
 NUTZE_MAUSRAD = u'Nutze Mausrad'
 MAUSRAD_HINWEIS = u'''Hinweis:
@@ -284,12 +287,12 @@ Für OSX hat die Einstellung keine Auswirkung.
 
 Bei aktiviertem Mausrad kann in Fenstern mit Scrollbalken
 per Mausrad gescrollt werden.
-Sollten Probleme auftreten (Kein Scrollen, Fehlermeldung oder 
+Sollten Probleme auftreten (Kein Scrollen, Fehlermeldung oder
 verlängerte Reaktionszeiten), deaktivieren Sie das Mausrad.
 
 Feedback unter Ansicht/Feedback'''
 
-## ORGANON FARBEN
+# ORGANON COLORS
 ORGANON_DESIGN = u'Organon Design'
 BAUMANSICHT = u'Baumansicht'
 HINTERGRUND = u'Hintergrund'
@@ -314,7 +317,7 @@ DESIGN_EXISTIERT = u'Das Design existiert bereits'
 EXPORTNAMEN_EINGEBEN = u'Geben Sie einen Namen für die zu exportierende Datei ein'
 DATEI_EXISTIERT = u'Die Datei existiert schon'
 
-## PERSONAS 
+# PERSONAS 
 PERSONA = u'Persona'
 DESIGN_PERSONA = u'Design: Personas'
 DESIGN_ORGANON = u'Design: Organon'
@@ -336,22 +339,21 @@ ERZEUGE_GRADIENT = u'erzeuge Gradient'
 PERSONA_LOESCHEN = u'Persona löschen'
 URL_INFO = u'Format: .png 2500px * 200px'
 PERSONANAMEN_EXISTIERT = u'Das Persona existiert schon'
-ORDNER_NICHT_ERSTELLT = u'Der Ordner "{0}" konnte nicht erstellt werden.\n '\
-                            u'Prüfen Sie, ob der Ordner bereits existiert und ob \n'\
-                            u'Sie die Schreibberechtigung für den Ordner haben.\n'\
-                            u'Erstellen Sie den Ordner selbst oder benutzen Sie einmal ein\n'\
-                            u'eigenes Thema: Extras/Optionen/Personalisierung/Eigenes Thema\n'\
-                            u'und versuchen Sie es dann erneut.'
+ORDNER_NICHT_ERSTELLT = u'''Der Ordner "{0}" konnte nicht erstellt werden.
+Prüfen Sie, ob der Ordner bereits existiert und ob
+Sie die Schreibberechtigung für den Ordner haben.
+Erstellen Sie den Ordner selbst oder benutzen Sie einmal ein
+eigenes Thema: Extras/Optionen/Personalisierung/Eigenes Thema
+und versuchen Sie es dann erneut.'''
 KEIN_PERSONA_SELEKTIERT = u'Es ist kein Persona ausgewählt.'
 LOESCHEN_BESTAETIGEN = u'Möchten Sie das Persona "{0}" wirklich löschen?'
 ORDNER_NICHT_ENTFERNT = u'Der Ordner "{0}" konnte nicht gelöscht werden.'
 AENDERUNG_NACH_NEUSTART = u'Die Änderungen werden erst nach einem Neustart von Writer sichtbar.'
 
-
-## WRITER DESIGN
+# WRITER DESIGN
 WRITER_DESIGN = u'Writer Design'
 STATUSLEISTE = u'Statusleiste'
-FELDER = 'Eingabefelder'
+FELDER = u'Eingabefelder'
 TRENNER_LICHT = u'Trenner Licht'
 TRENNER_SCHATTEN = u'Trenner Schatten'
 LINEAL = u'Lineal'
@@ -383,31 +385,38 @@ NUTZE_PERSONA = u'nutze Persona'
 DOCUMENT = u'Dokument'
 
 NUTZE_DOK_FARBE = u'färbe Dokument'
-WRITER_DESIGN_INFO = u'EXPERIMENTELLES FEATURE\n'\
-        u'Bitte beachten Sie bei der Verwendung von Writer Design Folgendes:\n\n' \
-        u'- Die kompletten Änderungen werden erst nach einem Neustart wirksam.\n\n'\
-        u'- Weitere gleichzeitig geöffneten Anwendungen (Calc,Draw etc.) einer \n'\
-        u'  Sitzung werden ebenfalls eingefärbt.\n'\
-        u'  Bei Neustart mit deaktiviertem Design werden wieder die Standardfarben \n'\
-        u'  genutzt.\n\n'\
-        u'- Z.Z. kann bei aktivem Writer Design kein .odt Dokument via "Öffnen mit"\n'\
-        u'  durch Writer geöffnet werden, da die Oberfläche von Writer durch Organon\n'\
-        u'  nach dem Öffnen geschlossen und erneut gestartet wird. Dabei wird das\n'\
-        u'  geladenen Dokument ebenfalls wieder geschlossen.\n\n'\
-        u'- Die Seitenleiste wird erst bei geöffnetem Organon Projekt und mit dem \n'\
-        u'  ersten Klick auf das Organon Symbol vollständig eingefärbt.\n\n'\
-        u'- Änderungen der Dokumentfarben und des Persona (LO) bleiben bestehen.\n'\
-        u'  Sie können auf zwei Arten rückgängig gemacht werden:\n\n' \
-        u'  - via Writer-Menüleiste: Extras/Optionen/Darstellung  \n'\
-        u'               Dokumenthintergrund und Hintergrund der Anwendung\n' \
-        u'               wieder auf "Automatisch" setzen.\n'\
-        u'               (LO) Persona über Extras/Optionen/Personalisierung zurücksetzen.\n\n'\
-        u'  - via Organon: Writer Design aktivieren und die Häkchen bei "nutze Persona" \n'\
-        u'               und "färbe Dokument" entfernen. Writer Design deaktivieren.\n\n'\
-        u'Diese und weitere Informationen finden Sie auch im Handbuch.\n'\
-        u' '
+WRITER_DESIGN_INFO = u'''EXPERIMENTELLES FEATURE
 
-## ORGANIZER
+Bitte beachten Sie bei der Verwendung von Writer Design Folgendes:
+
+- Die kompletten Änderungen werden erst nach einem Neustart wirksam.
+
+- Weitere gleichzeitig geöffneten Anwendungen (Calc,Draw etc.) einer
+  Sitzung werden ebenfalls eingefärbt.
+
+  Bei Neustart mit deaktiviertem Design werden wieder die Standardfarben genutzt.
+
+- Z.Z. kann bei aktivem Writer Design kein .odt Dokument via "Öffnen mit"
+  durch Writer geöffnet werden, da die Oberfläche von Writer durch Organon
+  nach dem Öffnen geschlossen und erneut gestartet wird. Dabei wird das
+  geladenen Dokument ebenfalls wieder geschlossen.
+
+- Die Seitenleiste wird erst bei geöffnetem Organon Projekt und mit dem
+  ersten Klick auf das Organon Symbol vollständig eingefärbt.
+
+- Änderungen der Dokumentfarben und des Persona (LO) bleiben bestehen.
+
+  Sie können auf zwei Arten rückgängig gemacht werden:
+  - via Writer-Menüleiste: Extras/Optionen/Darstellung
+               Dokumenthintergrund und Hintergrund der Anwendung
+               wieder auf "Automatisch" setzen.
+               (LO) Persona über Extras/Optionen/Personalisierung zurücksetzen.
+  - via Organon: Writer Design aktivieren und die Häkchen bei "nutze Persona"
+               und "färbe Dokument" entfernen. Writer Design deaktivieren.
+
+Diese und weitere Informationen finden Sie auch im Handbuch.'''
+
+# ORGANIZER
 ORGANIZER = u'Organizer'
 MENU = u'Menü'
 INFO = u'Info'
@@ -416,49 +425,35 @@ PRJ_NAME_KEINE_AENDERUNG = u'Das Projekt kann nicht umbenannt werden'
 EIN_TAG_BEREITS_VORHANDEN = u'Einer der Tags ist bereits in einer anderen Kategorie vorhanden.'
 UEBERNOMMEN = u'Änderungen wurden übernommen'
 AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'Sie haben noch ungespeicherte Änderungen. Wollen Sie die Änderungen übernehmen?'
-OO_ORGANIZER_INFO = u'Wenn in OpenOffice der Organizer benutzt wird, dann sind beim nächsten Neustart'\
-    u'von OpenOffice das Organon-Fenster und die Seitenleiste geschlossen und müssen \n'\
-    u'bei Bedarf vom Nutzer selbst wieder geöffnet werden.\n'
-ORGANIZER_INFO = u'Benutzung des Organizers:\n'\
-    u'\n'\
-    u'Der Organizer zeigt alle Tags eines Tabs in einer tabellarischen Übersicht.\n'\
-    u'\n'\
-    u'Änderungen werden durch neue Einträge in den jeweiligen '\
-    u'Feldern vorgenommen. Die Änderungen werden durch einen '\
-    u'Klick auf den Button "{0}" für das Projekt übernommen.\n'\
-    u'\n'\
-    u'Änderungen der linksseitigen Icons werden sofort und ohne Rückmeldung übernommen.\n'\
-    u'\n'\
-    u'Das Menü von Calc wird durch einen Klick auf "{1}" geöffnet, '\
-    u'wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)\n'\
-    u'Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das Dokument '\
-    u'sonstwie vom Menü her verändert werden, wenn es für Organon '\
-    u'weiterhin zur Verfügung stehen soll. Derartige Änderungen können zu '\
-    u'fehlerhaften Tags führen, gegebenenfalls wird das gesamte Organon Projekt beschädigt.\n'\
-    u'\n'\
-    u'Sollen Änderungen nicht übernommen werden, kann Calc einfach geschlossen werden.\n'\
-    u'\n'\
-    u'Die Tags "{2}" und "{3}" können Fließtext enthalten, '\
-    u'Zeilenumbrüche werden mit CTRL + Enter erzeugt.\n'\
-    u'Eingaben in die Tags "{4}", "{5}", etc. werden durch Kommata abgetrennt.\n'\
-    u'\n'\
-    u'Um die Tags der Baumansicht (Icons auf der linken Seite) zu setzen, '\
-    u'muss NEBEN und nicht auf sie geklickt werden. Dies ist leider eine  '\
-    u'technische Beschränkung, die sich nicht so einfach beseitigen läßt.\n'\
-    u'Auch neue Icons können eingefügt werden. Dazu muss ebenfalls neben '\
-    u'die Stelle geklickt werden, wo im Falle eines vorhandenen Tags sich '\
-    u'dieses befinden würde.\n'\
-    u'\n'\
-    u'Dateien können im Organizer zwar bereits umbenannt werden, aber diese Änderung '\
-    u'wird noch nicht übernommen.\n'\
-    u'\n'\
-    u'Der Organizer enthält noch nicht alle Funktionen. \n'\
-    u'(z.B. Zeit, Datum, versch. Ansichten) \n'\
-    u'Kommt.\n'\
-    u'\n'\
-    u'\n'
+OO_ORGANIZER_INFO = u'''Wenn in OpenOffice der Organizer benutzt wird, dann sind beim nächsten Neustart
+von OpenOffice das Organon-Fenster und die Seitenleiste geschlossen und müssen
+bei Bedarf vom Nutzer selbst wieder geöffnet werden.'''
+ORGANIZER_INFO = u'''Benutzung des Organizers:
+
+Der Organizer zeigt alle Tags eines Tabs in einer tabellarischen Übersicht.
+
+Änderungen werden durch neue Einträge in den jeweiligen Feldern vorgenommen. Die Änderungen werden durch einen Klick auf den Button "{0}" für das Projekt übernommen.
+
+Änderungen der linksseitigen Icons werden sofort und ohne Rückmeldung übernommen.
+
+Das Menü von Calc wird durch einen Klick auf "{1}" geöffnet, wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)
+Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das Dokument sonstwie vom Menü her verändert werden, wenn es für Organon weiterhin zur Verfügung stehen soll. Derartige Änderungen können zu fehlerhaften Tags führen, gegebenenfalls wird das gesamte Organon Projekt beschädigt.
+
+Sollen Änderungen nicht übernommen werden, kann Calc einfach geschlossen werden.
+
+Die Tags "{2}" und "{3}" können Fließtext enthalten, Zeilenumbrüche werden mit CTRL + Enter erzeugt.
+Eingaben in die Tags "{4}", "{5}", etc. werden durch Kommata abgetrennt.
+
+Um die Tags der Baumansicht (Icons auf der linken Seite) zu setzen, muss NEBEN und nicht auf sie geklickt werden. Dies ist leider eine  technische Beschränkung, die sich nicht so einfach beseitigen läßt.
+Auch neue Icons können eingefügt werden. Dazu muss ebenfalls neben die Stelle geklickt werden, wo im Falle eines vorhandenen Tags sich dieses befinden würde.
+
+Dateien können im Organizer zwar bereits umbenannt werden, aber diese Änderung wird noch nicht übernommen.
+
+Der Organizer enthält noch nicht alle Funktionen. 
+(z.B. Zeit, Datum, versch. Ansichten) 
+Kommt.'''
             
-## SHOTCUTS
+# SHORTCUTS
 SHORTCUTS = u'Shortcuts'
 OEFFNE_ORGANIZER = u'öffne Organizer'
 SICHTBARKEIT = u'Sichtbarkeit'
@@ -466,23 +461,45 @@ FORMATIERUNG_SPEICHERN2 = u'Speichern des zuletzt bearbeiteten Bereiches'
 BAUMANSICHT_HOCH = u'Baumansicht ein Eintrag hoch'
 BAUMANSICHT_RUNTER = u'Baumansicht ein Eintrag runter'
 BENENNE_DATEI_UM = u'Datei umbenennen'
-           
-## DIVERSES
+
+# TRANSLATIONS
+UEBERSETZUNGEN = u'''Übersetzungen'''
+ORG_SPRACHDATEI_LADEN = u'''Organon Sprachdatei laden'''
+UEBERSETZUNG_SPEICHERN = u'''Übersetzung speichern'''
+BENUTZER_DATEI_LADEN = u'''Benutzer Datei laden'''
+REFERENZ = u'''Referenz'''
+ORGANON_LANG_PATH = u'''Ordnerpfad Organon Sprachdateien:'''
+IMPORT_GESCHEITERT = u'''Der Import ist gescheitert. 
+            
+Fehler: 
+{0}'''
+EINTRAG_MIT_UNZULAESSIGEN_ZEICHEN = u'''In diesem Eintrag befindet sich ein unzulässiges Zeichen: 
+            
+            {0} 
+
+{1}'''
+UNGUELTIGE_ANZAHL1 = u'''In diesem Eintrag stimmt die Anzahl der vorkommenden "%s" nicht 
+
+{0}'''
+UNGUELTIGE_ANZAHL2 = u'''In diesem Eintrag stimmt die Anzahl der vorkommenden "{{}}" nicht 
+
+{0}'''
+USE_CLOSE_BUTTON = u'''Schließen Sie das Fenster mit dem oberen rechten Button. Ansonsten kann es mehrere Minuten dauern, bis sich das Fenster wieder schließt.'''
+FENSTER_SCHLIESSEN = u'''Fenster schließen'''
+        
+# VARIOUS
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
 WOERTERLISTE = u'Wörterliste erstellen'
 UNGUELTIGE_FARBE = u'Keine gültige Farbe'
 LISTE_GESPEICHERT = u'Die Liste wurde erfolgreich gespeichert unter {}'
 
 # ERRORS
-ERROR_LOAD_PROJECT = u"FEHLER: konnte Projekt nicht laden\r\nNutzen Sie das Dokument nicht, auch wenn es intakt aussieht."
-ERROR_PROJECT_LOCKED = u"FEHLER: Projekt ist gesperrt. \r\nNutzen Sie das Dokument nicht, auch wenn es intakt aussieht.\r\n"\
-    u"Evt. wird es von einer anderen Instanz von OO/LO genutzt.\r\n" \
-    u"Oder ein Absturz hat die Lockdatei zurückgelassen. Schauen Sie nach dem Pfad und löschen Sie die Lockdatei.\r\n{}"
+ERROR_LOAD_PROJECT = u'''FEHLER: konnte Projekt nicht laden
+Nutzen Sie das Dokument nicht, auch wenn es intakt aussieht.'''
+ERROR_PROJECT_LOCKED = u'''FEHLER: Projekt ist gesperrt. 
+Nutzen Sie das Dokument nicht, auch wenn es intakt aussieht.
+Evt. wird es von einer anderen Instanz von OO/LO genutzt.
+Oder ein Absturz hat die Lockdatei zurückgelassen. Schauen Sie nach dem Pfad und löschen Sie die Lockdatei.
+{}'''
 
-
-
-
-
-
-
-
+# END

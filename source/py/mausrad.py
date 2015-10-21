@@ -141,7 +141,6 @@ class Mausrad():
         for c in cont.Controls:
 
             if 'UnoControlScrollBar' in str(c):
-                
                 test_listener = Window_Focus_Listener(self.mb,cont)
                 listener_disposing = Window_Disposing_Listener(self.mb,cont,test_listener)
                 
@@ -155,8 +154,8 @@ class Mausrad():
                             cb.addFocusListener(test_listener)
                     except:
                         pass
-                    
-                    
+               
+               
 
 def formatiere(cont):
     return str(cont).split('XInterface)')[1].split('{implementationName')[0]

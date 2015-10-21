@@ -214,7 +214,7 @@ class Sidebar():
         
         fehlende = []
 
-        for ordinal in list(self.mb.props['Projekt'].dict_bereiche['ordinal']):
+        for ordinal in list(self.mb.props['ORGANON'].dict_bereiche['ordinal']):
             if ordinal not in self.mb.dict_sb_content['ordinal']:
                 fehlende.append(ordinal)
 
@@ -232,7 +232,7 @@ class Sidebar():
         pfad_Backup = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl.Backup')
         
         if fehlende == 'all':
-            fehlende = list(self.mb.props['Projekt'].dict_bereiche['ordinal'])
+            fehlende = list(self.mb.props['ORGANON'].dict_bereiche['ordinal'])
         
         try:
             with open(pfad_Backup, 'rb') as f:

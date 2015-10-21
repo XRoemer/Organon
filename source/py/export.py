@@ -621,7 +621,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         # selektiert nur die sichtbaren Bereiche
         if sett['sichtbar']:
             sections = []
-            for sec_name in self.mb.props['Projekt'].sichtbare_bereiche:
+            for sec_name in self.mb.props['ORGANON'].sichtbare_bereiche:
                 sections.append(sec_name)
         
         else:
@@ -1076,7 +1076,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
     def et_und_ordinale_berechnen(self,sections,projektname):
         if self.mb.debug: log(inspect.stack)
         
-        props = self.mb.props['Projekt']
+        props = self.mb.props['ORGANON']
         dict_BO = props.dict_bereiche['Bereichsname-ordinal']
         
         # Ordinale der Sections bestimmen
@@ -1087,7 +1087,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
     
         
         # Deepcopy des ElementTrees zum Bearbeiten oeffnen
-        tree = copy.deepcopy(self.mb.props['Projekt'].xml_tree)
+        tree = copy.deepcopy(self.mb.props['ORGANON'].xml_tree)
         root = tree.getroot()
         
         all_el = root.findall('.//')            

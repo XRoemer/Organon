@@ -304,7 +304,7 @@ class Bereiche():
                 newDoc.close(False)
     
                 self.mb.props[T.AB].tastatureingabe = False
-                
+                self.mb.loesche_undo_Aktionen()
             except:
                 log(inspect.stack,tb())
 

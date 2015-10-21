@@ -66,7 +66,7 @@ class Shortcuts():
             if code in self.keycodes:
                 keychar = self.keycodes[code]
             else:
-                keychar = -1
+                return
             
             if keychar.upper() in self.shortcuts[str(mods)]:
                 cmd = self.shortcuts[str(mods)][keychar.upper()]
@@ -78,53 +78,32 @@ class Shortcuts():
     def teile_text(self):
         if self.mb.debug: log(inspect.stack)
 
-        if T.AB != 'Projekt': return
+        if T.AB != 'ORGANON': return
         self.mb.class_Funktionen.teile_text()
         
     def erzeuge_neue_Datei(self):
         if self.mb.debug: log(inspect.stack)
         
-        if T.AB != 'Projekt': return
+        if T.AB != 'ORGANON': return
         self.mb.class_Baumansicht.erzeuge_neue_Zeile('Dokument')
     
     def erzeuge_neuen_Ordner(self):
         if self.mb.debug: log(inspect.stack)
         
-        if T.AB != 'Projekt': return
+        if T.AB != 'ORGANON': return
         self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
         
     def vereine_dateien(self):
         if self.mb.debug: log(inspect.stack)
         
-        if T.AB != 'Projekt': return
+        if T.AB != 'ORGANON': return
         self.mb.class_Funktionen.vereine_dateien()
         
     def in_Papierkorb_einfuegen(self):
         if self.mb.debug: log(inspect.stack)
 
-        ordinal = self.mb.props[T.AB].selektierte_zeile
-        
-        papierkorb = self.mb.props[T.AB].Papierkorb
-        projektordner = self.mb.props[T.AB].Projektordner
-        
-        if ordinal in [papierkorb,projektordner,None]:
-            return
-
-        ok = self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
-        
-        if not ok:
-            return
-        
-        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
-        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
-        
-        if nachfolger != None:
-            self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
-        else:
-            if vorgaenger != None:
-                self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
-
-        
+        self.mb.class_Baumansicht.in_Papierkorb_einfuegen()
+                
     def leere_Papierkorb(self):
         if self.mb.debug: log(inspect.stack)
         self.mb.class_Baumansicht.leere_Papierkorb()  
@@ -154,7 +133,7 @@ class Shortcuts():
         
     def schliesse_Tab(self):
         if self.mb.debug: log(inspect.stack)
-        self.mb.class_Tabs.schliesse_Tab()
+        self.mb.tabsX.schliesse_Tab()
         
     def erzeuge_Backup(self):
         if self.mb.debug: log(inspect.stack)
