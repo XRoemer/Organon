@@ -77,18 +77,19 @@ TRENNER_ANMERKUNG = u'''I colori del separatore sono parte del design
 and modificabili in "Preferenze/Organon Design"'''
 
 # DEVIDE TEXT BATCH
-GANZES_WORT = u'''*******'''
-REGEX = u'''*******'''
-UEBERSCHRIFTEN = u'''*******'''
-TEXT_BATCH_DEVIDE = u'''*******'''
-NICHTS_AUSGEWAEHLT_BATCH = u'''*******'''
-KEINE_TRENNUNG = u'''*******'''
-ERSTELLT_WERDEN = u'''*******'''
+GANZES_WORT = u'''Parola Intera'''
+REGEX = u'''Espressione Regolare'''
+UEBERSCHRIFTEN = u'''Intestazioni'''
+TEXT_BATCH_DEVIDE = u'''Divisione Testo (Gruppi)'''
+NICHTS_AUSGEWAEHLT_BATCH = u'''Non è stata selezionata nessuna opzione e il testo non è stato inserito '''
+KEINE_TRENNUNG = u'''La ricerca non ha prodotto risultati'''
+ERSTELLT_WERDEN = u'''Organon creerà {} nuovi files o cartelle.
+Procedere?'''
 
 # COMBINE FILES
-FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'''*******'''
-KEINE_KOMBINATION_MOEGLICH = u'''*******'''
-DATEIEN_VEREINEN = u'''*******'''
+FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'''Questa funzione può essere utilizzata soltanto dalla scheda del progetto.'''
+KEINE_KOMBINATION_MOEGLICH = u'''Questi file non possono essere combinati.'''
+DATEIEN_VEREINEN = u'''Combina Files'''
 
 # TREEVIEW
 ORDNER_AUSKLAPPEN = u'''Apri Cartella'''
@@ -111,7 +112,7 @@ Organon dovrebbe impostare una voce nella galleria?
 
 # EXPORT SETTINGS
 EXPORT_2 = u'''Esporta'''
-EXPORT = u'''ESPORTAT'''
+EXPORT = u'''ESPORTA'''
 EXPORT_ERFOLGREICH = u'''esportato con successo'''
 ALLES = u'''Tutto'''
 SICHTBARE = u'''Visibile'''
@@ -142,7 +143,11 @@ EXPORT_BITTE_WARTEN = u'''Esportazione. Prego attendere.'''
 ORDNER_EXISTIERT_SCHON = u'''La cartella contiene gìa un file/elenco %s.organon'''
 NEW_PROJECT2 = u'''Nuovo Progetto'''
 PROJEKT_NAMEN_EINGEBEN = u'''Inserire nome per il nuovo Progetto.'''
-UNGESPEICHERTE_PFADE = u'''*******'''
+UNGESPEICHERTE_PFADE = u'''
+I seguenti file non possono essere esportati.
+I loro percorsi sono troppo lunghi. Si può scegliere un'altra cartella per il salvataggio oppure abbreviare i nomi delle cartelle/file.
+
+{}'''
 
 # EXPORT HTML SETTINGS
 HTML_AUSWAHL = u'''Scegli le proprietà del testo per l'esportazione.'''
@@ -450,29 +455,46 @@ SICHTBARKEIT = u'''Visibilità'''
 FORMATIERUNG_SPEICHERN2 = u'''Salva l'ultimo file editato'''
 BAUMANSICHT_HOCH = u'''Vista ad albero una voce su'''
 BAUMANSICHT_RUNTER = u'''Vista ad albero una voce giù'''
-BENENNE_DATEI_UM = u'''*******'''
+BENENNE_DATEI_UM = u'''Rinomina File'''
 
 # TRANSLATIONS
-ORG_SPRACHDATEI_LADEN = u'''*******'''
-UEBERSETZUNG_SPEICHERN = u'''*******'''
-BENUTZER_DATEI_LADEN = u'''*******'''
-REFERENZ = u'''*******'''
-ORGANON_LANG_PATH = u'''*******'''
-IMPORT_GESCHEITERT = u'''*******'''
-EINTRAG_MIT_UNZULAESSIGEN_ZEICHEN = u'''*******'''
-UNGUELTIGE_ANZAHL1 = u'''*******'''
-UNGUELTIGE_ANZAHL2 = u'''*******'''
-USE_CLOSE_BUTTON = u'''*******'''
-FENSTER_SCHLIESSEN = u'''*******'''
+UEBERSETZUNGEN = u'''Traduzioni'''
+ORG_SPRACHDATEI_LADEN = u'''Carica un file di linguaggio Organon'''
+UEBERSETZUNG_SPEICHERN = u'''Salva Traduzione'''
+BENUTZER_DATEI_LADEN = u'''Carica File Utente'''
+REFERENZ = u'''Riferimento'''
+ORGANON_LANG_PATH = u'''Percorso dei files di linguaggio Organon:'''
+IMPORT_GESCHEITERT = u'''Importazione non riuscita.
+
+Errore:
+{0}'''
+EINTRAG_MIT_UNZULAESSIGEN_ZEICHEN = u'''C'è un simbolo non valido in questa voce:
+
+{0}
+
+{1}'''
+UNGUELTIGE_ANZAHL1 = u'''La quantità di "%s" non è adatta:
+
+{0}'''
+UNGUELTIGE_ANZAHL2 = u'''La quantità di "{{}}" non è adatta:
+
+{0}'''
+USE_CLOSE_BUTTON = u'''Utilizzare il pulsante di chiusura nell'angolo in alto a destra per chiudere la finestra. Altrimenti si può attendere alcuni minuti fino a quando la finestra verrà richiusa'''
+FENSTER_SCHLIESSEN = u'''Chiudi finestra'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''La cartella del Progetto e il Cestino non possono essere spostati'''
 WOERTERLISTE = u'''Creare Lista di tutte le Parole'''
 UNGUELTIGE_FARBE = u'''Questo non è un colore valido'''
-LISTE_GESPEICHERT = u'''*******'''
+LISTE_GESPEICHERT = u'''L'elenco è stato salvato con successo per {}'''
 
 # ERRORS
-ERROR_LOAD_PROJECT = u'''*******'''
-ERROR_PROJECT_LOCKED = u'''*******'''
+ERROR_LOAD_PROJECT = u'''ERRORE: impossibile caricare il progetto.
+Non utilizzare questo documento, anche se sembra essere ok.'''
+ERROR_PROJECT_LOCKED = u'''ERRORE: il Progetto è bloccato.
+Non utilizzare questo documento, anche se sembra essere ok.
+Potrebbe essere in uso da un'altra istanza di OO/LO,
+Oppure potrebbe essere bloccato a causa di un crash. Conotrollare il percorso ed eliminare il file che causa il blocco.
+{}'''
 
 # END
