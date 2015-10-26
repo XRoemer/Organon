@@ -484,9 +484,25 @@ UNGUELTIGE_ANZAHL1 = u'''In diesem Eintrag stimmt die Anzahl der vorkommenden "%
 UNGUELTIGE_ANZAHL2 = u'''In diesem Eintrag stimmt die Anzahl der vorkommenden "{{}}" nicht 
 
 {0}'''
-USE_CLOSE_BUTTON = u'''Schließen Sie das Fenster mit dem oberen rechten Button. Ansonsten kann es mehrere Minuten dauern, bis sich das Fenster wieder schließt.'''
-FENSTER_SCHLIESSEN = u'''Fenster schließen'''
-        
+
+# ORGANON TEMPLATES
+TEMPLATES_ORGANON = u'''Organon Vorlagen'''
+TEMPLATES_WRITER = u'''Writer Vorlagen'''
+TEMPLATE_USER = u'''Dokumentenvorlage Benutzer'''
+NUTZEN = u'''nutzen'''
+VORLAGENORDNER = u'''Vorlagenordner'''
+AKT_PRJ_ALS_TEMPL = u'''Aktuelles Projekt als Vorlage speichern'''
+TEMPLATE_LOESCHEN = u'''Vorlage löschen'''
+SPEICHERN = u'''speichern'''
+PFAD = u'''Pfad'''
+TEMPLATE_WIRKLICH_LOESCHEN = u'''Dies wird die Vorlage von der Festplatte entfernen. Wollen Sie die Vorlage "{}" wirklich löschen?'''
+TEMPLATE_NICHT_GELADEN = u'''FEHLER: Das Projekt konnte nicht mit der Vorlage erstellt werden.
+
+{}'''
+GLEICHER_PFAD = u'''Vorlage und neues Projekt besitzen denselben Namen und denselben Pfad'''    
+ORG_TEMPLATES_SETZEN = u'''Organon Vorlagen können unter Organon Menü/Datei/Einstellungen/Vorlagen gesetzt werden.'''
+WRITER_TEMPLATES_SETZEN = u'''Es werden die Nutzervorlagen von Writer angezeigt. Weitere Informationen im Organon Handbuch'''
+             
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'Projektordner und Papierkorb können nicht verschoben werden'
 WOERTERLISTE = u'Wörterliste erstellen'

@@ -54,9 +54,7 @@ class Einstellungen():
             # Hauptfenster erzeugen
             posSize = X,Y,breite,pos_y + 40
             fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-            #fenster_cont.Model.Text = LANG.EXPORT
             
-            #fenster_cont.addEventListener(listenerDis)
             self.haupt_fenster = fenster
             
             # Controls in Hauptfenster eintragen
@@ -73,15 +71,13 @@ class Einstellungen():
     def dialog_einstellungen(self,listener,breite_listbox,breite,hoehe):
         if self.mb.debug: log(inspect.stack)
         
-        LANG.TEMPLATES = u'Templates'
-
         if self.mb.programm == 'LibreOffice':
             lb_items = (
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
                         LANG.DESIGN_PERSONA,
                         LANG.MAUSRAD,
-                        #LANG.TEMPLATES,
+                        LANG.TEMPLATES_ORGANON,
                         LANG.SHORTCUTS,
                         LANG.UEBERSETZUNGEN,
                         LANG.HTML_EXPORT,
@@ -92,7 +88,7 @@ class Einstellungen():
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
                         LANG.MAUSRAD,
-                        #LANG.TEMPLATES,
+                        LANG.TEMPLATES_ORGANON,
                         LANG.SHORTCUTS,
                         LANG.UEBERSETZUNGEN,
                         LANG.HTML_EXPORT,
@@ -118,8 +114,8 @@ class Einstellungen():
             0,
             ('control_Container',"Container",      
                                     breite_listbox + 40,0,breite-60-breite_listbox ,hoehe ,    
-                                    ('BackgroundColor','Border'),
-                                    (KONST.FARBE_ORGANON_FENSTER,1),              
+                                    ('Border',),
+                                    (1,),              
                                     {} 
                                     ),  
             hoehe - 20,
@@ -171,6 +167,9 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 
             elif sel == LANG.UEBERSETZUNGEN:
                 u = Uebersetzungen(self.mb).run()
+                
+            elif sel == LANG.TEMPLATES_ORGANON:
+                self.dialog_templates()
 
         except:
             log(inspect.stack,tb())
@@ -723,7 +722,145 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
         except:
             log(inspect.stack,tb())
+    
+    
+    def dialog_templates_elemente(self,listener):
+        if self.mb.debug: log(inspect.stack)
+        
+        templ = self.mb.settings_orga['templates_organon']
+        pfad = templ['pfad']
+        items = tuple(templ['templates'])
+        
+        controls = (
+            10,
+            ('control',"FixedText",         
+                                    'tab0',0,250,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.TEMPLATES_ORGANON ,150),                                             
+                                    {} 
+                                    ),
+            50,
+            
+            ('control1',"FixedText",         
+                                    'tab0',0,250,20,  
+                                    ('Label',),
+                                    (LANG.VORLAGENORDNER ,),                                             
+                                    {} 
+                                    ),
+            20,
+            ('control2',"Button",        
+                                    'tab0',0,150,25,   
+                                    ('Label',),
+                                    (LANG.ORDNER_AUSSUCHEN,),                                           
+                                    {'setActionCommand':'ordner','addActionListener':(listener,)} 
+                                    ),
+            30,
+            ('controlpfad',"FixedText",         
+                                    'tab0',0,500,20,  
+                                    ('Label',),
+                                    (LANG.PFAD+': ' + pfad,),                                             
+                                    {} 
+                                    ),
+            60,
+            
+            ('control3',"FixedText",        
+                                    'tab0',0,400,20,   
+                                    ('Label',),
+                                    (LANG.AKT_PRJ_ALS_TEMPL,),                                                                            
+                                    {} 
+                                    ), 
+            20,
+            ('controlspeicherntxt',"Edit",        
+                                    'tab0',0,150,20,   
+                                    (),
+                                    (),                                                                            
+                                    {} 
+                                    ), 
+            20,
+            ('control7',"Button",        
+                                    'tab0',0,150,25,   
+                                    ('Label',),
+                                    (LANG.SPEICHERN,),                                           
+                                    {'setActionCommand':'speichern','addActionListener':(listener,)} 
+                                    ),
+            60,
+            
+            ('control5',"FixedText",        
+                                    'tab0',0,400,20,   
+                                    ('Label',),
+                                    (LANG.TEMPLATE_LOESCHEN,),                                                                            
+                                    {} 
+                                    ),              
+            20,
+            ('control8',"ListBox",        
+                                    'tab0',0,150,20,   
+                                    ('Border','Dropdown','LineCount'),
+                                    (2,True,15),       
+                                    {'addItems':items,'addItemListener':listener}
+                                    ), 
+            0,
+            ('control10',"Button",          
+                                    'tab4',0,80,25,    
+                                    ('Label',),
+                                    (LANG.LOESCHEN,),                                                                         
+                                    {'setActionCommand':'loeschen','addActionListener':(listener,)} 
+                                    ), 
+            
+            )
+        
+        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
+        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
+        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
+        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
+        tab0 = tab0x = 20
+        tab1 = tab1x = 42
+        tab2 = tab2x = 78
+        tab3 = tab3x = 100
+        tab4 = tab4x = 230
+        
+        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
+        
+        tabs_dict = {}
+        for a in tabs:
+            tabs_dict.update({a:locals()[a]  })
 
+        controls2 = []
+        
+        for c in controls:
+            if not isinstance(c, int):
+                c2 = list(c)
+                c2[2] = tabs_dict[c2[2]]
+                controls2.append(c2)
+            else:
+                controls2.append(c)
+        
+        return controls2
+            
+    def dialog_templates(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            
+            listener = Listener_Templates(self.mb)
+
+            controls = self.dialog_templates_elemente(listener)#trenner_dict,listener_CB,listener_URL)
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
+
+
+            # UEBERGABE AN LISTENER
+            listener.ctrls = {
+                              'pfad': ctrls['controlpfad'],
+                              'templates': ctrls['control8'],
+                              'speichern' : ctrls['controlspeicherntxt']
+                              }
+             
+            # Controls in Hauptfenster eintragen
+            for c in ctrls:
+                self.container.addControl(c,ctrls[c])
+            
+        except:
+            log(inspect.stack,tb())
+            
 
 from com.sun.star.awt import XActionListener
 class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
@@ -743,18 +880,18 @@ class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
                 self.control_arg.Enable = (ev.Source.State == 1)
                 self.mb.class_Log.output_console = ev.Source.State
                 self.mb.settings_orga['log_config']['output_console'] = ev.Source.State
-                self.mb.class_Funktionen.schreibe_settings_orga()
+                self.mb.schreibe_settings_orga()
                 self.mb.debug = ev.Source.State
                 
             elif ev.ActionCommand == 'Logdatei':
                 self.mb.class_Log.write_debug_file = ev.Source.State
                 self.mb.settings_orga['log_config']['write_debug_file'] = ev.Source.State
-                self.mb.class_Funktionen.schreibe_settings_orga()
+                self.mb.schreibe_settings_orga()
                 
             elif ev.ActionCommand == 'Argumente':
                 self.mb.class_Log.log_args = ev.Source.State
                 self.mb.settings_orga['log_config']['log_args'] = ev.Source.State
-                self.mb.class_Funktionen.schreibe_settings_orga()
+                self.mb.schreibe_settings_orga()
                 
             elif ev.ActionCommand == 'File':
                 Folderpicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
@@ -768,7 +905,7 @@ class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
                 self.control_filepath.Model.Label = filepath
                 
                 self.mb.settings_orga['log_config']['location_debug_file'] = filepath
-                self.mb.class_Funktionen.schreibe_settings_orga()
+                self.mb.schreibe_settings_orga()
    
         except:
             log(inspect.stack,tb())
@@ -788,7 +925,7 @@ class Listener_Mausrad_Einstellungen(unohelper.Base, XActionListener):
         try:
             self.mb.settings_orga['mausrad'] = ev.Source.State == 1
             self.mb.nutze_mausrad = ev.Source.State == 1
-            self.mb.class_Funktionen.schreibe_settings_orga()
+            self.mb.schreibe_settings_orga()
         except:
             log(inspect.stack,tb())
     
@@ -841,7 +978,7 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
                     self.conts['controls'][name].State = 0
                     #self.deaktiviere_controls(self.conts[name])
             
-            self.mb.class_Funktionen.schreibe_settings_orga() 
+            self.mb.schreibe_settings_orga() 
         except:
             log(inspect.stack,tb())
 
@@ -852,19 +989,16 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-        Filepicker.appendFilter('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
-        Filepicker.execute()
-         
-        if Filepicker.Files == '':
-            return
-    
-        filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
+        filter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
         
+        if not ok:
+            return
+            
         self.url_textfeld.Model.Label = filepath
         
         self.mb.settings_orga['trenner']['trenner_user_url'] = Filepicker.Files[0]
-        self.mb.class_Funktionen.schreibe_settings_orga()   
+        self.mb.schreibe_settings_orga()   
                 
                 
                 
@@ -895,7 +1029,7 @@ class Listener_Shortcuts(unohelper.Base,XItemListener,XActionListener):
             if selektiert != '-':
                 self.mb.settings_orga['shortcuts'][str(mods)].update({selektiert:cmd})
             
-            self.mb.class_Funktionen.schreibe_settings_orga() 
+            self.mb.schreibe_settings_orga() 
         except:
             log(inspect.stack,tb())
 
@@ -910,7 +1044,7 @@ class Listener_Shortcuts(unohelper.Base,XItemListener,XActionListener):
             for n in sett[m]:
                 if sett[m][n] == cmd:
                     del(sett[m][n])
-                    self.mb.class_Funktionen.schreibe_settings_orga() 
+                    self.mb.schreibe_settings_orga() 
                     return
              
     def actionPerformed(self,ev):
@@ -950,7 +1084,7 @@ class Uebersetzungen():
         
         self.cont,self.container,self.fenster = self.container_erstellen()
         ctrls_ueber,ctrls,ctrls_konst = self.erstelle_Uebersetzungsfenster(lang_akt)
-        self.dialog_uebersetzung(ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst)
+        self.dialog_uebersetzung(ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst,self.fenster)
          
         self.gefaerbte = list(ctrls_ueber.values())
 
@@ -1069,7 +1203,7 @@ class Uebersetzungen():
     
     
     
-    def dialog_uebersetzung_elemente(self,win_dispose_listener,button_listener,organon_lang_files):
+    def dialog_uebersetzung_elemente(self,button_listener,organon_lang_files):
         if self.mb.debug: log(inspect.stack)            
         
         os_path = datei_pfad = os.path.join(self.mb.path_to_extension,'languages')
@@ -1089,13 +1223,6 @@ class Uebersetzungen():
         
         controls = [
             10,
-            ('control_dispose',"Button",        
-                                    fensterbreite - tab1,0,120,40,    
-                                    ('Label',),
-                                    (LANG.FENSTER_SCHLIESSEN,),                  
-                                    {'addActionListener':(win_dispose_listener,)} 
-                                    ), 
-            70,
             ('control_ref',"FixedText",        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Label',),
@@ -1165,14 +1292,13 @@ class Uebersetzungen():
         return controls
 
  
-    def dialog_uebersetzung(self,ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst): 
+    def dialog_uebersetzung(self,ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst,fenster_cont): 
         if self.mb.debug: log(inspect.stack)
         
         # Listener erzeugen 
-        win_dispose_listener = Window_Disposer(self.fenster,self.mb) 
-        button_listener = Uebersetzung_Button_Listener(self.mb,ctrls_ueber,lang_akt,self)        
+        button_listener = Uebersetzung_Button_Listener(self.mb,ctrls_ueber,lang_akt,self,fenster_cont)        
         
-        controls = self.dialog_uebersetzung_elemente(win_dispose_listener,button_listener,organon_lang_files)
+        controls = self.dialog_uebersetzung_elemente(button_listener,organon_lang_files)
         ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
           
         # Controls in Hauptfenster eintragen
@@ -1215,12 +1341,8 @@ class Uebersetzungen():
         fensterhoehe = top_h - prozent
         fensterbreite = 800
         posSize = (self.mb.win.Size.Width,prozent / 2,fensterbreite,fensterhoehe)
-        
 
-        if self.mb.platform == 'linux':
-            self.mb.nachricht(LANG.USE_CLOSE_BUTTON,'warningbox')
-
-        win, cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+16+32+64+512)
+        win, cont = self.mb.erzeuge_Dialog_Container(posSize)
         cont.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
         container, model = self.mb.createControl(self.mb.ctx, "Container", 20,0,fensterbreite - 220, 1000, (), ())
@@ -1487,7 +1609,7 @@ class Window_Disposer(unohelper.Base, XActionListener):
         pass  
     
 class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener):
-    def __init__(self,mb,ctrls_ueber,lang_akt,class_Uebersetzung):
+    def __init__(self,mb,ctrls_ueber,lang_akt,class_Uebersetzung,fenster_cont):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb  
@@ -1628,6 +1750,7 @@ class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener
         if self.mb.debug: log(inspect.stack)
         
         name = self.titel_feld.Model.Text
+        
         if name.strip() == '':
             self.mb.nachricht(LANG.KEIN_NAME)
             return
@@ -1635,21 +1758,19 @@ class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener
         name = name + '.py'
         
         folder = self.mb.class_Funktionen.folderpicker()
+        
         if not folder:
             return
+        
         pfad = os.path.join(folder,name)
         
-        
         txt_list = []
-        
         txt_list.append('# -*- coding: utf-8 -*-\r\n\r\n')
         
         for l in sorted(new_lang):
             
             eintrag = new_lang[l]
-            
             art = eintrag['art']
-            
             txt = "'''\\\r\nu'''".join(eintrag['txt'].split('\r\n'))
 
             if art == 'kommentar':
@@ -1665,15 +1786,101 @@ class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener
         with codecs_open(pfad , "w",'utf-8') as file:
             file.write(text)  
               
-    
-    
-        
     def disposing(self,ev):
+        self.fenster_cont.dispose()
         pass
    
-
-
    
+class Listener_Templates(unohelper.Base, XActionListener,XItemListener):
+    def __init__(self,mb):
+        self.mb = mb
+        self.ctrls = None
+        self.selektiertes_template = None
+                
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            cmd = ev.ActionCommand
+            
+            if cmd == 'ordner':
+                self.template_ordner_setzen()
+            if cmd == 'speichern':
+                self.template_speichern()
+            if cmd == 'loeschen':
+                self.template_loeschen()
+        except:
+            log(inspect.stack,tb())
+    
+    def itemStateChanged(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        sel = ev.Selected
+        self.selektiertes_template = self.ctrls['templates'].Items[sel]
+    
+    def template_ordner_setzen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        path = self.mb.class_Funktionen.folderpicker()
+        if path != None:
+            templs = self.mb.settings_orga['templates_organon']
+            templs['pfad'] = path
+            self.ctrls['pfad'].Model.Label = LANG.PFAD + ': ' + path
+            
+            self.update_templates()
+            self.mb.schreibe_settings_orga()
+
+    def template_speichern(self):
+        if self.mb.debug: log(inspect.stack)
+
+        txt = self.ctrls['speichern'].Model.Text
+        templs = self.mb.settings_orga['templates_organon']
+        pfad = templs['pfad']
+        
+        self.mb.class_Funktionen.vorlage_speichern(pfad,txt)
+        self.update_templates()
+        
+    def update_templates(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        self.mb.class_Funktionen.update_organon_templates()
+        
+        templs = self.mb.settings_orga['templates_organon']
+        templates = tuple(templs['templates'])
+        
+        self.ctrls['templates'].Model.removeAllItems()
+        self.ctrls['templates'].addItems(templates,0)
+            
+    def template_loeschen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        if self.selektiertes_template == None:
+            return
+        
+        templs = self.mb.settings_orga['templates_organon']
+        pfad = templs['pfad']
+        templ_pfad = os.path.join(pfad,self.selektiertes_template + '.organon')
+        
+        entscheidung = self.mb.nachricht(LANG.TEMPLATE_WIRKLICH_LOESCHEN.format(self.selektiertes_template),"warningbox",16777216)
+        # 3 = Nein oder Cancel, 2 = Ja
+        if entscheidung == 3:
+            return
+        
+        import shutil
+        try:
+            shutil.rmtree(templ_pfad)
+        except:
+            log(inspect.stack,tb())
+            
+        self.update_templates()
+        
+    def disposing(self,ev):pass
+    
+    
+    
+    
+    
+    
     
     
     

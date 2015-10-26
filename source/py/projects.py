@@ -23,9 +23,10 @@ class Projekt():
         self.mb = mb
         
         self.mb.settings_proj['use_template'] = (False,None)
-        
+        self.mb.settings_proj['use_template_organon'] = (False,None)           
         self.first_time = True
-   
+        
+        
     def erzeuge_neues_Projekt(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -37,7 +38,14 @@ class Projekt():
             geglueckt,self.mb.projekt_name = self.dialog_neues_projekt_anlegen()  
             
             if geglueckt:
+                
                 self.setze_pfade()
+                is_template, templ_pfad, templ_art = self.pruefe_auf_template()
+                
+                if is_template and templ_art == 'organon':
+                    if templ_pfad == self.mb.pfade['projekt']:
+                        self.mb.nachricht(LANG.GLEICHER_PFAD,'warningbox') 
+                        return
 
                 if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
                     
@@ -62,14 +70,23 @@ class Projekt():
                             pass #log(inspect.stack,tb())
                   
             if geglueckt:
-                
-                
+
+                if is_template and templ_art == 'organon':
+                    
+                    try:
+                        self.mb.class_Funktionen.projekt_umbenannt_speichern(templ_pfad,self.mb.pfade['projekt'],self.mb.projekt_name)
+                        new_path = os.path.join(self.mb.pfade['projekt'],self.mb.projekt_name + '.organon')
+                        self.lade_Projekt(filepicker = False, filepath = new_path)
+                        return
+                    except Exception as e:
+                        self.mb.nachricht(LANG.TEMPLATE_NICHT_GELADEN.format(str(e)),'warningbox') 
+                        log(inspect.stack,tb())   
+                        return
+                    
                 ok = self.erzeuge_Ordner_Struktur() 
                 if not ok:
                     return
                 
-                is_template, templ_pfad = self.pruefe_auf_template()
-                                
                 self.erzeuge_import_Settings()
                 self.erzeuge_export_Settings()  
                 self.erzeuge_proj_Settings()
@@ -85,6 +102,9 @@ class Projekt():
                 Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
                 self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path1)
                 
+                if is_template:
+                    self.template_kopieren(templ_pfad)
+                    
                 self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
                 
                 self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
@@ -113,15 +133,30 @@ class Projekt():
     def pruefe_auf_template(self):
         if self.mb.debug: log(inspect.stack)
         
-        sett_prj = self.mb.settings_proj['use_template']
-        if not sett_prj[0]:
-            return False,None
-        elif sett_prj[1] == '':
-            return False,None
+        t_writ = self.mb.settings_proj['use_template']
+        t_orga = self.mb.settings_proj['use_template_organon']
+        
+        
+        if not t_writ[0] and not t_orga[0]:
+            return False,None,None
+        
+        elif t_writ[0]:
+            if t_writ[1] == '':
+                return False,None,None
+            else:
+                if os.path.exists(t_writ[1]):
+                    return True,t_writ[1],'writer'
+                else:
+                    return False,None,None
+                
         else:
-            if os.path.exists(sett_prj[1]):
-                return True,sett_prj[1]
-            return False,None
+            if t_orga[1] == '':
+                return False,None,None
+            else:
+                if os.path.exists(t_orga[1]):
+                    return True,t_orga[1],'organon'
+                else:
+                    return False,None,None
         
     
     def besitzt_template(self):
@@ -134,7 +169,7 @@ class Projekt():
                 pruef_pfad = a.Value
         
         # Wenn der Pfad nicht leer ist, wurde das Dokument
-        # als Template von Organon gesteartet
+        # als Template von Organon gestartet
         if pruef_pfad != '':
             return False,''
         
@@ -145,19 +180,35 @@ class Projekt():
         for (dirpath, dirnames, filenames) in os.walk(odt_pfad):
             files.extend(filenames)
             break
-        
+
         for f in files:
             try:
-                endung = f.split('.')[1]
-                if endung == 'ott':
-                    template = f
-                    templ_pfad = os.path.join(dirpath,template)
-                    return True,templ_pfad
+                if f == 'template.ott':
+                    templ_pfad = os.path.join(dirpath,f)
+                    
+                    if os.path.exists(templ_pfad):
+                        self.mb.settings_proj['use_template'] = [1,templ_pfad]
+                        return True,templ_pfad
+                    else:
+                        self.mb.settings_proj['use_template'] = [0,'']
+                        return False,''
             except:
                 pass
-            
+        
+        self.mb.settings_proj['use_template'] = [0,'']    
         return False,''
             
+    
+    def template_kopieren(self,templ_pfad):
+        if self.mb.debug: log(inspect.stack)
+        
+        neuer_templ_pfad = os.path.join(self.mb.pfade['odts'],'template.ott')
+        
+        import shutil
+        shutil.copyfile(templ_pfad, neuer_templ_pfad)
+        
+        self.mb.settings_proj['use_template'] = [1,neuer_templ_pfad]
+    
                       
     def setze_pfade(self): 
         if self.mb.debug: log(inspect.stack)
@@ -195,14 +246,26 @@ class Projekt():
     def lade_settings(self):
         if self.mb.debug: log(inspect.stack)
         
-        pfad = os.path.join(self.mb.pfade['settings'],'export_settings.txt')
-        self.mb.settings_exp = eval(open(pfad).read())
+        try:
+            
+            pfad = os.path.join(self.mb.pfade['settings'],'export_settings.txt')            
+            with codecs_open(pfad , "r","utf-8") as file:
+                txt = file.read()
+            self.mb.settings_exp = eval(txt)
+            self.mb.settings_exp['ausgewaehlte'] = {}
 
-        pfad = os.path.join(self.mb.pfade['settings'],'import_settings.txt')
-        self.mb.settings_imp = eval(open(pfad).read())
+            pfad = os.path.join(self.mb.pfade['settings'],'import_settings.txt')
+            with codecs_open(pfad , "r","utf-8") as file:
+                txt = file.read()
+            self.mb.settings_imp = eval(txt)
         
-        pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
-        self.mb.settings_proj = eval(open(pfad).read())
+            pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
+            with codecs_open(pfad , "r","utf-8") as file:
+                txt = file.read()
+            self.mb.settings_proj = eval(txt)
+        
+        except:
+            log(inspect.stack,tb())
         
 
     def erzeuge_Ordner_Struktur(self):
@@ -282,7 +345,7 @@ class Projekt():
                 modelU_Label = '-' 
             
 
-            modelForm1_Label = LANG.TEMPLATE_WRITER
+            modelForm1_Label = LANG.TEMPLATES_WRITER
             if not self.mb.settings_proj:
                 state = 0#False
                 not_state = 1
@@ -298,7 +361,7 @@ class Projekt():
             modelForm2_State = state
             
             self.mb.user_styles,pfade = self.get_user_styles()
-            
+
             if self.mb.user_styles == ():
                 user_styles = (LANG.NO_TEMPLATES,)
                 controlLBF2_Enable = 0
@@ -324,34 +387,129 @@ class Projekt():
             
             design = self.mb.class_Design
             design.set_default(tabs)
-
-                
+            
+            
+            templs = self.mb.settings_orga['templates_organon']
+            templ_ex = len(templs['templates']) > 0
+            templs_Org = tuple(templs['templates'])
+             
             controls = (
             20,
-            ('control',"FixedText",         'tab0x',y,250,20,  ('Label','FontWeight'),(LANG.ENTER_PROJ_NAME ,150),          {'addKeyListener':(listener)} ),
+            ('control',"FixedText",         
+                                'tab0x',y,250,20,  
+                                ('Label','FontWeight'),
+                                (LANG.ENTER_PROJ_NAME ,150),          
+                                {'addKeyListener':(listener)} 
+                                ),
             30,
-            ('control1',"Edit",             'tab0',y,200,20,   (),(),                                                       {} ) ,
+            ('control1',"Edit",             
+                                'tab0',y,200,20,   
+                                (),
+                                (),                                                       
+                                {} 
+                                ) ,
             30,
-            ('controlT3',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+            ('controlT3',"FixedLine",       
+                                'tab0',y,360,40,   
+                                (),
+                                (),                                                       
+                                {} 
+                                ), 
             43,
-            ('controlP',"FixedText",        'tab0x',y,120,20,  ('Label','FontWeight'),(LANG.SPEICHERORT,150),               {} ),  
+
+            ('controlP',"FixedText",        
+                                'tab0x',y,120,20,  
+                                ('Label','FontWeight'),
+                                (LANG.SPEICHERORT,150),               
+                                {} 
+                                ),  
             0,
-            ('controlW',"Button",           'tab2x',y,80,20,   ('Label',),(LANG.AUSWAHL,),                                  {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listener,)}),              
+            ('controlW',"Button",           
+                                'tab2x',y,80,20,   
+                                ('Label',),
+                                (LANG.AUSWAHL,),                                  
+                                {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listener,)}
+                                ),              
             30,
-            ('controlU',"FixedText",        'tab0',y,300,20,   ('Label','State'),(modelU_Label,modelForm1_State),           {} ), 
+            ('controlU',"FixedText",        
+                                'tab0',y,300,20,   
+                                ('Label','State'),
+                                (modelU_Label,modelForm1_State),           
+                                {} 
+                                ), 
             30,
-            ('controlT',"FixedLine",        'tab0',y,360,40,   (),(),                                                       {} ), 
+            ('controlT',"FixedLine",        
+                                'tab0',y,360,40,   
+                                (),
+                                (),                                                       
+                                {} 
+                                ), 
             40,
-            ('controlForm',"FixedText",     'tab0x',y,80,20,   ('Label','FontWeight'),(LANG.FORMATIERUNG,150),              {} ),
-            0,  
             
-            ('controlForm2',"CheckBox",     'tab1',y,200,20,   ('Label',),(LANG.TEMPLATE_USER,),                            {'setActionCommand':'user','addActionListener':(listenerCB,)} ) ,
+            ('controlFormO',"FixedText",     
+                                 'tab0x',y,80,20,   
+                                 ('Label','FontWeight','Enabled','HelpText'),
+                                 (LANG.TEMPLATES_ORGANON,150,templ_ex,LANG.ORG_TEMPLATES_SETZEN),              
+                                 {} 
+                                 ),
+            0,  
+            ('controlFormO2',"CheckBox",     
+                                 'tab2',y,200,20,   
+                                 ('Label','Enabled'),
+                                 (LANG.NUTZEN,templ_ex),                                  
+                                 {'setActionCommand':'organon','addActionListener':(listenerCB,)} 
+                                 ) ,
             22,
-            ('controlLBF2',"ListBox",       'tab1',y,100,20,    ('Dropdown',),(True,),                                       {'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}),
+            ('controlLBFO2',"ListBox",       
+                                 'tab2',y,100,20,    
+                                 ('Dropdown','Enabled','HelpText'),
+                                 (True,templ_ex,LANG.ORG_TEMPLATES_SETZEN),                                       
+                                 {'addItems':templs_Org,'SelectedItems':0,'addItemListener':(listenerCB)}
+                                 ),
             20,
-            ('controlT4',"FixedLine",       'tab0',y,360,40,   (),(),                                                       {} ), 
+            ('controlTO4',"FixedLine",       
+                                 'tab0',y,360,40,   
+                                 (),
+                                 (),                                                       
+                                 {} 
+                                 ), 
             40,
-            ('control2',"Button",           'tab3',y,80,30,    ('Label',),(LANG.OK,),                                       {'setActionCommand':LANG.OK,'addActionListener':(listener,)} ) , 
+            
+            ('controlForm',"FixedText",     
+                                 'tab0x',y,80,20,   
+                                 ('Label','FontWeight','HelpText'),
+                                 (LANG.TEMPLATES_WRITER,150,LANG.WRITER_TEMPLATES_SETZEN),              
+                                 {} 
+                                 ),
+            0,  
+            ('controlForm2',"CheckBox",     
+                                 'tab2',y,200,20,   
+                                 ('Label',),
+                                 (LANG.NUTZEN,),                                   
+                                 {'setActionCommand':'writer','addActionListener':(listenerCB,)} 
+                                 ) ,
+            22,
+            ('controlLBF2',"ListBox",       
+                                 'tab2',y,100,20,    
+                                 ('Dropdown','HelpText'),
+                                 (True,LANG.WRITER_TEMPLATES_SETZEN),                                       
+                                 {'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}
+                                 ),
+            20,
+            ('controlT4',"FixedLine",       
+                                 'tab0',y,360,40,   
+                                 (),
+                                 (),                                                       
+                                 {} 
+                                 ), 
+            40,
+            
+            ('control2',"Button",           
+                                 'tab3',y,80,30,    
+                                 ('Label',),
+                                 (LANG.OK,),                                       
+                                 {'setActionCommand':LANG.OK,'addActionListener':(listener,)} 
+                                 ), 
             0,
             )
             
@@ -429,10 +587,15 @@ class Projekt():
             # UEBERGABE AN LISTENER
             listener.control_sel = locals()['controlU']
             listener.model_proj_name = locals()['model1']
+            
+            listenerCB.ctrls = {
+                                'writer' : locals()['controlForm2'],
+                                'organon' : locals()['controlFormO2']
+                                }
 
             geglueckt = controlContainer.execute()       
             controlContainer.dispose() 
-            
+
             return geglueckt,locals()['model1'].Text
         
         except:
@@ -493,28 +656,21 @@ class Projekt():
                 return
 
             if filepicker:
-                Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-                Filepicker.appendFilter('Organon Project','*.organon')
-                Filepicker.execute()
-                # see: https://wiki.openoffice.org/wiki/Documentation/DevGuide/Basic/File_Control
-    
-                if Filepicker.Files == '':
+                filter = ('Organon Project','*.organon')
+                filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+                
+                if not ok:
                     return
-    
-                filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
               
             dateiname = os.path.basename(filepath)
             dateiendung = os.path.splitext(filepath)[1]
-
-            # Wenn keine .organon Datei gewaehlt wurde
-            if dateiendung  != '.organon':
-                return
             
             self.mb.projekt_name = dateiname.split(dateiendung)[0]
             self.mb.projekt_path = os.path.dirname(os.path.dirname(filepath))  
 
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
+            self.lade_settings()  
             
             # Vorlagen nicht als Vorlagen laden
             # um beim Laden keine Schleife zu erzeugen
@@ -526,7 +682,6 @@ class Projekt():
                 self.mit_template_oeffnen(templ_pfad,True)
                 return
 
-            self.lade_settings()  
             Eintraege = self.lese_xml_datei()
 
             self.mb.class_Version.pruefe_version()
@@ -648,7 +803,7 @@ class Projekt():
                 del(zuletzt[-1])
             
             self.mb.settings_orga['zuletzt_geladene_Projekte'] = zuletzt
-            self.mb.class_Funktionen.schreibe_settings_orga()
+            self.mb.schreibe_settings_orga()
         except:
             log(inspect.stack,tb())
 
@@ -922,7 +1077,7 @@ class Projekt():
         
     def erzeuge_proj_Settings(self):
         if self.mb.debug: log(inspect.stack)
-        
+
         settings_proj = {
             'tag1' : 0, 
             'tag2' : 0,
@@ -932,9 +1087,9 @@ class Projekt():
             'formatierung' : 'Standard',
             }
             
-        self.mb.speicher_settings("project_settings.txt", settings_proj)        
+        self.mb.speicher_settings("project_settings.txt", settings_proj)    
         self.mb.settings_proj = settings_proj
-    
+        
     
     def erzeuge_export_Settings(self):
         if self.mb.debug: log(inspect.stack)
@@ -1104,12 +1259,6 @@ class Projekt():
 
             self.mb.doc.close(False)
             os.remove(Path1)
-            
-            if not ist_vorhandenes_prj:
-                neuer_templ_pfad = os.path.join(self.mb.pfade['odts'],'template.ott')
-                
-                import shutil
-                shutil.copyfile(templ_pfad, neuer_templ_pfad)
 
         except:
             log(inspect.stack,tb())
@@ -1311,54 +1460,41 @@ class Projekt():
             
 #############################################################################################
             
-            
-            
-                
-                
-             
-             
-#             organon_lang_files = self.get_organon_lang_files()
-#             lang_akt = self.langpy_auslesen()
+#             loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+#                     
+#             x = self.mb.win.Size.Width + 20
+#             y = self.mb.prj_tab.AccessibleContext.LocationOnScreen.Y - loc_cont.Y #+ 20
+#             cur_cont = self.mb.current_Contr
 #             
-#             self.cont,self.container,self.fenster = self.container_erstellen()
-#             ctrls_ueber,ctrls,ctrls_konst = self.erstelle_Uebersetzungsfenster(lang_akt)
-#             self.dialog_uebersetzung(ctrls_ueber,lang_akt,organon_lang_files,ctrls_konst)
-#              
-#             self.gefaerbte = list(ctrls_ueber.values())
-        
-        
-            props = self.mb.props
-            #self.mb.sec_helfer2.IsVisible = False
-            
-            sections_n = self.mb.doc.TextSections.ElementNames
-            ts = self.mb.doc.TextSections
-            secs = [ts.getByName(n) for n in sections_n]
-            #vis = [s.Name for s in secs]# if s.IsVisible and 'Inner' not in s.Name]
-            helfer = [s for s in secs if 'Helfer2'  in s.Name][0]
-            
-            
-#             tabsx = self.mb.tabsX
-#             cl_tabs = self.mb.class_Tabs
 #             
-#             self.mb.sec_helfer2.IsVisible = False
+#             pos = x,y
+#             print(x,y)
 #             
-#             ctrl = props[T.AB].Hauptfeld.getControl('nr6')
-#             img = ctrl.getControl('icon')
+#             tab_name = T.AB
+#             
+#             (y,fenster,
+#              fenster_cont,
+#              control_innen,
+#              ctrls) = self.mb.class_Funktionen.erzeuge_treeview_mit_checkbox(tab_name=tab_name,
+#                                                                             pos=pos,
+#                                                                             auswaehlen=True)
+            
+            
 
-            try:
-                import platform as pl
-                if platform == 'linux':
-                    
-                    distro = pl.linux_distribution()
-            except Exception as e:
-                pass
+            
+            
+            settorg = self.mb.settings_orga
+            #self.mb.class_Funktionen.update_organon_templates()
+            
+            #self.mb.schreibe_settings_orga()
+            
         except:
             log(inspect.stack,tb())
             pd()
         pd() 
         
     
-    
+
     
     
 def createControl2(x,y,width,height,names,values):
@@ -1639,13 +1775,31 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
         self.modelUser = None
         self.modelListBox = None
         
+        self.ctrls = None
+        
+        
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
-
-        pfad = self.mb.settings_proj['use_template'][1]
-        state = ev.Source.State
-        self.mb.settings_proj['use_template'] = (state,pfad)
-
+        
+        try:
+            sett = self.mb.settings_proj
+            pfad_w = sett['use_template'][1]
+            pfad_o = sett['use_template_organon'][1]
+            
+            if ev.ActionCommand == 'writer':
+                state = ev.Source.State
+                sett['use_template'] = (state,pfad_w)
+                if state:
+                    sett['use_template_organon'] = (0,pfad_o)
+                    self.ctrls['organon'].setState(False)
+            else:
+                state = ev.Source.State
+                sett['use_template_organon'] = (state,pfad_o)
+                if state:
+                    sett['use_template'] = (0,pfad_w)
+                    self.ctrls['writer'].setState(False)
+        except:
+            log(inspect.stack,tb())
     
     def get_template_pfad(self,ctrl):
         if self.mb.debug: log(inspect.stack)
@@ -1657,15 +1811,35 @@ class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListe
             pfad = pfade[gewaehlt]
         except:
             log(inspect.stack,tb())
+
         return pfad
-        
     
-    def itemStateChanged(self, ev):  
+    def get_template_pfad_orga(self,ctrl):
         if self.mb.debug: log(inspect.stack)
         
-        use,pfad = self.mb.settings_proj['use_template']
-        self.mb.settings_proj['use_template'] = (use,self.get_template_pfad(ev.Source))
-    
+        try:
+            gewaehlt = ctrl.SelectedItem
+            templ = self.mb.settings_orga['templates_organon']
+            pfad = os.path.join(templ['pfad'],gewaehlt + '.organon')
+            return pfad
+        except:
+            log(inspect.stack,tb())
+            return None
+
+    def itemStateChanged(self, ev):  
+        if self.mb.debug: log(inspect.stack)
+        try:
+            acc_name = ev.Source.AccessibleContext.AccessibleName
+
+            if acc_name == LANG.TEMPLATES_WRITER:
+                use,pfad = self.mb.settings_proj['use_template']
+                self.mb.settings_proj['use_template'] = (use,self.get_template_pfad(ev.Source))
+            else:
+                use,pfad = self.mb.settings_proj['use_template_organon']
+                self.mb.settings_proj['use_template_organon'] = (use,self.get_template_pfad_orga(ev.Source))
+        except:
+            log(inspect.stack,tb())
+            
     def disposing(self,ev):
         return False
 

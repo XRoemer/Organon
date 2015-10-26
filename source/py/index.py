@@ -236,99 +236,18 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     
         
     
-    def erzeuge_auswahl(self,text):
-        if self.mb.debug: log(inspect.stack)
-        
-        tree = self.mb.props['ORGANON'].xml_tree
-        root = tree.getroot()
-        
-        baum = []
-        self.mb.class_XML.get_tree_info(root,baum)
-        
-        y = 10
-        x = 10
-        
-        #Inneres Fenster
-        controlContainer, modelContainer = self.mb.createControl(self.mb.ctx,"Container",22,y ,400,2000,(),() )  
-        modelContainer.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
-        
-        
-        #Titel
-        control, model = self.mb.createControl(self.mb.ctx,"FixedText",x,y ,300,20,(),() )  
-        control.Text = LANG.AUSGEWAEHLTER_ORDNER_WAEHLT
-        model.FontWeight = 200.0
-        controlContainer.addControl('Titel', control)
-        
-        y += 30
 
-        y2 = y
-        for eintrag in baum:
-
-            ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-            
-            if art == 'waste':
-                break
-            
-            control, model = self.mb.createControl(self.mb.ctx,"RadioButton",x+20*int(lvl),y ,20,20,(),() )  
-            control.addActionListener(listener)
-            control.ActionCommand = ordinal+'xxx'+name
-            
-            controlContainer.addControl(ordinal, control)
-            
-            y += 20 
-            
-        y = y2    
-        for eintrag in baum:
-
-            ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-            
-            if art == 'waste':
-                break
-            
-            control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40+20*int(lvl),y ,200,20,(),() )  
-            control.Text = name
-            controlContainer.addControl('Titel', control)
-            
-            
-            control, model = self.mb.createControl(self.mb.ctx,"ImageControl",x + 20+20*int(lvl),y ,16,16,(),() )  
-            model.Border = False
-            if art in ('dir','prj'):
-                model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/Ordner_16.png' 
-            else:
-                model.ImageURL = 'private:graphicrepository/res/sx03150.png' 
-            controlContainer.addControl('Titel', control)               
-            
-            y += 20 
-            
-        controlContainer.setPosSize(0,0,400,y,8)    
-            
-        return controlContainer,y,listener
-
-
-    def setze_hoehe_und_scrollbalken(self,y,y_desk,fenster,fenster_cont,control_innen):  
-        if self.mb.debug: log(inspect.stack)
-        
-        if y < y_desk-20:
-            fenster.setPosSize(0,0,0,y + 20,8) 
-            fenster_cont.setPosSize(0,0,0,y + 20,8) 
-        else:
-            try:
-                PosSize = 0,0,0,y_desk 
-                control = self.mb.erzeuge_Scrollbar(fenster_cont,PosSize,control_innen)
-            except:
-                log(inspect.stack,tb())
             
 
     def filepicker(self,ctrl):
         if self.mb.debug: log(inspect.stack)
 
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-        Filepicker.appendFilter('Source','*.txt;*.odt')
-        Filepicker.execute()
-
-        if Filepicker.Files == '':
+        filter = ('Source','*.txt;*.odt')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+        
+        if not ok:
             return
-        filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
+
         self.controls[ctrl].Model.Label = filepath
         
         

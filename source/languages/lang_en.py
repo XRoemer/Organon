@@ -478,8 +478,24 @@ UNGUELTIGE_ANZAHL1 = u'''The amount of "%s" doesn't fit:
 UNGUELTIGE_ANZAHL2 = u'''The amount of "{{}}" doesn't fit: 
 
 {0}'''
-USE_CLOSE_BUTTON = u'''Use the close Button in the upper right corner to close the window. Otherwise you might wait minutes until the window gets closed again'''
-FENSTER_SCHLIESSEN = u'''Close Window'''
+
+# ORGANON TEMPLATES
+TEMPLATES_ORGANON = u'''Organon Templates'''
+TEMPLATES_WRITER = u'''Writer Templates'''
+TEMPLATE_USER = u'''Template User'''
+NUTZEN = u'''use'''
+VORLAGENORDNER = u'''Templates Folder'''
+AKT_PRJ_ALS_TEMPL = u'''Save current project as template'''
+TEMPLATE_LOESCHEN = u'''delete template'''
+SPEICHERN = u'''save'''
+PFAD = u'''Path'''
+TEMPLATE_WIRKLICH_LOESCHEN = u'''This will remove the template from disk. Do you really want to delete "{}"?'''
+TEMPLATE_NICHT_GELADEN = u'''ERROR: The project couldn't be created from the template.
+
+{}'''
+GLEICHER_PFAD = u'''Template and new project own the same name and path.'''    
+ORG_TEMPLATES_SETZEN = u'''Organon Templates can be set under Organon Menu/File/Preferences/Templates .'''
+WRITER_TEMPLATES_SETZEN = u'''The user templates of Writer are shown. See the manual for further information.'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''Project Folder and Waste Bin can't be moved'''

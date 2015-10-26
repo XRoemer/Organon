@@ -20,6 +20,10 @@
         "6" : {},
         "7" : {}
     },
+    "templates_organon" : {
+    	"pfad":"",
+    	"templates":[]
+    },
     "zuletzt_geladene_Projekte": [],
     "organon_farben": {
     	"aktiv" : "OO Blue",

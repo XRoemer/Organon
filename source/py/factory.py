@@ -493,7 +493,6 @@ def erzeuge_Dialog_Container(posSize,Flags=1+32+64+128):
     #cont.setPosSize(0, 0, 0, 0, 15)
 
     oFrame.setComponent(cont, None)
-    cont.Model.Text = 'Gabriel' 
     
     # PosSize muss erneut gesetzt werden, um die Anzeige zu erneuern,
     # sonst bleibt ein Teil des Fensters schwarz

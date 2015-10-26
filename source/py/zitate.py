@@ -416,14 +416,13 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
 
     def filepicker(self,ctrl):
         if self.mb.debug: log(inspect.stack)
-        
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-        Filepicker.appendFilter('Find Quotations','*.txt')
-        Filepicker.execute()
 
-        if Filepicker.Files == '':
+        filter = ('Find Quotations','*.txt')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+        
+        if not ok:
             return
-        filepath =  uno.fileUrlToSystemPath(Filepicker.Files[0])
+        
         self.controls[ctrl].Model.Label = filepath
         
         

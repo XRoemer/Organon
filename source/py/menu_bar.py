@@ -15,6 +15,7 @@ import copy
 import inspect
 from pprint import pformat
 import webbrowser
+import json
 
 from tabs import TabsX
 platform = sys.platform
@@ -207,6 +208,7 @@ class Menu_Bar():
 #             self.Listener.add_Document_Close_Listener()
 #             self.Listener.add_Dialog_Window_Size_Listener()
             
+            self.class_Funktionen.update_organon_templates()
             
         except:
             log(inspect.stack,tb())
@@ -734,12 +736,19 @@ class Menu_Bar():
         #cont.setPosSize(0, 0, 0, 0, 15)
 
         oFrame.setComponent(cont, None)
-        cont.Model.Text = 'Gabriel' 
         
         # PosSize muss erneut gesetzt werden, um die Anzeige zu erneuern,
         # sonst bleibt ein Teil des Fensters schwarz
         oWindow.setPosSize(0,0,Width,Height,12)
-    
+        
+        # um das fenster bei sehr vielen Controls schneller zu schliessen,
+        # wird es vom Listener auf invisible(True) gesetzt
+        dispose_listener = Window_Dispose_Listener(oWindow,self)
+        cont.addEventListener(dispose_listener)
+        
+        # muss noch genauer ausgetueftelt werden
+        set_app_style(cont,self.settings_orga)
+        
         return oWindow,cont
     
     
@@ -808,7 +817,6 @@ class Menu_Bar():
         control.addAdjustmentListener(listener) 
         
         fenster_cont.addControl('ScrollBar',control) 
-        height = fenster_cont.PosSize.Height - 40 
         
         return control 
      
@@ -823,10 +831,18 @@ class Menu_Bar():
         
         path = os.path.join(self.pfade['settings'],dateiname)
         imp = pformat(eintraege)
-            
-        with open(path , "w") as file:
+
+        with codecs_open(path , "w","utf-8") as file:
             file.write(imp)
-    
+
+    def schreibe_settings_orga(self):
+        if self.debug: log(inspect.stack)
+        
+        path = os.path.join(self.path_to_extension,"organon_settings.json")
+        
+        with open(path, 'w') as outfile:
+            json.dump(self.settings_orga, outfile,indent=4, separators=(',', ': '))
+                
     def pruefe(self):
         
         tree = self.props[T.AB].xml_tree
@@ -939,7 +955,162 @@ class Menu_Bar():
         for c in controls:
             cont.addControl(c[1],c[0])
         
+def set_app_style(win,settings_orga):
+    try:
+        ctx = uno.getComponentContext()
+        smgr = ctx.ServiceManager
+        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+        desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+        frame = desktop.Frames.getByIndex(0)
+        comp = frame.ComponentWindow
+        
+        rot = 16275544
 
+        hf = KONST.FARBE_HF_HINTERGRUND
+        menu = KONST.FARBE_MENU_HINTERGRUND
+        schrift = KONST.FARBE_SCHRIFT_DATEI
+        menu_schrift = KONST.FARBE_MENU_SCHRIFT
+        selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+        ordner = KONST.FARBE_SCHRIFT_ORDNER
+        
+        sett = settings_orga['organon_farben']['office']
+        
+        def get_farbe(value):
+            if isinstance(value, int):
+                return value
+            else:
+                return settings_orga['organon_farben'][value]
+        
+        # Kann button_schrift evt. herausgenommen werden?
+        button_schrift = get_farbe(sett['button_schrift'])
+        
+        statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
+        statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
+        
+        felder_hintergrund = get_farbe(sett['felder_hintergrund'])
+        felder_schrift = get_farbe(sett['felder_schrift'])
+        
+        # Sidebar
+        sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
+        sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
+        sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
+        sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
+        
+        trenner_licht = get_farbe(sett['trenner_licht'])
+        trenner_schatten = get_farbe(sett['trenner_schatten'])
+        
+        # Lineal
+        OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
+        OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
+        OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
+        
+        LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
+        LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
+        LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
+        LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
+        LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
+        
+        
+        LO = ('LibreOffice' in frame.Title)
+        
+        STYLES = {  
+                  # Allgemein
+                    'ButtonRolloverTextColor' : button_schrift, # button rollover
+                    
+                    'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
+                    'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
+                    
+                    # Trenner
+                    'LightColor' : menu, # Fenster Trenner
+                    'ShadowColor' : menu, # Fenster Trenner
+                    
+                    # OO Lineal + Trenner
+                     
+                    'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
+                                        else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
+                    'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
+                                         else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
+                        
+                    # Sidebar
+                    'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
+                    'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
+                    'FaceColor' : (schrift if LO        # LO Formatvorlagen Treeview Verbinder
+                                    else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
+                    'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
+                                    else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
+                    'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
+                    'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
+                    
+                    
+#                     'ActiveBorderColor' : rot,#k.A.
+#                     'ActiveColor' : rot,#k.A.
+#                     'ActiveTabColor' : rot,#k.A.
+#                     'ActiveTextColor' : rot,#k.A.
+#                     'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
+#                     'CheckedColor' : rot,#k.A.
+#                     'DeactiveBorderColor' : rot,#k.A.
+#                     'DeactiveColor' : rot,#k.A.
+#                     'DeactiveTextColor' : rot,#k.A.
+                    'DialogTextColor' : rot,#k.A.
+                    'DisableColor' : rot,
+#                     'FieldRolloverTextColor' : rot,#k.A.
+#                     'GroupTextColor' : rot,#k.A.
+#                     'HelpColor' : rot,#k.A.
+#                     'HelpTextColor' : rot,#k.A.
+#                     'InactiveTabColor' : rot,#k.A.
+#                     'InfoTextColor' : rot,#k.A.
+#                     'MenuBarColor' : rot,#k.A.
+#                     'MenuBarTextColor' : rot,#k.A.
+#                     'MenuBorderColor' : rot,#k.A.
+                    'MenuColor' : rot,#k.A.
+                    'WindowColor' : hf,#k.A.
+
+#                     'MenuHighlightColor' : rot,#k.A.
+#                     'MenuHighlightTextColor' : rot,#k.A.
+                    'MenuTextColor' : schrift,#k.A.
+#                     'MonoColor' : rot, #k.A.
+                    'RadioCheckTextColor' : schrift,#k.A.
+#                     'WorkspaceColor' : rot, #k.A.
+#                     erzeugen Fehler:
+#                     'FaceGradientColor' : 502,
+                    'SeparatorColor' : 502,                    
+                    }
+        
+ 
+        def stilaenderung(win,ignore=[]):
+
+            for s in STYLES:
+                if s in ignore: 
+                    pass
+                else:
+                    try:
+                        val = STYLES[s]
+                        setattr(win.StyleSettings, s, val)
+                    except Exception as e:
+                        pass
+                    
+                win.Model.BackgroundColor = hf 
+                #win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
+        
+
+
+        
+        # folgende Properties wuerden die Eigenschaften
+        # der Office Menubar und aller Buttons setzen
+        ignore = ['ButtonTextColor',
+                 'LightColor',
+                 'MenuBarTextColor',
+                 'MenuBorderColor',
+                 'ShadowColor'
+                 ]
+
+
+        
+        stilaenderung(win)
+        
+    except Exception as e:
+        log(inspect.stack,tb())
+       
 
 class Props():
     def __init__(self):
@@ -1418,8 +1589,10 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
                     y = self.mb.prj_tab.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
                     posSize = x,y,Breite +20,Hoehe +20
                     
-                    oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+512,parent=self.mb.win)
-
+                    oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+16+512,parent=self.mb.win)
+#                     red = 16275544
+#                     oWindow.StyleSettings.ActiveBorderColor = red
+                    
                     # Listener fuers Dispose des Fensters
                     listener2 = Schliesse_Menu_Listener(self.mb)
                     cont.addMouseListener(listener2) 
@@ -2276,14 +2449,37 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
 
     def documentEventOccured(self,ev):
         
-        if self.mb.debug: 
+        #if self.mb.debug: 
             #log(inspect.stack,extras=self.mb.doc.StringValue)
-            pass#log(inspect.stack,extras=ev.EventName)
+            #log(inspect.stack,extras=ev.EventName)
         if ev.EventName == 'OnPrepareViewClosing':
+            if self.mb.debug: log(inspect.stack)
             self.mb.doc.setModified(False)
             
     def disposing(self,ev):
         return False
         
         
+from com.sun.star.lang import XEventListener
+class Window_Dispose_Listener(unohelper.Base,XEventListener):
+    '''
+    Closing the dialog window holding 50+ controls might
+    freeze Writer. This listener closes the window
+    explicitly
     
+    '''
+    def __init__(self,fenster,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        self.fenster = fenster
+    
+    def disposing(self,ev):
+        if 'win' in self.mb.platform:
+            # Beschleunigt das Dispose ungemein !
+            self.fenster.setVisible(False)
+            return
+        else:
+            self.fenster.dispose()
+
+    
+

@@ -912,15 +912,11 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
         
         self.win.dispose()
         
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-#         if filepath != None:
-#             Filepicker.setDisplayDirectory(filepath)
-        Filepicker.execute()
+        filepath,ok = self.mb.class_Funktionen.filepicker2()
         
-        if Filepicker.Files == '':
-                return
+        if not ok:
+            return
 
-        filepath =  Filepicker.Files[0]
         basename = os.path.basename(filepath)
         
         path_image_folder = self.mb.pfade['images']

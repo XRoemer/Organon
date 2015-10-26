@@ -479,8 +479,6 @@ UNGUELTIGE_ANZAHL1 = u'''La quantità di "%s" non è adatta:
 UNGUELTIGE_ANZAHL2 = u'''La quantità di "{{}}" non è adatta:
 
 {0}'''
-USE_CLOSE_BUTTON = u'''Utilizzare il pulsante di chiusura nell'angolo in alto a destra per chiudere la finestra. Altrimenti si può attendere alcuni minuti fino a quando la finestra verrà richiusa'''
-FENSTER_SCHLIESSEN = u'''Chiudi finestra'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''La cartella del Progetto e il Cestino non possono essere spostati'''

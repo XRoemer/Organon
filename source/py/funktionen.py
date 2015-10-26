@@ -609,14 +609,6 @@ class Funktionen():
         if len(f1) < 6:
             f1 = (6-len(f1)) * '0' + f1
         return f1 
-    
-    def schreibe_settings_orga(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        path = os.path.join(self.mb.path_to_extension,"organon_settings.json")
-
-        with open(path, 'w') as outfile:
-            json.dump(self.mb.settings_orga, outfile,indent=4, separators=(',', ': '))
             
     def folderpicker(self,filepath=None,sys=True):
         if self.mb.debug: log(inspect.stack)
@@ -648,7 +640,6 @@ class Funktionen():
             Filepicker.appendFilter('lang_py_file','*.' + filter)
             
         Filepicker.execute()
-        fp = Filepicker.getDisplayDirectory()
 
         if Filepicker.Files == '':
             return None
@@ -656,6 +647,34 @@ class Funktionen():
             return uno.fileUrlToSystemPath(Filepicker.Files[0])
         else:
             return Filepicker.Files[0]
+        
+        
+    def filepicker2(self,filter=None,sys=True):
+        if self.mb.debug: log(inspect.stack)
+        
+        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
+        
+        # Bug in Office: funktioniert nicht
+#         if filepath != None:
+#             Filepicker.setDisplayDirectory(filepath)
+            
+        if filter != None:
+            Filepicker.appendFilter(*filter)
+            
+        Filepicker.execute()
+        
+        file_len = len(Filepicker.getSelectedFiles())
+                   
+        if file_len == 0:
+            return None,False
+        
+        path = Filepicker.Files[0]
+
+        if sys:
+            return uno.fileUrlToSystemPath(path),True
+        else:
+            return path,True
+        
     
     def oeffne_json(self,pfad):
         if self.mb.debug: log(inspect.stack)
@@ -957,6 +976,219 @@ class Funktionen():
         contr = self.mb.prj_tab.getControl('ScrollBar')
         contr.dispose()
 
+
+    def erzeuge_treeview_mit_checkbox(self,tab_name='ORGANON',listener_innen=None,pos=None,auswaehlen=None):
+        if self.mb.debug: log(inspect.stack)
+        
+        control_innen, model = self.mb.createControl(self.mb.ctx,"Container",20,0,400,100,(),() )
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+        
+        if auswaehlen:
+            listener_innen = Auswahl_CheckBox_Listener(self.mb)
+        
+        x,y,ctrls = self.erzeuge_treeview_mit_checkbox_eintraege(tab_name,
+                                                                 control_innen,
+                                                                 listener=listener_innen,
+                                                                 auswaehlen=auswaehlen)
+        control_innen.setPosSize(0, 0,x,y + 20,12)
+        
+        if not pos:
+            X,Y = 0,0
+        else:
+            X,Y = pos
+        
+        x += 40
+        y += 10
+        
+        
+        erzeuge_scrollbar = False
+        if y > 800:
+            y = 800
+            erzeuge_scrollbar = True
+            
+        posSize = X,Y,x,y
+        
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
+        fenster_cont.Model.Text = LANG.AUSWAHL
+        fenster_cont.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+
+        fenster_cont.addControl('Container_innen', control_innen)
+        
+        if auswaehlen:
+            listener_innen.ctrls = ctrls
+        
+        if erzeuge_scrollbar:
+            self.mb.erzeuge_Scrollbar(fenster_cont,(0,0,0,y),control_innen)
+            self.mb.class_Mausrad.registriere_Maus_Focus_Listener(fenster_cont)
+        
+        return y,fenster,fenster_cont,control_innen,ctrls
+    
+    
+    def erzeuge_treeview_mit_checkbox_eintraege(self,tab_name,control_innen,listener=None,auswaehlen=None):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            sett = self.mb.settings_exp
+            
+            tree = self.mb.props[tab_name].xml_tree
+            root = tree.getroot()
+            
+            baum = []
+            self.mb.class_XML.get_tree_info(root,baum)
+            
+            y = 10
+            x = 10
+                
+            # Titel AUSWAHL
+            control, model = self.mb.createControl(self.mb.ctx,"FixedText",x,y ,300,20,(),() )  
+            control.Text = LANG.AUSWAHL_TIT
+            model.FontWeight = 150.0
+            model.TextColor = KONST.FARBE_SCHRIFT_DATEI
+            control_innen.addControl('Titel', control)
+            
+            y += 30
+            
+            # Untereintraege auswaehlen
+            control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40,y ,300,20,(),() )  
+            control.Text = LANG.ORDNER_CLICK
+            model.FontWeight = 150.0
+            model.TextColor = KONST.FARBE_SCHRIFT_DATEI
+            control_innen.addControl('ausw', control)
+            x_pref = control.getPreferredSize().Width + x + 40
+            
+            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20,y ,20,20,(),() )  
+            control.State = sett['auswahl']
+            control.ActionCommand = 'untereintraege_auswaehlen'
+
+            if listener:
+                control.addActionListener(listener)
+                control.ActionCommand = 'untereintraege_auswaehlen'
+            control_innen.addControl('Titel', control)
+    
+            y += 30
+            
+            ctrls = {}
+            
+            
+            for eintrag in baum:
+    
+                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
+                
+                if art == 'waste':
+                    break
+                
+                control1, model1 = self.mb.createControl(self.mb.ctx,"FixedText",x + 40+20*int(lvl),y ,400,20,(),() )  
+                control1.Text = name
+                control_innen.addControl('Titel', control1)
+                pref = control1.getPreferredSize().Width
+                
+    
+                if x_pref < x + 40+20*int(lvl) + pref:
+                    x_pref = x + 40+20*int(lvl) + pref
+                
+                control2, model2 = self.mb.createControl(self.mb.ctx,"ImageControl",x + 20+20*int(lvl),y ,16,16,(),() )  
+                model2.Border = False
+                
+                if art in ('dir','prj'):
+                    model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/Ordner_16.png' 
+                    model1.TextColor = KONST.FARBE_SCHRIFT_ORDNER
+                else:
+                    model2.ImageURL = 'private:graphicrepository/res/sx03150.png' 
+                    model1.TextColor = KONST.FARBE_SCHRIFT_DATEI
+                control_innen.addControl('Titel', control2)   
+                  
+                    
+                control3, model3 = self.mb.createControl(self.mb.ctx,"CheckBox",x+20*int(lvl),y ,20,20,(),() )  
+                control_innen.addControl(ordinal, control3)
+                if listener:
+                    control3.addActionListener(listener)
+                    control3.ActionCommand = ordinal+'xxx'+name
+                    if auswaehlen:
+                        if ordinal in sett['ausgewaehlte']:
+                            model3.State = sett['ausgewaehlte'][ordinal]
+                
+                ctrls.update({ordinal:[control1,control2,control3]})
+                
+                y += 20 
+                
+            return x_pref,y,ctrls
+        except:
+            log(inspect.stack,tb())
+
+            
+    def update_organon_templates(self):  
+        if self.mb.debug: log(inspect.stack)
+        
+        templ = self.mb.settings_orga['templates_organon']
+        pfad = templ['pfad']
+        
+        if pfad == '':
+            return
+        
+        templates = []
+        
+        for root, dirs, files in os.walk(pfad):
+            break
+        
+        for d in dirs:
+            name = d.split('.')
+            if len(name) == 2:
+                if name[1] == 'organon':
+                    templates.append(name[0])
+                    
+        templ['templates'] = templates
+        
+    def vorlage_speichern(self,pfad,name):
+        if self.mb.debug: log(inspect.stack)
+
+        pfad_zu_neuem_ordner = os.path.join(pfad,name)
+        
+        tree = copy.deepcopy(self.mb.props['ORGANON'].xml_tree)
+        root = tree.getroot()
+        
+        all_elements = root.findall('.//')
+        ordinale = []
+        
+        for el in all_elements:
+            ordinale.append(el.tag)        
+    
+        self.mb.class_Export.kopiere_projekt(name,pfad_zu_neuem_ordner,ordinale,tree,self.mb.dict_sb_content,True)  
+        os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')
+    
+    def kopiere_ordner(self,src, dst):
+        if self.mb.debug: log(inspect.stack)
+        
+        import shutil,errno
+        try:
+            shutil.copytree(src, dst)
+        except OSError as exc: 
+            if exc.errno == errno.ENOTDIR:
+                shutil.copy(src, dst)
+            else: 
+                log(inspect.stack,tb())
+                
+    def projekt_umbenannt_speichern(self,alter_pfad,neuer_pfad,name):
+        if self.mb.debug: log(inspect.stack)
+        
+        alter_name = os.path.basename(alter_pfad)
+
+        self.kopiere_ordner(alter_pfad,neuer_pfad)
+         
+        alt = os.path.join(neuer_pfad,alter_name)
+        neu = os.path.join(neuer_pfad,name + '.organon')
+
+        os.rename(alt,neu)
+         
+        pfad_el_tree = os.path.join(neuer_pfad,'Settings','ElementTree.xml')
+              
+        xml_tree = self.mb.ET.parse(pfad_el_tree)
+        root = xml_tree.getroot()
+         
+        prj_xml = root.find(".//*[@Art='prj']")
+        prj_xml.attrib['Name'] = name
+         
+        xml_tree.write(pfad_el_tree)
+        
+        
 
 class Teile_Text_Batch():
     def __init__(self,mb):
@@ -1871,3 +2103,91 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
             
             
             
+from com.sun.star.awt import XActionListener   
+class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        self.ctrls = None
+    
+    def disposing(self,ev):
+        return False
+
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+
+        sett = self.mb.settings_exp
+
+        if ev.ActionCommand == 'untereintraege_auswaehlen':
+            sett['auswahl'] = self.toggle(sett['auswahl'])
+            self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 
+        else:
+            ordinal,titel = ev.ActionCommand.split('xxx')
+            state = ev.Source.Model.State
+            sett['ausgewaehlte'].update({ordinal:state})
+            
+            props = self.mb.props[T.AB]
+            try:
+                if sett['auswahl']:
+                    if ordinal in props.dict_ordner:
+                        
+                        tree = props.xml_tree
+                        root = tree.getroot()
+                        C_XML = self.mb.class_XML
+                        ord_xml = root.find('.//'+ordinal)
+                        
+                        eintraege = []
+                        # selbstaufruf nur fuer den debug
+                        C_XML.selbstaufruf = False
+                        C_XML.get_tree_info(ord_xml,eintraege)
+                        
+                        ordinale = []
+                        for eintr in eintraege:
+                            ordinale.append(eintr[0])
+                            
+
+                        
+                        for ordn in ordinale:
+                            if ordn in self.ctrls:
+                                control = self.ctrls[ordn][2]
+                                control.Model.State = state
+                                titel = self.ctrls[ordn][1]
+                                sett['ausgewaehlte'].update({ordn:state}) 
+
+            except:
+                if self.mb.debug: log(inspect.stack,tb())
+                
+
+    def toggle(self,wert):   
+        if wert == 1:
+            return 0
+        else:              
+            return 1  
+
+
+from com.sun.star.lang import XEventListener
+class Window_Dispose_Listener(unohelper.Base,XEventListener):
+    '''
+    Closing the dialog window holding 50+ controls might
+    freeze Writer. This listener closes the window
+    explicitly
+    
+    '''
+    def __init__(self,fenster,mb,ctrls):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        self.fenster = fenster
+        self.ctrls = ctrls
+    
+    def disposing(self,ev):
+        if self.mb.programm == 'OpenOffice':
+            for ct in self.ctrls:
+                for c in ct:
+                    c.dispose()
+            self.fenster.dispose()
+            self.fenster = None
+            return
+        if self.mb: log(inspect.stack)
+        self.fenster.dispose()
+        return False
+     

@@ -1305,15 +1305,11 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
 
         if ev.ActionCommand == 'Datei':
         
-            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-            if imp_set['url_dat'] != None:
-                Filepicker.setDisplayDirectory(imp_set['url_dat'])
-            Filepicker.execute()
-         
-            if Filepicker.Files == '':
+            filepath,ok = self.mb.class_Funktionen.filepicker2()
+            
+            if not ok:
                 return
-             
-            filepath = Filepicker.Files[0]
+            
             self.model1.Label = uno.fileUrlToSystemPath(filepath)
             imp_set['url_dat'] = filepath
             

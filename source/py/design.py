@@ -853,7 +853,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                         self.setze_farbe_trenner(farbe,c)
                     
                     ev.Source.Model.BackgroundColor = farbe  
-                    self.mb.class_Funktionen.schreibe_settings_orga()
+                    self.mb.schreibe_settings_orga()
                     break
         except:
             log(inspect.stack,tb())   
@@ -864,7 +864,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         farbe = self.mb.class_Funktionen.waehle_farbe(self.mb.settings_orga['organon_farben'][art])
         
         self.mb.settings_orga['organon_farben'][art] = farbe
-        self.mb.class_Funktionen.schreibe_settings_orga()
+        self.mb.schreibe_settings_orga()
         return farbe  
       
             
@@ -1302,7 +1302,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             
 
         self.mb.settings_orga['organon_farben']['design_office'] = src.State
-        self.mb.class_Funktionen.schreibe_settings_orga()
+        self.mb.schreibe_settings_orga()
 
     
     def import_design(self):
@@ -1325,7 +1325,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                 k = k+'x'
             sett.update({ k : odict[neu] })
         
-        self.mb.class_Funktionen.schreibe_settings_orga()
+        self.mb.schreibe_settings_orga()
         self.ansicht_erneuern()
     
     def export_design(self):
@@ -1389,7 +1389,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         new_set.pop('aktiv',None)
         
         sett.update({ name : new_set })
-        self.mb.class_Funktionen.schreibe_settings_orga()
+        self.mb.schreibe_settings_orga()
         
         self.ansicht_erneuern()
         
@@ -1451,7 +1451,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                 loc = ev.Source.Context.Context.AccessibleContext.AccessibleParent.PosSize
                 self.writer_design_bearbeiten(loc)
             
-            self.mb.class_Funktionen.schreibe_settings_orga()
+            self.mb.schreibe_settings_orga()
             
         except:
             log(inspect.stack,tb())  
@@ -1659,7 +1659,7 @@ class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XAction
                             self.setze_persona()
                             return
 
-                self.mb.class_Funktionen.schreibe_settings_orga()
+                self.mb.schreibe_settings_orga()
                 return
                     
     
@@ -1680,7 +1680,7 @@ class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XAction
         if sett['nutze_personas']:
             self.mb.class_Organon_Design.setze_persona(pers_url)
 
-        self.mb.class_Funktionen.schreibe_settings_orga()
+        self.mb.schreibe_settings_orga()
         
                     
     def disposing(self,ev):
@@ -1715,7 +1715,7 @@ class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XAction
                             self.setze_persona()
                             return
 
-                self.mb.class_Funktionen.schreibe_settings_orga()
+                self.mb.schreibe_settings_orga()
 
                 return
 
@@ -1750,7 +1750,7 @@ class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XAction
             else:
                 self.mb.class_Organon_Design.setze_dok_farben(None,None)
             
-        self.mb.class_Funktionen.schreibe_settings_orga()
+        self.mb.schreibe_settings_orga()
                 
         
 class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListener):
@@ -2016,16 +2016,14 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
         
     def file_aussuchen(self): 
         if self.mb.debug: log(inspect.stack)
-          
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
-        Filepicker.appendFilter('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
-        Filepicker.execute()
         
-        if Filepicker.Files == '':
+        filter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter)
+        
+        if not ok:
             return None
-        
-        return Filepicker.Files[0]
-        
+        else:
+            return filepath
          
     def mousePressed(self, ev):   
         if self.mb.debug: log(inspect.stack) 

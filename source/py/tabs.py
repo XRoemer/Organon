@@ -202,9 +202,8 @@ class Tabs():
         
         ordinale = []
 
-        keys = self.mb.settings_exp['ausgewaehlte'].keys()
-        for key in keys:
-            if self.mb.settings_exp['ausgewaehlte'][key][1] == 1:
+        for key in self.mb.settings_exp['ausgewaehlte']:
+            if self.mb.settings_exp['ausgewaehlte'][key] == 1:
                 ordinale.append(key)
 
         return ordinale
@@ -619,6 +618,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         try:
+
             if ev.ActionCommand == 'Tags Seitenleiste':
                 if not self.mb.class_Tabs.win_seitenleiste:
                     self.erzeuge_tag_auswahl_seitenleiste(ev)
@@ -631,7 +631,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 
             elif ev.ActionCommand == 'Eigene Auswahl':
                 if not self.mb.class_Tabs.win_eigene_auswahl:
-                    self.erzeuge_eigene_auswahl(ev)
+                    self.erzeuge_Fenster_fuer_eigene_Auswahl(ev)
                     self.mb.class_Tabs.win_eigene_auswahl = True
                     
             elif ev.ActionCommand == 'ok':
@@ -800,7 +800,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         model.Border = 0
         model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
-        
         return control,control_ausgewaehlte,control2, breite
     
         
@@ -948,32 +947,14 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             ausgew_icons.append(name)
         
         return ausgew_icons
-        
-    
-    def erzeuge_eigene_auswahl(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        # das Fenster fuer die eigene Auswahl entspricht fast dem fuer die Auswahl beim Export.
-        # -> der Code ist daher doppelt vorhanden und koennte vereinfacht werden
-        #
-        # umfasst:
-        # erzeuge_Fenster_fuer_eigene_Auswahl
-        # setze_hoehe_und_scrollbalken
-        # erzeuge_auswahl
-        #
-        # und die Listener: 
-        # Auswahl_ScrollBar_Listener
-        # Auswahl_CheckBox_Listener
-        
-        self.erzeuge_Fenster_fuer_eigene_Auswahl(ev)
-        
-        
-        
+
     
     def erzeuge_Fenster_fuer_eigene_Auswahl(self,ev):
         if self.mb.debug: log(inspect.stack)
         
         x,y = self.get_fenster_position(ev)
         posSize = x,30,400,600
+        pos = x,y
         
         sett = self.mb.settings_exp
  
@@ -988,152 +969,38 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     
         for ordn in eintr:
             del sett['ausgewaehlte'][ordn]
+        
+        if self.in_tab_einfuegen:
+            tab_name = 'ORGANON'
+        else:
+            tab_name = T.AB
+        
+        (y,
+         fenster,
+         fenster_cont,
+         control_innen,
+         ctrls) = self.mb.class_Funktionen.erzeuge_treeview_mit_checkbox(
+                                                                tab_name=tab_name,
+                                                                pos=pos,
+                                                                auswaehlen=True)
+         
+        if self.in_tab_einfuegen:
+            vorhandene_dateien = list(self.mb.props[T.AB].dict_bereiche['ordinal'])
 
-        
-        control_innen, model = self.mb.createControl(self.mb.ctx,"Container",20,0,posSize[2],posSize[3],(),() )  
-        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
-        
-        y = self.erzeuge_treeview(control_innen)
-        control_innen.setPosSize(0, 0,0,y + 20,8)
-        
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-        fenster_cont.Model.Text = LANG.AUSWAHL
-        fenster_cont.Model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  
-        
-        self.setze_hoehe_und_scrollbalken(y,posSize[3],fenster,fenster_cont,control_innen)
-        
-        fenster_cont.addControl('Container_innen', control_innen)
+            for v in vorhandene_dateien:
+                if v in ctrls:
+                    for c in ctrls[v]:
+                        c.setEnable(False)
+                
         
         dispose_listener = Listener_for_Win_dispose(self.mb,'eigene auswahl')
         fenster_cont.addEventListener(dispose_listener)
-
-        self.mb.class_Mausrad.registriere_Maus_Focus_Listener(fenster_cont)
+    
+    def disposing(self,ev):
+        return False
 
       
-    def setze_hoehe_und_scrollbalken(self,y,y_desk,fenster,fenster_cont,control_innen):  
-        if self.mb.debug: log(inspect.stack)
 
-        if y < y_desk-20:
-            fenster.setPosSize(0,0,0,y + 20,8) 
-        else:            
-            PosSize = 0,0,0,y_desk
-            control = self.mb.erzeuge_Scrollbar(fenster_cont,PosSize,control_innen)
-
-  
-    def berechne_eigene_auswahl(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        if self.in_tab_einfuegen:
-            tab = 'ORGANON'
-            
-            tree_tab = self.mb.props[T.AB].xml_tree
-            root_tab = tree_tab.getroot()
-            
-            baum_tab = []
-            self.mb.class_XML.get_tree_info(root_tab,baum_tab)
-            
-            im_tab_vorhandene = []
-            
-            # Ordinale eintragen
-            for t in baum_tab:
-                im_tab_vorhandene.append(t[0])
-            
-        else:
-            tab = T.AB
-            im_tab_vorhandene = []
-            
-            
-        tree = self.mb.props[tab].xml_tree
-        root = tree.getroot()
-        
-        baum = []
-        self.mb.class_XML.get_tree_info(root,baum)
-        
-        return baum,im_tab_vorhandene
-        
-        
-    def erzeuge_treeview(self,fenster_cont):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            sett = self.mb.settings_exp
-
-
-            #baum,im_tab_vorhandene = self.berechne_eigene_auswahl()
-            tabs = self.mb.class_Tabs
-            baum = tabs.baum
-            im_tab_vorhandene = tabs.im_tab_vorhandene
-
-            y = 10
-            x = 10
-            
-            listener = Auswahl_CheckBox_Listener(self.mb,fenster_cont)
-            
-            #Titel
-            control, model = self.mb.createControl(self.mb.ctx,"FixedText",x,y ,300,20,(),() )  
-            control.Text = LANG.AUSWAHL_TIT
-            model.FontWeight = 200.0
-            fenster_cont.addControl('Titel', control)
-            
-            y += 30
-            
-            # Untereintraege auswaehlen
-            control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40,y ,300,20,(),() )  
-            control.Text = LANG.ORDNER_CLICK
-            model.FontWeight = 150.0
-            fenster_cont.addControl('ausw', control)
-            
-            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20,y ,20,20,(),() )  
-            control.State = sett['auswahl']
-            control.ActionCommand = 'untereintraege_auswaehlen'
-            control.addActionListener(listener)
-            fenster_cont.addControl('Titel', control)
-            
-            y += 30
-
-            for eintrag in baum:
-    
-                ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-                
-                if art == 'waste':
-                    break
-                
-                # Checkbox
-                control, model = self.mb.createControl(self.mb.ctx,"CheckBox",x+20*int(lvl),y ,20,20,(),() )  
-                control.ActionCommand = ordinal+'xxx'+name
-                
-                if ordinal in im_tab_vorhandene:
-                    control.Enable = False
-                    model.State = 0
-                else:
-                    control.addActionListener(listener)
-                    if ordinal in sett['ausgewaehlte']:
-                        model.State = sett['ausgewaehlte'][ordinal][1]
-                        
-                fenster_cont.addControl(ordinal, control)
-                
-                # Symbol
-                control, model = self.mb.createControl(self.mb.ctx,"ImageControl",x + 20+20*int(lvl),y ,16,16,(),() )  
-                model.Border = False
-                if art in ('dir','prj'):
-                    model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/Ordner_16.png' 
-                else:
-                    model.ImageURL = 'private:graphicrepository/res/sx03150.png' 
-                fenster_cont.addControl('Titel', control)   
-                if ordinal in im_tab_vorhandene:
-                    control.Enable = False
-                    
-                # Name
-                control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40+20*int(lvl),y ,200,20,(),() )  
-                control.Text = name
-                fenster_cont.addControl('Titel', control)
-                if ordinal in im_tab_vorhandene:
-                    control.Enable = False
-                y += 20 
-                
-            return y 
-        except:
-            log(inspect.stack,tb())
             
 
 from com.sun.star.lang import XEventListener
@@ -1145,7 +1012,7 @@ class Listener_for_Win_dispose(unohelper.Base,XEventListener):
     
     def disposing(self,ev):
         if self.mb.debug: log(inspect.stack)
-        
+
         try:
             tabs = self.mb.class_Tabs
             if self.win == 'baumansicht':
@@ -1293,60 +1160,7 @@ class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
 
 
                       
-class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb,fenster_cont):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
-        self.fenster_cont = fenster_cont
-    
-    def disposing(self,ev):
-        return False
-
-        
-    def actionPerformed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        
-        sett = self.mb.settings_exp
-        
-        if ev.ActionCommand == 'untereintraege_auswaehlen':
-            sett['auswahl'] = self.toggle(sett['auswahl'])
-            self.mb.speicher_settings("export_settings.txt", self.mb.settings_exp) 
-        else:
-            ordinal,titel = ev.ActionCommand.split('xxx')
-            state = ev.Source.Model.State
-            sett['ausgewaehlte'].update({ordinal:(titel,state)})
-
-            if sett['auswahl']:
-                if ordinal in self.mb.props[T.AB].dict_ordner:
-                    
-                    tree = self.mb.props[T.AB].xml_tree
-                    root = tree.getroot()
-                    C_XML = self.mb.class_XML
-                    ord_xml = root.find('.//'+ordinal)
-                    
-                    eintraege = []
-                    # selbstaufruf nur fuer den debug
-                    C_XML.selbstaufruf = False
-                    C_XML.get_tree_info(ord_xml,eintraege)
-                    
-                    ordinale = []
-                    for eintr in eintraege:
-                        ordinale.append(eintr[0])
-                    
-                    for ordn in ordinale:
-                        if ordn != self.mb.props[T.AB].Papierkorb:
-                            control = self.fenster_cont.getControl(ordn)
-                            control.Model.State = state
-                            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordn)
-                            titel = zeile.getControl('textfeld').Text
-                            sett['ausgewaehlte'].update({ordn:(titel,state)}) 
-
-
-    def toggle(self,wert):   
-        if wert == 1:
-            return 0
-        else:              
-            return 1           
+      
         
             
 
@@ -2074,5 +1888,5 @@ class Tab_Leiste_Listener (unohelper.Base, XMouseListener):
     def mouseExited(self,ev):pass
     def disposing(self,ev):pass                       
 
-             
-     
+
+
