@@ -201,7 +201,7 @@ class XML_Methoden():
             self.mb.class_Baumansicht.positioniere_icons_in_zeile(contr_zeile,tags,gliederung)
             
             
-    def finde_nachfolger_oder_vorgaenger(self,nachbar):
+    def finde_nachfolger_oder_vorgaenger(self,nachbar,nur_sichtbaren_waehlen=False):
         
         try:
             selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
@@ -233,8 +233,29 @@ class XML_Methoden():
                     index = eintr.index(e)
                     
                     if rechnung(index):
-                        gesuchter = eintr[index+x][0]
-                        return gesuchter
+                        
+                        if not nur_sichtbaren_waehlen:
+                            
+                            gesuchter = eintr[index+x][0]
+                            return gesuchter
+                        
+                        else:
+                            
+                            sichtbare = [props.dict_zeilen_posY[s][0] for s in props.dict_zeilen_posY]
+                            
+                            gesuchter = eintr[index+x][0]
+                            helfer = 0
+                            
+                            while gesuchter not in sichtbare:
+                                
+                                if nachbar == 'nachfolger':
+                                    helfer += 1
+                                else:
+                                    helfer -= 1
+                                
+                                gesuchter = eintr[index + x + helfer][0]
+                                
+                            return gesuchter
 
             return gesuchter
         except:

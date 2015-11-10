@@ -211,9 +211,6 @@ TAGS_IN_AKT_DAT_LOESCHEN = u'''L'etichetta sarà cancellata assieme al file/cart
 TAG_LOESCHEN = u'''Rimuove l'etichetta da questo panello'''
 TAG_HINZUFUEGEN = u'''Cliccare per aggiungere un'etichetta'''
 ENTER_NEW_TAG = u'''Inserire una nuova etichetta e cliccare all'interno della finestra del documento.'''
-IN_PROJEKTORDNER_IMPORTIEREN = u'''L'immagine selezionata sarà importata nella cartella del progetto.'''
-BILD_EINFUEGEN = u'''Inserire Immagine'''
-BILD_LOESCHEN = u'''Cancella Immagine'''
 ZEIT2 = u'''Ora:'''
 DATUM = u'''Data:'''
 
@@ -224,11 +221,11 @@ TAGS_SEITENLEISTE = u'''etichette pannello laterale'''
 TAGS_BAUMANSICHT = u'''etichette vista ad albero'''
 SUCHE = u'''ricerca'''
 TABNAME = u'''nome scheda:'''
-TAB_HELP_TEXT = u'''Λ (AND): Soltanto i file che contengono tutte le etichette verranno aggiunti. 
-V (OR): I file che mantengono almeno un'etichetta saranno aggiunti.'''
-TAB_HELP_TEXT_NOT_IMPLEMENTED = u'''Λ (AND): Soltanto i file che contengono tutte le etichette verranno aggiunti. 
-V (OR): I file che mantengono almeno un'etichetta saranno aggiunti. 
-(not implemented yet)'''
+TAB_HELP_TEXT = u'''Λ (AND): Saranno aggiunti soltanto i file che contengono tutte le etichette.
+V (OR): Saranno aggiunti i file che mantengono almeno un'etichetta.'''
+TAB_HELP_TEXT_NOT_IMPLEMENTED = u'''Λ (AND): Saranno aggiunti soltanto i file che contengono tutte le etichette. 
+V (OR): Saranno aggiunti i file che mantengono almeno un'etichetta. 
+(non ancora implementato)'''
 AUSGEWAEHLTE = u'''Selezionato'''
 BENUTZTE = u'''Etichette usate nel Progetto'''
 ZEITLICH_ANORDNEN = u'''ordina le etichette per tempo'''
@@ -479,6 +476,24 @@ UNGUELTIGE_ANZAHL1 = u'''La quantità di "%s" non è adatta:
 UNGUELTIGE_ANZAHL2 = u'''La quantità di "{{}}" non è adatta:
 
 {0}'''
+
+# ORGANON TEMPLATES
+TEMPLATES_ORGANON = u'''Modelli di Organon'''
+TEMPLATES_WRITER = u'''Modelli di Writer'''
+TEMPLATE_USER = u'''Usa Modello'''
+NUTZEN = u'''usa'''
+VORLAGENORDNER = u'''Cartella dei Modelli'''
+AKT_PRJ_ALS_TEMPL = u'''Salva il progetto corrente come modello'''
+TEMPLATE_LOESCHEN = u'''cancella modello'''
+SPEICHERN = u'''salva'''
+PFAD = u'''Percorso'''
+TEMPLATE_WIRKLICH_LOESCHEN = u'''Questo eliminerà il modello dal disco. Sei sicuro di voler cancellare "{}"?'''
+TEMPLATE_NICHT_GELADEN = u'''ERRORE: il progetto non può essere creato dal modello.
+
+{}'''
+GLEICHER_PFAD = u'''Il modello e il nuovo progetto hanno lo stesso nome e percorso'''
+ORG_TEMPLATES_SETZEN = u'''I modelli di Organon possono essere impostati da Organon Menu/File/Preferenze/Modelli'''
+WRITER_TEMPLATES_SETZEN = u'''Sono visualizzati i modelli utente di Writer. Vedere il manuale per ulteriori informazioni.'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''La cartella del Progetto e il Cestino non possono essere spostati'''

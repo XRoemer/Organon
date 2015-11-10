@@ -185,14 +185,14 @@ class Shortcuts():
     def tv_up(self):
         if self.mb.debug: log(inspect.stack)
         
-        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
+        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger',True) 
         if vorgaenger != None:
             self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
         
     def tv_down(self):
         if self.mb.debug: log(inspect.stack)
 
-        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
+        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger',True)    
         if nachfolger != None:
             self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
             

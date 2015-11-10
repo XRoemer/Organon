@@ -13,9 +13,7 @@ class Sidebar():
         self.mb = mb     
         self.design_gesetzt = False   
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
-        self.mb.dict_sb['optionsfenster'] = self.optionsfenster
-        self.mb.dict_sb['dict_sb_zuruecksetzen'] = self.dict_sb_zuruecksetzen
-        
+
         
         self.sb_panels_tup = ('Synopsis',
             'Notes',
@@ -64,8 +62,12 @@ class Sidebar():
                         'Tags_user3')
 
        
-    
-    
+        self.hoehen = [] 
+        self.offen = {tag:1 for tag in self.sb_panels_tup}
+        
+        self.url_expand = None
+        self.url_collapse = None
+        
     
     def lade_sidebar(self):
         if self.mb.debug: log(inspect.stack)
@@ -76,13 +78,6 @@ class Sidebar():
         self.mb.dict_sb['sichtbare'] = self.mb.dict_sb_content['sichtbare']
                       
       
-    def passe_sb_an(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        for panel in self.mb.dict_sb['sichtbare']:
-            self.erzeuge_sb_layout(panel)
-
-    
     def lege_dict_sb_content_an(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -265,305 +260,439 @@ class Sidebar():
         from shutil import copy2
         copy2(pfad, pfad_Backup)
         
+        
     def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
+        if self.mb.dict_sb['sb_closed']:return
+        if self.mb.debug: log(inspect.stack)
+        
+        dict_sb = self.mb.dict_sb
         
         if not self.design_gesetzt:
             if self.mb.settings_orga['organon_farben']['design_office']:
                 self.design_gesetzt = True
                 self.setze_sidebar_design()
-        
-        if xUIElement_name == 'empty_project':
-            return
-        if self.mb.dict_sb['sb_closed']:
-            return
 
-        if self.mb.debug: log(inspect.stack)
-        
-                        
-        # Wenn die Sidebar noch nicht geoeffnet wurde,
-        # sind noch keine Panels vorhanden
-        if xUIElement_name not in self.mb.dict_sb['controls']:
-            return
-       
+        # hoehen zuruecksetzen
+        self.hoehen = []
+
         try:
             ctx = self.mb.ctx
             
-            xUIElement = self.mb.dict_sb['controls'][xUIElement_name][0]
-            sb = self.mb.dict_sb['controls'][xUIElement_name][1]
+            xUIElement = dict_sb['controls']['organon_sidebar'][0]
+            sb = dict_sb['controls']['organon_sidebar'][1]
             panelWin = xUIElement.Window
             
             
             # alte Eintraege im einzelnen Panel vorher loeschen
             if rufer == 'focus_lost':
                 pass
-            elif rufer != 'factory':
-                for conts in panelWin.Controls:
-                    conts.dispose()
+            #elif rufer != 'factory':
+            for conts in panelWin.Controls:
+                conts.dispose()
+            
+
+            self.url_expand = xUIElement.Theme.Image_Expand
+            self.url_collapse = xUIElement.Theme.Image_Collapse
+            
+            orga_sb,seitenleiste = self.get_seitenleiste()
+            try:
+                breite_sidebar = seitenleiste.PosSize.Width
+            except:
+                breite_sidebar = 400
             
             
-            
+            def container_erzeugen(panelWin):
+                
+                dict_felder = {}
+                dict_container = {}
+                
+                pos_y = 0
+                
+                listener = Tags_Collapse_Button_Listener(self.mb,self)
+                
+                for p in self.sb_panels_tup:
+                    # sb_panels_tup haben gegenueber den dicts
+                    # eine feste Reihenfolge
+                    if p not in dict_sb['sichtbare']:
+                        continue
+                    
+                    height1 = 30
+                    width1 = breite_sidebar
+                    
+                    container0, model0 = self.mb.createControl(self.mb.ctx, "Container", 0, pos_y, width1, height1, (), ())  
+                    
+                    if self.mb.programm == 'LibreOffice':
+                        line, model = self.mb.createControl(self.mb.ctx, "FixedLine", 0, 0, width1 - 50, 1, (), ()) 
+                        container0.addControl('Line',line)
+                    
+                    pos_y2 = 0
+                    height1 = 30
+                    container1, model1 = self.mb.createControl(self.mb.ctx, "Container", 0, 0, width1, height1, (), ()) 
+                    container0.addControl('Titel',container1)
+                    
+                    if self.mb.programm == 'OpenOffice':
+                        line, model = self.mb.createControl(self.mb.ctx, "FixedLine", 0, -4, width1 - 50, 10, (), ()) 
+                        container0.addControl('Line',line)
+                    
+                    if self.offen[p]:
+                        url = self.url_expand
+                    else:
+                        url = self.url_collapse
+                        
+                    cont_icon, model = self.mb.createControl(self.mb.ctx, "ImageControl", 8,8 , 12, 12,
+                                                             ('ImageURL','Border'), (url,0))  
+                    cont_icon.addMouseListener(listener)
+                    container1.addControl('label',cont_icon)
+                    
+                    cont_label, model = self.mb.createControl(self.mb.ctx, "FixedText", 30, 0 , width1, height1,
+                                                              ('Label','VerticalAlign','FontWeight'), (self.sb_panels1[p],1,150))  
+                    container1.addControl('label',cont_label)
+                    
+                    pos_y2 += 30
+                    
+                    container2, model2 = self.mb.createControl(self.mb.ctx, "Container", 0, pos_y2 , width1, 0, (), ())  
+                    container0.addControl('Feld',container2)
+                    
+                    pos_y += 200
+                    
+                    dict_felder.update({p:container2})
+                    dict_container.update({p:container0})
+
+                    panelWin.addControl('Container'+p, container0)
+                        
+                  
+                return dict_container,dict_felder
+                
+             
+        
+            self.dict_container,self.dict_felder = container_erzeugen(panelWin)
+               
+                    
             ######################################
             #                TAGS                #
             ######################################            
             
             ordinal = self.mb.props[T.AB].selektierte_zeile
-            
-            if xUIElement_name in self.sb_tags:
-                
-                remove_or_add_button_listener = Tags_Remove_Button_Listener(self.mb)
+            ctrls = self.mb.dict_sb['controls']
 
-                y = 10
-                height = 20
-                
-                ################################# WARNING ####################################################
-                if xUIElement_name == 'Tags_general':
-
-                    destroy = '''Tags: General will be removed in Organon 1.0. With the introduction of the Organizer "tags general" are obsolete. ''' \
-                        '''They served as an overview for all tags. But the logic of their interaction with other tags isn't obvious on first sight. ''' \
-                        '''Don't use them anymore and spread out general tags to the others. ''' \
-                        '''There will be another possibility for deleting a tag throughout the whole document.'''
-                    
-                    prop_names = ('MultiLine','Label')
-                    prop_values = (True,destroy)
-                    control, model = self.mb.createControl(ctx, "FixedText", 10, y,300, 120, prop_names, prop_values)
-                    panelWin.addControl('Button', control) 
-                    
-                    y += 130
-                #############################################################################################
-                
-                prop_names = ('HelpText','MultiLine')
-                prop_values = (LANG.ENTER_NEW_TAG,True)
-                control, model = self.mb.createControl(ctx, "Edit", 170, y,100, height, prop_names, prop_values)
-                panelWin.addControl('Button', control) 
-
-                key_listener = Tags_Key_Listener(self.mb,xUIElement_name)
-                control.addKeyListener(key_listener)
-
-                #y += height + 10
-                y_all_tags = y
-                y_all_tags += 30
-                
-                alle_tags = self.mb.dict_sb_content['tags'][xUIElement_name]
-                eintraege = self.mb.dict_sb_content['ordinal'][ordinal][xUIElement_name]
-                
-                SEP = '_XYX_'
-                
-                # Leiste mit allen Tags
-                for tag_eintrag in alle_tags:
-                    if tag_eintrag not in eintraege:
-                        
-                        height = 18
-                        # Tageintrag
-                        prop_names = ('Label','Align','TextColor')
-                        prop_values = (tag_eintrag,2, 7303024)
-                        control, model = self.mb.createControl(ctx, "FixedText", 170, y_all_tags ,100, height, prop_names, prop_values)
-                        panelWin.addControl(tag_eintrag, control) 
-                        
-                        # Add Button
-                        prop_names = ('Label','HelpText')
-                        prop_values = ('',LANG.TAG_HINZUFUEGEN)
-                        control, model = self.mb.createControl(ctx, "Button", 280, y_all_tags ,14, 14, prop_names, prop_values)
-                        panelWin.addControl('Remove_'+tag_eintrag, control) 
-                        control.setActionCommand(xUIElement_name + SEP + ordinal + SEP + tag_eintrag + SEP + 'hinzufuegen')
-                        control.addActionListener(remove_or_add_button_listener)
-
-
-                        y_all_tags += height 
-                
-                # Tags
-                
-                for tag_eintrag in eintraege:
-                    
-                    height = 18
-                    # Tageintrag
-                    prop_names = ('Label',)
-                    prop_values = (tag_eintrag,)
-                    control, model = self.mb.createControl(ctx, "FixedText", 10, y,100, height, prop_names, prop_values)
-                    panelWin.addControl(tag_eintrag, control) 
-                    
-                    
-                    if xUIElement_name == 'Tags_general':
-                        if self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] == 0:
-                            helptext = LANG.TAGS_IN_AKT_DAT_LOESCHEN
-                        else:
-                            helptext = LANG.TAGS_IM_GES_DOK_LOESCHEN
-                    else:
-                        helptext = LANG.TAG_LOESCHEN
-                    # Remove Button
-                    prop_names = ('Label','HelpText')
-                    prop_values = ('X',helptext)
-                    control, model = self.mb.createControl(ctx, "Button", 115, y,14, 14, prop_names, prop_values)
-                    panelWin.addControl('Remove_'+tag_eintrag, control) 
-                    control.setActionCommand(xUIElement_name + SEP + ordinal + SEP + tag_eintrag + SEP + 'loeschen')
-                    control.addActionListener(remove_or_add_button_listener)
-                    
-                    y += height + 3
-                
-                
-                
-                
-                if y<y_all_tags:
-                    y = y_all_tags
-                
-                if len(eintraege) == 0:
-                    y_all_tags += 21
-                
-                height = y + 10
-
-            ######################################
-            # Synopsis, Notes, Images, Tags_time #
-            ######################################                     
-            
-            elif xUIElement_name == 'Synopsis':
-                
-                pos_y = 10
-                height = 0 
-                width = 282 
-                 
-                text = self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis']
-                 
-                prop_names = ('MultiLine','Text','MaxTextLen')
-                prop_values = (True,text,5000)
-                control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
-                panelWin.addControl('Synopsis', control)
-                
-                mS = control.getMinimumSize()
-                hoehe = mS.Height + 44
-
-                control.setPosSize(0,0,0,hoehe,8)
-                
-                listener = Text_Change_Listener_Synopsis(self.mb)
-                model.addPropertyChangeListener('Text',listener)
-                
-                height = hoehe + 20
-                
-            elif xUIElement_name == 'Notes':
-                pos_y = 10
-                height = 0 
-                width = 282 
-                 
-                text = self.mb.dict_sb_content['ordinal'][ordinal]['Notes']
-                 
-                prop_names = ('MultiLine','Text','MaxTextLen')
-                prop_values = (True,text,5000)
-                control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
-                panelWin.addControl('Notes', control)
-                
-                mS = control.getMinimumSize()
-                hoehe = mS.Height + 44
-
-                control.setPosSize(0,0,0,hoehe,8)
-                
-                listener = Text_Change_Listener_Notizen(self.mb)
-                model.addPropertyChangeListener('Text',listener)
-
-                height = hoehe + 20
-                
-
-                
-            elif xUIElement_name == 'Images':
-                pos_y = 10
-                height = 200
-                
-
-                prop_names = ()
-                prop_values = ()
-                control, model = self.mb.createControl(self.mb.ctx, "ImageControl", 10, pos_y, 284, height, prop_names, prop_values)  
-                panelWin.addControl('Image', control)
-                try:
-                    if self.mb.dict_sb_content['ordinal'][ordinal]['Images'] != '':
-                        model.ImageURL = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
-                        breite = self.berechne_bildgroesse(model,height)
-                        control.setPosSize(0,0,breite,0,4)
-                except:
-                    log(inspect.stack,tb())
-                
-                
-                
-                height += 20
-               
-            elif xUIElement_name == 'Tags_time':
-                
-                try:
-                    Background_Color = xUIElement.Window.AccessibleContext.Background
-                except:
-                    Background_Color = 14804725
-                
-                if self.mb.language == 'de':
-                    date_format = 7
-                    time_format = 0
-                else:
-                    date_format = 8
-                    time_format = 2
-                
-                pos_y = 10
-                pos_x = 10
-                pos_x2 = 65
-                pos_x3 = 170
-                y = 20
-                
-                focus_listener = Tag_Time_Key_Listener(self.mb)
-                
-                zeit = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['zeit']
-                leere_zeit = None
-                if self.mb.programm == 'LibreOffice':
-                    zeit = self.in_time_struct_wandeln(zeit)
-                    leere_zeit = self.in_time_struct_wandeln(leere_zeit)
-                    
-                prop_names = ('Label',)
-                prop_values = (LANG.ZEIT2,)
-                control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
-                panelWin.addControl('Time', control)
-                
-                prop_names = ('Time','TimeFormat','StrictFormat','Border')
-                prop_values = (zeit,time_format,True,0)
-                control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x2, pos_y, 70, y, prop_names, prop_values)  
-                panelWin.addControl('Time', control)
-                model.BackgroundColor = Background_Color
-
-
-                prop_names = ('Time','TimeFormat','StrictFormat')
-                prop_values = (leere_zeit,time_format,True)
-                control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x3, pos_y, 60, y, prop_names, prop_values)  
-                panelWin.addControl('Time', control)
-                
-                control.addKeyListener(focus_listener)
-                
-                
-                pos_y += 30
-                
-                prop_names = ('Label',)
-                prop_values = (LANG.DATUM,)
-                control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
-                panelWin.addControl('Datum_Label', control)
-                
-                datum = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['datum'] 
-                
-                prop_names = ('Label',)
-                prop_values = (datum,)
-                control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x2, pos_y, 70, y, prop_names, prop_values)  
-                panelWin.addControl('Time', control)
-  
-                prop_names = ('Text',)
-                prop_values = ('',)
-                control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x3, pos_y, 60, y, prop_names, prop_values)  
-                panelWin.addControl('Time', control)
-
-                control.addKeyListener(focus_listener)                 
-                
-                height = 70
-           
-                
-            xUIElement.height = height
-            sb.requestLayout()
-            
-            
             
             # zum Speichern und Wiederherstellen der sichtbaren Panels
             self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
             
+                 
+            
+            for sichtb_element in self.sb_panels_tup:
+                
+                if sichtb_element not in dict_sb['sichtbare']:
+                    continue
+
+                tag_control = self.dict_felder[sichtb_element]
+            
+            
+                if sichtb_element in self.sb_tags:
+                    
+                    remove_or_add_button_listener = Tags_Remove_Button_Listener(self.mb)
+     
+                    y = 10
+                    height = 20
+                     
+                    ################################# WARNING ####################################################
+                    if sichtb_element == 'Tags_general':
+                        
+                        
+                        
+                        destroy = '''Tags: General will be removed in Organon 1.0. With the introduction of the Organizer "tags general" are obsolete. ''' \
+                            '''They served as an overview for all tags. But the logic of their interaction with other tags isn't obvious on first sight. ''' \
+                            '''Don't use them anymore and spread out general tags to the others. ''' \
+                            '''There will be another possibility for deleting a tag throughout the whole document.'''
+                         
+                        prop_names = ('MultiLine','Label')
+                        prop_values = (True,destroy)
+                        control, model = self.mb.createControl(ctx, "FixedText", 10, y,300, 120, prop_names, prop_values)
+                        tag_control.addControl('Button', control) 
+                         
+                        y += 130
+                    #############################################################################################
+                     
+                    prop_names = ('HelpText','MultiLine')
+                    prop_values = (LANG.ENTER_NEW_TAG,True)
+                    control, model = self.mb.createControl(ctx, "Edit", 170, y,100, height, prop_names, prop_values)
+                    tag_control.addControl('Button', control) 
+     
+                    key_listener = Tags_Key_Listener(self.mb,sichtb_element)
+                    control.addKeyListener(key_listener)
+     
+                    #y += height + 10
+                    y_all_tags = y
+                    y_all_tags += 30
+                     
+                    alle_tags = self.mb.dict_sb_content['tags'][sichtb_element]
+                    eintraege = self.mb.dict_sb_content['ordinal'][ordinal][sichtb_element]
+                     
+                    SEP = '_XYX_'
+                     
+                    # Leiste mit allen Tags
+                    for tag_eintrag in alle_tags:
+                        if tag_eintrag not in eintraege:
+                             
+                            height = 18
+                            # Tageintrag
+                            prop_names = ('Label','Align')
+                            prop_values = (tag_eintrag,2)
+                            control, model = self.mb.createControl(ctx, "FixedText", 170, y_all_tags ,100, height, prop_names, prop_values)
+                            tag_control.addControl(tag_eintrag, control) 
+                             
+                            # Add Button
+                            prop_names = ('Label','HelpText')
+                            prop_values = ('',LANG.TAG_HINZUFUEGEN)
+                            control, model = self.mb.createControl(ctx, "Button", 280, y_all_tags ,14, 14, prop_names, prop_values)
+                            tag_control.addControl('Remove_'+tag_eintrag, control) 
+                            control.setActionCommand(sichtb_element + SEP + ordinal + SEP + tag_eintrag + SEP + 'hinzufuegen')
+                            control.addActionListener(remove_or_add_button_listener)
+                            
+                            
+     
+                            y_all_tags += height 
+                            
+                            
+                    # Tags
+                     
+                    for tag_eintrag in eintraege:
+                         
+                        height = 18
+                        # Tageintrag
+                        prop_names = ('Label',)
+                        prop_values = (tag_eintrag,)
+                        control, model = self.mb.createControl(ctx, "FixedText", 10, y,100, height, prop_names, prop_values)
+                        tag_control.addControl(tag_eintrag, control) 
+                         
+                         
+                        if sichtb_element == 'Tags_general':
+                            if self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] == 0:
+                                helptext = LANG.TAGS_IN_AKT_DAT_LOESCHEN
+                            else:
+                                helptext = LANG.TAGS_IM_GES_DOK_LOESCHEN
+                        else:
+                            helptext = LANG.TAG_LOESCHEN
+                        # Remove Button
+                        prop_names = ('Label','HelpText')
+                        prop_values = ('X',helptext)
+                        control, model = self.mb.createControl(ctx, "Button", 115, y,14, 14, prop_names, prop_values)
+                        tag_control.addControl('Remove_'+tag_eintrag, control) 
+                        control.setActionCommand(sichtb_element + SEP + ordinal + SEP + tag_eintrag + SEP + 'loeschen')
+                        control.addActionListener(remove_or_add_button_listener)
+                         
+                        y += height + 3
+                     
+                        
+                     
+                     
+                    if y<y_all_tags:
+                        y = y_all_tags
+                     
+                    if len(eintraege) == 0:
+                        y_all_tags += 21
+                     
+                    height = y + 10 
+                    
+                    
+                    
+                ######################################
+                # Synopsis, Notes, Images, Tags_time #
+                ######################################     
+                 
+                if sichtb_element == 'Synopsis':
+                      
+                    pos_y = 10
+                    height = 0 
+                    width = 282 
+                       
+                    text = self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis']
+                       
+                    prop_names = ('MultiLine','Text','MaxTextLen')
+                    prop_values = (True,text,5000)
+                    control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
+                    tag_control.addControl('Synopsis', control)
+                      
+                    mS = control.getMinimumSize()
+                    hoehe = mS.Height + 44
+      
+                    control.setPosSize(0,0,0,hoehe,8)
+                      
+                    listener = Text_Change_Listener_Synopsis(self.mb)
+                    model.addPropertyChangeListener('Text',listener)
+                      
+                    height = hoehe + 20
+                      
+                elif sichtb_element == 'Notes':
+                    pos_y = 10
+                    height = 0 
+                    width = 282 
+                       
+                    text = self.mb.dict_sb_content['ordinal'][ordinal]['Notes']
+                       
+                    prop_names = ('MultiLine','Text','MaxTextLen')
+                    prop_values = (True,text,5000)
+                    control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
+                    tag_control.addControl('Notes', control)
+                      
+                    mS = control.getMinimumSize()
+                    hoehe = mS.Height + 44
+      
+                    control.setPosSize(0,0,0,hoehe,8)
+                      
+                    listener = Text_Change_Listener_Notizen(self.mb)
+                    model.addPropertyChangeListener('Text',listener)
+      
+                    height = hoehe + 20
+                      
+      
+                      
+                elif sichtb_element == 'Images':
+                    pos_y = 10
+                    height = 200
+                    breite = 284 
+      
+                    prop_names = ()
+                    prop_values = ()
+                    control, model = self.mb.createControl(self.mb.ctx, "ImageControl", 10, pos_y, breite, height, prop_names, prop_values)  
+                    tag_control.addControl('Image', control)
+                    
+                    try:
+                        if self.mb.dict_sb_content['ordinal'][ordinal]['Images'] != '':
+                            model.ImageURL = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
+                            breite = self.berechne_bildgroesse(model,height)
+                            control.setPosSize(0,0,breite,0,4)
+                    except:
+                        log(inspect.stack,tb())
+                      
+                    listener = Images_Listener(self.mb)
+                    
+                    height += 20
+
+                    prop_names = ('Label',)
+                    prop_values = ('+',)
+                    control, model = self.mb.createControl(self.mb.ctx, "Button",breite + 15, pos_y , 16, 16, prop_names, prop_values)  
+                    tag_control.addControl('Titel', control)
+                    control.setActionCommand('bild_einfuegen')
+                    control.addActionListener(listener)
+                    
+                    prop_names = ('Label',)
+                    prop_values = ('-',)
+                    control, model = self.mb.createControl(self.mb.ctx, "Button", breite +15 , pos_y + 25 , 16, 16, prop_names, prop_values)  
+                    tag_control.addControl('Titel2', control)
+                    control.setActionCommand('bild_loeschen')
+                    control.addActionListener(listener) 
+                                        
+                    height += 35
+                    
+                    
+                     
+                elif sichtb_element == 'Tags_time':
+                      
+                    if self.mb.language == 'de':
+                        date_format = 7
+                        time_format = 0
+                    else:
+                        date_format = 8
+                        time_format = 2
+                      
+                    pos_y = 10
+                    pos_x = 10
+                    pos_x2 = 85
+                    pos_x3 = 170
+                    y = 20
+                      
+                    focus_listener = Tag_Time_Key_Listener(self.mb)
+                      
+                    zeit = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['zeit']
+                    leere_zeit = None
+                    if self.mb.programm == 'LibreOffice':
+                        zeit = self.in_time_struct_wandeln(zeit)
+                        leere_zeit = self.in_time_struct_wandeln(leere_zeit)
+                          
+                    prop_names = ('Label',)
+                    prop_values = (LANG.ZEIT2,)
+                    control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
+                    tag_control.addControl('Time', control)
+                      
+                    prop_names = ('Time','TimeFormat','StrictFormat','Border')
+                    prop_values = (zeit,time_format,True,0)
+                    control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x2, pos_y, 70, y, prop_names, prop_values) 
+                    if self.mb.settings_orga['organon_farben']['design_office']:
+                         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+                    tag_control.addControl('Time', control)
+      
+      
+                    prop_names = ('Time','TimeFormat','StrictFormat')
+                    prop_values = (leere_zeit,time_format,True)
+                    control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x3, pos_y, 60, y, prop_names, prop_values)  
+                    tag_control.addControl('Time', control)
+                      
+                    control.addKeyListener(focus_listener)
+                      
+                      
+                    pos_y += 30
+                      
+                    prop_names = ('Label',)
+                    prop_values = (LANG.DATUM,)
+                    control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
+                    tag_control.addControl('Datum_Label', control)
+                      
+                    datum = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['datum'] 
+                      
+                    prop_names = ('Label',)
+                    prop_values = (datum,)
+                    control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x2, pos_y, 70, y, prop_names, prop_values)  
+                    tag_control.addControl('Time', control)
+        
+                    prop_names = ('Text',)
+                    prop_values = ('',)
+                    control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x3, pos_y, 60, y, prop_names, prop_values)  
+                    tag_control.addControl('Time', control)
+      
+                    control.addKeyListener(focus_listener)                 
+                      
+                    height = 70
+                
+                self.hoehen.append([sichtb_element,height])
+       
+            
+            
+            
+            
+            y = 0
+            y2 = 0
+            for tag,hoehe in self.hoehen:
+
+                tag_ctrl = self.dict_container[tag]
+                feld_ctrl = self.dict_felder[tag]
+                
+                
+                if self.offen[tag]:
+                    tag_ctrl.setPosSize(0,y,0,hoehe+30,10)
+                    feld_ctrl.setPosSize(0,0,0,hoehe+30,8)
+                    y += hoehe +30
+                else:
+                    tag_ctrl.setPosSize(0,y,0,30,10)
+                    feld_ctrl.setPosSize(0,0,0,0,8)
+                    y += 30
+                    
+                y2 += hoehe +30
+
+            xUIElement.height = y
+            
+            #xUIElement.Theme.setPropertyValue('Paint_PanelBackground',501)
+            #pd()
+
+            # zum Speichern und Wiederherstellen der sichtbaren Panels
+            self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
+            sb.requestLayout()
+            
         except:
-            log(inspect.stack,tb())        
+            log(inspect.stack,tb())  
+            
+                  
     def setze_sidebar_design(self):  
         
         try:
@@ -574,12 +703,8 @@ class Sidebar():
                 else:
                     return self.mb.settings_orga['organon_farben'][value]
             
-            keys = [k for k in self.mb.dict_sb['controls']]
-            if len(keys) == 0:
-                self.design_gesetzt = False
-                return
             
-            personen = self.mb.dict_sb['controls'][keys[0]]
+            personen = self.mb.dict_sb['controls']['organon_sidebar']
             theme = personen[0].Theme
     
             
@@ -656,33 +781,33 @@ class Sidebar():
        
            
     
-    def schalte_sidebar_button(self):
-        if self.mb.debug: log(inspect.stack)
-
-        try:
-            controls = self.mb.dict_sb['controls']
-            okey = list(controls)[0]
-            window = controls[okey][0].window
-
-            a = window.AccessibleContext.AccessibleParent
-            b = a.AccessibleContext.AccessibleParent
-            c = b.AccessibleContext.AccessibleParent
-            d = c.AccessibleContext.AccessibleParent
-            e = d.AccessibleContext.AccessibleParent
-            
-            Seitenleiste_fenster = e.Windows[0]
-
-            for window in Seitenleiste_fenster.Windows:
-                if window.AccessibleContext.AccessibleDescription == 'Organon':
-                    o_button = window
-                else:
-                    n_button = window
- 
-            n_button.setState(True)
-            o_button.setState(True)
-            
-        except:
-            log(inspect.stack,tb())
+#     def schalte_sidebar_button(self):
+#         if self.mb.debug: log(inspect.stack)
+# 
+#         try:
+#             controls = self.mb.dict_sb['controls']
+#             okey = list(controls)[0]
+#             window = controls[okey][0].window
+# 
+#             a = window.AccessibleContext.AccessibleParent
+#             b = a.AccessibleContext.AccessibleParent
+#             c = b.AccessibleContext.AccessibleParent
+#             d = c.AccessibleContext.AccessibleParent
+#             e = d.AccessibleContext.AccessibleParent
+#             
+#             Seitenleiste_fenster = e.Windows[0]
+# 
+#             for window in Seitenleiste_fenster.Windows:
+#                 if window.AccessibleContext.AccessibleDescription == 'Organon':
+#                     o_button = window
+#                 else:
+#                     n_button = window
+#  
+#             n_button.setState(True)
+#             o_button.setState(True)
+#             #pd()
+#         except:
+#             log(inspect.stack,tb())
 
         
         
@@ -699,91 +824,8 @@ class Sidebar():
             
         except:
             log(inspect.stack,tb())
-    
-    def dict_sb_zuruecksetzen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        self.mb.dict_sb['sichtbare']  = ['empty_project'] 
-        self.mb.dict_sb['controls'] = {}
-        self.mb.dict_sb['erzeuge_Layout'] = None   
-        
-        
-    def optionsfenster(self,cmd):
-        if self.mb.debug: log(inspect.stack)
-        
-        loc_x = self.mb.dict_sb['controls'][cmd][0].Window.Peer.AccessibleContext.LocationOnScreen.X
-        loc_y = self.mb.dict_sb['controls'][cmd][0].Window.Peer.AccessibleContext.LocationOnScreen.Y
-
-        if cmd =='Tags_general':
-            self.optionsfenster_tags_general(loc_x,loc_y)
-        elif cmd =='Images':
-            self.optionsfenster_images(loc_x,loc_y)
-                   
-            
-    def optionsfenster_images(self,loc_x,loc_y):
-        if self.mb.debug: log(inspect.stack)
-        
-        win,cont = self.mb.erzeuge_Dialog_Container((loc_x - 20,loc_y,350,110))
- 
-        listener = Options_Tags_General_And_Images_Listener(self.mb,win)
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.IN_PROJEKTORDNER_IMPORTIEREN,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 340, 20, prop_names, prop_values)  
-        cont.addControl('Titel', control)
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.BILD_EINFUEGEN,)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", 10, 30, 120, 30, prop_names, prop_values)  
-        cont.addControl('Titel', control)
-        control.setActionCommand('bild_einfuegen')
-        control.addActionListener(listener)
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.BILD_LOESCHEN,)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", 10, 70, 120, 30, prop_names, prop_values)  
-        cont.addControl('Titel2', control)
-        control.setActionCommand('bild_loeschen')
-        control.addActionListener(listener)
-        
-               
-    def optionsfenster_tags_general(self,loc_x,loc_y):
-        if self.mb.debug: log(inspect.stack)
-        
-        win,cont = self.mb.erzeuge_Dialog_Container((loc_x - 20,loc_y,350,80))
-        try:
-            
-            state = self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok']
-            
-            if state == 1:
-                state2 = 0
-            else:
-                state2 = 1
-            
-            listener = Options_Tags_General_And_Images_Listener(self.mb)
-            
-            prop_names = ('Label',)
-            prop_values = (LANG.EINSTELLUNGEN_TAGS_GENERAL,)
-            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 28, 10, 340, 20, prop_names, prop_values)  
-            cont.addControl('Titel', control)
-            
-            prop_names = ('Label','State')
-            prop_values = (LANG.TAGS_IM_GES_DOK_LOESCHEN,state)
-            control, model = self.mb.createControl(self.mb.ctx, "RadioButton", 10, 30, 340, 20, prop_names, prop_values)  
-            cont.addControl('Titel', control)
-            control.setActionCommand('1')
-            control.addActionListener(listener)
-            
-            prop_names = ('Label','State')
-            prop_values = (LANG.TAGS_IN_AKT_DAT_LOESCHEN,state2)
-            control, model = self.mb.createControl(self.mb.ctx, "RadioButton", 10, 50, 340, 20, prop_names, prop_values)  
-            cont.addControl('Titel', control)
-            control.setActionCommand('0')
-            control.addActionListener(listener)
-
-        except:
-            log(inspect.stack,tb())
-            
+      
+      
     def in_time_struct_wandeln(self,zeit):
         if self.mb.debug: log(inspect.stack)
         
@@ -860,7 +902,57 @@ class Sidebar():
             for i in range(length-len(value)):
                 value = '0' + value
         return value
+    
+    
+    def dict_sb_zuruecksetzen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        self.mb.dict_sb['sichtbare']  = ['empty_project'] 
+        self.mb.dict_sb['controls'] = {}
+        self.mb.dict_sb['erzeuge_Layout'] = None   
+    
+    
+    def get_seitenleiste(self):
+        if self.mb.debug: log(inspect.stack)
+               
+        desk = self.mb.desktop
+        contr = desk.CurrentComponent.CurrentController
+        wins = contr.ComponentWindow.Windows
+        
+        childs = []
 
+        for w in wins:
+            if not w.isVisible():continue
+            
+            if w.AccessibleContext.AccessibleChildCount == 0:
+                continue
+            else:
+                child = w.AccessibleContext.getAccessibleChild(0)
+                if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
+                    continue
+                else:
+                    childs.append(child)
+                    
+        orga_sb = None
+        ch = None
+        try:
+            for c in childs:
+                try:
+                    for w in c.Windows:
+                        try:
+                            for w2 in w.Windows:
+                                if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                                    orga_sb = w2
+                                    ch = c
+                        except:
+                            pass
+                except:
+                    pass
+        except:
+            log(inspect_stack,tb())
+
+        return orga_sb,ch
+    
    
 from com.sun.star.beans import XPropertyChangeListener
 class Text_Change_Listener_Synopsis(unohelper.Base, XPropertyChangeListener):
@@ -884,33 +976,25 @@ class Text_Change_Listener_Notizen(unohelper.Base, XPropertyChangeListener):
 
 
 from com.sun.star.awt import XActionListener
-class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
+class Images_Listener(unohelper.Base, XActionListener):
     
-    def __init__(self,mb,win = None):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.win = win
         
     def disposing(self,ev):return False
     
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
-        # optionsfenster_tags_general
-        if ev.ActionCommand in ('1','0'):
-            self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] = int(ev.ActionCommand) 
-            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','Options_Tags_General_And_Images_Listener')
-            first_element = list(self.mb.dict_sb['controls'])[0]
-            self.mb.dict_sb['controls'][first_element][1].requestLayout()
+
         # optionsfenster_images
-        elif ev.ActionCommand == 'bild_einfuegen':
+        if ev.ActionCommand == 'bild_einfuegen':
             self.bild_einfuegen()
         elif ev.ActionCommand == 'bild_loeschen':
             self.bild_loeschen_a()
             
     def bild_einfuegen(self):
         if self.mb.debug: log(inspect.stack)
-        
-        self.win.dispose()
         
         filepath,ok = self.mb.class_Funktionen.filepicker2()
         
@@ -936,7 +1020,7 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
         old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
         
         self.mb.dict_sb_content['ordinal'][ordinal]['Images'] = path
-        self.mb.class_Sidebar.erzeuge_sb_layout('Images','Options_Tags_General_And_Images_Listener')
+        self.mb.class_Sidebar.erzeuge_sb_layout('Images')
         
         if old_image_path != '' and old_image_path != path:
             self.bild_loeschen(old_image_path)
@@ -949,8 +1033,8 @@ class Options_Tags_General_And_Images_Listener(unohelper.Base, XActionListener):
         old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
         self.mb.dict_sb_content['ordinal'][ordinal]['Images'] = ''
         self.bild_loeschen(old_image_path)
-        self.mb.class_Sidebar.erzeuge_sb_layout('Images','Options_Tags_General_And_Images_Listener')
-        self.win.dispose()
+        self.mb.class_Sidebar.erzeuge_sb_layout('Images')
+
 
     def bild_loeschen(self,old_image_path):
         if self.mb.debug: log(inspect.stack)
@@ -1008,7 +1092,6 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
             ev.Source.Model.Text = ''
 
             self.mb.class_Sidebar.erzeuge_sb_layout(self.tag,'focus_lost')
-            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','focus_lost')
 
 
     def disposing(self,ev):pass
@@ -1172,15 +1255,13 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
                 dict_sb_content['tags'][tag].remove(tag_eintrag)
             
             self.mb.class_Sidebar.erzeuge_sb_layout(tag,'sidebar')
-            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','sidebar')
             
         else:
             if dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] == 1:
                 self.loesche_vorkommen_in_allen_eintraegen(tag,tag_eintrag)
             else:
                 self.loesche_vorkommen_in_selektierter_datei(tag,tag_eintrag,ordinal)
-            for sichtbare in self.mb.dict_sb['sichtbare']:
-                self.mb.class_Sidebar.erzeuge_sb_layout(sichtbare,'sidebar')
+            self.mb.class_Sidebar.erzeuge_sb_layout('loeschen','sidebar')
         
      
      
@@ -1205,7 +1286,6 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
             dict_sb_content['ordinal'][ordinal]['Tags_general'].append(tag_eintrag)
         
         self.mb.class_Sidebar.erzeuge_sb_layout(tag,'sidebar')
-        self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','sidebar')
 
     
     def ueberpruefe_dict(self):
@@ -1220,7 +1300,92 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         for d in zu_loeschende:
             del(dic[d])
 
+
+from com.sun.star.awt import XMouseListener
+class Tags_Collapse_Button_Listener(unohelper.Base, XMouseListener):
+    def __init__(self,mb,sb):
+        self.mb = mb
+        self.sb = sb
+        
+    def disposing(self,ev):
+        return False
+        
+    def mouseReleased(self,ev):
+        return False
+    def mouseExited(self,ev):
+        return False
+    def mouseEntered(self,ev):
+        return False
     
-    
+    def mousePressed(self,ev):
+        
+        source = ev.Source
+        txt = source.Context.Controls[1].Text
+        tag = self.sb.sb_panels2[txt]
+        self.collaps_expand_panels(tag,source)
+
+
+    def collaps_expand_panels(self,tag,source):   
+        
+        try:
+            
+            cont = self.sb.dict_container[tag]
+            feld = self.sb.dict_felder[tag]
+            hoehen = self.sb.hoehen
+            
+            tag,hoehe = [h for h in hoehen if h[0] == tag][0]
+            index = hoehen.index([tag,hoehe])
+            
+            h_panel_titel = 30
+
+            if self.sb.offen[tag]:
+                self.sb.offen[tag] = 0
+                cont.setPosSize(0,0,0,h_panel_titel,8)
+                feld.setPosSize(0,0,0,0,8)
+                source.Model.ImageURL = self.sb.url_collapse
+                fak = -1
+
+            else:
+                self.sb.offen[tag] = 1
+                cont.setPosSize(0,0,0,hoehe + h_panel_titel,8)
+                feld.setPosSize(0,0,0,hoehe,8)
+                source.Model.ImageURL = self.sb.url_expand
+                fak = 1
+                
+                
+            for i in range(index+1,len(hoehen)):
+                t = hoehen[i][0]
+                cont2 = self.sb.dict_container[t]
+
+                y = cont2.PosSize.Y
+                
+                cont2.setPosSize(0,y + hoehe * fak,0,0,2)
+            
+            sb_tup = self.mb.dict_sb['controls']['organon_sidebar']
+            xuiElement = sb_tup[0]
+            
+            gesamthoehe = [h[1] + 30 if self.sb.offen[h[0]] else h_panel_titel for h in hoehen ]
+            
+            xuiElement.height = sum(gesamthoehe)
+            sb_tup[1].requestLayout()
+            
+        except:
+            log(inspect.stack,tb())
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
     

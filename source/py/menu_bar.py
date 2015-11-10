@@ -355,7 +355,10 @@ class Menu_Bar():
         except Exception as e:
                 self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 log(inspect.stack,tb())
-                
+            
+        
+        
+        
      
     def erzeuge_Menu_DropDown_Eintraege(self,items):
         if self.debug: log(inspect.stack)
@@ -752,9 +755,10 @@ class Menu_Bar():
         return oWindow,cont
     
     
-    def erzeuge_fensterinhalt(self,controls):
+    def erzeuge_fensterinhalt(self,controls,pos_y=None):
         # Controls und Models erzeugen
-        pos_y = 0
+        if pos_y == None:
+            pos_y = 0
         ctrls = {}
         
         pos_y_max = [0]
@@ -1143,7 +1147,6 @@ class Listener():
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.debug = self.mb.debug
         
         # Listener  
         self.VC_selection_listener  = ViewCursor_Selection_Listener(self.mb)  
@@ -1172,12 +1175,12 @@ class Listener():
         
         
     def alle_listener_ausschalten(self,ausnahmen = []):
-        if self.debug: log(inspect.stack,extras=listener)
+        if self.mb.debug: log(inspect.stack,extras=listener)
         
         
     def block(self):  
         ''' blockiert alle Listener''' 
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
 
         for key in self.states:
             if self.states[key] == True:
@@ -1188,7 +1191,7 @@ class Listener():
                 
     def unblock(self):   
         ''' schaltet Blockade ab und die zuvor aktivierten Listener wieder an''' 
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         
         self.blocked = False
         
@@ -1198,7 +1201,7 @@ class Listener():
                 fkt()
                 
     def entferne_alle_Listener(self):
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         for key in self.states:
             try:
                 if self.states[key] == True:
@@ -1209,7 +1212,7 @@ class Listener():
                 pass
                 
     def starte_alle_Listener(self):
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
 
         for key in self.states:
             if self.states[key] == False:
@@ -1218,13 +1221,13 @@ class Listener():
                 self.states[key] = True
         
     def versuchter_start(self,listener):
-        if self.debug: log(inspect.stack,extras=listener)
+        if self.mb.debug: log(inspect.stack,extras=listener)
           
     
     def add_VC_selection_listener(self):
         if self.blocked : return
         if not self.states['VC_selection_listener']:
-            if self.debug: log(inspect.stack)
+            if self.mb.debug: log(inspect.stack)
             self.mb.current_Contr.addSelectionChangeListener(self.VC_selection_listener)
             self.states['VC_selection_listener'] = True
         else:
@@ -1232,14 +1235,14 @@ class Listener():
     
     def remove_VC_selection_listener(self):
         if self.blocked : return
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         self.mb.current_Contr.removeSelectionChangeListener(self.VC_selection_listener)
         self.states['VC_selection_listener'] = False
         
     def add_Dialog_Window_Size_Listener(self):
         if self.blocked : return
         if not self.states['Dialog_Window_Size_Listener']:
-            if self.debug: log(inspect.stack)
+            if self.mb.debug: log(inspect.stack)
             self.mb.win.addWindowListener(self.w_listener)
             self.states['Dialog_Window_Size_Listener'] = True
         else:
@@ -1247,14 +1250,14 @@ class Listener():
     
     def remove_Dialog_Window_Size_Listener(self):
         if self.blocked : return
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         self.mb.win.removeWindowListener(self.w_listener)
         self.states['Dialog_Window_Size_Listener'] = False
         
     def add_Dialog_Event_Listener(self):
         if self.blocked : return
         if not self.states['Dialog_Event_Listener']:
-            if self.debug: log(inspect.stack)
+            if self.mb.debug: log(inspect.stack)
             self.mb.prj_tab.AccessibleContext.AccessibleParent.addEventListener(self.w_listener)
             self.states['Dialog_Event_Listener'] = True
         else:
@@ -1263,7 +1266,7 @@ class Listener():
             
     def remove_Dialog_Event_Listener(self):
         if self.blocked : return
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         try:
             self.mb.prj_tab.AccessibleContext.AccessibleParent.removeEventListener(self.w_listener)
         except:
@@ -1277,7 +1280,7 @@ class Listener():
     def add_Undo_Manager_Listener(self):
         if self.blocked : return
         if not self.states['Undo_Manager_Listener']:
-            if self.debug: log(inspect.stack)
+            if self.mb.debug: log(inspect.stack)
             self.mb.undo_mgr.addUndoManagerListener(self.undo_mgr_listener)
             self.states['Undo_Manager_Listener'] = True
         else:
@@ -1285,14 +1288,14 @@ class Listener():
     
     def remove_Undo_Manager_Listener(self):
         if self.blocked : return
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         self.mb.undo_mgr.removeUndoManagerListener(self.undo_mgr_listener)
         self.states['Undo_Manager_Listener'] = False
         
     def add_Document_Close_Listener(self):
         if self.blocked : return
         if not self.states['Document_Close_Listener']:
-            if self.debug: log(inspect.stack)
+            if self.mb.debug: log(inspect.stack)
             self.mb.doc.addDocumentEventListener(self.listener_doc_close)
             self.states['Document_Close_Listener'] = True
         else:
@@ -1300,7 +1303,7 @@ class Listener():
     
     def remove_Document_Close_Listener(self):
         if self.blocked : return
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         self.mb.doc.removeDocumentEventListener(self.listener_doc_close)
         self.states['Document_Close_Listener'] = False
         
@@ -1309,7 +1312,7 @@ class Listener():
         return
         if self.blocked : return
         if not self.states['Tab_Listener']:
-            if self.debug: log(inspect.stack)
+            if self.mb.debug: log(inspect.stack)
             if self.mb.programm == 'LibreOffice':
                 self.mb.tabsX[1].addTabListener(self.tab_listener)  
             else:
@@ -1321,7 +1324,7 @@ class Listener():
     def remove_Tab_Listener(self):
         return
         if self.blocked : return
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         if self.mb.programm == 'LibreOffice':
             self.mb.tabsX[1].removeTabListener(self.tab_listener) 
         else:
@@ -1947,20 +1950,21 @@ class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
                 self.mb.dict_sb['sichtbare'].append(panels[name])
                 ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
                 
-    
+            self.mb.class_Sidebar.erzeuge_sb_layout(None,'dropdown')
+            
             # Wenn die Sidebar sichtbar ist, auf und zu schalten,
             # um den Sidebar tag sichtbar zu machen 
-            try:
-                controls = self.mb.dict_sb['controls']
-                if controls != {}:
-                    okey = list(controls)[0]
-                    xParent = controls[okey][0].xParentWindow
-                    if xParent.isVisible():
-                        self.mb.class_Sidebar.schalte_sidebar_button()
-                        
-                        ev.Source.setFocus()
-            except:
-                log(inspect.stack,tb()) 
+#             try:
+#                 controls = self.mb.dict_sb['controls']
+#                 if controls != {}:
+#                     okey = list(controls)[0]
+#                     xParent = controls[okey][0].xParentWindow
+#                     if xParent.isVisible():
+#                         self.mb.class_Sidebar.schalte_sidebar_button()
+#                         
+#                         ev.Source.setFocus()
+#             except:
+#                 log(inspect.stack,tb()) 
             
         except:
             log(inspect.stack,tb())   
@@ -2373,7 +2377,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         if props.selektierte_zeile_alt != None: 
             ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld') 
             ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-            self.mb.class_Sidebar.passe_sb_an()
+            self.mb.class_Sidebar.erzeuge_sb_layout(None)
             
         props.selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      
@@ -2423,10 +2427,9 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)   
 
             if 'files' in self.mb.pfade: 
-                self.mb.class_Sidebar.speicher_sidebar_dict()       
-                self.mb.class_Sidebar.dict_sb_zuruecksetzen()
+                self.mb.class_Sidebar.speicher_sidebar_dict()   
+                self.mb.class_Sidebar.dict_sb_zuruecksetzen()    
 
-            #self.mb.Listener.entferne_alle_Listener() 
             self.mb = None
 
         except:
@@ -2448,16 +2451,126 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
         self.mb = mb
 
     def documentEventOccured(self,ev):
-        
         #if self.mb.debug: 
             #log(inspect.stack,extras=self.mb.doc.StringValue)
             #log(inspect.stack,extras=ev.EventName)
+        
+        #print(ev.EventName)
+        
+        if ev.EventName == 'OnLayoutFinished':
+            
+            # Abfrage, ob ueberhaupt ein Layout fuer die 
+            # Seitenleiste erzeugt werden soll, fehlt.
+            # TODO: Design Seitenleiste und Design Organon insgesamt trennen,
+            # da die Seitenleiste jetzt ohne Neustart designed werden kann.
+            # Evt. gilt das aber auch für das gesamte Dokument
+            
+            ctrl = self.mb.dict_sb['controls']
+            
+#             if 'organon_sidebar' not in ctrl:
+#                 self.seitenleiste_erzeugen()
+                
+        
         if ev.EventName == 'OnPrepareViewClosing':
             if self.mb.debug: log(inspect.stack)
+            # Um das Dokument ohne Speicherabfrage zu schliessen
             self.mb.doc.setModified(False)
             
     def disposing(self,ev):
         return False
+    
+    
+    def seitenleiste_erzeugen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:       
+            def get_seitenleiste():
+                
+                desk = self.mb.desktop
+                contr = desk.CurrentComponent.CurrentController
+                wins = contr.ComponentWindow.Windows
+                
+                childs = []
+        
+                for w in wins:
+                    if not w.isVisible():continue
+                    
+                    if w.AccessibleContext.AccessibleChildCount == 0:
+                        continue
+                    else:
+                        child = w.AccessibleContext.getAccessibleChild(0)
+                        if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
+                            continue
+                        else:
+                            childs.append(child)
+                            
+                orga_sb = None
+                ch = None
+                try:
+                    for c in childs:
+                        for w in c.Windows:
+                            try:
+                                for w2 in w.Windows:
+                                    if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                                        orga_sb = w2
+                                        ch = c
+                            except:
+                                pass
+                except:
+                    log(inspect.stack,tb())
+        
+                return orga_sb,ch
+            
+            def sl_erzeugen():
+            
+                def dispatch(cmd,oprop=('',None)):
+                    
+                    sm = uno.getComponentContext().ServiceManager
+                    dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
+                    
+                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                       
+                    prop.Name = oprop[0]
+                    prop.Value = oprop[1]
+                    res = dispatcher.executeDispatch(self.mb.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
+            
+                def sleeper(fkt,fkt2,fkt3,orga_sb): 
+                    
+                    fkt3('Sidebar')  
+
+                    while orga_sb == None:
+                        time.sleep(.1) 
+                        orga_sb,seitenleiste = fkt()
+                        
+                    fkt2(orga_sb)
+            
+                def resume(orga_sb): 
+                    orga_sb.setState(True)    
+                    dispatch('Sidebar')
+                
+                try:   
+                    orga_sb,seitenleiste = get_seitenleiste()
+                    
+                    if not orga_sb:
+
+                        from threading import Thread
+                        t = Thread(target=sleeper,args=(get_seitenleiste,resume,dispatch,orga_sb))
+                        t.start() 
+                         
+                        return t 
+                    else:
+                        orga_sb.setState(True)
+                except:
+                    log(inspect.stack,tb())
+
+            try: 
+                t = sl_erzeugen()
+            except:
+                log(inspect.stack,tb())
+
+        except:
+            log(inspect.stack,tb())
+
         
         
 from com.sun.star.lang import XEventListener

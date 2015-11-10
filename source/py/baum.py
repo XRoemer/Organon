@@ -617,7 +617,7 @@ class Baumansicht():
                 
             self.mb.props[T.AB].selektierte_zeile_alt = ordinal
             self.mb.props[T.AB].selektierte_zeile = ordinal
-            self.mb.class_Sidebar.passe_sb_an()
+            self.mb.class_Sidebar.erzeuge_sb_layout(None)
              
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(zeilenordinal = ordinal)
             
@@ -702,7 +702,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     props.tastatureingabe = False
 
             props.selektierte_zeile_alt = props.selektierte_zeile
-            self.mb.class_Sidebar.passe_sb_an()
+            self.mb.class_Sidebar.erzeuge_sb_layout(None)
             
             # Bei Doppelclick Zeileneintrag bearbeiten
             if ev.Buttons == MB_LEFT:   

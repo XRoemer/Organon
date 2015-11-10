@@ -26,6 +26,7 @@ files = [
 
     'languages/lang_de.py',
     'languages/lang_en.py',
+    'languages/lang_it.py',
 
     'py/factory.py',
     'py/log_organon.py',
@@ -63,8 +64,6 @@ files = [
     'factory/Dialog_Sidebar.xdl',
     'factory/Factory_Sidebar.xcu',
     'factory/Sidebar.xcu',
-    'factory/ProtocolHandler.xcu',
-
 
 
     'description/desc_de.txt',
@@ -123,6 +122,6 @@ shutil.copy("organon.oxt", filename)
 
 # in den programmordner von libreoffice wechseln und unopkg starten
 os.chdir(path_to_office)
-os.system(r"unopkg add -f --shared organon.oxt")
+#os.system(r"unopkg add -f --shared organon.oxt")
 # swriter nach Installation erneut starten
-os.system('swriter.exe')
+#os.system('swriter.exe')

@@ -65,6 +65,16 @@ class Menu_Start():
             try:
                 self.templates.update({'standard_stil':self.get_stil(),
                                        'get_stil':self.get_stil})
+                
+                
+                self.event_listener = Document_Close_Listener(self)
+                self.doc = self.get_doc()
+                self.doc.addDocumentEventListener(self.event_listener)
+                
+#                 if self.settings_orga['organon_farben']['design_office']:
+#                     #self.design_gesetzt = True
+#                     self.setze_sidebar_design()
+#                 pd()
             except:
                 log(inspect_stack,tb())
                 
@@ -225,7 +235,6 @@ class Menu_Start():
 
         self.wurde_als_template_geoeffnet()
         
-    
     def erzeuge_Menu(self):
         if debug: log(inspect_stack)
           
@@ -251,10 +260,11 @@ class Menu_Start():
             
             self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu(self.Menu_Bar.prj_tab)
+
         except:
             log(inspect.stack,tb())    
     
-           
+     
               
     def lade_Modul_Language(self):
         if debug: log(inspect_stack)
@@ -498,3 +508,151 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
         pass
            
 
+from com.sun.star.document import XDocumentEventListener
+class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
+    '''
+    Lets Writer close without warning.
+    As everything is saved by Organon, a warning isn't necesarry.
+    Even more it might confuse the user.
+    
+    '''
+    def __init__(self,ms):
+        if debug: log(inspect_stack)
+        self.ms = ms
+
+    def documentEventOccured(self,ev):
+        #if self.ms.debug: 
+            #log(inspect.stack,extras=self.ms.doc.StringValue)
+            #log(inspect.stack,extras=ev.EventName)
+        
+        #print(ev.EventName)
+
+        if ev.EventName == 'OnLayoutFinished':
+            
+            # Abfrage, ob ueberhaupt ein Layout fuer die 
+            # Seitenleiste erzeugt werden soll, fehlt.
+            # TODO: Design Seitenleiste und Design Organon insgesamt trennen,
+            # da die Seitenleiste jetzt ohne Neustart designed werden kann.
+            # Evt. gilt das aber auch für das gesamte Dokument
+            
+            ctrl = self.ms.dict_sb['controls']
+            #print('organon_sidebar' in ctrl)
+            if 'organon_sidebar' not in ctrl:
+                self.seitenleiste_erzeugen()
+            
+#             try:   
+#                 if self.ms.settings_orga['organon_farben']['design_office']:
+#                     print('hier')
+#                     self.ms.Menu_Bar.class_Sidebar.setze_sidebar_design()
+#                     
+#             except:
+#                log(inspect_stack,tb()) 
+#                pd()
+        
+            
+    def disposing(self,ev):
+        return False
+    
+    
+    def seitenleiste_erzeugen(self):
+        if debug: log(inspect_stack)
+        
+        try:       
+            def get_seitenleiste():
+                
+                desk = self.ms.desktop
+                contr = desk.CurrentComponent.CurrentController
+                wins = contr.ComponentWindow.Windows
+                
+                childs = []
+        
+                for w in wins:
+                    if not w.isVisible():continue
+                    
+                    if w.AccessibleContext.AccessibleChildCount == 0:
+                        continue
+                    else:
+                        child = w.AccessibleContext.getAccessibleChild(0)
+                        if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
+                            continue
+                        else:
+                            childs.append(child)
+                            
+                orga_sb = None
+                ch = None
+                try:
+                    for c in childs:
+                        try:
+                            for w in c.Windows:
+                                try:
+                                    for w2 in w.Windows:
+                                        if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                                            orga_sb = w2
+                                            ch = c
+                                except:
+                                    pass
+                        except:
+                            pass
+                except:
+                    log(inspect_stack,tb())
+        
+                return orga_sb,ch
+            
+            def sl_erzeugen():
+            
+                def dispatch(cmd,oprop=('',None)):
+                    
+                    sm = uno.getComponentContext().ServiceManager
+                    dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
+                    #dispatcher = self.ms.createUnoService("com.sun.star.frame.DispatchHelper")
+                    
+                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                       
+                    prop.Name = oprop[0]
+                    prop.Value = oprop[1]
+                    res = dispatcher.executeDispatch(self.ms.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
+            
+                def sleeper(fkt,fkt2,fkt3,orga_sb): 
+                    
+                    fkt3('Sidebar')  
+                    import time
+                    
+                    while orga_sb == None:
+                        time.sleep(.1) 
+                        orga_sb,seitenleiste = fkt()
+                        
+                    fkt2(orga_sb)
+            
+                def resume(orga_sb): 
+                    orga_sb.setState(True)    
+                    dispatch('Sidebar')
+                    
+                    
+                try:   
+                    orga_sb,seitenleiste = get_seitenleiste()
+                    
+                    if not orga_sb:
+
+                        from threading import Thread
+                        t = Thread(target=sleeper,args=(get_seitenleiste,resume,dispatch,orga_sb))
+                        t.start() 
+                         
+                        return t 
+                    else:
+                        orga_sb.setState(True)
+                    
+                except:
+                    log(inspect_stack,tb())
+
+            try: 
+                t = sl_erzeugen()
+            except:
+                log(inspect_stack,tb())
+
+        except:
+            log(inspect_stack,tb())
+            
+            
+            
+            
+            

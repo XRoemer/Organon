@@ -1439,7 +1439,7 @@ class TabsX():
                 
                 if not wurde_geloescht:
                     if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                        self.mb.class_Sidebar.passe_sb_an()
+                        self.mb.class_Sidebar.erzeuge_sb_layout(None)
                 
         except:
             log(inspect.stack,tb())

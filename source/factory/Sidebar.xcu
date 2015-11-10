@@ -54,15 +54,15 @@
 
 	    </node>
     	<node oor:name="PanelList">
-		
-			
-			<node oor:name="empty_project" oor:op="replace">
+	
+			<node oor:name="Organon_Sidebar" oor:op="replace">
 	        	<prop oor:name="Title" oor:type="xs:string">
-                	<value xml:lang="en">No project loaded</value>
-					<value xml:lang="de">Kein Projekt geladen</value>
+                	<value xml:lang="en">Organon Sidebar</value>
+					<value xml:lang="de">Organon Sidebar</value>
+					<value>Organon_Sidebar</value>
             	</prop>
             	<prop oor:name="Id" oor:type="xs:string">
-                	<value>empty_project</value>
+                	<value>Organon_Sidebar</value>
             	</prop>
             	<prop oor:name="DeckId" oor:type="xs:string">
                 	<value>OrganonsToolDeck</value>
@@ -73,40 +73,7 @@
                 	</value>
             	</prop>
             	<prop oor:name="ImplementationURL" oor:type="xs:string">
-            		<value>private:resource/toolpanel/OrganonSidebarFactory/empty_project</value>
-            	</prop>				
-            	<prop oor:name="OrderIndex" oor:type="xs:int">
-            		<value>90</value>
-            	</prop>
-            	<prop oor:name="WantsCanvas" oor:type="xs:boolean">
-            		<value>false</value>
-            	</prop>
-            	<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:empty_project</value>
-        		</prop>
-        	</node>
-		
-		
-        	
-        	<node oor:name="Synopsis" oor:op="replace">
-	        	<prop oor:name="Title" oor:type="xs:string">
-                	<value xml:lang="en">Synopsis</value>
-					<value xml:lang="de">Synopsis</value>
-					<value>Synopsis</value>
-            	</prop>
-            	<prop oor:name="Id" oor:type="xs:string">
-                	<value>Synopsis</value>
-            	</prop>
-            	<prop oor:name="DeckId" oor:type="xs:string">
-                	<value>OrganonsToolDeck</value>
-            	</prop>
-            	<prop oor:name="ContextList">
-            		<value oor:separator=";">
-            			Writer, any, visible ;
-                	</value>
-            	</prop>
-            	<prop oor:name="ImplementationURL" oor:type="xs:string">
-            		<value>private:resource/toolpanel/OrganonSidebarFactory/Synopsis</value>
+            		<value>private:resource/toolpanel/OrganonSidebarFactory/organon_sidebar</value>
             	</prop>				
             	<prop oor:name="OrderIndex" oor:type="xs:int">
             		<value>100</value>
@@ -114,302 +81,15 @@
             	<prop oor:name="WantsCanvas" oor:type="xs:boolean">
             		<value>false</value>
             	</prop>
+            	<prop oor:name="TitleBarIsOptional" oor:type="xs:boolean">
+            		<value>true</value>
+            	</prop>
             	<!-- <prop oor:name="DefaultMenuCommand">
           			<value>org.apache.openoffice.Organon.sidebar:Synopsis</value>
         		</prop> -->
         	</node>
-			
-			
-			
-		  <node oor:name="Notes" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Notes</value>
-			  <value xml:lang="de">Notizen</value>
-			  <value>Notes</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Notes</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Notes</value>
-			</prop>
-			<!-- <prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Notes</value>
-        	</prop> -->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>110</value>
-			</prop>
-		  </node>
-		  
-		  
-		  <node oor:name="Images" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Images</value>
-			  <value xml:lang="de">Bilder</value>
-			  <value>Images</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Images</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Images</value>
-			</prop>
-			<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Images</value>
-        	</prop>
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>115</value>
-			</prop>
-		  </node>
-		  
-		  
-		  
-		  
-		  <node oor:name="Tags_general" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: General</value>
-			  <value xml:lang="de">Tags: Allgemein</value>
-			  <value>Tags: General</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_general</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_general</value>
-			</prop>
-			<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_general</value>
-        	</prop>
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>120</value>
-			</prop>
-		  </node>
-		  
-		  
-		  <node oor:name="Tags_characters" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: Characters</value>
-			  <value xml:lang="de">Tags: Personen</value>
-			  <value>Tags: Characters</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_characters</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_characters</value>
-			</prop>
-			<!--<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_characters</value>
-        	</prop>-->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>130</value>
-			</prop>
-		  </node>
         	
-			
-		  <node oor:name="Tags_locations" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: Locations</value>
-			  <value xml:lang="de">Tags: Orte</value>
-			  <value>Tags: Locations</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_locations</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_locations</value>
-			</prop>
-			<!--<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_locations</value>
-        	</prop>-->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>140</value>
-			</prop>
-		  </node>
-		  
-		  
-		  <node oor:name="Tags_objects" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: Objects</value>
-			  <value xml:lang="de">Tags: Objekte</value>
-			  <value>Tags: Objects</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_objects</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_objects</value>
-			</prop>
-			<!--<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_objects</value>
-        	</prop>-->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>150</value>
-			</prop>
-		  </node>
-		  
-		  
-		  <node oor:name="Tags_time" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: Time</value>
-			  <value xml:lang="de">Tags: Zeit</value>
-			  <value>Tags: Time</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_time</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_time</value>
-			</prop>
-			<!--<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_time</value>
-        	</prop>-->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>160</value>
-			</prop>
-		  </node>
-		  
-		  
-		  <node oor:name="Tags_user1" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: User 1</value>
-			  <value xml:lang="de">Tags: Benutzer 1</value>
-			  <value>Tags: User 1</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_user1</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_user1</value>
-			</prop>
-			<!--<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_user1</value>
-        	</prop>-->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>170</value>
-			</prop>
-		  </node>
-		  
-		  <node oor:name="Tags_user2" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: User 2</value>
-			  <value xml:lang="de">Tags: Benutzer 2</value>
-			  <value>Tags: User 2</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_user2</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_user2</value>
-			</prop>
-			<!--<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_user2</value>
-        	</prop>-->
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>180</value>
-			</prop>
-		  </node>
-		  
-		  
-		  <node oor:name="Tags_user3" oor:op="replace">
-			<prop oor:name="Title" oor:type="xs:string">
-			  <value xml:lang="en">Tags: User 3</value>
-			  <value xml:lang="de">Tags: Benutzer 3</value>
-			  <value>Tags: User 3</value>
-			</prop>
-			<prop oor:name="Id" oor:type="xs:string">
-			  <value>Tags_user3</value>
-			</prop>
-			<prop oor:name="DeckId" oor:type="xs:string">
-			  <value>OrganonsToolDeck</value>
-			</prop>
-			<prop oor:name="ContextList">
-			  <value oor:separator=";">
-				Writer, any, visible ;
-			  </value>
-			</prop>
-			<prop oor:name="ImplementationURL" oor:type="xs:string">
-			  <value>private:resource/toolpanel/OrganonSidebarFactory/Tags_user3</value>
-			</prop>
-			<prop oor:name="DefaultMenuCommand">
-          			<value>org.apache.openoffice.Organon.sidebar:Tags_user3</value>
-        	</prop>
-			<prop oor:name="OrderIndex" oor:type="xs:int">
-			  <value>190</value>
-			</prop>
-		  </node>
+        	
 			
 			
     	</node>

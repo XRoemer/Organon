@@ -28,7 +28,4 @@
 	<manifest:file-entry manifest:full-path="factory/Factory_Sidebar.xcu" 
 		manifest:media-type="application/vnd.sun.star.configuration-data"/>
 		
-	<manifest:file-entry manifest:full-path="factory/ProtocolHandler.xcu" 
-		manifest:media-type="application/vnd.sun.star.configuration-data"/>
-		
 </manifest:manifest>

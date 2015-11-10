@@ -727,6 +727,7 @@ class Projekt():
             self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             self.mb.Listener.starte_alle_Listener()
+            self.mb.class_Sidebar.erzeuge_sb_layout(None)
             
         except Exception as e:
             log(inspect.stack,tb())
@@ -1307,7 +1308,9 @@ class Projekt():
 #         dlg.setVisible(True)
 #         time.sleep(3) ## 5 sec
         dlg.dispose()      
-        
+    
+    
+  
        
     def test(self):
 
@@ -1480,20 +1483,345 @@ class Projekt():
 #                                                                             auswaehlen=True)
             
             
-
+            def stylisieren():
+                set_app_style(seitenleiste,self.mb.settings_orga)
+                set_app_style(panelWin,self.mb.settings_orga)
+                
+                
+                wind = orga_sb.AccessibleContext.AccessibleParent
+                
+                seitenleiste_iconbar = orga_sb.AccessibleContext.AccessibleParent
+                seitenleiste_iconbar.Background = 1002500
+                icons = seitenleiste_iconbar.Windows
+                for w in icons: 
+                    set_app_style(w,self.mb.settings_orga)
+                    w.Background = 501
+                
+                
+                par = seitenleiste_iconbar.AccessibleContext.AccessibleParent
+                set_app_style(seitenleiste_iconbar,self.mb.settings_orga)
+                
+                parpar = par.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleParent
+                
+                for w in par.Windows: 
+                    set_app_style(w,self.mb.settings_orga)
+                    w.Background = 501
+                    for x in w.Windows:
+                        set_app_style(x,self.mb.settings_orga)
+                        #x.Background = 501
+                        x.setProperty('BackgroundColor',501)
+                        for y in x.AccessibleContext.AccessibleParent.Windows:
+                            set_app_style(y,self.mb.settings_orga)
+                            y.Background = 501
+                    
+                for y in parpar.Windows:
+                    set_app_style(y,self.mb.settings_orga)
+                    y.Background = 501
+                    
+                #orga_sb.setState(True)
+                
+                
+    #             child = orga_sb.AccessibleContext.getAccessibleChild(0)
+    #             set_app_style(child,self.mb.settings_orga)
+    #             child.Background = 501
+                
+                
+    #             for y in child.Windows:
+    #                 set_app_style(y,self.mb.settings_orga)
+    #                 y.Background = 501
+                
+                
+                pos = seitenleiste.PosSize
+                #seitenleiste.draw(pos.X,pos.Y)
+                
+                
+                #seitenleiste.enableDialogControl(False)
+            
+            #sb.requestLayout()
+            
+            
             
             
             settorg = self.mb.settings_orga
             #self.mb.class_Funktionen.update_organon_templates()
             
             #self.mb.schreibe_settings_orga()
+
+
+            def get_access(lvl,obj):
+                attr1 = 'AccessibleContext'
+                attr2 = 'AccessibleParent'            
+                
+                ct = obj
+                
+                for l in range(lvl):
+                    ct = getattr(ct,attr1)
+                    ct = getattr(ct,attr2)
+                return ct
+            
+            
+
+
+            ctrl = self.mb.dict_sb['controls']
+            dict_sb = self.mb.dict_sb
+            
+            #self.mb.class_Sidebar.setze_sidebar_design()
+            print('wer')
             
         except:
             log(inspect.stack,tb())
             pd()
         pd() 
         
+        
+        
+        
+        
+        
+def set_app_style(win,settings_orga):
+    try:
+        ctx = uno.getComponentContext()
+        smgr = ctx.ServiceManager
+        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+        desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+        frame = desktop.Frames.getByIndex(0)
+        comp = frame.ComponentWindow
+        
+        rot = 16275544
+
+        hf = KONST.FARBE_HF_HINTERGRUND
+        menu = KONST.FARBE_MENU_HINTERGRUND
+        schrift = KONST.FARBE_SCHRIFT_DATEI
+        menu_schrift = KONST.FARBE_MENU_SCHRIFT
+        selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+        ordner = KONST.FARBE_SCHRIFT_ORDNER
+        
+        sett = settings_orga['organon_farben']['office']
+        
+        def get_farbe(value):
+            if isinstance(value, int):
+                return value
+            else:
+                return settings_orga['organon_farben'][value]
+        
+        # Kann button_schrift evt. herausgenommen werden?
+        button_schrift = get_farbe(sett['button_schrift'])
+        
+        statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
+        statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
+        
+        felder_hintergrund = get_farbe(sett['felder_hintergrund'])
+        felder_schrift = get_farbe(sett['felder_schrift'])
+        
+        # Sidebar
+        sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
+        sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
+        sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
+        sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
+        
+        trenner_licht = get_farbe(sett['trenner_licht'])
+        trenner_schatten = get_farbe(sett['trenner_schatten'])
+        
+        # Lineal
+        OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
+        OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
+        OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
+        
+        LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
+        LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
+        LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
+        LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
+        LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
+        
+        
+        LO = ('LibreOffice' in frame.Title)
+        
+        STYLES = {  
+                  # Allgemein
+                    'ButtonRolloverTextColor' : button_schrift, # button rollover
+                    
+                    'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
+                    'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
+                    
+                    # Trenner
+                    'LightColor' : menu, # Fenster Trenner
+                    'ShadowColor' : menu, # Fenster Trenner
+                    
+                    # OO Lineal + Trenner
+                     
+                    'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
+                                        else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
+                    'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
+                                         else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
+                        
+                    # Sidebar
+                    'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
+                    'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
+                    'FaceColor' : (schrift if LO        # LO Formatvorlagen Treeview Verbinder
+                                    else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
+                    'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
+                                    else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
+                    'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
+                    'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
+                    
+                    
+                    'ActiveBorderColor' : rot,#k.A.
+                    'ActiveColor' : rot,#k.A.
+                    'ActiveTabColor' : rot,#k.A.
+                    'ActiveTextColor' : rot,#k.A.
+                    'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
+                    'CheckedColor' : rot,#k.A.
+                    'DeactiveBorderColor' : rot,#k.A.
+                    'DeactiveColor' : rot,#k.A.
+                    'DeactiveTextColor' : rot,#k.A.
+                    'DialogTextColor' : rot,#k.A.
+                    'DisableColor' : rot,
+                    'FieldRolloverTextColor' : rot,#k.A.
+                    'GroupTextColor' : rot,#k.A.
+                    'HelpColor' : rot,#k.A.
+                    'HelpTextColor' : rot,#k.A.
+                    'InactiveTabColor' : rot,#k.A.
+                    'InfoTextColor' : rot,#k.A.
+                    'MenuBarColor' : rot,#k.A.
+                    'MenuBarTextColor' : rot,#k.A.
+                    'MenuBorderColor' : rot,#k.A.
+                    'MenuColor' : rot,#k.A.
+                    'WindowColor' : rot,#k.A.
+
+                    'MenuHighlightColor' : rot,#k.A.
+                    'MenuHighlightTextColor' : rot,#k.A.
+                    'MenuTextColor' : schrift,#k.A.
+                    'MonoColor' : rot, #k.A.
+                    'RadioCheckTextColor' : schrift,#k.A.
+                    'WorkspaceColor' : rot, #k.A.
+#                     erzeugen Fehler:
+#                     'FaceGradientColor' : 502,
+                    'SeparatorColor' : 502,                    
+                    }
+        
+ 
+        def stilaenderung(win,ignore=[]):
+
+            for s in STYLES:
+                if s in ignore: 
+                    pass
+                else:
+                    try:
+                        val = STYLES[s]
+                        setattr(win.StyleSettings, s, val)
+                    except Exception as e:
+                        pass
+            try:    
+                
+                win.Model.BackgroundColor = hf 
+            except Exception as e:
+                print(e)
+                #pd()
+                pass
+                #win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
+            #pd()
+
+
+        
+        # folgende Properties wuerden die Eigenschaften
+        # der Office Menubar und aller Buttons setzen
+        ignore = ['ButtonTextColor',
+                 'LightColor',
+                 'MenuBarTextColor',
+                 'MenuBorderColor',
+                 'ShadowColor'
+                 ]
+
+
+        
+        stilaenderung(win)
+        parent = win.AccessibleContext.AccessibleParent
+        #stilaenderung(win.Windows[0])
+        #stilaenderung(win.Windows[1])
+#         
+        stilaenderung(parent)
+        
+#         for w in parent.AccessibleContext.AccessibleParent.Windows:
+#             stilaenderung(w)
+        
+        
+        #pd()
+    except Exception as e:
+        log(inspect.stack,tb())    
+
+from com.sun.star.awt import XWindowListener
+from com.sun.star.lang import XEventListener
+class Sidebar_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
     
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        
+        self.mb = mb
+        #self.wins = wins
+        self.listener = None
+    
+    def windowResized(self,ev):
+        print('windowResized')
+    def windowMoved(self,ev):
+        print('windowMoved')
+    def windowShown(self,ev):
+        print('windowShown')
+    def windowHidden(self,ev):
+        print('windowHidden')
+    def disposing(self,arg):
+        print('disposing')
+        
+    def listener_entfernen(self):
+        if self.mb.debug: log(inspect.stack)
+        for w in self.wins:
+            w.removeWindowListener(self.listener)
+            self.listener.dispose()
+            
+    def get_seitenleiste(self):
+        
+        desk = self.mb.desktop
+        contr = desk.CurrentComponent.CurrentController
+        wins = contr.ComponentWindow.Windows
+        
+        childs = []
+
+        for w in wins:
+            ps = w.PosSize
+            x,y,X,Y = ps.X,ps.Y,ps.Width,ps.Height
+            #print(x,y,X,Y)
+
+            if w.AccessibleContext.AccessibleChildCount == 0:
+                continue
+            else:
+                child = w.AccessibleContext.getAccessibleChild(0)
+                if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
+                    continue
+                else:
+                    childs.append(child)
+        
+        orga_sb = None
+        ch = None
+        try:
+            for c in childs:
+                for w in c.Windows:
+                    try:
+                        for w2 in w.Windows:
+                            if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                                orga_sb = w2
+                                ch = c
+                    except:
+                        pass
+        except:
+            log(inspect.stack,tb())
+        
+        if not orga_sb:
+            self.listener = Sidebar_Window_Listener(self.mb,wins)
+            self.listener.listener = self.listener
+            for w in wins:
+                w.addWindowListener(self.listener)
+        
+        return orga_sb,ch      
+
 
     
     

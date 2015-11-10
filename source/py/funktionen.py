@@ -390,8 +390,7 @@ class Funktionen():
             neu.attrib['Tag2'] = alt.attrib['Tag2']
             neu.attrib['Tag3'] = alt.attrib['Tag3']
             
-            for tag in self.mb.dict_sb_content['sichtbare']:
-                self.mb.class_Sidebar.erzeuge_sb_layout(tag,'teile_text')
+            self.mb.class_Sidebar.erzeuge_sb_layout(None,'teile_text')
                 
         except Exception as e:
             self.mb.nachricht('teile_text ' + str(e),"warningbox")

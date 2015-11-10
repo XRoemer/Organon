@@ -35,7 +35,7 @@ from codecs import open as codecs_open
             # DEBUGGING / REMOTE CONTROL #
 ####################################################
 
-load_reload = False
+load_reload = True
 
 if load_reload:
     sys.dont_write_bytecode = True
@@ -53,7 +53,7 @@ def pydevBrk():
     if platform == 'linux':
         sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
     else:
-        sys.path.append(r'H:/Programme/eclipse/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
+        sys.path.append(r'C:/Users/Homer/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc')  
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
 pd = pydevBrk
@@ -345,7 +345,7 @@ set_konst()
 ####################################################
 
 
-dict_sb = {'sichtbare':['empty_project'],
+dict_sb = {'sichtbare':[],
            'controls':{},
            'erzeuge_sb_layout':None,
            'optionsfenster':None,
@@ -357,7 +357,7 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
 
     def __init__( self, ctx ):
         self.ctx = ctx   
-        
+
         
     def createUIElement(self,url,args):    
         cmd = url.split('/')[-1]
@@ -389,25 +389,50 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             
             conts = dict_sb['controls']
             
-            if cmd in dict_sb['sichtbare']:
-
-                conts.update({cmd:(xUIElement,sidebar,xParentWindow)})
+            if cmd not in conts:
+                conts.update({cmd:(xUIElement,sidebar,xParentWindow,args)})
                 dict_sb.update({'controls':conts})
-
-                if dict_sb['erzeuge_sb_layout'] != None:
-                    erzeuge_sb_layout = dict_sb['erzeuge_sb_layout']
-                    dict_sb['sb_closed'] = False
-                    erzeuge_sb_layout(cmd,'factory')
-                    
-
-                return xUIElement
             else:
-                if cmd in conts:
-                    del(conts[cmd])
-                return None
+                cont = dict_sb['controls'][cmd][0]
+                cont.dispose()
+                
+            conts.update({cmd:(xUIElement,sidebar,xParentWindow,args)})
+            dict_sb.update({'controls':conts})
             
+            if dict_sb['erzeuge_sb_layout'] != None:
+ 
+                erzeuge_sb_layout = dict_sb['erzeuge_sb_layout']
+                dict_sb['sb_closed'] = False
+                erzeuge_sb_layout(cmd,'factory')
+            else:
+                pos_y = 10
+                height = 50 
+                width = 282 
+                panelWin = xUIElement.Window
+
+                text = u'No Project loaded'
+                prop_names = ('Label',)
+                prop_values = (text,)
+                control, model = self.createControl(self.ctx, "FixedText", 10, pos_y, width, height, prop_names, prop_values)  
+                panelWin.addControl('Synopsis', control)
+        
+                        
+            return xUIElement
+     
         except Exception as e:
-            #print('createUIElement '+ str(e))
+            log(inspect.stack,tb())
+            
+            
+    def createControl(self,ctx,type,x,y,width,height,names,values):
+        try:
+            smgr = ctx.getServiceManager()
+            ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+            ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
+            ctrl_model.setPropertyValues(names,values)
+            ctrl.setModel(ctrl_model)
+            ctrl.setPosSize(x,y,width,height,15)
+            return (ctrl, ctrl_model)
+        except:
             log(inspect.stack,tb())
        
 g_ImplementationHelper = unohelper.ImplementationHelper()
@@ -761,39 +786,6 @@ class XUIPanel( unohelper.Base,  XSidebarPanel, XUIElement, XToolPanel, XCompone
         return 100
 
 
-from com.sun.star.frame import XDispatch,XDispatchProvider
-class Sidebar_Options_Dispatcher(unohelper.Base,XDispatch,XDispatchProvider):
-
-    IMPLE_NAME = "org.apache.openoffice.Organon.sidebar.ProtocolHandler"
-    SERVICE_NAMES = IMPLE_NAME,
-     
-    @classmethod
-    def get_imple(klass):
-        #pydevBrk()
-        return klass, klass.IMPLE_NAME, klass.SERVICE_NAMES
-    
-    def __init__(self,*args):
-        pass
-    def queryDispatches(self,*args):
-        return
-    def queryDispatch(self,featureURL,frameName,searchFlag):
-        return self
-    def dispatch(self,featureURL,*args):
-        optionsfenster = dict_sb['optionsfenster']
-        optionsfenster(featureURL.Path)
-    def addStatusListener(self,listener,featureURL):
-        #print('addStatusListener', featureURL.Path)
-        return
-    def removeStatusListener(self,listener,featureURL):
-        #print('removeStatusListener', featureURL.Path)
-        return
-    
-
-        
-        
-g_ImplementationHelper.addImplementation(*Sidebar_Options_Dispatcher.get_imple())
-
-
 
 ####################################################
                 # WRITER DESIGN #
@@ -879,7 +871,7 @@ def set_app_style():
                     # Sidebar
                     'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
                     'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
-                    'FaceColor' : (schrift if LO        # LO Formatvorlagen Treeview Verbinder
+                    'FaceColor' : (hf if LO        # LO Formatvorlagen Treeview Verbinder
                                     else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
                     'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
                                     else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum

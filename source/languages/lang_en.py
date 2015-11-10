@@ -209,9 +209,6 @@ TAGS_IN_AKT_DAT_LOESCHEN = u'''Tag will be deleted within the selected file/fold
 TAG_LOESCHEN = u'''Removes tag from this panel'''
 TAG_HINZUFUEGEN = u'''Click to add tag'''
 ENTER_NEW_TAG = u'''Enter new tag and press return.'''
-IN_PROJEKTORDNER_IMPORTIEREN = u'''The selected image will be imported to the project-folder.'''
-BILD_EINFUEGEN = u'''Insert Image'''
-BILD_LOESCHEN = u'''Delete Image'''
 ZEIT2 = u'''Time:'''
 DATUM = u'''Date:'''
 

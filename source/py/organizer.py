@@ -151,10 +151,10 @@ class Organizer():
         for f in farben:
             setattr(self, f, sett[f])
             
-        if sett['design_office'] and sett['office']['nutze_dok_farbe']:
-            self.hintergrund = sett['office']['dok_hintergrund']
-        else:
-            self.hintergrund = 15790320 # LO grau
+        #if sett['design_office'] and sett['office']['nutze_dok_farbe']:
+        self.hintergrund = sett['office']['dok_hintergrund']
+#         else:
+#             self.hintergrund = 15790320 # LO grau
         
     
     def erzeuge_button(self,lbl,btn_name,pos,listener):
@@ -567,8 +567,6 @@ class Organizer():
             sichtbare = self.mb.dict_sb_content['sichtbare']
             self.mb.dict_sb_content = self.dict_sb_content
             
-            for tag in sichtbare:
-                self.mb.class_Sidebar.erzeuge_sb_layout(tag,'focus_lost')
             self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','focus_lost')
             
             for ord in self.modify_listener.aenderung_dateinamen:

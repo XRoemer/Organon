@@ -4,7 +4,7 @@
 							xmlns:d="http://openoffice.org/extensions/description/2006"
 							xmlns:l="http://libreoffice.org/extensions/description/2011">
 		<identifier value="xaver.roemers.organon" />
-		<version value="0.9.9.8.2b" />
+		<version value="0.9.9.8.3b" />
 		
 		<dependencies>
 				<d:OpenOffice.org-minimal-version value="3.4" d:name="OpenOffice.org 3.4" />
