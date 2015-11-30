@@ -6,7 +6,8 @@ http://extensions.openoffice.org/en/project/organon
 
 ###Organon is a tool for novelists and scientific authors.
 
-It's a plugin for LibreOffice and OpenOffice.
+Organon is a plugin for LibreOffice and OpenOffice.
+
 Organon allows to split up large texts into parts, allows tagging and opening parts of the project in new tabs.
 
 Parts are shown in a treeview. Entries can be moved by drag and drop.
