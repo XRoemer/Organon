@@ -42,12 +42,6 @@ Organon's projects are platform independent and might be edited on different com
 * Writer tools like search, view Full Screen, spelling and grammar, and plugins can still be used.
 
 
-Extension for LibreOffice (LO) and OpenOffice (OO)
-testet with: 
-	Win7 (LO 4.3.5.2 und OO 4.1.1) 
-	Ubuntu 14.04 (LO 4.2.8.2), 
-	Kubuntu 14.04 KDE 4.13.3 (LO 4.2.7.2, OO 4.1.1)
-	not testet with Mac
 
 **WARNING**:         This is still a beta version.
 
