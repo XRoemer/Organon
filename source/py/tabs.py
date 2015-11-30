@@ -116,23 +116,29 @@ class Tabs():
         return ordinale
         
 
-        
-
-    
     def get_ordinale_seitenleiste(self,in_tab_einfuegen):
         if self.mb.debug: log(inspect.stack)
         
         try:
-
+            tags = self.mb.tags
+            if in_tab_einfuegen:
+                props = self.mb.props['ORGANON']
+            else:
+                props = self.mb.props[T.AB]
+                
             tab_auswahl = self.mb.props[T.AB].tab_auswahl
             selektierte_tags = tab_auswahl.seitenleiste_tags.split(', ')
             
-            ordinale = []
-            
             if len(selektierte_tags) == 0:
-                return ordinale
+                return []
             
-            alle_tag_eintraege = self.mb.dict_sb_content['ordinal']
+            
+            alle_ordinale = list(k[0] for i,k in props.dict_zeilen_posY.items() if k[2] not in props.dict_ordner[props.Papierkorb])
+            tag_panels = list(tags['sammlung'])
+            alle_tags_in_ordinal = {j : 
+                              [ k for i in tag_panels for k in tags['ordinale'][j][i] ] 
+                              for j in tags['ordinale']} 
+
 
             if tab_auswahl.seitenleiste_log_tags == 'V':
                 # Alle Eintraege
@@ -140,10 +146,13 @@ class Tabs():
             else:
                 # Nur Eintraege, in denen alle Tags vorkommen
                 UND = True
-                        
-            for tag_eintrag in alle_tag_eintraege:
+            
+            
+            ordinale = []
+                       
+            for ordi in alle_ordinale:
                 if in_tab_einfuegen:
-                    if tag_eintrag  in self.im_tab_vorhandene:
+                    if ordi in self.im_tab_vorhandene:
                         continue
                     
                 tag_ist_drin = False
@@ -151,7 +160,7 @@ class Tabs():
                 
                 for s_tag in selektierte_tags:
 
-                    if s_tag in alle_tag_eintraege[tag_eintrag]['Tags_general']:
+                    if s_tag in alle_tags_in_ordinal[ordi]:
                         tag_ist_drin = True
                         s_tag_ist_drin.append(True)
                     else:
@@ -165,10 +174,10 @@ class Tabs():
                             break
                         
                 if tag_ist_drin:
-                    ordinale.append(tag_eintrag)
+                    ordinale.append(ordi)
         except:
             log(inspect.stack,tb())
-
+        
         return sorted(ordinale)
     
     def get_ordinale_baumansicht(self,in_tab_einfuegen):
@@ -427,52 +436,95 @@ class Tabs():
         control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x4, y, 210, 20, (), ())  
         cont.addControl('Line', control)
                 
-        ####################
-
-                
+        #################### nach Zeit / Datum ordnen ####################################
+        tags = self.mb.tags
+        kat_zeit = tuple(v[0] for i,v in tags['nr_name'].items() if v[1] == 'time')
+        kat_datum = tuple(v[0] for i,v in tags['nr_name'].items() if v[1] == 'date')
+              
         y += 50
         
         prop_names = ('Label',)
         prop_values = (LANG.ZEITLICH_ANORDNEN,)
-        control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('Zeit', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
+        control0, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, 290, 20, prop_names, prop_values)  
+        cont.addControl('Zeit', control0)
+        self.mb.kalkuliere_und_setze_Control(control0,'w')
+                
         y += 20
+        
+        
+        prop_names = ('Border','Dropdown','LineCount',)
+        prop_values = (2,True,5)
+        control2, model = self.mb.createControl(self.mb.ctx, "ListBox", x5, y, width2, 18, prop_names, prop_values)  
+        control2.addItems(kat_zeit,0)
+        cont.addControl('zeit_lb', control2)
+
+        y += 20
+        
+        prop_names = ('Border','Dropdown','LineCount',)
+        prop_values = (2,True,5)
+        control4, model = self.mb.createControl(self.mb.ctx, "ListBox", x5, y, width2, 18, prop_names, prop_values)  
+        control4.addItems(kat_datum,0)
+        cont.addControl('datum_lb', control4)
+                
+        y += 40
+        
+        prop_names = ('Label',)
+        prop_values = (LANG.UNAUSGEZEICHNETE,)
+        control6, model = self.mb.createControl(self.mb.ctx, "CheckBox", x4 + 7, y, 290, 20, prop_names, prop_values)  
+        cont.addControl('Zeit2', control6)
+        self.mb.kalkuliere_und_setze_Control(control6,'w')
+        
+        # RadioButtons
+        
+        y -= 60
         
         prop_names = ('Label',)
         prop_values = (LANG.NUTZE_ZEIT,)
-        control, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('z1', control)
-        control.State = 1
-        self.mb.kalkuliere_und_setze_Control(control,'w')
+        control1, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
+        cont.addControl('z1', control1)
+        
+        self.mb.kalkuliere_und_setze_Control(control1,'w')
         
         y += 20
         
         prop_names = ('Label',)
         prop_values = (LANG.NUTZE_DATUM,)
-        control, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('z2', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
+        control3, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
+        cont.addControl('z2', control3)
+        self.mb.kalkuliere_und_setze_Control(control3,'w')
         
         y += 20
         
         prop_names = ('Label',)
         prop_values = (LANG.NUTZE_ZEIT_UND_DATUM,)
-        control, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('z3', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
+        control5, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
+        cont.addControl('z3', control5)
+        self.mb.kalkuliere_und_setze_Control(control5,'w')
         
-        y += 20
         
-        prop_names = ('Label',)
-        prop_values = (LANG.UNAUSGEZEICHNETE,)
-        control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('Zeit2', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
+        if kat_zeit != ():
+            control1.State = 1
+            control2.selectItem(kat_zeit[0],True)
+        else:
+            control1.setEnable(False)
+            control2.setEnable(False)
+            
+        if kat_datum != ():
+            control4.selectItem(kat_datum[0],True)
+            if kat_zeit == ():
+                control3.State = 1
+        else:
+            control3.setEnable(False)
+            control4.setEnable(False)
+            
+        if kat_datum == () and kat_zeit == ():
+            control0.setEnable(False)
+            control5.setEnable(False)
+            control6.setEnable(False)
         
-
-   
+        
+        y += 40
+        
         y += 30
         
         ###########################  TRENNER #####################################################
@@ -535,73 +587,88 @@ class Tabs():
     
     def sortiere_ordinale_zeitlich(self,ordinale,tab_auswahl):
         if self.mb.debug: log(inspect.stack)
-      
-        dict_sb = self.mb.dict_sb_content['ordinal']
-        
-        if tab_auswahl.kein_tag_einbeziehen == 1: 
-            nutze_alle = True
-        else:
-            nutze_alle = False
-        
-        
-        def berechne_ords(attribut):
-            i = 0
-            list_zeit = []
-            for ordi in ordinale:
-                zeit = dict_sb[ordi]['Tags_time'][attribut]
-                if zeit == None:
+        try:
+            dat_format = self.mb.settings_proj['datum_format']
+            dat_trenner = self.mb.settings_proj['datum_trenner']
+
+            if tab_auswahl.nutze_datum or tab_auswahl.nutze_zeit_und_datum:
+                panel_nr_datum = [i for i,v in self.mb.tags['nr_name'].items() if v[0] == tab_auswahl.sel_datum][0]
+            if tab_auswahl.nutze_zeit or tab_auswahl.nutze_zeit_und_datum:    
+                panel_nr_zeit = [i for i,v in self.mb.tags['nr_name'].items() if v[0] == tab_auswahl.sel_zeit][0]
+            
+            dict_tags = self.mb.tags['ordinale']
+            
+            if tab_auswahl.kein_tag_einbeziehen == 1: 
+                nutze_alle = True
+            else:
+                nutze_alle = False
+            
+            
+            def berechne_ords(panel_nr):
+                i = 0
+                list_zeit = []
+                for ordi in ordinale:
+                    zeit = dict_tags[ordi][panel_nr]
+                    if zeit == None:
+                        if not nutze_alle:
+                            continue
+                        zeit = 'None'+str(i)
+                        i += 1
+                    list_zeit.append((zeit,ordi))
+                
+                return sorted(list_zeit)
+            
+            
+            if tab_auswahl.nutze_zeit == 1:                
+                sortierte_liste = berechne_ords(panel_nr_zeit)
+                
+            elif tab_auswahl.nutze_datum == 1:
+                sortierte_liste = berechne_ords(panel_nr_datum)
+                
+            else:
+                i = 0
+                list_zeit = []
+                
+                
+                for ordi in ordinale:
+                    zeit = dict_tags[ordi][panel_nr_zeit]
+                    datum_dict = dict_tags[ordi][panel_nr_datum]
+                    
+                    if datum_dict != None:
+                        jahr = datum_dict['yyyy']
+                        monat = datum_dict['mm']
+                        tag = datum_dict['dd']
+                        
+                        datum = jahr + monat + tag
+                    else:
+                        datum = '9999999999999999999999'
+                    
+                    # Wenn d + t gewaehlt wurde, sollte zumindest ein Datum angegeben worden sein
+                    # Wenn nicht, wird der Ordinal hier entfernt
                     if not nutze_alle:
-                        continue
-                    zeit = 'None'+str(i)
-                    i += 1
-                list_zeit.append((zeit,ordi))
-            
-            return sorted(list_zeit)
-        
-        
-        if tab_auswahl.nutze_zeit == 1:                
-            sortierte_liste = berechne_ords('zeit')
-            
-        elif tab_auswahl.nutze_datum == 1:
-            sortierte_liste = berechne_ords('datum')
-            
-        else:
-            i = 0
-            list_zeit = []
-            
-            for ordi in ordinale:
-                zeit = dict_sb[ordi]['Tags_time']['zeit']
-                datum = dict_sb[ordi]['Tags_time']['datum']
-                
-                # Wenn d + t gewaehlt wurde, sollte zumindest ein Datum angegeben worden sein
-                # Wenn nicht, wird das Ordinal hier entfernt
-                if not nutze_alle:
-                    if datum == None:
-                        continue
-                
-                if zeit == None:
-                    zeit = str(23599999)
-                elif zeit == 0:
-                    zeit = '00000000'
+                        if datum == None:
+                            continue
                     
-                zeit = str(zeit)[:5]
-                
-                
-                if datum == None:
-                    datum = 99991231
+                    if zeit == None:
+                        zeit = str(23599999)
+                    elif zeit == 0:
+                        zeit = '00000000'
+                    else:
+                        zeit = zeit.replace(':','')
+                        
+                    zeit2 = str(zeit)[:5]
                     
-                datum = str(datum)
-                datumzeit = int(datum+zeit)
-                list_zeit.append((datumzeit,ordi))
-                
-            sortierte_liste = sorted(list_zeit)
-
-        sort_list = list(x[1] for x in sortierte_liste)
-        return sort_list
-        
-        
-
-       
+                    datumzeit = int(datum+zeit2)
+                    list_zeit.append((datumzeit,ordi))
+                    
+                sortierte_liste = sorted(list_zeit)
+    
+            sort_list = list(x[1] for x in sortierte_liste)
+            
+            return sort_list
+        except:
+            log(inspect.stack,tb())
+            
  
 
 from com.sun.star.awt import XActionListener,XTextListener
@@ -650,6 +717,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                         
                         ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(False)
                         if ordinale == []:
+                            self.mb.popup(LANG.AUSWAHL_KEIN_ERGEBNIS,2)
                             return
                         self.mb.tabsX.erzeuge_neuen_tab2(ordinale)
 
@@ -664,6 +732,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
     
                     if ordinale == []:
+                        self.mb.popup(LANG.AUSWAHL_KEIN_ERGEBNIS,2)
                         return
                     self.mb.tabsX.fuege_ausgewaehlte_in_tab_ein(ordinale)
                     
@@ -807,16 +876,13 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-
             x,y = self.get_fenster_position(ev)
             posSize = (x,y,970,400)
             
             win,cont = self.mb.erzeuge_Dialog_Container(posSize)
-            
-            tags = self.mb.dict_sb_content['tags']
-            
-            dict_panels = self.mb.class_Sidebar.sb_panels1
-            ausgew_tags = 'Tags_characters','Tags_objects','Tags_locations','Tags_user1','Tags_user2','Tags_user3'
+
+            sammlung = self.mb.tags['sammlung']
+            tag_panels = [[i,v[0]] for i,v in self.mb.tags['nr_name'].items() if v[1] == 'tag']
             
             prop_names = ('Label',)
             prop_values = (LANG.AUSGEWAEHLTE,)
@@ -824,56 +890,32 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             model.FontWeight = 200.0 
             cont.addControl('ausgewaehlte_XXX', control)
             
-
-            #Tags_general
             self.controls = []
             auswahl_listener = Auswahl_Tags_Listener(self.mb,win,cont,self.controls,ev.Source)
-            alle_tags = tags['Tags_general'][:]
 
             x = 150
             width = 100
 
-            for tag in ausgew_tags:
+            for nr,name in tag_panels:
 
                 prop_names = ('Label','Align')
-                prop_values = (dict_panels[tag],1)
+                prop_values = (name,1)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", x, 10, width, 20, prop_names, prop_values)  
-                cont.addControl(dict_panels[tag], control)
+                cont.addControl(name, control)
                 
                 y = 0
-                for t in tags[tag]:
+                for t in sammlung[nr]:
                     prop_names = ('Label',)
                     prop_values = (t,)
                     control, model = self.mb.createControl(self.mb.ctx, "Button", x + 10, y + 30, width - 20, 20, prop_names, prop_values)  
                     cont.addControl(t, control)
                     control.setActionCommand(t)
                     control.addActionListener(auswahl_listener)
-                    
-                    if t in alle_tags:
-                        alle_tags.remove(t)
-                    
+
                     y += 25
-                
                 
                 x += (width + 10)
                 
-            ############## TAGS ALLGEMEIN #####################
-            prop_names = ('Label','Align')
-            prop_values = (dict_panels['Tags_general'],1)
-            control, model = self.mb.createControl(self.mb.ctx, "FixedText", x, 10, width, 20, prop_names, prop_values)  
-            cont.addControl(dict_panels['Tags_general'], control)
-            
-            y = 0
-            for t in alle_tags:
-                prop_names = ('Label',)
-                prop_values = (t,)
-                control, model = self.mb.createControl(self.mb.ctx, "Button", x + 10, y + 30, width - 20, 20, prop_names, prop_values)  
-                cont.addControl(t, control)
-                control.setActionCommand(t)
-                control.addActionListener(auswahl_listener)
-                
-                y += 25
-            
             dispose_listener = Listener_for_Win_dispose(self.mb,'seitenleiste')
             win.addEventListener(dispose_listener)
             
@@ -906,7 +948,9 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         tab_auswahl.zeitlich_anordnen = main_win.getControl('Zeit').State
         tab_auswahl.kein_tag_einbeziehen = main_win.getControl('Zeit2').State
         tab_auswahl.nutze_zeit = main_win.getControl('z1').State
+        tab_auswahl.sel_zeit = main_win.getControl('zeit_lb').SelectedItem
         tab_auswahl.nutze_datum = main_win.getControl('z2').State
+        tab_auswahl.sel_datum = main_win.getControl('datum_lb').SelectedItem
         tab_auswahl.nutze_zeit_und_datum = main_win.getControl('z3').State
         
         if self.in_tab_einfuegen:
@@ -1234,7 +1278,7 @@ class TabsX():
 
             return tab_fenster
             
-        except:
+        except Exception as e:
             log(inspect.stack,tb())
 
         
@@ -1326,7 +1370,7 @@ class TabsX():
         container_hf,model_hf = self.mb.createControl(self.mb.ctx,'Container',
                                                       0,0,self.breite_hauptfeld,self.hoehe_hauptfeld,
                                        ('BackgroundColor',),(KONST.FARBE_HF_HINTERGRUND,))
-
+        
         return container_hf
     
 
@@ -1439,7 +1483,7 @@ class TabsX():
                 
                 if not wurde_geloescht:
                     if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                        self.mb.class_Sidebar.erzeuge_sb_layout(None)
+                        self.mb.class_Sidebar.erzeuge_sb_layout()
                 
         except:
             log(inspect.stack,tb())

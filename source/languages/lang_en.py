@@ -210,7 +210,7 @@ TAG_LOESCHEN = u'''Removes tag from this panel'''
 TAG_HINZUFUEGEN = u'''Click to add tag'''
 ENTER_NEW_TAG = u'''Enter new tag and press return.'''
 ZEIT2 = u'''Time:'''
-DATUM = u'''Date:'''
+DATUM = u'''Date'''
 
 # TABS
 ERZEUGE_NEUEN_TAB_AUS = u'''Create new Tab from:'''
@@ -418,30 +418,35 @@ OO_ORGANIZER_INFO = u'''If one makes use of the Organizer in OpenOffice, the Org
 '''
 ORGANIZER_INFO = u'''Usage of the Organizer:
 
-The Organizer displays all the tags of a tab in a table.
+The Organizer is used for an overview and fast editing of all tags.
+Only categories, which are set to visible in Organon Menu / View, are shown.
 
-Changes are made by new entries in the Fields. Changes are adopted by a click on the button "{0}".
+Possible Tags Categories are:
+- Classical Tags
+- Continuous text
+- Images
+- Date
+- Time
 
-Changes of the icons on the left side are immediatly adopted without a feedback.
+Categories can be edited in the preferences dialog.
 
-The menu of Calc can be opened by clicking on "{1}", so the file can be used otherwise. (printing for example)
+In continuous text line breaks are produced by Ctrl + Enter.
+Classic Tags are separated by commas.
+Images are inserted and changed by clicking on the cell.
+The time has a 24-hour format (00:00 to 23:59)
+The date format can be adjusted in the settings.
+Folders and files can be renamed in the Organizer.
+
+Changes are made by new entries in the Fields and they are adopted by a click on the button "Apply". Also, when changes were made and the Organizer gets closed, one will be asked, if the changes should be applied.
+
+Changes of the icons on the left side are adopted without a feedback immediatly.
+
+The menu of Calc can be opened by clicking on "Menu", so the file can be used otherwise. (printing for example)
 Do not insert rows or columns or change the document from the menu, if you still want to use it with Organon. Such changes might cause a corrupt tag file.
 
-If you don't want to apply any changes, Calc might simply be closed.
+If you don't want to apply any changes, Calc might simply be closed and the following request denied.
 
-The tags "{2}" and "{3}" may contain body text.
-Line breaks are created with Ctrl + Enter.
-Entries in the tags "{4}", "{5}", etc. are separated by commas.
-
-To set the tags of the tree view (icons on the left) one has to click NEXT to them and not on them. Unfortunately, this is a technical restriction, which can not so easily be eliminated.
-Also new icons can be inserted. This requires likewise to click next to the location, where in case of an existing tag this would be located.
-
-Files might be renamed in the Organizer, but this change is not applied to the document yet.
-
-The Organizer does not offer all functions yet. 
-(For example, time, date, different views) 
-Comming soon.
-
+The opening of the Organizer gets slowed down by images in image-categories and the icons-categories on the left side. If you want to speed up the process, set these categories to invisible. (The larger the sizes of images are, the more the Organizer gets slowed down. A recalculation of images to thumbnails is missing at the moment.)
 '''
 
 # SHORTCUTS
@@ -452,6 +457,32 @@ FORMATIERUNG_SPEICHERN2 = u'''Save last edited File'''
 BAUMANSICHT_HOCH = u'''Treeview one Entry up'''
 BAUMANSICHT_RUNTER = u'''Treeview one Entry down'''
 BENENNE_DATEI_UM = u'''Rename File'''
+
+# TAGS CATEGORIES
+AUSWAHL_KEIN_ERGEBNIS = u'''No results for your selection'''
+            
+TAGS = u'''Tags'''
+TAG = u'''Tag'''
+KATEGORIE = u'''Category'''
+NEUE_KATEGORIE = u'''New Category'''
+TYP = u'''Type'''
+TEXT = u'''Text'''
+DATUMSFORMAT = u'''Format of Date'''
+KATEGORIE_VERSCHIEBEN = u'''Move Category'''
+KATEGORIE_LOESCHEN = u'''Delete Category'''
+VORHANDENE_TAGS = u'''Existing Tags'''
+AENDERUNGEN_UEBERNOMMEN = u'''Changes have been applied'''
+KEINE_GUELTIGE_ZAHL = u'''"{0}" is not a valid number'''
+KATEGORIE_EXISTIERT = u'''The category "{0}" already exists'''
+KATEGORIE_UNGUELTIG = u'''The category {0} has no valid name.'''
+KATEGORIE_NAMEN_EINGEBEN = u'''Enter a name for the new category.'''
+AENDERN = u'''Apply'''
+KATEGORIE_UEBERNEHMEN = u'''Following categories will be deleted:
+        
+{0}
+
+Proceed?
+'''
 
 # TRANSLATIONS
 UEBERSETZUNGEN = u'''Translations'''
@@ -479,7 +510,6 @@ UNGUELTIGE_ANZAHL2 = u'''The amount of "{{}}" doesn't fit:
 # ORGANON TEMPLATES
 TEMPLATES_ORGANON = u'''Organon Templates'''
 TEMPLATES_WRITER = u'''Writer Templates'''
-TEMPLATE_USER = u'''Template User'''
 NUTZEN = u'''use'''
 VORLAGENORDNER = u'''Templates Folder'''
 AKT_PRJ_ALS_TEMPL = u'''Save current project as template'''

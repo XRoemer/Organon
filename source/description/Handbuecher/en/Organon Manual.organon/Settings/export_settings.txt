@@ -28,9 +28,9 @@
  'seitenumbruch_dat': 0,
  'seitenumbruch_ord': 1,
  'sichtbar': 0,
- 'speicherort': u'file:///C:/Users/Homer/Desktop/Neuer%20Ordner',
+ 'speicherort': 'file:///C:/Users/Homer/Desktop/Neuer%20Ordner',
  'style_dat': 'Heading',
  'style_ord': 'Heading',
  'trenner': 1,
- 'typ': u'writer_pdf_Export',
+ 'typ': 'writer_pdf_Export',
  'url': ''}

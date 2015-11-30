@@ -8,20 +8,16 @@ class Organizer():
     - keine zwei Instanzen des Organizers oeffnen
     - beim Schließen von Calc evt. User Icons loeschen
     ( modul funktionen: Tag2_Item_Listener.galerie_icon_im_prj_ordner_evt_loeschen() )
-    - Dateien umbenennen
-    - Tags Zeit/Datum
-    - Tags Allgemein
     - Einfuegen von Dateien/Ordnern und
     - Verschieben (dann muesste allerdings die Baumstruktur abgebildet werden. Evt. zu kompliziert)
     - Loeschen (in den Papierkorb verschieben)
-    - Optionen: anzuzeigende Tags und deren Breite einstellen
     '''
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.dict_sb_content = None
+        self.tags_org = None
         self.calc = None
         self.sheet = None
         self.sheet_controller = None
@@ -30,37 +26,8 @@ class Organizer():
         self.btn = []
         self.data_array = []
         self.first_time_info = True
-        
-        self.spalten = [
-           'Synopsis',
-           'Notes', 
-#                        'Images', 
-           'Tags_characters', 
-           'Tags_locations', 
-           'Tags_objects', 
-           'Tags_user1', 
-           'Tags_user2', 
-           'Tags_user3',
-           ]
-            
-        self.spalten2 = [
-                LANG.DATEI,
-                LANG.SYNOPSIS,
-                LANG.NOTIZEN,
-#                     LANG.BILDER,
-                LANG.CHARAKTERE,
-                LANG.ORTE,
-                LANG.OBJEKTE,
-                #LANG.ZEIT,
-                LANG.BENUTZER1,
-                LANG.BENUTZER2,
-                LANG.BENUTZER3
-                ]
-        
-        # self.pos bestimmt den Ort der Tabelle
-        # Wenn eine Spalte/Zeile mehr benoetigt werden sollte,
-        # können die ersten beiden Werte geaendert werden
-        self.pos = [ 3, 3, 3 + len(self.spalten2), 3 ]
+        self.rangex = None
+        self.bilder_reihe = {}
         
         # Die Color items sollten mal uebersetzt werden!
         self.color_items = (
@@ -83,7 +50,8 @@ class Organizer():
                 'weiss')
         
         
-    def run(self):
+        
+    def run(self): 
         if self.mb.debug: log(inspect.stack)
         
         try:
@@ -96,29 +64,71 @@ class Organizer():
                 # Kein Projekt geladen
                 return
             
-            self.dict_sb_content = copy.deepcopy(self.mb.dict_sb_content)
+            
+            self.initialisiere()
+            self.erzeuge_listener_und_event()
             
             self.oeffne_calc()
             self.get_farben()
-            self.setze_eintraege()
+            self.get_eintraege()
             self.erzeuge_ansicht()
-            self.erzeuge_steuerung()
             
-            self.setze_icons()            
+            rangex = self.sheet.getCellRangeByPosition(0,0,0,0)
+            self.sheet_controller.select(rangex)
+            
+            self.erzeuge_steuerung()
+            self.setze_eintraege()
+            self.setze_icons()   
+            # in den hintergrund         
             self.schuetze_document()
             
             handler = Enhanced_MC_Handler(self.mb,self)
             self.sheet_controller.addEnhancedMouseClickHandler(handler)
             
-            rangex = self.sheet.getCellRangeByPosition(0,0,0,0)
-            self.sheet_controller.select(rangex)
             self.calc.CurrentController.freezeAtPosition(0,4)
             
             self.calc.setModified(False)
-                        
+     
         except:
             log(inspect.stack,tb())
 
+
+    def initialisiere(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        tags = self.mb.tags
+        self.bilder_reihe = {}
+        self.tags_org = copy.deepcopy(self.mb.tags)
+        
+        self.spalten = [a for a in tags['abfolge'] if a in tags['sichtbare']]
+        self.spalten2 = [tags['nr_name'][a][0] for a in tags['abfolge'] if a in tags['sichtbare']]
+        self.spalten2.insert(0, LANG.DATEI)
+        
+        self.bild_panels = [t for t in self.spalten if self.tags_org['nr_name'][t][1] == 'img']
+        self.txt_panels = [t for t in self.spalten if self.tags_org['nr_name'][t][1] == 'txt']
+        self.date_panels = [t for t in self.spalten if self.tags_org['nr_name'][t][1] == 'date']
+        self.time_panels = [t for t in self.spalten if self.tags_org['nr_name'][t][1] == 'time']
+        # self.pos bestimmt den Ort der Tabelle
+        # Wenn eine Spalte/Zeile mehr benoetigt werden sollte,
+        # können die ersten beiden Werte geaendert werden
+        self.pos = [ 3, 3, 3 + len(self.spalten2), 3 ]
+        
+        
+    def erzeuge_listener_und_event(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        self.listener_btn_click = Button_Click_Listener(self.mb,self)
+        self.listener_icons = Icons_Listener(self.mb,self)
+        
+        oEvent = uno.createUnoStruct('com.sun.star.script.ScriptEventDescriptor')
+        oEvent.ListenerType = "com.sun.star.awt.XMouseListener"
+        oEvent.EventMethod = "mousePressed"
+        oEvent.ScriptType = "Script"
+        # Script Code existiert nicht. Das Event wird nur benutzt, um 
+        # firing des Listeners auszuloesen
+        oEvent.ScriptCode = "vnd.sun.star.script:NotExistingMacro?language=Basic&location=document" 
+        
+        self.event = oEvent
         
     def schuetze_document(self):
         if self.mb.debug: log(inspect.stack)
@@ -151,13 +161,10 @@ class Organizer():
         for f in farben:
             setattr(self, f, sett[f])
             
-        #if sett['design_office'] and sett['office']['nutze_dok_farbe']:
         self.hintergrund = sett['office']['dok_hintergrund']
-#         else:
-#             self.hintergrund = 15790320 # LO grau
         
     
-    def erzeuge_button(self,lbl,btn_name,pos,listener):
+    def erzeuge_button(self,lbl,btn_name,pos):
         if self.mb.debug: log(inspect.stack)
         
         try:
@@ -194,17 +201,241 @@ class Organizer():
             shape.setSize(s)
             
             shape.Control = oButton
-            oButton.Toggle = 1
+            #oButton.Toggle = 1
             
-            oButton.addPropertiesChangeListener(('State',),listener)
-
+            oButton.addPropertiesChangeListener(('State',),self.listener_btn_click)
+            
+            form.registerScriptEvent( 0, self.event )
+            form.addScriptListener(self.listener_icons) 
+            
             return shape
         except:
             log(inspect.stack,tb())
             
+
+    def bild_einfuegen(self,col,row,panel_nr,url=None):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
             
+            c,r = col-self.pos[0], row-self.pos[1]-1
+            ordinal = self.Eintraege[r][0]
             
-    def erzeuge_img_button(self,pos,btn_name,url,listener):
+            if not url:
+                url,ok = self.mb.class_Funktionen.filepicker2()
+                if not ok:
+                    return True
+            
+            cell = self.sheet.getCellByPosition(col,row)
+            
+            self.setze_zelle_und_tag(c, r, cell, url, ordinal, panel_nr)
+                            
+            zell_breite = cell.Size.Width
+            
+            name = 'panel{0}_{1}'.format(panel_nr,ordinal)
+            url2 = uno.systemPathToFileUrl(url)
+            btn,hoehe = self.erzeuge_bild_button(name,url2,zell_breite)
+
+            shape = self.erzeuge_bild_shape(name, btn, cell,hoehe)
+            self.sheet.DrawPage.add(shape)
+            
+            if row not in self.bilder_reihe:
+                self.bilder_reihe[row] = {}
+            if panel_nr not in self.bilder_reihe[row]:
+                self.bilder_reihe[row][panel_nr] = {}
+            
+            self.bilder_reihe[row][panel_nr]['shape'] = shape
+            self.bilder_reihe[row][panel_nr]['hoehe'] = hoehe
+            self.bilder_reihe[row][panel_nr]['values'] = [ ordinal,url,panel_nr,cell ]  
+            
+            self.update_reihe_ansicht(row) 
+            self.update_icon_pos(col, row)
+            self.tags_org['ordinale'][ordinal][panel_nr] = url
+        except:
+            log(inspect.stack,tb())            
+    
+        
+    def erzeuge_bild_button(self,name,url,zell_breite):    
+        if self.mb.debug: log(inspect.stack)
+        
+        btn = self.mb.createUnoService("com.sun.star.form.component.ImageButton")
+        btn.setPropertyValues(('Name','Border','ScaleImage','ImageURL'),
+                              (name,0,True,url))
+        graphic = btn.Graphic
+        
+        # BERECHNE HOEHE
+        h = graphic.Size.Height
+        b = graphic.Size.Width
+        quotient = float(b)/float(h)
+        hoehe = int(zell_breite / quotient)
+        
+        return btn,hoehe
+    
+    
+    def erzeuge_bilder_reihe_btns(self,row):
+        if self.mb.debug: log(inspect.stack)
+        
+        btns = {}
+        h_max = 0
+        
+        for pannel_nr in self.bilder_reihe[row]:
+            ordinal,url,panel_nr,cell = self.bilder_reihe[row][pannel_nr]['values']
+            name = 'panel{0}_{1}'.format(panel_nr,ordinal) 
+            btn,hoehe = self.erzeuge_bild_button(name,url,cell.Size.Width)
+            h_max = hoehe if hoehe > h_max else h_max
+            
+            btns[panel_nr] = [btn,hoehe,name]
+        
+        return btns,h_max
+        
+    
+    def erzeuge_bild_shape(self,name,btn,cell,hoehe):    
+        if self.mb.debug: log(inspect.stack)
+        
+        forms = self.sheet.DrawPage.Forms
+        
+        form = self.calc.createInstance("com.sun.star.form.component.Form")
+        form.setName(name)
+        form.insertByName('btn_'+name,btn)
+        
+        shape = self.calc.createInstance("com.sun.star.drawing.ControlShape")
+            
+        # Das Bild wird 10% kleiner als die Panelbreite dargestellt
+        # Abstand auf jeder Seite: 5%
+        
+        self.setze_shape_pos(shape, cell, hoehe)
+        
+        shape.Control = btn
+        shape.Name = name
+        
+        form.registerScriptEvent( 0, self.event )
+        form.addScriptListener(self.listener_icons) 
+        
+        forms.insertByIndex (0,form)
+        
+        return shape
+    
+    
+    def setze_shape_pos(self,shape,cell,hoehe):
+        if self.mb.debug: log(inspect.stack)
+        
+        breite = cell.Size.Width
+                        
+        p = shape.Position
+        p.X = cell.Position.X + breite/20
+        p.Y = cell.Position.Y + (cell.Size.Height - hoehe/10*9) /2
+        shape.setPosition(p)
+        
+        s = shape.Size
+        s.Height = hoehe/10*9
+        s.Width = breite/10*9
+        shape.setSize(s)
+        
+        
+    def setze_zell_hoehe(self,cell,hoehe):  
+        if self.mb.debug: log(inspect.stack)
+        
+        # je nach Hoehe der Eintraege Zellhoehe anpassen         
+        if cell.Size.Height < hoehe:
+            cell.Rows.setPropertyValue('Height',hoehe) 
+        else:
+            cell.Rows.setPropertyValue('OptimalHeight',True)
+            # Bei einem Update des Bildes muss erneut geprueft werden
+            if cell.Size.Height < hoehe:
+                cell.Rows.setPropertyValue('Height',hoehe)   
+        
+    
+    def update_reihe_ansicht(self,row):
+        if self.mb.debug: log(inspect.stack)
+        
+        shapes = [v for a,v in self.bilder_reihe[row].items()]
+        
+        cell = self.sheet.getCellByPosition(0,row)
+            
+        cell.Rows.setPropertyValue('OptimalHeight',True)
+        
+        if shapes != []:
+            h_max = sorted([v['hoehe'] for a,v in self.bilder_reihe[row].items()])[-1]
+            self.setze_zell_hoehe(cell,h_max)
+            
+            for v in shapes:
+                shape = v['shape']
+                hoehe = v['hoehe']
+                cell = v['values'][3]
+                self.setze_shape_pos(shape,cell,hoehe)
+                
+
+    def update_icon_pos(self,col,row):
+        if self.mb.debug: log(inspect.stack)
+                
+        def berechne_pos(c):
+            pos = c.Position
+            h = c.Size.Height
+            h2 = 500#i.Size.Height
+            hh = int((float(h) - h2)/2)
+            
+            y = pos.Y + hh
+            pos.Y = y
+            return pos
+
+        def do(name,cell):
+            icon = self.icons[name]
+            url = icon.Control.ImageURL
+            self.draw_page.remove(icon)
+            icon.dispose()
+
+            pos = berechne_pos(cell)
+            icon = self.erzeuge_img_button([pos.X,pos.Y],name,url)
+            self.draw_page.add(icon)
+            icon.setPosition(berechne_pos(cell))
+            self.icons.update({name:icon})
+            icon.addEventListener(self.listener2)
+        
+        try:
+            visible_tags_tv = self.mb.settings_proj['tag1'],self.mb.settings_proj['tag2']
+            ordinal = self.Eintraege[row-self.pos[1]-1][0]
+
+            if visible_tags_tv[0]:
+                name = 'IMG_{}'.format(ordinal)
+                cell = self.sheet.getCellByPosition(self.pos[0]-1,row)
+                do(name,cell)
+                
+            if visible_tags_tv[1]:
+                name = 'IMGU_{}'.format(ordinal)
+                cell = self.sheet.getCellByPosition(self.pos[0]-2,row)
+                do(name,cell)
+            
+        except:
+            log(inspect.stack,tb())
+            
+                    
+    def erzeuge_bilder_reihen(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        tags = self.mb.tags
+        draw_page = self.sheet.DrawPage
+        
+
+        for row in self.bilder_reihe:
+            btns,h_max = self.erzeuge_bilder_reihe_btns(row)
+            
+            erstes_panel = list(self.bilder_reihe[row].keys())[0]
+            
+            cell = self.bilder_reihe[row][erstes_panel]['values'][3]
+            self.setze_zell_hoehe(cell, h_max)
+                            
+            for panel_nr,v in btns.items():
+                
+                cell = self.bilder_reihe[row][panel_nr]['values'][3]
+                btn,hoehe,name = btns[panel_nr]
+                shape = self.erzeuge_bild_shape(name, btn, cell,hoehe)
+                
+                draw_page.add(shape)
+                self.bilder_reihe[row][panel_nr]['shape'] = shape
+                self.bilder_reihe[row][panel_nr]['hoehe'] = hoehe
+        
+           
+    def erzeuge_img_button(self,pos,btn_name,url):
         if self.mb.debug: log(inspect.stack)
         
         try:
@@ -215,20 +446,27 @@ class Organizer():
             forms.insertByIndex (0,form)
             
             oButton = self.mb.createUnoService("com.sun.star.form.component.ImageButton")
-            
+
             if url in self.color_items:
                 pfad = self.mb.path_to_extension
                 url = uno.systemPathToFileUrl(os.path.join(pfad,'img','punkt_%s.png' %url))
             elif url == 'leer':
                 url = ''
             
-            oButton.setPropertyValues(
-                                      ('BackgroundColor','Name','Border','ScaleImage','ImageURL'),
-                                      (self.hintergrund,btn_name,0,False,url)
-                                      )
-
-            form.insertByName(btn_name,oButton)
+            if url == '':
+                bordercolor = 4147801
+            else:
+                bordercolor = self.hintergrund
             
+            oButton.setPropertyValues(
+                                      ('BackgroundColor','Name','Border',
+                                       'ScaleImage','ImageURL','BorderColor'),
+                                      (self.hintergrund,btn_name,2,
+                                       False,url,bordercolor)
+                                      )
+            
+            form.insertByName('btn_'+btn_name,oButton)
+
             shape = self.calc.createInstance("com.sun.star.drawing.ControlShape")
                         
             p = shape.Position
@@ -237,12 +475,15 @@ class Organizer():
             shape.setPosition(p)
             
             s = shape.Size
-            s.Height = 400
-            s.Width = 400
+            s.Height = 500
+            s.Width = 500
             shape.setSize(s)
             
             shape.Control = oButton
-            
+
+            form.registerScriptEvent( 0, self.event )
+            form.addScriptListener(self.listener_icons) 
+
             return shape
         except:
             log(inspect.stack,tb())
@@ -252,23 +493,21 @@ class Organizer():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            listener = Button_Click_Listener(self.mb,self)
-            self.listener = listener
-            
+            self.listener_btn_click = Button_Click_Listener(self.mb,self)            
             
             self.sheet_controller.setFormDesignMode(True)
             draw_page = self.sheet.DrawPage
             self.draw_page = draw_page
             
-            shape1 = self.erzeuge_button(LANG.MENU,'Menu',0,listener)
-            shape2 = self.erzeuge_button(LANG.INFO,'Info',1,listener)
-            shape3 = self.erzeuge_button(LANG.UEBERNEHMEN,'Uebernehmen',2,listener)
+            shape1 = self.erzeuge_button(LANG.MENU,'Menu',0)
+            shape2 = self.erzeuge_button(LANG.INFO,'Info',1)
+            shape3 = self.erzeuge_button(LANG.UEBERNEHMEN,'Uebernehmen',2)
             draw_page.add(shape1)
             draw_page.add(shape2)
             draw_page.add(shape3)
             
             dp = draw_page.getByIndex(0)
-            
+
             self.sheet_controller.setFormDesignMode(False)
  
         except:
@@ -293,12 +532,6 @@ class Organizer():
             self.sheet = self.sheet_controller.ActiveSheet
             
             self.calc_frame.setPropertyValue('Title','Organon Organizer')
-            
-#             self.mb.calc = {'calc_frame':self.calc_frame,
-#                             'calc':self.calc,
-#                             'sheet_controller':self.sheet_controller,
-#                             'sheet':self.sheet}
-            
 
             RESOURCE_URL = "private:resource/dockingwindow/9809"
             self.calc_frame.LayoutManager.hideElement(RESOURCE_URL)
@@ -341,26 +574,124 @@ class Organizer():
             rangex.CellBackColor = self.hintergrund
             rangex = self.sheet.getCellRangeByPosition( 0, 0, self.sheet.Columns.Count-1, y0 - 1 )
             rangex.CellBackColor = self.hintergrund
-            
+             
             rangex = self.sheet.getCellRangeByPosition( x1, 0, self.sheet.Columns.Count-1, self.sheet.Rows.Count-1 )
             rangex.CellBackColor = self.hintergrund
-            rangex = self.sheet.getCellRangeByPosition( 0, y1, self.sheet.Columns.Count-1, self.sheet.Rows.Count-1 )
+            rangex = self.sheet.getCellRangeByPosition( 0, y1+1, self.sheet.Columns.Count-1, self.sheet.Rows.Count-1 )
             rangex.CellBackColor = self.hintergrund
+#             
+#             # Tabellenhintergruende
+#             rangex = self.sheet.getCellRangeByPosition( 0, y1, self.sheet.Columns.Count-1, self.sheet.Rows.Count-1 )
+#             rangex.CellBackColor = self.hintergrund
             
-            # Tabellenhintergruende
-            rangex = self.sheet.getCellRangeByPosition( 0, y1, self.sheet.Columns.Count-1, self.sheet.Rows.Count-1 )
-            rangex.CellBackColor = self.hintergrund
             
+            y1 = y0
+            
+            xEnde = x0 + len(self.spalten2) -1
+
+            def set_farben(c,b,hg):
+                c.TopBorder = b
+                c.BottomBorder = b
+                c.LeftBorder = b
+                c.RightBorder = b
+                c.CellBackColor = hg
+            
+            # Border    
+            cell = self.sheet.getCellByPosition(0,0)
+            border = cell.TopBorder
+            border.Color = self.hintergrund
+            border.OuterLineWidth = 100
+            
+            # Kopfzeile
+            rangex = self.sheet.getCellRangeByPosition(x0,y0,xEnde,y0)
+            set_farben(rangex,border,self.menu_hintergrund)
+            rangex.CharWeight = 150
+            rangex.CharColor = self.menu_schrift
+            
+            # Zellenabstaende innen            
+            abstand = 200
+            rangex.ParaLeftMargin = abstand
+            rangex.ParaRightMargin = abstand
+            rangex.ParaBottomMargin = abstand
+            rangex.ParaTopMargin = abstand
+            
+            # Eintraege
+            border.OuterLineWidth = 10
+            rangex = self.sheet.getCellRangeByPosition(x0, y0+1, xEnde, y0+len(self.Eintraege))
+            set_farben(rangex,border,self.hf_hintergrund)
+            # setzt NumberFormat auf Text
+            rangex.setPropertyValue('NumberFormat',100)
+
+            # PROTECTION
+            prot = cell.CellProtection
+            prot.IsLocked = False
+            rangex.setPropertyValue('CellProtection',prot)
+            
+            # Zellenabstaende innen            
+            abstand = 200
+            rangex.ParaLeftMargin = abstand
+            rangex.ParaRightMargin = abstand
+            rangex.ParaBottomMargin = abstand
+            rangex.ParaTopMargin = abstand
+            
+            # Zellbreiten
+            tags = self.mb.tags
+            
+            breiten = [1, .6, .6, 4]
+            breiten2 = [tags['nr_breite'][nr] for nr in tags['abfolge'] if nr in tags['sichtbare']]    
+            breiten.extend(breiten2) 
+            
+            for b in range(len(breiten)):
+                spalte = self.sheet.Columns.getByIndex(b)
+                spalte.Width = breiten[b] * 1000
+
             # WRAP TEXT
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'WrapText'
-            prop.Value = True            
+            prop.Value = True 
             
+            self.sheet_controller.select(rangex)
             dispatcher.executeDispatch(self.calc_frame, ".uno:WrapText", "", 0, (prop,))
-
+            
+            
+            
+#             # Bildspalten
+#             if self.bild_panels != []:
+#                 for v in self.bild_panels:
+#                     index = self.spalten.index(v) + 1
+#                     rangex = self.sheet.getCellRangeByPosition( x0 + index, y0 +1, x0 + index, self.sheet.Rows.Count-1 )
+#                     #rangex.CellBackColor = self.hintergrund
+#             
+#             #
         except:
             log(inspect.stack,tb())
             
+    
+    
+    def get_eintraege(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        if T.AB == 'ORGANON':
+            Eintraege = self.mb.class_Projekt.lese_xml_datei()
+        else:
+            Eintraege = self.mb.tabsX.get_tab_Eintraege(T.AB)
+        
+        weiter = True
+        zu_loeschen = []
+        
+        for e in range(len(Eintraege)):
+            if Eintraege[e][2] == 'Papierkorb':
+                weiter = False
+            if weiter:
+                Eintraege[e] = list(Eintraege[e])
+            else:
+                zu_loeschen.append(e)
+        
+        for e in zu_loeschen:
+            del Eintraege[-1]
+        
+        self.Eintraege = Eintraege
+        self.pos[3] = self.pos[1] + len(Eintraege)
         
         
     def setze_eintraege(self):
@@ -377,37 +708,15 @@ class Organizer():
             
             x0,y0,x1,y1 = self.pos
             y1 = y0
-            
             xEnde = x0 + len(self.spalten2)
+                  
+            tags_ord = self.tags_org['ordinale']
 
-            def set_farben(c,b,hg):
-                c.TopBorder = b
-                c.BottomBorder = b
-                c.LeftBorder = b
-                c.RightBorder = b
-                c.CellBackColor = hg
-                                
             
-            dict_sb = self.dict_sb_content
-            tags_ord = dict_sb['ordinal']
-
-            if T.AB == 'ORGANON':
-                Eintraege = self.mb.class_Projekt.lese_xml_datei()
-            else:
-                Eintraege = self.mb.tabsX.get_tab_Eintraege(T.AB)
-            
-            for e in range(len(Eintraege)):
-                Eintraege[e] = list(Eintraege[e])
-                    
-            self.Eintraege = Eintraege
             self.modify_listener = Modify_Listener(self.mb,self,self.Eintraege)
             self.modify_listener.pos = self.pos
             
-            # Border    
-            cell = self.sheet.getCellByPosition(0,0)
-            border = cell.TopBorder
-            border.Color = self.hintergrund
-            border.OuterLineWidth = 100
+            
             
             # KOPFZEILE
             for s in range(len(self.spalten2)):
@@ -415,102 +724,89 @@ class Organizer():
                 text = self.spalten2[s]
                 cell.String = text
                 
-                cell.CharWeight = 150
-                cell.CharColor = self.menu_schrift
-                
-            
-            rangex = self.sheet.getCellRangeByPosition(x0,y0,xEnde,y0)
-            set_farben(rangex,border,self.menu_hintergrund)
-            
-            
-            # Zellenabstaende innen            
-            abstand = 200
-            rangex.ParaLeftMargin = abstand
-            rangex.ParaRightMargin = abstand
-            rangex.ParaBottomMargin = abstand
-            rangex.ParaTopMargin = abstand
-            
-            # PROTECTION
-            prot = cell.CellProtection
-            prot.IsLocked = False
-                
+
             from com.sun.star.table.CellVertJustify import CENTER
             
-            rangex = self.sheet.getCellRangeByPosition(x0, y0+1, xEnde, y0+len(Eintraege))
+            rangex = self.sheet.getCellRangeByPosition(x0, y0+1, xEnde, y0+len(self.Eintraege))
             rangex.CharColor = self.schrift_datei
-
+            
+            tags = self.tags_org
+            
+            array = []
+            
+            self.bilder = []
+            self.bilder_reihe = {}
+            
             # EINTRAEGE
-            for e in Eintraege:
-                pass
-                if e[0] == self.mb.props['ORGANON'].Papierkorb:
-                    y1 += 1
-                    break
+            for e in self.Eintraege:
 
-                cell = self.sheet.getCellByPosition(x0 ,y1 + 1)
-                cell.String = e[2]
-                
-                cell.Text.VertJustify = CENTER
+                olist = [e[2]]
                 
                 if e[4] != 'pg':
+                    cell = self.sheet.getCellByPosition(x0 ,y1 + 1)
                     cell.CharColor = self.schrift_ordner
                 
-                
-                for x_sp in range(len(self.spalten)):
- 
-                    cell = self.sheet.getCellByPosition(x0 + x_sp + 1 ,y1 + 1)
- 
-                    text = tags_ord[e[0]][self.spalten[x_sp]]
+                col = 1
+                for panel_nr in self.spalten:
+                    text = tags_ord[e[0]][panel_nr]
                     
-                    if isinstance(text, list):
+                    if panel_nr in self.bild_panels:
+                        row = y1 + 1
+                        cell = self.sheet.getCellByPosition(x0 + col,row)
+                        cell.setPropertyValues(('IsTextWrapped','ShrinkToFit','CharColor'),(False,True,self.hf_hintergrund))
+                        if text != '':
+                            self.bilder.append([ e[0],text,panel_nr,cell ])
+                            if row in self.bilder_reihe:
+                                self.bilder_reihe[row][panel_nr] = {'values': [ e[0],text,panel_nr,cell ] }
+                            else:
+                                self.bilder_reihe[row] = {}
+                                self.bilder_reihe[row][panel_nr] = {'values': [ e[0],text,panel_nr,cell ] }
+                    
+                    elif panel_nr in self.date_panels:
+                        if text == None:
+                            text = ''
+                        else:
+                            text = self.mb.class_Tags.formatiere_datumdict_nach_text(text)
+                            
+                    elif isinstance(text, list):
                         if text != []:
-                            text = ',\n'.join(text)
-                            cell.String = text
-                    elif text != '':
-                        cell.String = text
+                            text = u',\n'.join(text)
+                        else:
+                            text = u''
+                    elif text == None:
+                        text = ''
                         
+                    olist.append(text)
+                    col += 1
+                    
+                array.append(tuple(olist))
                 y1 += 1
-
-            rangex = self.sheet.getCellRangeByPosition(x0, y0+1, x0+len(self.spalten2), y0+len(Eintraege))
-            self.rangex = rangex
             
-            border.OuterLineWidth = 10
-            set_farben(rangex,border,self.hf_hintergrund)
             
-            rangex.setPropertyValue('CellProtection',prot)
-            rangex.addModifyListener(self.modify_listener)
+            rangex = self.sheet.getCellRangeByPosition(x0, y0+1, x0+len(self.spalten2)-1, y0+len(self.Eintraege))
+            self.rangex = rangex   
             
-            self.data_array = [list(zeile) for zeile in rangex.DataArray]
-            abc = [list(z.replace('\n','') if zeile.index(z) not in (1,2) else z for z in zeile ) 
-                   for zeile in rangex.DataArray]
-                        
-            # Zellenabstaende innen            
-            abstand = 200
-            rangex.ParaLeftMargin = abstand
-            rangex.ParaRightMargin = abstand
-            rangex.ParaBottomMargin = abstand
-            rangex.ParaTopMargin = abstand
-            
-
-            self.sheet_controller.select(rangex)
-            dispatcher.executeDispatch(self.calc_frame, ".uno:WrapText", "", 0, (prop,))
-            
-            # Die Breiten sollten in eine proj prop ausgelagert werden,
-            # um sie vom Nutzer bei Bedarf anpassen lassen zu können
-            breiten = [.5,.3,.3,
-                       1.5,
-                       2.5,
-                       2.5,
-                       1,1,1,1,1,1,1]
-    
-            for b in range(len(breiten)):
-                spalte = self.sheet.Columns.getByIndex(b)
-                spalte.Width = breiten[b] * 2540
-                
+            array = tuple(array)
+            self.rangex.setDataArray(array)
+            self.data_array = [list(a) for a in array]
+            #
+            self.rangex.addModifyListener(self.modify_listener)
+                       
             self.pos[3] = y1
-        
+
+            self.erzeuge_bilder_reihen()   
+            
+            # CellVertJustify
+            if self.mb.programm == 'LibreOffice':
+                self.rangex.setPropertyValue('VertJustify',2)
+            else: 
+                vertjust = self.rangex.VertJustify
+                vertjust.value = 'CENTER'
+                self.rangex.setPropertyValue('VertJustify',vertjust)
+            
         except:
             log(inspect.stack,tb())
-
+            
         
     def setze_icons(self): 
         if self.mb.debug: log(inspect.stack)
@@ -531,6 +827,10 @@ class Organizer():
         
         try: 
             draw_page = self.sheet.DrawPage
+            self.listener2 = Icons_Listener(self.mb,self)
+            
+            sett = self.mb.settings_proj
+            visible_tags_tv = sett['tag1'],sett['tag2']
             
             for e in self.Eintraege:
                 
@@ -538,24 +838,26 @@ class Organizer():
                     y1 += 1
                     break
                 
-                cell = self.sheet.getCellByPosition(x0 - 1 ,y1 + 1)
+                if visible_tags_tv[0]:
+                    cell = self.sheet.getCellByPosition(x0 - 1 ,y1 + 1)
+                    name = 'IMG_{}'.format(e[0])
+                      
+                    shape1 = self.erzeuge_img_button(berechne_pos(cell),name,e[7])
+                    draw_page.add(shape1)
+                    self.icons.update({name:shape1})
+                    shape1.addEventListener(self.listener2)
                 
-                name = 'IMG_{}'.format(e[0])
-                
-                shape1 = self.erzeuge_img_button(berechne_pos(cell),name,e[7],self.listener)
-                draw_page.add(shape1)
-                self.icons.update({name:shape1})
-                
-                cell = self.sheet.getCellByPosition(x0 - 2 ,y1 + 1)
-
-                name2 = 'IMGU_{}'.format(e[0])
-                
-                shape2 = self.erzeuge_img_button(berechne_pos(cell),name2,e[8],self.listener)
-                draw_page.add(shape2)
-                self.icons.update({name2:shape2})
+                if visible_tags_tv[1]:
+                    cell = self.sheet.getCellByPosition(x0 - 2 ,y1 + 1)
+                    name2 = 'IMGU_{}'.format(e[0])
+                      
+                    shape2 = self.erzeuge_img_button(berechne_pos(cell),name2,e[8])
+                    draw_page.add(shape2)
+                    self.icons.update({name2:shape2})
+    
+                    shape2.addEventListener(self.listener2)
                 
                 y1 += 1
-
         except:
             log(inspect.stack,tb())
             
@@ -564,24 +866,69 @@ class Organizer():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            sichtbare = self.mb.dict_sb_content['sichtbare']
-            self.mb.dict_sb_content = self.dict_sb_content
+            tags_org = self.tags_org
+            to_ord = tags_org['ordinale']
+            tags = self.mb.tags
+            t_ord = tags['ordinale']
             
-            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_general','focus_lost')
+            geaenderte = []
+            geloeschte = []
+            
+            # geaenderte Bilder suchen
+            for panel_nr in self.bild_panels:
+                for ordi in to_ord:
+                    
+                    if to_ord[ordi][panel_nr] != t_ord[ordi][panel_nr]:
+                        if to_ord[ordi][panel_nr] == '':
+                            geloeschte.append([ordi,panel_nr])
+                        else:
+                            geaenderte.append( [ ordi, panel_nr, to_ord[ordi][panel_nr] ] )
+            
+            
+            for g in geaenderte:
+                ordi, panel_nr, pfad = g
+                pfad2 = self.mb.class_Sidebar.bild_einfuegen( panel_nr, ordinal=ordi, filepath=pfad, erzeuge_layout=False)
+                tags_org['ordinale'][ordi][panel_nr] = pfad2
+                
+            for g in geloeschte:
+                ordi, panel_nr = g
+                self.mb.class_Sidebar.bild_loeschen_a( panel_nr, ordinal=ordi, erzeuge_layout=False)
+                tags_org['ordinale'][ordi][panel_nr] = ''
+
+
+            self.mb.tags = tags_org
+            self.mb.class_Sidebar.erzeuge_sb_layout()
             
             for ord in self.modify_listener.aenderung_dateinamen:
                 text = self.modify_listener.aenderung_dateinamen[ord]
                 self.mb.class_Zeilen_Listener.aendere_datei_namen(ord,text)
             
-            self.mb.nachricht(LANG.UEBERNOMMEN,'infobox') 
-            self.calc.setModified(False)    
+
+            self.mb.popup(LANG.UEBERNOMMEN,1) 
+
             
-            
-                     
+            self.calc.setModified(False)  
+            self.mb.class_Tags.speicher_tags()           
         except:
             log(inspect.stack,tb())
+    
+    
+    def setze_zelle_und_tag(self,c,r,cell,inhalt,ordinal,panel_nr):    
+        if self.mb.debug: log(inspect.stack)
+        try:
+            # Listener entfernen und wieder adden, damit er bei Aenderung
+            # der Zelle nicht angesprochen wird.
+            self.rangex.removeModifyListener(self.modify_listener)
             
-
+            cell.String = inhalt
+            self.data_array[r][c] = inhalt
+            self.tags_org['ordinale'][ordinal][panel_nr] = inhalt
+            
+            self.rangex.addModifyListener(self.modify_listener)
+        except:
+            log(inspect.stack,tb())
+        
+    
 from com.sun.star.beans import XPropertiesChangeListener      
 class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
 
@@ -596,12 +943,7 @@ class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-#             RESOURCE_URL = "private:resource/dockingwindow/9809"
-#             if self.Org.calc_frame.LayoutManager.isElementVisible(RESOURCE_URL):
-#                 self.Org.calc_frame.LayoutManager.hideElement(RESOURCE_URL)
-#             else:
-#                 self.Org.calc_frame.LayoutManager.showElement(RESOURCE_URL)
-#             return
+
             btn = ev[0].Source
             
             # MENULEISTE EIN/AUSBLENDEN
@@ -625,18 +967,14 @@ class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
                          LANG.CHARAKTERE,
                          LANG.ORTE),
                          "infobox")
+                
             # TAGS UEBERNEHMEN
             else:
                 self.Org.tags_uebernehmen()
                 
         except:
             log(inspect.stack,tb())
-                    
 
-    def aendere_dateinamen(self):
-        # fehlt
-        pass
-    
     def disposing(self,ev):
         return False
         
@@ -662,9 +1000,8 @@ class Modify_Listener(unohelper.Base, XModifyListener):
         
         try:
             aenderungen = self.finde_veraenderung()
-            self.pruefe_veraenderung(aenderungen)
+            rows = self.pruefe_veraenderung(aenderungen)
             self.Org.data_array = self.new_data_array
-            self.update_icon_pos()
         except:
             log(inspect.stack,tb())
 
@@ -672,23 +1009,28 @@ class Modify_Listener(unohelper.Base, XModifyListener):
     def finde_veraenderung(self):
         if self.mb.debug: log(inspect.stack)
         
-        x0,y0,x1,y1 = self.pos
-        rangex = self.Org.sheet.getCellRangeByPosition(x0, 
-                                                       y0+1, 
-                                                       x0+len(self.Org.spalten2), 
-                                                       y0+len(self.Org.Eintraege))
+        org = self.Org
         
-        self.new_data_array = [list(z) for z in rangex.DataArray]
+        x0,y0,x1,y1 = self.pos
+        rangex = org.sheet.getCellRangeByPosition(x0, 
+                                               y0+1, 
+                                               x0+len(org.spalten2)-1, 
+                                               y0+len(org.Eintraege))
+        
+        new_data_array = [list(z) for z in rangex.DataArray]
         
         aenderungen = []
-        
-        for d in range(len(self.new_data_array)):
-            if self.new_data_array[d] != self.Org.data_array[d]:
-                
-                for j in range(len(self.new_data_array[d])):
-                    if self.new_data_array[d][j] != self.Org.data_array[d][j]:
-                        aenderungen.append([ j + x0, d + y0 + 1, self.new_data_array[d][j] ])
-                        
+        try:
+            for d in range(len(new_data_array)):
+                if new_data_array[d] != org.data_array[d]:
+                    for j in range(len(new_data_array[d])):
+                        if new_data_array[d][j] != org.data_array[d][j]:
+                            aenderungen.append([ j + x0, d + y0 + 1, new_data_array[d][j] ])
+                            
+            self.new_data_array = new_data_array
+        except:
+            log(inspect.stack,tb())
+          
         return aenderungen
     
     
@@ -703,59 +1045,99 @@ class Modify_Listener(unohelper.Base, XModifyListener):
         return ',\n'.join(inhalt)
     
     
-    def setze_zelle(self,cell,inhalt):    
+    def setze_zelle(self,col,row,inhalt):    
         if self.mb.debug: log(inspect.stack)
         
-        # Listener entfernen und wieder adden, damit er bei Aenderung
-        # der Zelle nicht angesprochen wird.
-        self.Org.rangex.removeModifyListener(self.Org.modify_listener)
-        cell.String = inhalt
-        self.Org.rangex.addModifyListener(self.Org.modify_listener)
+        try:
+            tags,c,r,ordinal = self.get_infos(col,row)
+            cell = self.Org.sheet.getCellByPosition(col,row)
+            
+            # Listener entfernen und wieder adden, damit er bei Aenderung
+            # der Zelle nicht angesprochen wird.
+            self.Org.rangex.removeModifyListener(self.Org.modify_listener)
+            
+            cell.String = inhalt
+            self.new_data_array[r][c] = inhalt
+            
+            self.Org.rangex.addModifyListener(self.Org.modify_listener)
+        except:
+            log(inspect.stack,tb())
+            
         
-        
-    def wieder_loeschen(self,col,row,kateg):
+    def zuruecksetzen(self,col,row,panel_nr):
         if self.mb.debug: log(inspect.stack)
-                
-        cell = self.Org.sheet.getCellByPosition(col,row)
+        
         c,r = col-self.pos[0],row-self.pos[1]-1
         alter_eintrag = self.Org.data_array[r][c]
-
-        self.setze_zelle(cell, alter_eintrag)
-        self.new_data_array[r][c] = alter_eintrag
-        
+        self.setze_zelle(col,row,alter_eintrag)        
             
     def get_infos(self,col,row):
         if self.mb.debug: log(inspect.stack)
         
-        dict_sb = self.Org.dict_sb_content
+        tags_org = self.Org.tags_org
         c,r = col-self.pos[0],row-self.pos[1]-1
         ordinal = self.eintraege[r][0]
-        return dict_sb,c,r,ordinal
+        return tags_org,c,r,ordinal
     
-    
-    def setze_synopsis_und_notizen(self,col,row,kateg,inhalt):
+    def setze_txt_panels(self,col,row,panel_nr,ordinal,inhalt):
         if self.mb.debug: log(inspect.stack)
         
-        dict_sb,c,r,ordinal = self.get_infos(col,row)
-        dict_sb['ordinal'][ordinal][kateg] = inhalt
+        tags,c,r,ordinal = self.get_infos(col,row)
+        tags['ordinale'][ordinal][panel_nr] = inhalt
         self.new_data_array[r][c] = inhalt
-                
     
+    def setze_zeit_panels(self,col,row,panel_nr,ordinal,inhalt):
+        if self.mb.debug: log(inspect.stack)
+
+        neuer_inhalt = self.mb.class_Tags.formatiere_zeit(inhalt)
+        if neuer_inhalt == None:
+            neuer_inhalt = ''
+
+        self.setze_zelle(col,row,neuer_inhalt)
+        self.Org.tags_org['ordinale'][ordinal][panel_nr] = neuer_inhalt
+   
+    def setze_datum_panels(self,col,row,panel_nr,ordinal,inhalt): 
+        if self.mb.debug: log(inspect.stack)
+                
+        neuer_inhalt,odict = self.mb.class_Tags.formatiere_datum(inhalt)
+        if neuer_inhalt == None:
+            neuer_inhalt = ''
+        
+        self.setze_zelle(col,row, neuer_inhalt)
+        self.Org.tags_org['ordinale'][ordinal][panel_nr] = odict
+     
+    def setze_leeren_inhalt(self,col,row,panel_nr,ordinal):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            tags_org,c,r,ordinal = self.get_infos(col,row)
+            alte_eintraege = self.zelle_nach_liste(self.Org.data_array[r][c])
+
+            if panel_nr in tags_org['sammlung']:
+                self.loesche_tags_aus_dict(alte_eintraege,ordinal,panel_nr)
+            self.new_data_array[r][c] = ''
+        except:
+            log(inspect.stack,tb())
+            
     def tag_auf_vorkommen_testen(self,tag,ordinal):
         if self.mb.debug: log(inspect.stack)
         
         # pruefen, ob tag noch in anderen dateien benutzt wird
-        dict_sb = self.Org.dict_sb_content
+        tags_org = self.Org.tags_org
         
-        for ordi in dict_sb['ordinal']:
+        tag_panels = list(tags_org['sammlung'])
+        alle_tags_in_ordinal = {j : 
+              [ k for i in tag_panels for k in tags_org['ordinale'][j][i] ] 
+              for j in tags_org['ordinale']} 
+        
+        for ordi in tags_org['ordinale']:
             if ordi != ordinal:
-                if tag in dict_sb['ordinal'][ordi]['Tags_general']:
-                    dic = dict_sb['ordinal'][ordi]
+                if tag in alle_tags_in_ordinal[ordi]:
                     return True
         return False
     
     
-    def loesche_tags_aus_dict(self,tags,ordinal,kateg):
+    def loesche_tags_aus_dict(self,eintrage,ordinal,panel_nr):
         if self.mb.debug: log(inspect.stack)
         
         def loesche(fkt,value):
@@ -763,67 +1145,41 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 fkt(value)
             except:
                 log(inspect.stack,tb())
+                
+        tags_org = self.Org.tags_org
         
-        dict_sb = self.Org.dict_sb_content
-        
-        for tag in tags:
+        for eintrag in eintrage:
             # aus den eigenen tags loeschen
-            loesche(dict_sb['ordinal'][ordinal]['Tags_general'].remove,tag)
-            loesche(dict_sb['ordinal'][ordinal][kateg].remove,tag)
-            # aus den allg. Tags loeschen
-            if not self.tag_auf_vorkommen_testen(tag,ordinal):
-                loesche(dict_sb['tags']['Tags_general'].remove,tag)
-                loesche(dict_sb['tags'][kateg].remove,tag)     
+            loesche(tags_org['ordinale'][ordinal][panel_nr].remove,eintrag)
+            # aus der Sammlung aller Tags loeschen
+            if not self.tag_auf_vorkommen_testen(eintrag,ordinal):
+                loesche(tags_org['sammlung'][panel_nr].remove,eintrag)     
      
-     
-    def setze_leeren_inhalt(self,col,row,kateg):
+
+    def tag_hinzufuegen(self,tag,ordinal,panel_nr):
         if self.mb.debug: log(inspect.stack)
         
-        try:
-            dict_sb,c,r,ordinal = self.get_infos(col,row)
-            alte_eintraege = self.zelle_nach_liste(self.Org.data_array[r][c])
-            
-            if kateg in ('Tags_characters','Tags_locations','Tags_objects',
-                         'Tags_user1','Tags_user2','Tags_user3'):
-                self.loesche_tags_aus_dict(alte_eintraege,ordinal,kateg)
-            self.new_data_array[r][c] = ''
-        except:
-            log(inspect.stack,tb())
-    
-    
-    def tag_hinzufuegen(self,tag,ordinal,kateg):
-        if self.mb.debug: log(inspect.stack)
+        tags_org = self.Org.tags_org
         
-        dict_sb = self.Org.dict_sb_content
-        
-        if tag not in dict_sb['ordinal'][ordinal]['Tags_general']:
-            dict_sb['ordinal'][ordinal]['Tags_general'].append(tag)
-        if tag not in dict_sb['ordinal'][ordinal][kateg]:
-            dict_sb['ordinal'][ordinal][kateg].append(tag)
-        if tag not in dict_sb['tags'][kateg]:
-            dict_sb['tags'][kateg].append(tag)
-        if tag not in dict_sb['tags']['Tags_general']:
-            dict_sb['tags']['Tags_general'].append(tag)
+        if tag not in tags_org['ordinale'][ordinal][panel_nr]:
+            tags_org['ordinale'][ordinal][panel_nr].append(tag)
+        if tag not in tags_org['sammlung'][panel_nr]:
+            tags_org['sammlung'][panel_nr].append(tag)
 
  
-    def setze_aenderung(self,col,row,kateg,inhalt,geloeschte,hinzugefuegte):
+    def setze_aenderung(self,col,row,panel_nr,ordinal,inhalt,geloeschte,hinzugefuegte):
         if self.mb.debug: log(inspect.stack)
         
-        try:
-            dict_sb,c,r,ordinal = self.get_infos(col,row)
-            
-            self.loesche_tags_aus_dict(geloeschte,ordinal,kateg)
-            
+        try:            
+            self.loesche_tags_aus_dict(geloeschte,ordinal,panel_nr)
             for tag in hinzugefuegte:
-                self.tag_hinzufuegen(tag,ordinal,kateg)
-        
+                self.tag_hinzufuegen(tag,ordinal,panel_nr)
+                
             cell = self.Org.sheet.getCellByPosition(col,row)
-            self.setze_zelle(cell, self.liste_nach_zelle(inhalt))
-        
-            self.new_data_array[r][c] = self.liste_nach_zelle(inhalt)
+            cell.String = self.liste_nach_zelle(inhalt)
         except:
             log(inspect.stack,tb())        
-        
+            
         
     def pruefe_veraenderung(self,aenderungen):
         if self.mb.debug: log(inspect.stack)
@@ -833,31 +1189,63 @@ class Modify_Listener(unohelper.Base, XModifyListener):
             for a in aenderungen:
                 
                 col,row,inhalt = a
-                dict_sb,c,r,ordinal = self.get_infos(col,row)
+                tags,c,r,ordinal = self.get_infos(col,row)
+                
+                row_eintrag = row - self.pos[1]
                 
                 if col - self.pos[0] == 0:
-                    kateg = 'datei'
+                    panel_nr = 'datei'
                 else:
-                    kateg = self.Org.spalten[col - self.pos[0] - 1]
+                    panel_nr = self.Org.spalten[col - self.pos[0] - 1]
+                
+                
+                visible_tags_tv = self.mb.settings_proj['tag1'],self.mb.settings_proj['tag2']
+ 
+                if row in self.Org.bilder_reihe and (visible_tags_tv[0] or visible_tags_tv[1]):
+                    def bns():
+                        self.Org.update_reihe_ansicht(row)
+                        self.Org.update_icon_pos(col,row)
+                    bild_neu_setzen = bns
+                    
+                elif row in self.Org.bilder_reihe:
+                    def bns2():
+                        self.Org.update_reihe_ansicht(row)
+                    bild_neu_setzen = bns2
+                    
+                else:
+                    def p():
+                        pass
+                    bild_neu_setzen = p
+
 
                 # PROJEKTNAME
                 if (col,row) == (self.Org.pos[0],self.Org.pos[1] + 1):
-                    self.wieder_loeschen(col,row,kateg)
+                    self.zuruecksetzen(col,row,kateg)
                     self.mb.nachricht(LANG.PRJ_NAME_KEINE_AENDERUNG,"infobox")
                     continue
                 # DATEINAME
-                if kateg == 'datei':
+                if panel_nr == 'datei':
                     r = row-self.pos[1]-1
                     self.eintraege[r][2] = inhalt
                     self.aenderung_dateinamen.update({ordinal:inhalt})
                     continue
                 # LEERER INHALT
                 if inhalt == '':
-                    self.setze_leeren_inhalt(col,row,kateg)
+                    self.setze_leeren_inhalt(col,row,panel_nr,ordinal)
+                    bild_neu_setzen()
                     continue
-                # SYNOPSIS, NOTIZEN            
-                if kateg in ('Synopsis','Notes'):
-                    self.setze_synopsis_und_notizen(col,row,kateg,inhalt)
+                # TEXT PANELS          
+                if panel_nr in self.Org.txt_panels:
+                    self.setze_txt_panels(col,row,panel_nr,ordinal,inhalt)
+                    bild_neu_setzen()
+                    continue
+                # DATUM         
+                if panel_nr in self.Org.date_panels:
+                    self.setze_datum_panels(col,row,panel_nr,ordinal,inhalt)
+                    continue
+                # ZEIT        
+                if panel_nr in self.Org.time_panels:
+                    self.setze_zeit_panels(col,row,panel_nr,ordinal,inhalt)
                     continue
                 
                 
@@ -869,10 +1257,8 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 
                 set_inhalt = set(inhalt)
                 set_alt = set(alte_eintraege)
-                set_kategorie = set(dict_sb['tags'][kateg])
-                set_general = set(dict_sb['tags']['Tags_general'])
                 
-                tags_gen_ohne_kateg = set_general.difference(set_kategorie)
+                tags_gen_ohne_kateg = set(a for b in [v for t,v in tags['sammlung'].items() if t != panel_nr] for a in b)
                 bereits_in_anderen_tags_vorhanden = len(set_inhalt.intersection(tags_gen_ohne_kateg)) > 0
                 
                 keine_aenderung = set_inhalt == set_alt
@@ -880,61 +1266,25 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 geloeschte = set_alt.difference(set_inhalt)
                 hinzugefuegte = set_inhalt.difference(set_alt)
 
-
                 if keine_aenderung:
-                    self.wieder_loeschen(col,row,kateg)
-                
-                elif bereits_in_anderen_tags_vorhanden:
+                    pass
+                if bereits_in_anderen_tags_vorhanden:
                     self.mb.nachricht(LANG.EIN_TAG_BEREITS_VORHANDEN,"infobox")
-                    self.wieder_loeschen(col,row,kateg)                   
+                    self.zuruecksetzen(col,row,panel_nr)                   
                 else:
-                    self.setze_aenderung(col,row,kateg,inhalt,geloeschte,hinzugefuegte)
-                    
+                    self.setze_aenderung(col,row,panel_nr,ordinal,inhalt,geloeschte,hinzugefuegte)
+                    bild_neu_setzen()
+               
         except:
             log(inspect.stack,tb())
-    
-        
-    def update_icon_pos(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        x0,y0,x1,y1 = self.pos 
-        y1 = y0
-        
-        def berechne_pos(c):
-            pos = c.Position
-            h = c.Size.Height
-            hh = (h - 500)/2
-
-            y = pos.Y + hh
-            pos.Y = y
-            return pos
-        
-        try:
-            for e in self.eintraege:
-                
-                if e[0] == self.mb.props['ORGANON'].Papierkorb:
-                    y1 += 1
-                    break
-                
-                cell = self.Org.sheet.getCellByPosition(x0 - 1 ,y1 + 1)
-                icon = self.icons['IMG_{}'.format(e[0])]
-
-                icon.setPosition(berechne_pos(cell))
-                
-                cell = self.Org.sheet.getCellByPosition(x0 - 2 ,y1 + 1)
-                icon = self.icons['IMGU_{}'.format(e[0])]
-
-                icon.setPosition(berechne_pos(cell))
-                
-                y1 += 1
-        except:
-            log(inspect.stack,tb())
-    
+  
     def disposing(self,ev):
         return False
     
     
-from com.sun.star.awt import XEnhancedMouseClickHandler       
+    
+            
+from com.sun.star.awt import XEnhancedMouseClickHandler      
 class Enhanced_MC_Handler(unohelper.Base, XEnhancedMouseClickHandler):
 
     def __init__(self, mb, Org):
@@ -945,47 +1295,215 @@ class Enhanced_MC_Handler(unohelper.Base, XEnhancedMouseClickHandler):
         
     def disposing(self, ev):
         return False
-
     def mousePressed(self, ev):
-        # nur loggen, wenn tatsaechlich verwendet
-        
-        if hasattr(ev.Target, 'Control'):
-            if self.mb.debug: log(inspect.stack)
-            
-        else:
-            x0,y0,x1,y1 = self.Org.pos
-            
-            range_col = list(range(x0-2,x0))
-            range_row = list(range(y0 + 1 ,y0 + len(self.Org.Eintraege) - 1))
-
-            addr = ev.Target.CellAddress
-            col,row = addr.Column, addr.Row
-
-            if col in range_col and row in range_row:
-                if self.mb.debug: log(inspect.stack)
-                
-                reihe = row - y0 -1
-                ord_source = self.Org.Eintraege[reihe][0]
-                window_parent = self.Org.calc_frame.getComponentWindow()
-                X,Y = ev.X,ev.Y
-                
-                # FARB ICONS
-                if col == y0 - 1:
-                    self.mb.class_Funktionen.erzeuge_Tag1_Container(ord_source,X,Y,window_parent=window_parent)
-                else:
-                    self.mb.class_Funktionen.erzeuge_Tag2_Container(ord_source,X,Y,window_parent=window_parent)
-
         return True
    
     def mouseReleased(self, ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        org = self.Org
+        try:
+            if not hasattr(ev.Target,'CellAddress'):
+                return True
+            addr = ev.Target.CellAddress
+            col,row = addr.Column, addr.Row
+            
+            try:
+                panel_nr = org.spalten[col - org.pos[0] - 1]
+            except:
+                return True
+            
+            if panel_nr not in org.bild_panels:
+                return True
+            elif not (org.pos[1] < row < org.pos[1] + len(org.Eintraege)+1):
+                return True
+            elif row in org.bilder_reihe and panel_nr in org.bilder_reihe[row]:
+                return True
+
+            org.bild_einfuegen(col, row, panel_nr)
+                    
+        except:
+            log(inspect.stack,tb())
+            
         return True
     
+
+                        
+
+from com.sun.star.script import XScriptListener
+class Icons_Listener(unohelper.Base,XScriptListener):
+
+    def __init__(self,mb,org):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        self.org = org
+
+    def firing(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        btn = ev.Arguments[0].Source
+        if hasattr(btn.Model,'Label'):
+            label = btn.Model.Label
+        else:
+            label = btn.Model.Name
+        # MENULEISTE EIN/AUSBLENDEN
+        if label == LANG.MENU:
+            lmgr = self.org.calc_frame.LayoutManager
+            
+            ResourceURL ='private:resource/menubar/menubar'
+            
+            if lmgr.isElementVisible(ResourceURL):
+                lmgr.hideElement(ResourceURL)
+            else:
+                lmgr.showElement(ResourceURL)
+                
+        # INFO ANZEIGEN
+        elif label == LANG.INFO:
+            self.mb.nachricht(LANG.ORGANIZER_INFO.format(
+                     LANG.UEBERNEHMEN,
+                     LANG.MENU,
+                     LANG.SYNOPSIS,
+                     LANG.NOTIZEN,
+                     LANG.CHARAKTERE,
+                     LANG.ORTE),
+                     "infobox")
+        # TAGS UEBERNEHMEN
+        elif label == LANG.UEBERNEHMEN:
+            self.org.tags_uebernehmen()
+            
+        # ICONS AENDERN
+        else:
+            try:
+                ord_source = label.split('_')[2]
+
+                ps = btn.PosSize
+                X,Y = ps.X,ps.Y
+                
+                window_parent = self.org.calc_frame.getComponentWindow()
+                
+                # FARB ICONS
+                if 'IMGU' in label:
+                    self.mb.class_Funktionen.erzeuge_Tag2_Container(ord_source,X,Y,window_parent=window_parent)
+                elif 'IMG' in label:
+                    self.mb.class_Funktionen.erzeuge_Tag1_Container(ord_source,X,Y,window_parent=window_parent)
+                elif 'panel' in label:
+                    panel_nr = int(label.split('_')[1].split('panel')[1])
+                    self.erzeuge_auswahl_bild_tag(X, Y, window_parent,ord_source,panel_nr)
+                    
+            except:
+                log(inspect.stack,tb())
+                
+            
+    def erzeuge_auswahl_bild_tag(self,X,Y,parent,ordinal,panel_nr):       
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            
+            button_listener = Bild_Tag_Button_Listener(self.mb)
+                    
+            prop_names = ('Label',)
+            prop_values = (LANG.LOESCHEN,)
+            control, model = self.mb.createControl(self.mb.ctx, "Button", 10, 10, 100, 25, prop_names, prop_values)  
+            control.addActionListener(button_listener) 
+            control.setActionCommand('loeschen')
+            
+            prop_names = ('Label',)
+            prop_values = (LANG.AENDERN,)
+            control2, model2 = self.mb.createControl(self.mb.ctx, "Button", 10, 50, 100, 25, prop_names, prop_values)  
+            control2.addActionListener(button_listener) 
+            control2.setActionCommand('aendern')
+            
+            
+            posSize = X,Y,120,85
+            win,cont = self.mb.erzeuge_Dialog_Container(posSize,parent=parent)
+            cont.addControl('loeschen', control)
+            cont.addControl('aendern', control2)
+            
+            button_listener.win = win
+            button_listener.panel_nr = panel_nr
+            button_listener.ordinal = ordinal
+            
+        except:
+            log(inspect.stack,tb())
+                
+    def approveFiring(self,ev): return False
+    def disposing(self, ev): return False
+
+        
+from com.sun.star.awt import XActionListener
+class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+        self.win = None
+        self.panel_nr = None
+        self.ordinal = None
+   
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        cmd = ev.ActionCommand
+        
+        org = self.mb.class_Organizer
+        tags = org.tags_org
+        draw_page = org.sheet.DrawPage
+        eintrag = [e for e in org.Eintraege if e[0] == self.ordinal][0]
+        
+        c = org.spalten.index(self.panel_nr)
+        r = org.Eintraege.index(eintrag)
+        
+        col = org.pos[0] + 1 + c
+        row = org.pos[1] + 1 + r
+        
+        cell = org.sheet.getCellByPosition(col,row)
+        
+        try:
+            if cmd == 'aendern':
+   
+                url,ok = self.mb.class_Funktionen.filepicker2()
+                if not ok:
+                    return True
+                
+                if url:
+                    shape = org.bilder_reihe[row][self.panel_nr]['shape']
+                    reihe = org.bilder_reihe[row][self.panel_nr]
+                    name = shape.Name
+                    
+                    draw_page.remove(shape)
+                    shape.dispose()
+
+                    org.bild_einfuegen(col,row,self.panel_nr,url=url)
+                    org.update_reihe_ansicht(row) 
+                    org.update_icon_pos(col,row)
+                         
+            elif cmd == 'loeschen':
+                
+                shape = org.bilder_reihe[row][self.panel_nr]['shape']
+                
+                draw_page.remove(shape)
+                shape.dispose()
+                 
+                del org.bilder_reihe[row][self.panel_nr]
+                org.setze_zelle_und_tag(c+1,r,cell,'',self.ordinal,self.panel_nr)
+
+                org.update_reihe_ansicht(row) 
+                org.update_icon_pos(col,row)  
+                org.tags_org['ordinale'][self.ordinal][self.panel_nr] = ''
+                 
+        except:
+            log(inspect.stack,tb())
+            
+                        
+        self.win.dispose()
+        
+    def disposing(self,ev):
+        return True
 
             
 from com.sun.star.document import XDocumentEventListener
 class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
     '''
-    Lets Organizer close without warning when no changes had been made.
+    Lets the Organizer close without warning when no changes had been made.
     Else the user is asked if he wants to save the changes.
     '''
     def __init__(self,mb,Org,calc):
@@ -995,9 +1513,11 @@ class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
         self.calc = calc
 
     def documentEventOccured(self,ev):
-        if self.mb.debug: log(inspect.stack)
         try:
+            #print(ev.EventName)
             if ev.EventName == 'OnPrepareViewClosing':
+                if self.mb.debug: log(inspect.stack)
+                
                 if self.calc.isModified(): 
                     entscheidung = self.mb.nachricht(LANG.AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN,"warningbox",16777216)
                     # 3 = Nein oder Cancel, 2 = Ja

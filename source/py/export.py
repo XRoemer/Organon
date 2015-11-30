@@ -296,7 +296,7 @@ class Export():
 
      
     def kopiere_projekt(self,neuer_projekt_name,pfad_zu_neuem_ordner,
-                        ordinale,tree,dict_sb_content_neu,backup = False):
+                        ordinale,tree,tags_neu,backup = False):
         if self.mb.debug: log(inspect.stack)
         
         try:
@@ -379,40 +379,48 @@ class Export():
                     q_pfad = os.path.join(root,f)
                     z_pfad = os.path.join(ziel,f)
                     
-                    if '~lock' in f: continue
-                    
-                    ### AENDERUNGEN GEGENUEBER DEM ORIGINAL AUSFUEHREN
-                    elif 'ElementTree' in f: 
-                        if backup:
-                            root_xml = tree.getroot()
-                            projekt_xml = root_xml.find(".//*[@Art='prj']")
-                            projekt_xml.attrib['Name'] = neuer_projekt_name
-                        self.mb.tree_write(tree,z_pfad)
-                        continue
-                    
-                    elif f == 'sidebar_content.pkl': 
-                        from pickle import dump as pickle_dump
-                        with open(z_pfad, 'wb') as fi:
-                            pickle_dump(dict_sb_content_neu, fi,2)
-                    
-                    # ungenutzte odts vom Kopieren aussschliessen  
-                    elif 'odt' == os.path.basename(root):
-                        if f not in ordinale_files:
-                            continue
-                    
-                    # ungenutzte Bilder vom Kopieren aussschliessen  
-                    elif 'Images' == os.path.basename(root):
-                        bild_vorhanden = False
+                    try:
+                        if '~lock' in f: continue
                         
-                        for ordi in dict_sb_content_neu['ordinal']:
-                            if dict_sb_content_neu['ordinal'][ordi]['Images'] != '':
-                                b_pfad = uno.fileUrlToSystemPath(dict_sb_content_neu['ordinal'][ordi]['Images'])
-                            else:
-                                b_pfad = ''
-                            if os.path.basename(b_pfad) == os.path.basename(z_pfad):
-                                bild_vorhanden = True
-                        if not bild_vorhanden:
+                        ### AENDERUNGEN GEGENUEBER DEM ORIGINAL AUSFUEHREN
+                        elif 'ElementTree' in f: 
+                            if backup:
+                                root_xml = tree.getroot()
+                                projekt_xml = root_xml.find(".//*[@Art='prj']")
+                                projekt_xml.attrib['Name'] = neuer_projekt_name
+                            self.mb.tree_write(tree,z_pfad)
                             continue
+                        
+                        elif f == 'tags.pkl': 
+                            from pickle import dump as pickle_dump
+                            with open(z_pfad, 'wb') as fi:
+                                pickle_dump(tags_neu, fi,2)
+                        
+                        # ungenutzte odts vom Kopieren aussschliessen  
+                        elif 'odt' == os.path.basename(root):
+                            if f not in ordinale_files:
+                                continue
+                        
+                        # ungenutzte Bilder vom Kopieren aussschliessen  
+                        elif 'Images' == os.path.basename(root):
+                            bild_vorhanden = False
+                            
+                            tags = self.mb.tags
+                            bild_panels = [i for i,v in tags['nr_name'].items() if v[1] == 'img']
+                            
+                            for ordi in tags_neu['ordinale']:
+                                for b in bild_panels:
+                                    if tags_neu['ordinale'][ordi][b] != '':
+                                        b_pfad = uno.fileUrlToSystemPath(tags_neu['ordinale'][ordi][b])
+                                    else:
+                                        b_pfad = ''
+                                    if os.path.basename(b_pfad) == os.path.basename(z_pfad):
+                                        bild_vorhanden = True
+                            if not bild_vorhanden:
+                                continue
+                    except:
+                        # Bei Fehlern wird die Datei einfach kopiert
+                        pass
 
                     copy(q_pfad, z_pfad)
                     
@@ -1062,12 +1070,12 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 return
             
             tree,ordinale = self.et_und_ordinale_berechnen(sections,neuer_projekt_name)
-            dict_sb_content_neu = self.passe_dict_sb_content_an(ordinale)
+            tags_neu = self.passe_tags_an(ordinale)
 
             speicherort = uno.fileUrlToSystemPath(self.mb.settings_exp['speicherort'])
             pfad_zu_neuem_ordner = os.path.join(speicherort,neuer_projekt_name + '.organon')
             
-            self.mb.class_Export.kopiere_projekt(neuer_projekt_name,pfad_zu_neuem_ordner,ordinale,tree,dict_sb_content_neu)
+            self.mb.class_Export.kopiere_projekt(neuer_projekt_name,pfad_zu_neuem_ordner,ordinale,tree,tags_neu)
                         
         except Exception as e:
             self.mb.nachricht('exp_in_neues_proj ' + str(e),"warningbox")
@@ -1132,20 +1140,20 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         return tree,ordinale
 
   
-    def passe_dict_sb_content_an(self,ordinale):
+    def passe_tags_an(self,ordinale):
         if self.mb.debug: log(inspect.stack)
         
-        dict_sb_content_neu = copy.deepcopy(self.mb.dict_sb_content)
+        tags_neu = copy.deepcopy(self.mb.tags)
         
         new_dict = {}
         
-        for ordn in dict_sb_content_neu['ordinal']:
+        for ordn in tags_neu['ordinale']:
             if ordn in ordinale:
-                new_dict.update({ordn : dict_sb_content_neu['ordinal'][ordn]})
+                new_dict.update({ordn : tags_neu['ordinale'][ordn]})
         
-        dict_sb_content_neu['ordinal'] = new_dict
+        tags_neu['ordinale'] = new_dict
         
-        return dict_sb_content_neu
+        return tags_neu
         
         
             

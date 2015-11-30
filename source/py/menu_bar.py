@@ -105,7 +105,7 @@ class Menu_Bar():
             self.props = {}
             self.props.update({T.AB :Props()})
             self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
-            self.dict_sb_content = None
+            self.tags = None
             self.templates = templates
             self.registrierte_maus_listener = []
             self.maus_fenster = None
@@ -159,6 +159,7 @@ class Menu_Bar():
             self.class_Export =         self.lade_modul('export','Export')
             self.class_Import =         self.lade_modul('importX','ImportX') 
             self.class_Sidebar =        self.lade_modul('sidebar','Sidebar') 
+            self.class_Tags =           self.lade_modul('tags','Tags')
             self.class_Bereiche =       self.lade_modul('bereiche','Bereiche')
             self.class_Version =        self.lade_modul('version','Version') 
             self.class_Tabs =           self.lade_modul('tabs','Tabs') 
@@ -355,7 +356,7 @@ class Menu_Bar():
         except Exception as e:
                 self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
                 log(inspect.stack,tb())
-            
+                
         
         
         
@@ -493,13 +494,12 @@ class Menu_Bar():
                     elif item[1] == 'Tag_SB':
                         
                         control.addMouseListener(tag_SB_listener)
+                        panel_nr = self.tags['name_nr'][item[0]]
                         
-                        panel = self.class_Sidebar.sb_panels2[item[0]]
-                        
-                        if panel in self.dict_sb['sichtbare']:
+                        if panel_nr in self.tags['sichtbare']:
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
                         
-                    
+                        
 
                     if xBreite < Breite:
                         xBreite = Breite
@@ -672,7 +672,7 @@ class Menu_Bar():
                 ordinale.append(el.tag)        
         
             self.class_Export.kopiere_projekt(neuer_projekt_name,pfad_zu_neuem_ordner,
-                                                 ordinale,tree,self.dict_sb_content,True)  
+                                                 ordinale,tree,self.tags,True)  
             os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')  
             self.nachricht('Backup erzeugt unter: %s' %pfad_zu_neuem_ordner+'.organon', "infobox")           
         except:
@@ -791,7 +791,9 @@ class Menu_Bar():
                 if 'addMouseListener' in extras:
                     locals()[name].addMouseListener(extras['addMouseListener'])
                 if 'addItemListener' in extras:
-                    locals()[name].addItemListener(extras['addItemListener'])                        
+                    locals()[name].addItemListener(extras['addItemListener'])      
+                if 'addFocusListener' in extras:
+                    locals()[name].addFocusListener(extras['addFocusListener'])                     
                 if 'SelectedItems' in extras:
                     locals()[name].Model.SelectedItems = extras['SelectedItems']
                 
@@ -927,7 +929,25 @@ class Menu_Bar():
         sm = uno.getComponentContext().ServiceManager
         return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
     
+    def dispatch(self,frame,cmd,oprop=('',None),oprop2=('',None)):
+        if self.debug: log(inspect.stack)
+              
+        sm = uno.getComponentContext().ServiceManager
+        dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
+        
+        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop.Name = oprop[0]
+        prop.Value = oprop[1]
+        
+        prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+        prop2.Name = oprop2[0]
+        prop2.Value = oprop2[1]
+        
+        res = dispatcher.executeDispatch(frame, ".uno:{}".format(cmd), "", 0, (prop,prop2))
+        return res
+    
     def erzeuge_texttools_fenster(self,ev,m_win):
+        if self.debug: log(inspect.stack)
         
         loc_menu = ev.Source.Context.AccessibleContext.LocationOnScreen
         loc_cont = self.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
@@ -938,7 +958,7 @@ class Menu_Bar():
         x3 += ev.Source.Context.PosSize.Width
         y3 += ev.Source.PosSize.Y
         
-        items = menuEintraege(LANG,LANG.TEXTTOOLS)
+        items = self.menuEintraege(LANG,LANG.TEXTTOOLS)
         
         controls,listener,Hoehe,Breite = self.erzeuge_Menu_DropDown_Eintraege(items)
         controls = list((x,'') for x in controls)
@@ -958,6 +978,87 @@ class Menu_Bar():
         
         for c in controls:
             cont.addControl(c[1],c[0])
+            
+            
+    def menuEintraege(self,LANG,menu):
+    
+        if menu == LANG.FILE:
+            
+            items = (LANG.NEW_PROJECT, 
+                    LANG.OPEN_PROJECT ,
+                    'SEP', 
+                    LANG.NEW_DOC, 
+                    LANG.NEW_DIR,
+                    'SEP',
+                    LANG.EXPORT_2, 
+                    LANG.IMPORT_2,
+                    'SEP',
+                    LANG.BACKUP,
+                    LANG.EINSTELLUNGEN)
+            
+            if T.AB != 'ORGANON':
+                items = (
+                    LANG.EXPORT_2, 
+                    'SEP',
+                    LANG.BACKUP,
+                    LANG.EINSTELLUNGEN)
+                
+        elif menu == LANG.BEARBEITEN_M:
+            items = ( 
+                LANG.ORGANIZER,
+                LANG.NEUER_TAB,
+                'SEP',
+                LANG.TRENNE_TEXT,
+                LANG.TEXT_BATCH_DEVIDE,
+                LANG.DATEIEN_VEREINEN,
+                LANG.TEXTTOOLS,
+                'SEP',
+                LANG.UNFOLD_PROJ_DIR,
+                LANG.CLEAR_RECYCLE_BIN
+                )
+            if T.AB != 'ORGANON':
+                items = (  
+                    LANG.ORGANIZER,
+                    'SEP',
+                    LANG.NEUER_TAB,
+                    LANG.SCHLIESSE_TAB,
+                    LANG.IMPORTIERE_IN_TAB,
+                    'SEP',
+                    #LANG.TEXTVERGLEICH,
+                    #LANG.WOERTERLISTE,
+                    LANG.TEXTTOOLS,
+                    'SEP',
+                    LANG.UNFOLD_PROJ_DIR,
+                    LANG.CLEAR_RECYCLE_BIN
+                    )  
+                 
+        elif menu == LANG.ANSICHT:
+            
+            tags = self.tags
+            panels = [(tags['nr_name'][i][0],'Tag_SB') for i in tags['abfolge']]
+            
+            items = [
+                (LANG.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
+                (LANG.SHOW_TAG1,'Tag_TV'),
+                (LANG.SHOW_TAG2,'Tag_TV'),
+                (LANG.GLIEDERUNG,'Tag_TV'),
+                ('SEP',''),
+                (LANG.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift')
+                ] + panels + [
+                ('SEP',''),
+                (LANG.ZEIGE_TEXTBEREICHE,''),
+                ('SEP',''),
+                (LANG.HOMEPAGE,''),
+                (LANG.FEEDBACK,''),
+                 ]
+            
+        elif menu == LANG.TEXTTOOLS:
+            items = (LANG.TEXTVERGLEICH,
+                    LANG.WOERTERLISTE,
+                    LANG.ERZEUGE_INDEX
+                     )
+          
+        return items
         
 def set_app_style(win,settings_orga):
     try:
@@ -1340,90 +1441,7 @@ class Listener():
  
         
 
-def menuEintraege(LANG,menu):
-    
-    if menu == LANG.FILE:
-        
-        items = (LANG.NEW_PROJECT, 
-                LANG.OPEN_PROJECT ,
-                'SEP', 
-                LANG.NEW_DOC, 
-                LANG.NEW_DIR,
-                'SEP',
-                LANG.EXPORT_2, 
-                LANG.IMPORT_2,
-                'SEP',
-                LANG.BACKUP,
-                LANG.EINSTELLUNGEN)
-        
-        if T.AB != 'ORGANON':
-            items = (
-                LANG.EXPORT_2, 
-                'SEP',
-                LANG.BACKUP,
-                LANG.EINSTELLUNGEN)
-            
-    elif menu == LANG.BEARBEITEN_M:
-        items = ( 
-            LANG.ORGANIZER,
-            LANG.NEUER_TAB,
-            'SEP',
-            LANG.TRENNE_TEXT,
-            LANG.TEXT_BATCH_DEVIDE,
-            LANG.DATEIEN_VEREINEN,
-            LANG.TEXTTOOLS,
-            'SEP',
-            LANG.UNFOLD_PROJ_DIR,
-            LANG.CLEAR_RECYCLE_BIN
-            )
-        if T.AB != 'ORGANON':
-            items = (  
-                LANG.ORGANIZER,
-                'SEP',
-                LANG.NEUER_TAB,
-                LANG.SCHLIESSE_TAB,
-                LANG.IMPORTIERE_IN_TAB,
-                'SEP',
-                #LANG.TEXTVERGLEICH,
-                #LANG.WOERTERLISTE,
-                LANG.TEXTTOOLS,
-                'SEP',
-                LANG.UNFOLD_PROJ_DIR,
-                LANG.CLEAR_RECYCLE_BIN
-                )  
-             
-    elif menu == LANG.ANSICHT:
-        items = ((LANG.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
-            (LANG.SHOW_TAG1,'Tag_TV'),
-            (LANG.SHOW_TAG2,'Tag_TV'),
-            (LANG.GLIEDERUNG,'Tag_TV'),
-            ('SEP',''),
-            (LANG.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift'),
-            (LANG.SYNOPSIS,'Tag_SB'),
-            (LANG.NOTIZEN,'Tag_SB'),
-            (LANG.BILDER,'Tag_SB'),
-            (LANG.ALLGEMEIN,'Tag_SB'),
-            (LANG.CHARAKTERE,'Tag_SB'),
-            (LANG.ORTE,'Tag_SB'),
-            (LANG.OBJEKTE,'Tag_SB'),
-            (LANG.ZEIT,'Tag_SB'),
-            (LANG.BENUTZER1,'Tag_SB'),
-            (LANG.BENUTZER2,'Tag_SB'),
-            (LANG.BENUTZER3,'Tag_SB'),
-            ('SEP',''),
-            (LANG.ZEIGE_TEXTBEREICHE,''),
-            ('SEP',''),
-            (LANG.HOMEPAGE,''),
-            (LANG.FEEDBACK,''),
-             )
-        
-    elif menu == LANG.TEXTTOOLS:
-        items = (LANG.TEXTVERGLEICH,
-                LANG.WOERTERLISTE,
-                LANG.ERZEUGE_INDEX
-                 )
-      
-    return items
+
 
 
 class Tab_Auswahl():
@@ -1579,7 +1597,7 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
                     return
                 
                 else:
-                    items = menuEintraege(LANG,self.menu_Kopf_Eintrag)
+                    items = self.mb.menuEintraege(LANG,self.menu_Kopf_Eintrag)
                     if self.menu_Kopf_Eintrag == LANG.ANSICHT:
                         controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege_Ansicht(items)
                     else:
@@ -1593,8 +1611,6 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
                     posSize = x,y,Breite +20,Hoehe +20
                     
                     oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+16+512,parent=self.mb.win)
-#                     red = 16275544
-#                     oWindow.StyleSettings.ActiveBorderColor = red
                     
                     # Listener fuers Dispose des Fensters
                     listener2 = Schliesse_Menu_Listener(self.mb)
@@ -1942,15 +1958,16 @@ class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
             ctrl = ev.Source.Context.getControl(name+'_icon') 
             #state = ev.Source.State
             
-            panels = self.mb.class_Sidebar.sb_panels2
+            panels_nr = self.mb.tags['name_nr'][name]
+
             if ctrl.Model.ImageURL == 'private:graphicrepository/svx/res/apply.png':
-                self.mb.dict_sb['sichtbare'].remove(panels[name])
+                self.mb.tags['sichtbare'].remove(panels_nr)
                 ctrl.Model.ImageURL = '' 
             else:
-                self.mb.dict_sb['sichtbare'].append(panels[name])
+                self.mb.tags['sichtbare'].append(panels_nr)
                 ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
                 
-            self.mb.class_Sidebar.erzeuge_sb_layout(None,'dropdown')
+            self.mb.class_Sidebar.erzeuge_sb_layout()
             
             # Wenn die Sidebar sichtbar ist, auf und zu schalten,
             # um den Sidebar tag sichtbar zu machen 
@@ -2029,11 +2046,16 @@ class Mitteilungen():
         time.sleep(zeit)
         StatusIndicator.end()
         
-    def popup(self,nachricht,zeit=3):
+    def popup(self,nachricht,zeit=3,parent=None):
         if self.mb.debug: log(inspect.stack)  
         
-        posSize = 50,50,0,0
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128)
+        if parent == None:
+            parent = self.mb.toolkit.getActiveTopWindow() 
+            if parent == None:
+                parent = self.mb.win
+        
+        posSize = parent.PosSize.Width/2-100, parent.PosSize.Height/2-50, 0, 0
+        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=parent)
         
         ctrl, model = self.mb.createControl(self.ctx, "FixedText", 10, 15, 0, 0, (), ())          
         model.Label = nachricht
@@ -2043,7 +2065,6 @@ class Mitteilungen():
         Breite = pref_Size.Width + 20
         ctrl.setPosSize(0,0,Breite,Hoehe,12)
         fenster.setPosSize(0,0,Breite,Hoehe,12)
-        
     
         fenster_cont.addControl('Text', ctrl)
         
@@ -2051,21 +2072,7 @@ class Mitteilungen():
             fenster.draw(1,1)
             time.sleep(zeit)
             fenster.dispose()
-            
-            
-        #f,m = self.mb.popup(LANG.KEIN_NAME,'frei')
-        
-#         time.sleep(zeit)
-#         fenster.dispose()
-#         
-#         
-#         for x in range(10):
-#             m.Label = 'verbleibend: {}'.format(x)
-#             f.draw(1,1)
-#             time.sleep(.2)
-#         time.sleep(1)
-#         f.dispose()
-        
+
         return fenster, model
         
         
@@ -2377,7 +2384,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         if props.selektierte_zeile_alt != None: 
             ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld') 
             ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-            self.mb.class_Sidebar.erzeuge_sb_layout(None)
+            self.mb.class_Sidebar.erzeuge_sb_layout()
             
         props.selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      
@@ -2427,8 +2434,8 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)   
 
             if 'files' in self.mb.pfade: 
-                self.mb.class_Sidebar.speicher_sidebar_dict()   
-                self.mb.class_Sidebar.dict_sb_zuruecksetzen()    
+                self.mb.class_Tags.speicher_tags()   
+                self.mb.class_Sidebar.tags_und_dict_sb_zuruecksetzen()    
 
             self.mb = None
 
@@ -2587,6 +2594,7 @@ class Window_Dispose_Listener(unohelper.Base,XEventListener):
         self.fenster = fenster
     
     def disposing(self,ev):
+
         if 'win' in self.mb.platform:
             # Beschleunigt das Dispose ungemein !
             self.fenster.setVisible(False)
@@ -2594,5 +2602,5 @@ class Window_Dispose_Listener(unohelper.Base,XEventListener):
         else:
             self.fenster.dispose()
 
-    
+        
 

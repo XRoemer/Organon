@@ -214,6 +214,8 @@ class Funktionen():
             for control in controls:
                 fenster_cont.addControl('wer',control)
             
+            listener2.win = fenster
+            
         except:
             log(inspect.stack,tb())
             
@@ -379,7 +381,7 @@ class Funktionen():
             vc.gotoStart(False)
             
             # Einstellungen, tags der alten Datei fuer neue uebernehmen
-            self.mb.dict_sb_content['ordinal'][ordinal_neue_zeile] = copy.deepcopy(self.mb.dict_sb_content['ordinal'][zeilenordinal])
+            self.mb.tags['ordinale'][ordinal_neue_zeile] = copy.deepcopy(self.mb.tags['ordinale'][zeilenordinal])
             
             tree = self.mb.props['ORGANON'].xml_tree
             root = tree.getroot()
@@ -390,7 +392,7 @@ class Funktionen():
             neu.attrib['Tag2'] = alt.attrib['Tag2']
             neu.attrib['Tag3'] = alt.attrib['Tag3']
             
-            self.mb.class_Sidebar.erzeuge_sb_layout(None,'teile_text')
+            self.mb.class_Sidebar.erzeuge_sb_layout()
                 
         except Exception as e:
             self.mb.nachricht('teile_text ' + str(e),"warningbox")
@@ -1150,7 +1152,7 @@ class Funktionen():
         for el in all_elements:
             ordinale.append(el.tag)        
     
-        self.mb.class_Export.kopiere_projekt(name,pfad_zu_neuem_ordner,ordinale,tree,self.mb.dict_sb_content,True)  
+        self.mb.class_Export.kopiere_projekt(name,pfad_zu_neuem_ordner,ordinale,tree,self.mb.tags,True)  
         os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')
     
     def kopiere_ordner(self,src, dst):
@@ -1836,7 +1838,7 @@ class Teile_Text_Batch():
         root = tree.getroot()
         all = root.findall('.//')
         for a in all:
-            self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(a.tag)
+            self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(a.tag)
             
 
 
@@ -1923,7 +1925,8 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
 
         if self.window_parent != None:
             self.icon_in_calc_anpassen(self.ordinal,url)
-              
+        
+        self.win.dispose()
 
     def tag2_in_allen_tabs_xml_anpassen(self,ord_source,url):
         if self.mb.debug: log(inspect.stack) 
@@ -2009,6 +2012,15 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
             
             form = draw_page.Forms.getByName('IMGU_'+ ord_source)
             form.ControlModels[0].setPropertyValue('ImageURL',url)
+            
+            if url == '':
+                form.ControlModels[0].setPropertyValue('Border',2)
+                form.ControlModels[0].setPropertyValue('BorderColor',4147801)
+            else:
+                form.ControlModels[0].setPropertyValue('Border',0)
+                hintergrund = self.mb.settings_orga['organon_farben']['office']['dok_hintergrund']
+                form.ControlModels[0].setPropertyValue('BorderColor',hintergrund)
+                
         except:
             log(inspect.stack,tb())
    
@@ -2097,6 +2109,15 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
             
             form = draw_page.Forms.getByName('IMG_'+ ord_source)
             form.ControlModels[0].setPropertyValue('ImageURL',url)
+            
+            if 'punkt_leer' in url:
+                form.ControlModels[0].setPropertyValue('Border',2)
+                form.ControlModels[0].setPropertyValue('BorderColor',4147801)
+            else:
+                form.ControlModels[0].setPropertyValue('Border',0)
+                hintergrund = self.mb.settings_orga['organon_farben']['office']['dok_hintergrund']
+                form.ControlModels[0].setPropertyValue('BorderColor',hintergrund)
+            
         except:
             log(inspect.stack,tb())
             

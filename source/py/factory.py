@@ -35,7 +35,7 @@ from codecs import open as codecs_open
             # DEBUGGING / REMOTE CONTROL #
 ####################################################
 
-load_reload = True
+load_reload = False
 
 if load_reload:
     sys.dont_write_bytecode = True
@@ -345,11 +345,12 @@ set_konst()
 ####################################################
 
 
-dict_sb = {'sichtbare':[],
+dict_sb = {
            'controls':{},
            'erzeuge_sb_layout':None,
            'optionsfenster':None,
-           'sb_closed':None}
+           'sb_closed':None
+           }
 
 
 from com.sun.star.ui import XUIElementFactory
@@ -401,9 +402,8 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             
             if dict_sb['erzeuge_sb_layout'] != None:
  
-                erzeuge_sb_layout = dict_sb['erzeuge_sb_layout']
                 dict_sb['sb_closed'] = False
-                erzeuge_sb_layout(cmd,'factory')
+                dict_sb['erzeuge_sb_layout']()
             else:
                 pos_y = 10
                 height = 50 

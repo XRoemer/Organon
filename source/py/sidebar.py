@@ -2,7 +2,6 @@
 
 import unohelper
 import pickle
-from pickle import HIGHEST_PROTOCOL
 from pickle import load as pickle_load
 from pickle import dump as pickle_dump
 
@@ -14,254 +13,14 @@ class Sidebar():
         self.design_gesetzt = False   
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
 
-        
-        self.sb_panels_tup = ('Synopsis',
-            'Notes',
-            'Images',
-            'Tags_general',
-            'Tags_characters',
-            'Tags_locations',
-            'Tags_objects',
-            'Tags_time',
-            'Tags_user1',
-            'Tags_user2',
-            'Tags_user3')
-        
-        self.sb_panels1 = {'Synopsis':LANG.SYNOPSIS,
-            'Notes':LANG.NOTIZEN,
-            'Images':LANG.BILDER,
-            'Tags_general':LANG.ALLGEMEIN,
-            'Tags_characters':LANG.CHARAKTERE,
-            'Tags_locations':LANG.ORTE,
-            'Tags_objects':LANG.OBJEKTE,
-            'Tags_time':LANG.ZEIT,
-            'Tags_user1':LANG.BENUTZER1,
-            'Tags_user2':LANG.BENUTZER2,
-            'Tags_user3':LANG.BENUTZER3}
-        
-        
-        
-        self.sb_panels2 = {LANG.SYNOPSIS:'Synopsis',
-            LANG.NOTIZEN:'Notes',
-            LANG.BILDER:'Images',
-            LANG.ALLGEMEIN:'Tags_general',
-            LANG.CHARAKTERE:'Tags_characters',
-            LANG.ORTE:'Tags_locations',
-            LANG.OBJEKTE:'Tags_objects',
-            LANG.ZEIT:'Tags_time',
-            LANG.BENUTZER1:'Tags_user1',
-            LANG.BENUTZER2:'Tags_user2',
-            LANG.BENUTZER3:'Tags_user3'}
-        
-        self.sb_tags = ('Tags_general',
-                        'Tags_characters',
-                        'Tags_locations',
-                        'Tags_objects',
-                        'Tags_user1',
-                        'Tags_user2',
-                        'Tags_user3')
-
-       
         self.hoehen = [] 
-        self.offen = {tag:1 for tag in self.sb_panels_tup}
+        self.offen = {}
         
         self.url_expand = None
         self.url_collapse = None
-        
-    
-    def lade_sidebar(self):
-        if self.mb.debug: log(inspect.stack)
-
-        if 'empty_project' in self.mb.dict_sb['sichtbare']:
-            self.mb.dict_sb['sichtbare'].remove('empty_project')
-        
-        self.mb.dict_sb['sichtbare'] = self.mb.dict_sb_content['sichtbare']
-                      
       
-    def lege_dict_sb_content_an(self):
-        if self.mb.debug: log(inspect.stack)
         
-        try:
-            sb_panels = self.sb_panels_tup
-            
-            tags = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
-            
-            
-            dict_sb_content = {}
-            dict_sb_content.update({'ordinal':{}})
-            dict_sb_content.update({'tags':{}})
-            # 'sichtbare' definiert hier die Ansicht bei einem neuen Projekt
-            dict_sb_content.update({'sichtbare':['Synopsis','Notes','Tags_general','Tags_characters']})
-            
-            # Anlegen der Verzeichnisstruktur 'ordinal'
-            for ordinal in list(self.mb.props[T.AB].dict_bereiche['ordinal']):
-                dict_sb_content['ordinal'].update({ordinal:{}})
-                for panel in sb_panels:
-                    if panel in tags:
-                        dict_sb_content['ordinal'][ordinal].update({panel:[]})
-                        if panel not in dict_sb_content['tags']:
-                            dict_sb_content['tags'].update({panel:[]})
-                        
-                    else:
-                        if panel == 'Tags_time':
-                            dict = {}
-                            dict.update({'zeit':None})
-                            dict.update({'datum':None})
-                            dict_sb_content['ordinal'][ordinal].update({panel:dict})
-                            
-                        else:
-                            dict_sb_content['ordinal'][ordinal].update({panel:''})
-                        
-            
-            dict_sb_content.update({'einstellungen':{}})   
-            dict_sb_content['einstellungen'].update({'tags_general_loescht_im_ges_dok':0})      
-                    
-            self.mb.dict_sb_content = dict_sb_content
-        except:
-            log(inspect.stack,tb())
-    
-    def lege_dict_sb_content_ordinal_an(self,ordinal):
-        if self.mb.debug: log(inspect.stack)
-        
-        sb_panels = self.sb_panels_tup
-        tags = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
-            
-        # Anlegen der Verzeichnisstruktur 'ordinal'
-        
-        self.mb.dict_sb_content['ordinal'].update({ordinal:{}})
-        for panel in sb_panels:
-            if panel in tags:
-                self.mb.dict_sb_content['ordinal'][ordinal].update({panel:[]})
-            else:
-                if panel == 'Tags_time':
-                    dict = {}
-                    dict.update({'zeit':None})
-                    dict.update({'datum':None})
-                    self.mb.dict_sb_content['ordinal'][ordinal].update({panel:dict})
-                else:
-                    self.mb.dict_sb_content['ordinal'][ordinal].update({panel:''})
-
-    
-    def loesche_dict_sb_content_eintrag(self,ordinal):
-        if self.mb.debug: log(inspect.stack)
-        
-        bildUrl = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
-        del(self.mb.dict_sb_content['ordinal'][ordinal])
-        
-        # Wenn das Bild im Dok nicht mehr vorkommt: loeschen
-        if bildUrl != '':
-            vorkommen = False
-            for ordi in self.mb.dict_sb_content['ordinal']:
-                if bildUrl in self.mb.dict_sb_content['ordinal'][ordi]['Images']:
-                    vorkommen = True
-            if not vorkommen:
-                os.remove(uno.fileUrlToSystemPath(bildUrl))
-        
-        
-        
-    def speicher_sidebar_dict(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
-            with open(pfad, 'wb') as f:
-                pickle_dump(self.mb.dict_sb_content, f,2)
-        except:
-            log(inspect.stack,tb())
-
-    def lade_sidebar_dict(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
-        
-        dict_exists, backup_exists = False, False
-
-        if os.path.exists(pfad):
-            dict_exists = True
-        if not os.path.exists(pfad+'.Backup'):
-            backup_exists = False
-        
-        
-        try:  
-            if dict_exists:          
-                with open(pfad, 'rb') as f:
-                    self.mb.dict_sb_content =  pickle_load(f)
-                self.ueberpruefe_dict_sb_content(not backup_exists)
-                
-            elif not backup_exists:
-                self.lege_dict_sb_content_an()
-                self.lade_Backup()
-        except:
-            log(inspect.stack,tb())
-            
-            self.lege_dict_sb_content_an()
-            if not backup_exists:
-                self.lade_Backup()
-            
-        if not dict_exists:
-            self.speicher_sidebar_dict()
-
-        self.erzeuge_dict_sb_content_Backup()
-        
-        
-    def ueberpruefe_dict_sb_content(self,backup_exists):
-        if self.mb.debug: log(inspect.stack)
-        
-        fehlende = []
-
-        for ordinal in list(self.mb.props['ORGANON'].dict_bereiche['ordinal']):
-            if ordinal not in self.mb.dict_sb_content['ordinal']:
-                fehlende.append(ordinal)
-
-        if len(fehlende) > 0:
-            if backup_exists:
-                self.lade_Backup(fehlende)
-            else:
-                for f in fehlende:
-                    self.lege_dict_sb_content_ordinal_an(f)
-                      
-    
-    def lade_Backup(self,fehlende = 'all'): 
-        if self.mb.debug: log(inspect.stack,None,'### Attention ###, sidebar_content.pkl.backup loaded!')
-        
-        pfad_Backup = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl.Backup')
-        
-        if fehlende == 'all':
-            fehlende = list(self.mb.props['ORGANON'].dict_bereiche['ordinal'])
-        
-        try:
-            with open(pfad_Backup, 'rb') as f:
-                backup = pickle_load(f)
-        except:
-            log(inspect.stack,tb())
-
-            for f in fehlende:
-                self.lege_dict_sb_content_ordinal_an(f)
-            return
-
-        helfer = fehlende[:]  
-        
-        if backup != None:  
-            for f in fehlende:
-                if f in backup['ordinal']:
-                    self.mb.dict_sb_content['ordinal'].update(backup['ordinal'][f])
-                    helfer.remove(f)
-        
-        fehlende = helfer      
-        for f in fehlende:
-            self.lege_dict_sb_content_ordinal_an(f)
-         
-       
-    def erzeuge_dict_sb_content_Backup(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        pfad = os.path.join(self.mb.pfade['files'],'sidebar_content.pkl')
-        pfad_Backup = pfad + '.Backup'
-        from shutil import copy2
-        copy2(pfad, pfad_Backup)
-        
-        
-    def erzeuge_sb_layout(self,xUIElement_name,rufer = None):
+    def erzeuge_sb_layout(self):
         if self.mb.dict_sb['sb_closed']:return
         if self.mb.debug: log(inspect.stack)
         
@@ -284,9 +43,6 @@ class Sidebar():
             
             
             # alte Eintraege im einzelnen Panel vorher loeschen
-            if rufer == 'focus_lost':
-                pass
-            #elif rufer != 'factory':
             for conts in panelWin.Controls:
                 conts.dispose()
             
@@ -310,11 +66,12 @@ class Sidebar():
                 
                 listener = Tags_Collapse_Button_Listener(self.mb,self)
                 
-                for p in self.sb_panels_tup:
-                    # sb_panels_tup haben gegenueber den dicts
-                    # eine feste Reihenfolge
-                    if p not in dict_sb['sichtbare']:
+                for panel_nr in self.mb.tags['abfolge']:
+                    
+                    if panel_nr not in self.mb.tags['sichtbare']:
                         continue
+                    
+                    panel_name,panel_typ = self.mb.tags['nr_name'][panel_nr]
                     
                     height1 = 30
                     width1 = breite_sidebar
@@ -334,18 +91,20 @@ class Sidebar():
                         line, model = self.mb.createControl(self.mb.ctx, "FixedLine", 0, -4, width1 - 50, 10, (), ()) 
                         container0.addControl('Line',line)
                     
-                    if self.offen[p]:
-                        url = self.url_expand
-                    else:
+                    if panel_nr not in self.offen:
+                        self.offen[panel_nr] = 1
+                    if self.offen[panel_nr]:
                         url = self.url_collapse
+                    else:
+                        url = self.url_expand
                         
-                    cont_icon, model = self.mb.createControl(self.mb.ctx, "ImageControl", 8,8 , 12, 12,
+                    cont_icon, model = self.mb.createControl(self.mb.ctx, "ImageControl", 8,9 , 9, 9,
                                                              ('ImageURL','Border'), (url,0))  
                     cont_icon.addMouseListener(listener)
                     container1.addControl('label',cont_icon)
                     
                     cont_label, model = self.mb.createControl(self.mb.ctx, "FixedText", 30, 0 , width1, height1,
-                                                              ('Label','VerticalAlign','FontWeight'), (self.sb_panels1[p],1,150))  
+                                                              ('Label','VerticalAlign','FontWeight'), (panel_name,1,150))  
                     container1.addControl('label',cont_label)
                     
                     pos_y2 += 30
@@ -355,10 +114,10 @@ class Sidebar():
                     
                     pos_y += 200
                     
-                    dict_felder.update({p:container2})
-                    dict_container.update({p:container0})
+                    dict_felder.update({panel_nr:container2})
+                    dict_container.update({panel_nr:container0})
 
-                    panelWin.addControl('Container'+p, container0)
+                    panelWin.addControl('Container' + str(panel_nr), container0)
                         
                   
                 return dict_container,dict_felder
@@ -374,60 +133,39 @@ class Sidebar():
             
             ordinal = self.mb.props[T.AB].selektierte_zeile
             ctrls = self.mb.dict_sb['controls']
+            tags = self.mb.tags
+            
+            height = 0 
+            
+            for panel_nr in self.mb.tags['abfolge']:
+                panel_name,panel_typ = self.mb.tags['nr_name'][panel_nr]
 
-            
-            # zum Speichern und Wiederherstellen der sichtbaren Panels
-            self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
-            
-                 
-            
-            for sichtb_element in self.sb_panels_tup:
-                
-                if sichtb_element not in dict_sb['sichtbare']:
+                if panel_nr not in self.mb.tags['sichtbare']:
                     continue
 
-                tag_control = self.dict_felder[sichtb_element]
+                tag_control = self.dict_felder[panel_nr]
             
             
-                if sichtb_element in self.sb_tags:
+                if panel_typ == 'tag':
                     
                     remove_or_add_button_listener = Tags_Remove_Button_Listener(self.mb)
      
                     y = 10
                     height = 20
                      
-                    ################################# WARNING ####################################################
-                    if sichtb_element == 'Tags_general':
-                        
-                        
-                        
-                        destroy = '''Tags: General will be removed in Organon 1.0. With the introduction of the Organizer "tags general" are obsolete. ''' \
-                            '''They served as an overview for all tags. But the logic of their interaction with other tags isn't obvious on first sight. ''' \
-                            '''Don't use them anymore and spread out general tags to the others. ''' \
-                            '''There will be another possibility for deleting a tag throughout the whole document.'''
-                         
-                        prop_names = ('MultiLine','Label')
-                        prop_values = (True,destroy)
-                        control, model = self.mb.createControl(ctx, "FixedText", 10, y,300, 120, prop_names, prop_values)
-                        tag_control.addControl('Button', control) 
-                         
-                        y += 130
-                    #############################################################################################
-                     
                     prop_names = ('HelpText','MultiLine')
                     prop_values = (LANG.ENTER_NEW_TAG,True)
                     control, model = self.mb.createControl(ctx, "Edit", 170, y,100, height, prop_names, prop_values)
                     tag_control.addControl('Button', control) 
      
-                    key_listener = Tags_Key_Listener(self.mb,sichtb_element)
+                    key_listener = Tags_Key_Listener(self.mb,panel_nr)
                     control.addKeyListener(key_listener)
      
-                    #y += height + 10
                     y_all_tags = y
                     y_all_tags += 30
                      
-                    alle_tags = self.mb.dict_sb_content['tags'][sichtb_element]
-                    eintraege = self.mb.dict_sb_content['ordinal'][ordinal][sichtb_element]
+                    alle_tags = self.mb.tags['sammlung'][panel_nr]
+                    eintraege = self.mb.tags['ordinale'][ordinal][panel_nr]
                      
                     SEP = '_XYX_'
                      
@@ -436,6 +174,7 @@ class Sidebar():
                         if tag_eintrag not in eintraege:
                              
                             height = 18
+                            
                             # Tageintrag
                             prop_names = ('Label','Align')
                             prop_values = (tag_eintrag,2)
@@ -447,11 +186,9 @@ class Sidebar():
                             prop_values = ('',LANG.TAG_HINZUFUEGEN)
                             control, model = self.mb.createControl(ctx, "Button", 280, y_all_tags ,14, 14, prop_names, prop_values)
                             tag_control.addControl('Remove_'+tag_eintrag, control) 
-                            control.setActionCommand(sichtb_element + SEP + ordinal + SEP + tag_eintrag + SEP + 'hinzufuegen')
+                            control.setActionCommand(str(panel_nr) + SEP + ordinal + SEP + tag_eintrag + SEP + 'hinzufuegen')
                             control.addActionListener(remove_or_add_button_listener)
                             
-                            
-     
                             y_all_tags += height 
                             
                             
@@ -465,29 +202,19 @@ class Sidebar():
                         prop_values = (tag_eintrag,)
                         control, model = self.mb.createControl(ctx, "FixedText", 10, y,100, height, prop_names, prop_values)
                         tag_control.addControl(tag_eintrag, control) 
-                         
-                         
-                        if sichtb_element == 'Tags_general':
-                            if self.mb.dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] == 0:
-                                helptext = LANG.TAGS_IN_AKT_DAT_LOESCHEN
-                            else:
-                                helptext = LANG.TAGS_IM_GES_DOK_LOESCHEN
-                        else:
-                            helptext = LANG.TAG_LOESCHEN
+                    
                         # Remove Button
-                        prop_names = ('Label','HelpText')
-                        prop_values = ('X',helptext)
+                        prop_names = ('Label',)
+                        prop_values = ('X',)
                         control, model = self.mb.createControl(ctx, "Button", 115, y,14, 14, prop_names, prop_values)
                         tag_control.addControl('Remove_'+tag_eintrag, control) 
-                        control.setActionCommand(sichtb_element + SEP + ordinal + SEP + tag_eintrag + SEP + 'loeschen')
+                        control.setActionCommand(str(panel_nr) + SEP + ordinal + SEP + tag_eintrag + SEP + 'loeschen')
                         control.addActionListener(remove_or_add_button_listener)
                          
                         y += height + 3
                      
-                        
-                     
-                     
-                    if y<y_all_tags:
+                  
+                    if y < y_all_tags:
                         y = y_all_tags
                      
                     if len(eintraege) == 0:
@@ -498,16 +225,15 @@ class Sidebar():
                     
                     
                 ######################################
-                # Synopsis, Notes, Images, Tags_time #
+                # Text, Images, Time, Date           #
                 ######################################     
                  
-                if sichtb_element == 'Synopsis':
+                if panel_typ == 'txt':
                       
                     pos_y = 10
-                    height = 0 
                     width = 282 
                        
-                    text = self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis']
+                    text = self.mb.tags['ordinale'][ordinal][panel_nr]
                        
                     prop_names = ('MultiLine','Text','MaxTextLen')
                     prop_values = (True,text,5000)
@@ -519,36 +245,12 @@ class Sidebar():
       
                     control.setPosSize(0,0,0,hoehe,8)
                       
-                    listener = Text_Change_Listener_Synopsis(self.mb)
+                    listener = Text_Change_Listener(self.mb,panel_nr)
                     model.addPropertyChangeListener('Text',listener)
                       
                     height = hoehe + 20
-                      
-                elif sichtb_element == 'Notes':
-                    pos_y = 10
-                    height = 0 
-                    width = 282 
-                       
-                    text = self.mb.dict_sb_content['ordinal'][ordinal]['Notes']
-                       
-                    prop_names = ('MultiLine','Text','MaxTextLen')
-                    prop_values = (True,text,5000)
-                    control, model = self.mb.createControl(self.mb.ctx, "Edit", 10, pos_y, width, height, prop_names, prop_values)  
-                    tag_control.addControl('Notes', control)
-                      
-                    mS = control.getMinimumSize()
-                    hoehe = mS.Height + 44
-      
-                    control.setPosSize(0,0,0,hoehe,8)
-                      
-                    listener = Text_Change_Listener_Notizen(self.mb)
-                    model.addPropertyChangeListener('Text',listener)
-      
-                    height = hoehe + 20
-                      
-      
-                      
-                elif sichtb_element == 'Images':
+        
+                elif panel_typ == 'img':
                     pos_y = 10
                     height = 200
                     breite = 284 
@@ -559,13 +261,15 @@ class Sidebar():
                     tag_control.addControl('Image', control)
                     
                     try:
-                        if self.mb.dict_sb_content['ordinal'][ordinal]['Images'] != '':
-                            model.ImageURL = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
+                        if self.mb.tags['ordinale'][ordinal][panel_nr] != '':
+                            model.ImageURL = self.mb.tags['ordinale'][ordinal][panel_nr]
                             breite = self.berechne_bildgroesse(model,height)
                             control.setPosSize(0,0,breite,0,4)
                     except:
+                        # Bild ist nicht geladen worden
+                        self.mb.tags['ordinale'][ordinal][panel_nr] = ''
                         log(inspect.stack,tb())
-                      
+                        
                     listener = Images_Listener(self.mb)
                     
                     height += 20
@@ -574,88 +278,90 @@ class Sidebar():
                     prop_values = ('+',)
                     control, model = self.mb.createControl(self.mb.ctx, "Button",breite + 15, pos_y , 16, 16, prop_names, prop_values)  
                     tag_control.addControl('Titel', control)
-                    control.setActionCommand('bild_einfuegen')
+                    control.setActionCommand('bild_einfuegen_XYZ_'+str(panel_nr))
                     control.addActionListener(listener)
                     
                     prop_names = ('Label',)
                     prop_values = ('-',)
                     control, model = self.mb.createControl(self.mb.ctx, "Button", breite +15 , pos_y + 25 , 16, 16, prop_names, prop_values)  
                     tag_control.addControl('Titel2', control)
-                    control.setActionCommand('bild_loeschen')
+                    control.setActionCommand('bild_loeschen_XYZ_'+str(panel_nr))
                     control.addActionListener(listener) 
                                         
                     height += 35
                     
                     
                      
-                elif sichtb_element == 'Tags_time':
+                elif panel_typ == 'time':
                       
-                    if self.mb.language == 'de':
-                        date_format = 7
-                        time_format = 0
-                    else:
-                        date_format = 8
-                        time_format = 2
-                      
-                    pos_y = 10
+                    pos_y = 0
                     pos_x = 10
                     pos_x2 = 85
                     pos_x3 = 170
                     y = 20
                       
-                    focus_listener = Tag_Time_Key_Listener(self.mb)
+                    focus_listener = Tag_Time_Key_Listener(self.mb,panel_nr,panel_typ)
                       
-                    zeit = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['zeit']
-                    leere_zeit = None
-                    if self.mb.programm == 'LibreOffice':
-                        zeit = self.in_time_struct_wandeln(zeit)
-                        leere_zeit = self.in_time_struct_wandeln(leere_zeit)
-                          
+                    zeit = self.mb.tags['ordinale'][ordinal][panel_nr]
+   
                     prop_names = ('Label',)
                     prop_values = (LANG.ZEIT2,)
                     control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
-                    tag_control.addControl('Time', control)
+                    tag_control.addControl('Time_label', control)
                       
-                    prop_names = ('Time','TimeFormat','StrictFormat','Border')
-                    prop_values = (zeit,time_format,True,0)
-                    control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x2, pos_y, 70, y, prop_names, prop_values) 
-                    if self.mb.settings_orga['organon_farben']['design_office']:
-                         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-                    tag_control.addControl('Time', control)
+                    prop_names = ('Label',)
+                    prop_values = (zeit,)
+                    control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x2, pos_y, 70, y, prop_names, prop_values) 
+                    tag_control.addControl('Time_field', control)
       
       
-                    prop_names = ('Time','TimeFormat','StrictFormat')
-                    prop_values = (leere_zeit,time_format,True)
-                    control, model = self.mb.createControl(self.mb.ctx, "TimeField", pos_x3, pos_y, 60, y, prop_names, prop_values)  
-                    tag_control.addControl('Time', control)
+                    prop_names = ('Text',)
+                    prop_values = ('',)
+                    control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x3, pos_y, 60, y, prop_names, prop_values)  
+                    tag_control.addControl('Time_field_input', control)
                       
                     control.addKeyListener(focus_listener)
                       
                       
                     pos_y += 30
+                    height = 30
+                    
+                elif panel_typ == 'date':
+
+                    pos_y = 0
+                    pos_x = 10
+                    pos_x2 = 85
+                    pos_x3 = 170
+                    y = 20
+                    
+                    focus_listener = Tag_Time_Key_Listener(self.mb,panel_nr,panel_typ)
                       
                     prop_names = ('Label',)
                     prop_values = (LANG.DATUM,)
                     control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x, pos_y, 70, y, prop_names, prop_values)  
                     tag_control.addControl('Datum_Label', control)
-                      
-                    datum = self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time']['datum'] 
-                      
+                    
+                    datum = self.mb.tags['ordinale'][ordinal][panel_nr]
+                    if datum:
+                        datum_txt = self.mb.class_Tags.formatiere_datumdict_nach_text(datum)
+                    else:
+                        datum_txt = None    
+                    
                     prop_names = ('Label',)
-                    prop_values = (datum,)
+                    prop_values = (datum_txt,)
                     control, model = self.mb.createControl(self.mb.ctx, "FixedText", pos_x2, pos_y, 70, y, prop_names, prop_values)  
-                    tag_control.addControl('Time', control)
+                    tag_control.addControl('Datum_txt', control)
         
                     prop_names = ('Text',)
                     prop_values = ('',)
                     control, model = self.mb.createControl(self.mb.ctx, "Edit", pos_x3, pos_y, 60, y, prop_names, prop_values)  
-                    tag_control.addControl('Time', control)
+                    tag_control.addControl('Datum_edit', control)
       
                     control.addKeyListener(focus_listener)                 
                       
-                    height = 70
+                    height = 30
                 
-                self.hoehen.append([sichtb_element,height])
+                self.hoehen.append([panel_nr,height])
        
             
             
@@ -663,13 +369,13 @@ class Sidebar():
             
             y = 0
             y2 = 0
-            for tag,hoehe in self.hoehen:
+            for panel_nr,hoehe in self.hoehen:
 
-                tag_ctrl = self.dict_container[tag]
-                feld_ctrl = self.dict_felder[tag]
+                tag_ctrl = self.dict_container[panel_nr]
+                feld_ctrl = self.dict_felder[panel_nr]
                 
                 
-                if self.offen[tag]:
+                if self.offen[panel_nr]:
                     tag_ctrl.setPosSize(0,y,0,hoehe+30,10)
                     feld_ctrl.setPosSize(0,0,0,hoehe+30,8)
                     y += hoehe +30
@@ -681,12 +387,7 @@ class Sidebar():
                 y2 += hoehe +30
 
             xUIElement.height = y
-            
-            #xUIElement.Theme.setPropertyValue('Paint_PanelBackground',501)
-            #pd()
 
-            # zum Speichern und Wiederherstellen der sichtbaren Panels
-            self.mb.dict_sb_content['sichtbare'] = self.mb.dict_sb['sichtbare']
             sb.requestLayout()
             
         except:
@@ -814,103 +515,94 @@ class Sidebar():
     def berechne_bildgroesse(self,model,hoehe):
         if self.mb.debug: log(inspect.stack)
         
-        try:
-            HOEHE = model.Graphic.Size.Height
-            BREITE = model.Graphic.Size.Width
+        HOEHE = model.Graphic.Size.Height
+        BREITE = model.Graphic.Size.Width
 
-            quotient = float(BREITE)/float(HOEHE)
-            BREITE = int(hoehe*quotient)
-            return BREITE
+        quotient = float(BREITE)/float(HOEHE)
+        BREITE = int(hoehe*quotient)
+        return BREITE
             
-        except:
-            log(inspect.stack,tb())
-      
-      
-    def in_time_struct_wandeln(self,zeit):
+    
+    def bild_in_projektordner_kopieren(self,filepath):
         if self.mb.debug: log(inspect.stack)
         
-        prop = uno.createUnoStruct("com.sun.star.util.Time")
-        
-        if zeit in [None,0]:
-            prop.Hours = 0
-            prop.Minutes = 0
-            prop.Seconds = 0
-            
-        else:
-            zeit_str = str(zeit)
-            
-            if len(zeit_str) == 7:
-                zeit_str = '0' + zeit_str
+        basename = os.path.basename(filepath)
+        path_image_folder = self.mb.pfade['images']
+        complete_path = os.path.join(path_image_folder,basename)
+        path = uno.systemPathToFileUrl(complete_path)
 
-            prop.Hours = int(zeit_str[0:2])
-            prop.Minutes = int(zeit_str[2:4])
-            prop.Seconds = int(zeit_str[4:6])
-
-        return prop
+        if not os.path.exists(complete_path):
+            from shutil import copy2
+            copy2(filepath, complete_path)
+            
+        return path
     
-    def in_date_struct_wandeln(self,datum):
+    
+    def bild_einfuegen(self, panel_nr, ordinal=None, filepath='', erzeuge_layout=True):
         if self.mb.debug: log(inspect.stack)
         
-        prop = uno.createUnoStruct("com.sun.star.util.Date")
+        if filepath == '':
+            filepath,ok = self.mb.class_Funktionen.filepicker2()
+            if not ok:
+                return False
+
+        path = self.bild_in_projektordner_kopieren(filepath)
         
-        if datum == None:
-            prop.Year = 0
-            prop.Month = 1
-            prop.Day = 1
-        else:
-            date_str = str(datum)
+        if ordinal == None:
+            ordinal = self.mb.props[T.AB].selektierte_zeile
+        
+        old_image_path = self.mb.tags['ordinale'][ordinal][panel_nr]
+        
+        self.mb.tags['ordinale'][ordinal][panel_nr] = path
+        
+        if erzeuge_layout:
+            self.mb.class_Sidebar.erzeuge_sb_layout()
+        
+        if old_image_path != '' and old_image_path != path:
+            self.bild_loeschen(old_image_path,panel_nr)
+        
+        return path  
 
-            prop.Year = int(date_str[0:4])
-            prop.Month = int(date_str[4:6])
-            prop.Day = int(date_str[6:8])
 
-        return prop
-    
-    def date_time_struct_nach_long_wandeln(self,prop,attribute):
+    def bild_loeschen_a(self,panel_nr, ordinal=None, erzeuge_layout= True):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            if attribute == 'zeit':
-                if prop != None:
-                    stunden = str(prop.Hours)#self.pruefe_format(str(prop.Hours),2)
-                    minuten = self.pruefe_format(str(prop.Minutes),2)
-                    sekunden = self.pruefe_format(str(prop.Seconds),2)
-                    nano = '00'
-                else:
-                    stunden = '00'
-                    minuten = '00'
-                    sekunden = '00'
-                    nano = '00'
+            if ordinal == None:
+                ordinal = self.mb.props[T.AB].selektierte_zeile
                 
-                value = int(stunden+minuten+sekunden+nano)
-                
-    #         if attribute == 'datum':
-    #             jahr = self.pruefe_format(str(prop.Year),4)
-    #             monat = self.pruefe_format(str(prop.Month),2)
-    #             tag = self.pruefe_format(str(prop.Day),2)
-    #             
-    #             value = int(jahr+monat+tag)
+            old_image_path = self.mb.tags['ordinale'][ordinal][panel_nr]
+            
+            self.mb.tags['ordinale'][ordinal][panel_nr] = ''
+            self.bild_loeschen(old_image_path,panel_nr)
+            
+            if erzeuge_layout:
+                self.mb.class_Sidebar.erzeuge_sb_layout()
         except:
             log(inspect.stack,tb())
-        
-        return value
-        
-    def pruefe_format(self,value,length):
+
+
+    def bild_loeschen(self,old_image_path,panel_nr):
         if self.mb.debug: log(inspect.stack)
         
-        if len(value) != length:
-            for i in range(length-len(value)):
-                value = '0' + value
-        return value
-    
-    
-    def dict_sb_zuruecksetzen(self):
+        try:
+            vorhanden = False
+            for ordinal in self.mb.tags['ordinale']:
+                if old_image_path == self.mb.tags['ordinale'][ordinal][panel_nr]:
+                    vorhanden = True
+
+            if not vorhanden:
+                os.remove(uno.fileUrlToSystemPath(old_image_path))
+        except:
+            log(inspect.stack,tb())            
+        
+
+    def tags_und_dict_sb_zuruecksetzen(self):
         if self.mb.debug: log(inspect.stack)
         
-        self.mb.dict_sb['sichtbare']  = ['empty_project'] 
         self.mb.dict_sb['controls'] = {}
         self.mb.dict_sb['erzeuge_Layout'] = None   
-    
+        self.mb.tags['sichtbare'] = []
     
     def get_seitenleiste(self):
         if self.mb.debug: log(inspect.stack)
@@ -955,24 +647,16 @@ class Sidebar():
     
    
 from com.sun.star.beans import XPropertyChangeListener
-class Text_Change_Listener_Synopsis(unohelper.Base, XPropertyChangeListener):
-    def __init__(self,mb):
+class Text_Change_Listener(unohelper.Base, XPropertyChangeListener):
+    def __init__(self,mb,panel_nr):
         if mb.debug: log(inspect.stack)
         self.mb = mb
+        self.panel_nr = panel_nr
         
     def propertyChange(self,ev):
-        ordinal = self.mb.props[T.AB].selektierte_zeile
-        self.mb.dict_sb_content['ordinal'][ordinal]['Synopsis'] = ev.NewValue
-          
-          
-class Text_Change_Listener_Notizen(unohelper.Base, XPropertyChangeListener):
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
 
-    def propertyChange(self,ev):
         ordinal = self.mb.props[T.AB].selektierte_zeile
-        self.mb.dict_sb_content['ordinal'][ordinal]['Notes'] = ev.NewValue
+        self.mb.tags['ordinale'][ordinal][self.panel_nr] = ev.NewValue
 
 
 from com.sun.star.awt import XActionListener
@@ -986,79 +670,25 @@ class Images_Listener(unohelper.Base, XActionListener):
     
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
+        
+        cmd,p = ev.ActionCommand.split('_XYZ_')
+        panel_nr = int(p)
 
         # optionsfenster_images
-        if ev.ActionCommand == 'bild_einfuegen':
-            self.bild_einfuegen()
-        elif ev.ActionCommand == 'bild_loeschen':
-            self.bild_loeschen_a()
-            
-    def bild_einfuegen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        filepath,ok = self.mb.class_Funktionen.filepicker2()
-        
-        if not ok:
-            return
+        if cmd == 'bild_einfuegen':
+            self.mb.class_Sidebar.bild_einfuegen(panel_nr)
+        elif cmd == 'bild_loeschen':
+            self.mb.class_Sidebar.bild_loeschen_a(panel_nr)
 
-        basename = os.path.basename(filepath)
-        
-        path_image_folder = self.mb.pfade['images']
-        complete_path = os.path.join(path_image_folder,basename)
-        path = uno.systemPathToFileUrl(complete_path)
-
-        if not os.path.exists(path):
-            
-            sys_filepath = uno.fileUrlToSystemPath(filepath)
-            sys_path = uno.fileUrlToSystemPath(path)
-            
-            from shutil import copy2
-            copy2(sys_filepath, sys_path)
-        
-        ordinal = self.mb.props[T.AB].selektierte_zeile
-        
-        old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
-        
-        self.mb.dict_sb_content['ordinal'][ordinal]['Images'] = path
-        self.mb.class_Sidebar.erzeuge_sb_layout('Images')
-        
-        if old_image_path != '' and old_image_path != path:
-            self.bild_loeschen(old_image_path)
-
-            
-    def bild_loeschen_a(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        ordinal = self.mb.props[T.AB].selektierte_zeile
-        old_image_path = self.mb.dict_sb_content['ordinal'][ordinal]['Images']
-        self.mb.dict_sb_content['ordinal'][ordinal]['Images'] = ''
-        self.bild_loeschen(old_image_path)
-        self.mb.class_Sidebar.erzeuge_sb_layout('Images')
-
-
-    def bild_loeschen(self,old_image_path):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            vorhanden = False
-            for ordinal in self.mb.dict_sb_content['ordinal']:
-                if old_image_path == self.mb.dict_sb_content['ordinal'][ordinal]['Images']:
-                    vorhanden = True
-                    
-            if not vorhanden:
-                os.remove(uno.fileUrlToSystemPath(old_image_path))
-        except:
-            log(inspect.stack,tb())
-            
         
 
 
 from com.sun.star.awt import XFocusListener,XKeyListener
 class Tags_Key_Listener(unohelper.Base, XKeyListener):
-    def __init__(self,mb,tag):
+    def __init__(self,mb,panel_nr):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.tag = tag
+        self.panel_nr = panel_nr
     
     def keyPressed(self,ev):
         return False
@@ -1073,25 +703,27 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
         
         ordinal = self.mb.props[T.AB].selektierte_zeile
         new_tag = ev.Source.Model.Text.replace('\n','')
+        tags = self.mb.tags
         
-        if new_tag != '':
-            if new_tag not in self.mb.dict_sb_content['tags']['Tags_general']:
-                self.mb.dict_sb_content['tags']['Tags_general'].append(new_tag)
-                
-                if new_tag not in self.mb.dict_sb_content['ordinal'][ordinal][self.tag]:
-                    self.mb.dict_sb_content['ordinal'][ordinal][self.tag].append(new_tag)
-                
-                if new_tag not in self.mb.dict_sb_content['ordinal'][ordinal]['Tags_general']:
-                    self.mb.dict_sb_content['ordinal'][ordinal]['Tags_general'].append(new_tag)
-                
-                if new_tag not in self.mb.dict_sb_content['tags'][self.tag]:
-                    self.mb.dict_sb_content['tags'][self.tag].append(new_tag)
-            
-            
-                 
-            ev.Source.Model.Text = ''
+        from itertools import chain
+        alle_tags_in_anderen_panels = list(chain.from_iterable(
+                                            [v for i,v in tags['sammlung'].items() if i != self.panel_nr ]
+                                            ))
 
-            self.mb.class_Sidebar.erzeuge_sb_layout(self.tag,'focus_lost')
+        
+        if new_tag != '' and new_tag not in alle_tags_in_anderen_panels:
+            
+            if new_tag not in tags['sammlung'][self.panel_nr]:
+                tags['sammlung'][self.panel_nr].append(new_tag)
+                
+                if new_tag not in tags['ordinale'][ordinal][self.panel_nr]:
+                    tags['ordinale'][ordinal][self.panel_nr].append(new_tag)
+                
+                self.mb.class_Sidebar.erzeuge_sb_layout()
+                
+            ev.Source.Model.Text = ''
+        else:
+            ev.Source.Model.Text = ''
 
 
     def disposing(self,ev):pass
@@ -1099,10 +731,12 @@ class Tags_Key_Listener(unohelper.Base, XKeyListener):
 
     
 class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
-    def __init__(self,mb):
+    def __init__(self,mb,panel_nr,panel_typ):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-    
+        self.panel_nr = panel_nr
+        self.panel_typ = panel_typ
+
     def keyPressed(self,ev):
         return False
         
@@ -1113,65 +747,29 @@ class Tag_Time_Key_Listener(unohelper.Base, XKeyListener):
         # Nur bei Tasteneingabe Return loggen
         if self.mb.debug: log(inspect.stack)
         
+        # Return wird auch im Dokument ausgefuehrt,
+        # daher hier ein Undo
         self.mb.doc.UndoManager.undo()
+        
         try:
             ordinal = self.mb.props[T.AB].selektierte_zeile
-
-            if hasattr(ev.Source.Model, 'Time'):
-                attribute = 'zeit'
-                text = ev.Source.Model.Time
-
-                if self.mb.programm == 'LibreOffice':
-                    text = self.mb.class_Sidebar.date_time_struct_nach_long_wandeln(ev.Source.Model.Time,attribute)
-            else:
-                text = ev.Source.Model.Text
-                attribute = 'datum'
-                text = self.formatiere_datum(text)
+            text = ev.Source.Model.Text
             
-            self.mb.dict_sb_content['ordinal'][ordinal]['Tags_time'][attribute] = text
-            self.mb.class_Sidebar.erzeuge_sb_layout('Tags_time')
+            if self.panel_typ == 'time':
+                text = self.mb.class_Tags.formatiere_zeit(text)
+            else:
+                text,odict = self.mb.class_Tags.formatiere_datum(text)
+            
+            self.mb.tags['ordinale'][ordinal][self.panel_nr] = odict
+            self.mb.class_Sidebar.erzeuge_sb_layout()
 
         except:
             log(inspect.stack,tb())
-        
+            
     def disposing(self,ev):pass
     
-    def formatiere_datum(self,datum):
-        if self.mb.debug: log(inspect.stack)
-        
-        gesplittet = datum.split('.')
-        
-        if len(gesplittet) != 3:
-            return None
-        
-        format_datum = 'de'
-        
-        if format_datum == 'de':
-            tag = gesplittet[0]
-            monat = gesplittet[1]
-            jahr = gesplittet[2]
-        
-        else:
-            tag = gesplittet[1]
-            monat = gesplittet[0]
-            jahr = gesplittet[2]
-        
-        
-        
-        if 0 in (len(jahr),len(tag),len(monat)):
-            return None
-        if len(tag)>2 or int(tag) < 1 or int(tag) > 31:
-            return None
-        if len(monat)>2 or int(monat) < 1 or int(monat) > 12:
-            return None
-        
-        if len(tag) == 1:
-            tag = '0'+tag
-        if len(monat) == 1:
-            monat = '0'+monat
-        
-        return '%s.%s.%s'%(tag, monat,jahr)
        
+
 class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
         self.mb = mb
@@ -1183,109 +781,57 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            tag,ordinal,tag_eintrag,aktion = ev.ActionCommand.split('_XYX_')
-            dict_sb_content = self.mb.dict_sb_content
+            panel_nr,ordinal,tag_eintrag,aktion = ev.ActionCommand.split('_XYX_')
+            panel_nr = int(panel_nr)
             
             if aktion == 'hinzufuegen':
-                self.hinzufuegen(tag,ordinal,tag_eintrag,dict_sb_content)
+                self.hinzufuegen(panel_nr,ordinal,tag_eintrag)
             elif aktion == 'loeschen':
-                self.loeschen(tag,ordinal,tag_eintrag,dict_sb_content)
+                self.loeschen(panel_nr,ordinal,tag_eintrag)
             
         except:
             log(inspect.stack,tb())
 
         
-    def pruefe_vorkommen_in_anderen_eintraegen(self,tag,tag_eintrag):  
+    def pruefe_vorkommen_in_anderen_eintraegen(self,panel_nr,tag_eintrag):  
         if self.mb.debug: log(inspect.stack)
         
         self.ueberpruefe_dict()
         
-        dic = self.mb.dict_sb_content['ordinal']
-        for ordinal in self.mb.dict_sb_content['ordinal']:
-            if tag_eintrag in self.mb.dict_sb_content['ordinal'][ordinal]['Tags_general']:
+        dic = self.mb.tags['ordinale']
+        for ordinal in dic:
+            if tag_eintrag in dic[ordinal][panel_nr]:
                 return True
 
         return False
-    
-    def loesche_vorkommen_in_allen_eintraegen(self,tag,tag_eintrag): 
-        if self.mb.debug: log(inspect.stack)
-        
-        tags_kat = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
-        
-        try: 
-            for ordinal in self.mb.dict_sb_content['ordinal']:
-                    
-                for kat in tags_kat:
-                    if tag_eintrag in self.mb.dict_sb_content['ordinal'][ordinal][kat]:
-                        self.mb.dict_sb_content['ordinal'][ordinal][kat].remove(tag_eintrag)
-            
-            for kat in self.mb.dict_sb_content['tags']:
-                if tag_eintrag in self.mb.dict_sb_content['tags'][kat]:
-                    self.mb.dict_sb_content['tags'][kat].remove(tag_eintrag)    
-        except:
-            log(inspect.stack,tb())
-
-
-    def loesche_vorkommen_in_selektierter_datei(self,tag,tag_eintrag,ordinal):
-        if self.mb.debug: log(inspect.stack)
-        
-        tags_kat = 'Tags_general','Tags_characters','Tags_locations','Tags_objects','Tags_user1','Tags_user2','Tags_user3'
-       
-        for tag_kat in tags_kat: 
-            if tag_eintrag in self.mb.dict_sb_content['ordinal'][ordinal][tag_kat]:
-                self.mb.dict_sb_content['ordinal'][ordinal][tag_kat].remove(tag_eintrag)
                 
-        vorkommen = self.pruefe_vorkommen_in_anderen_eintraegen(tag,tag_eintrag)
+    
+    def loeschen(self,panel_nr,ordinal,tag_eintrag): 
+        if self.mb.debug: log(inspect.stack)
+        
+        tags = self.mb.tags
+        
+        tags['ordinale'][ordinal][panel_nr].remove(tag_eintrag)
+        vorkommen = self.pruefe_vorkommen_in_anderen_eintraegen(panel_nr,tag_eintrag)
+        
         if not vorkommen:
-            for tag_kat in tags_kat:
-                if tag_eintrag in self.mb.dict_sb_content['tags'][tag_kat]:
-                    self.mb.dict_sb_content['tags'][tag_kat].remove(tag_eintrag)
-                    
-    
-    def loeschen(self,tag,ordinal,tag_eintrag,dict_sb_content): 
+            tags['sammlung'][panel_nr].remove(tag_eintrag)
+        
+        self.mb.class_Sidebar.erzeuge_sb_layout()
+            
+     
+    def hinzufuegen(self,panel_nr,ordinal,tag_eintrag): 
         if self.mb.debug: log(inspect.stack)
         
-        if tag != 'Tags_general':
-            dict_sb_content['ordinal'][ordinal][tag].remove(tag_eintrag)
-            dict_sb_content['ordinal'][ordinal]['Tags_general'].remove(tag_eintrag)
-            
-            vorkommen = self.pruefe_vorkommen_in_anderen_eintraegen(tag,tag_eintrag)
-            if not vorkommen:
-                dict_sb_content['tags']['Tags_general'].remove(tag_eintrag)
-                dict_sb_content['tags'][tag].remove(tag_eintrag)
-            
-            self.mb.class_Sidebar.erzeuge_sb_layout(tag,'sidebar')
-            
-        else:
-            if dict_sb_content['einstellungen']['tags_general_loescht_im_ges_dok'] == 1:
-                self.loesche_vorkommen_in_allen_eintraegen(tag,tag_eintrag)
-            else:
-                self.loesche_vorkommen_in_selektierter_datei(tag,tag_eintrag,ordinal)
-            self.mb.class_Sidebar.erzeuge_sb_layout('loeschen','sidebar')
-        
-     
-     
-    def hinzufuegen(self,tag,ordinal,tag_eintrag,dict_sb_content): 
-        if self.mb.debug: log(inspect.stack)
+        tags = self.mb.tags
 
-        if tag != 'Tags_general':
-            dict_sb_content['ordinal'][ordinal][tag].append(tag_eintrag)
-            if tag_eintrag not in dict_sb_content['ordinal'][ordinal]['Tags_general']:
-                dict_sb_content['ordinal'][ordinal]['Tags_general'].append(tag_eintrag)
-            
-            vorkommen = self.pruefe_vorkommen_in_anderen_eintraegen(tag,tag_eintrag)
-            if not vorkommen:
-                dict_sb_content['tags']['Tags_general'].append(tag_eintrag)
-                dict_sb_content['tags'][tag].append(tag_eintrag)
+        if tag_eintrag not in tags['ordinale'][ordinal][panel_nr]:
+            tags['ordinale'][ordinal][panel_nr].append(tag_eintrag)
         
-        elif tag == 'Tags_general':
-            
-            if tag_eintrag not in dict_sb_content['tags']['Tags_general']:
-                dict_sb_content['tags']['Tags_general'].append(tag_eintrag)
-                
-            dict_sb_content['ordinal'][ordinal]['Tags_general'].append(tag_eintrag)
-        
-        self.mb.class_Sidebar.erzeuge_sb_layout(tag,'sidebar')
+            if tag_eintrag not in tags['sammlung'][panel_nr]:
+                tags['sammlung'][panel_nr].append(tag_eintrag)
+
+            self.mb.class_Sidebar.erzeuge_sb_layout()
 
     
     def ueberpruefe_dict(self):
@@ -1294,7 +840,7 @@ class Tags_Remove_Button_Listener(unohelper.Base, XActionListener):
         von utf8 Characters erzeugt. Zur Sicherheit ist diese Methode
         eingebaut, die richtige Eintraege im dict sicherstellt.
         '''
-        dic = self.mb.dict_sb_content['ordinal']
+        dic = self.mb.tags['ordinale']
         zu_loeschende = [d for d in dic if 'nr' not in d]
         
         for d in zu_loeschende:
@@ -1318,38 +864,38 @@ class Tags_Collapse_Button_Listener(unohelper.Base, XMouseListener):
         return False
     
     def mousePressed(self,ev):
-        
+        if self.mb.debug: log(inspect.stack)
         source = ev.Source
         txt = source.Context.Controls[1].Text
-        tag = self.sb.sb_panels2[txt]
-        self.collaps_expand_panels(tag,source)
+        panel_nr = self.mb.tags['name_nr'][txt]
+        self.collaps_expand_panels(panel_nr,txt,source)
 
 
-    def collaps_expand_panels(self,tag,source):   
-        
+    def collaps_expand_panels(self,panel_nr,name,source):   
+        if self.mb.debug: log(inspect.stack)
         try:
             
-            cont = self.sb.dict_container[tag]
-            feld = self.sb.dict_felder[tag]
+            cont = self.sb.dict_container[panel_nr]
+            feld = self.sb.dict_felder[panel_nr]
             hoehen = self.sb.hoehen
             
-            tag,hoehe = [h for h in hoehen if h[0] == tag][0]
+            tag,hoehe = [h for h in hoehen if h[0] == panel_nr][0]
             index = hoehen.index([tag,hoehe])
             
             h_panel_titel = 30
 
-            if self.sb.offen[tag]:
-                self.sb.offen[tag] = 0
+            if self.sb.offen[panel_nr]:
+                self.sb.offen[panel_nr] = 0
                 cont.setPosSize(0,0,0,h_panel_titel,8)
                 feld.setPosSize(0,0,0,0,8)
-                source.Model.ImageURL = self.sb.url_collapse
+                source.Model.ImageURL = self.sb.url_expand
                 fak = -1
 
             else:
-                self.sb.offen[tag] = 1
+                self.sb.offen[panel_nr] = 1
                 cont.setPosSize(0,0,0,hoehe + h_panel_titel,8)
                 feld.setPosSize(0,0,0,hoehe,8)
-                source.Model.ImageURL = self.sb.url_expand
+                source.Model.ImageURL = self.sb.url_collapse
                 fak = 1
                 
                 

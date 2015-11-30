@@ -22,7 +22,6 @@ beginnen oder laden. Menüleiste: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'Zeige Textbereiche'
 SICHTBARE_TAGS_BAUMANSICHT = u'Sichtbare Tags in der Baumansicht'
 SICHTBARE_TAGS_SEITENLEISTE = u'Sichtbare Tags in der Sidebar'
-BACKUP = u'Backup erzeugen'
 HOMEPAGE = u'Homepage'
 FEEDBACK = u'Feedback'
 TEXTTOOLS = u'Textwerkzeuge'
@@ -30,8 +29,7 @@ ERZEUGE_INDEX = u'Erzeuge Index'
 
 SPEICHERORT = u'Speicherort'
 FORMATIERUNG = u'Formatierung'
-TEMPLATE_WRITER = u'Writer Standard Template'
-TEMPLATE_USER = u'Eigene Formatvorlage'
+TEMPLATE_WRITER = u'Writer Standard Vorlage'
 NO_TEMPLATES = u'keine Vorlagen'
 EIGENES_TEMPL_ERSTELLEN = u'Formatvorlage aus Auswahl erstellen'
 NAME = u'Name'
@@ -218,7 +216,7 @@ TAG_LOESCHEN = u'Entfernt Tag'
 TAG_HINZUFUEGEN = u'Klicken um Tag hinzuzufügen'
 ENTER_NEW_TAG = u'Geben Sie einen neuen Tag ein bestätigen Sie mit Enter.'
 ZEIT2 = u'Zeit:'
-DATUM = u'Datum:'
+DATUM = u'Datum'
 
 # TABS
 ERZEUGE_NEUEN_TAB_AUS = u'Erzeuge neuen Tab aus:'
@@ -427,28 +425,36 @@ von OpenOffice das Organon-Fenster und die Seitenleiste geschlossen und müssen
 bei Bedarf vom Nutzer selbst wieder geöffnet werden.'''
 ORGANIZER_INFO = u'''Benutzung des Organizers:
 
-Der Organizer zeigt alle Tags eines Tabs in einer tabellarischen Übersicht.
+Der Organizer dient der Übersicht und schnellen Editierung aller Tags.
+Es werden nur die sichtbar geschalteten Kategorien angezeigt (Organon Menu / Ansicht).
 
-Änderungen werden durch neue Einträge in den jeweiligen Feldern vorgenommen. Die Änderungen werden durch einen Klick auf den Button "{0}" für das Projekt übernommen.
+Mögliche Tag-Kategorien sind:
+- Klassische Tags
+- Fließtext
+- Bilder
+- Datum
+- Uhrzeit
+
+Die Kategorien können in den Einstellungen bearbeitet werden.
+
+Im Fließtext werden Zeilenumbrüche mit Ctrl + Enter erzeugt.
+Klassische Tags werden durch Kommata abgetrennt.
+Bilder werden durch Klick auf die Zelle eingefügt und geändert.
+Die Uhrzeit hat ein 24 Stunden Format (00:00 bis 23.59)
+Das Datumsformat kann in den Einstellungen angepaßt werden.
+Ordner und Dateien können im Organizer umbenannt werden.
+
+Änderungen werden durch neue Einträge in den jeweiligen Feldern vorgenommen. Die Änderungen werden durch einen Klick auf den Button "Übernehmen" für das Projekt übernommen. Bei geänderten Tags wird aber auch beim Schließen des Organizers gefragt, ob Änderungen übernommen werden sollen.
 
 Änderungen der linksseitigen Icons werden sofort und ohne Rückmeldung übernommen.
 
-Das Menü von Calc wird durch einen Klick auf "{1}" geöffnet, wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)
+Das Menü von Calc wird durch einen Klick auf "Menu" geöffnet, wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)
 Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das Dokument sonstwie vom Menü her verändert werden, wenn es für Organon weiterhin zur Verfügung stehen soll. Derartige Änderungen können zu fehlerhaften Tags führen, gegebenenfalls wird das gesamte Organon Projekt beschädigt.
 
-Sollen Änderungen nicht übernommen werden, kann Calc einfach geschlossen werden.
+Sollen Änderungen nicht übernommen werden, kann der Organizer einfach geschlossen und die anschließende Abfrage verneint werden.
 
-Die Tags "{2}" und "{3}" können Fließtext enthalten, Zeilenumbrüche werden mit CTRL + Enter erzeugt.
-Eingaben in die Tags "{4}", "{5}", etc. werden durch Kommata abgetrennt.
-
-Um die Tags der Baumansicht (Icons auf der linken Seite) zu setzen, muss NEBEN und nicht auf sie geklickt werden. Dies ist leider eine  technische Beschränkung, die sich nicht so einfach beseitigen läßt.
-Auch neue Icons können eingefügt werden. Dazu muss ebenfalls neben die Stelle geklickt werden, wo im Falle eines vorhandenen Tags sich dieses befinden würde.
-
-Dateien können im Organizer zwar bereits umbenannt werden, aber diese Änderung wird noch nicht übernommen.
-
-Der Organizer enthält noch nicht alle Funktionen. 
-(z.B. Zeit, Datum, versch. Ansichten) 
-Kommt.'''
+Das Öffnen des Organizers wird durch Bilder in Bild-Kategorien und die linksseitigen Icons-Kategorien verlangsamt. Zur Beschleunigung des Öffnens setzen Sie diese Kategorien auf unsichtbar. (Je größer Bilder in Bild-Kategorien sind, desto stärker wird der Organizer ausgebremst. Eine Umrechnung von Bildern in Thumbnails fehlt derzeit noch.)
+'''
             
 # SHORTCUTS
 SHORTCUTS = u'Shortcuts'
@@ -458,6 +464,32 @@ FORMATIERUNG_SPEICHERN2 = u'Speichern des zuletzt bearbeiteten Bereiches'
 BAUMANSICHT_HOCH = u'Baumansicht ein Eintrag hoch'
 BAUMANSICHT_RUNTER = u'Baumansicht ein Eintrag runter'
 BENENNE_DATEI_UM = u'Datei umbenennen'
+
+# TAGS CATEGORIES
+AUSWAHL_KEIN_ERGEBNIS = u'''Ihre Auswahl lieferte kein Ergebnis'''
+            
+TAGS = u'''Tags'''
+TAG = u'''Tag'''
+KATEGORIE = u'''Kategorie'''
+NEUE_KATEGORIE = u'''Neue Kategorie'''
+TYP = u'''Typ'''
+TEXT = u'''Text'''
+DATUMSFORMAT = u'''Datumsformat'''
+KATEGORIE_VERSCHIEBEN = u'''Kategorie verschieben'''
+KATEGORIE_LOESCHEN = u'''Kategorie löschen'''
+VORHANDENE_TAGS = u'''Vorhandene Tags'''
+AENDERUNGEN_UEBERNOMMEN = u'''Änderungen wurden übernommen'''
+KEINE_GUELTIGE_ZAHL = u'''"{0}" ist keine gültige Zahl'''
+KATEGORIE_EXISTIERT = u'''Die Kategorie "{0}" existiert schon'''
+KATEGORIE_UNGUELTIG = u'''Die Kategorie {0} hat keinen gültigen Namen.'''
+KATEGORIE_NAMEN_EINGEBEN = u'''Geben Sie einen Namen für die neue Kategorie ein.'''
+AENDERN = u'''ändern'''
+KATEGORIE_UEBERNEHMEN = u'''Folgende Kategorien sollen gelöscht werden:
+        
+{0}
+
+Fortfahren?
+'''
 
 # TRANSLATIONS
 UEBERSETZUNGEN = u'''Übersetzungen'''

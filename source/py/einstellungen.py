@@ -19,6 +19,14 @@ class Einstellungen():
         self.lb_dict = None
         # vice versa
         self.lb_dict2 = None
+        
+        self.datum_items = {
+                       ('dd', 'mm', 'yyyy') : 'dd/mm/yyyy',
+                       ('mm', 'dd', 'yyyy') : 'mm/dd/yyyy',
+                       ('yyyy', 'mm', 'dd') : 'yyyy/mm/dd',
+                       ('yyyy', 'dd', 'mm') : 'yyyy/dd/mm'
+                       }
+        self.datum_items2 = {v:i for i,v in self.datum_items.items()}
 
         
     def start(self):
@@ -76,21 +84,24 @@ class Einstellungen():
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
                         LANG.DESIGN_PERSONA,
-                        LANG.MAUSRAD,
+                        LANG.TAGS,
                         LANG.TEMPLATES_ORGANON,
                         LANG.SHORTCUTS,
                         LANG.UEBERSETZUNGEN,
+                        LANG.MAUSRAD,
                         LANG.HTML_EXPORT,
                         LANG.LOG
                         )
         else:
+            # OPEN OFFICE
             lb_items = (
                         LANG.DESIGN_TRENNER,
                         LANG.DESIGN_ORGANON,
-                        LANG.MAUSRAD,
+                        LANG.TAGS,
                         LANG.TEMPLATES_ORGANON,
                         LANG.SHORTCUTS,
                         LANG.UEBERSETZUNGEN,
+                        LANG.MAUSRAD,
                         LANG.HTML_EXPORT,
                         LANG.LOG
                         )
@@ -170,6 +181,9 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 
             elif sel == LANG.TEMPLATES_ORGANON:
                 self.dialog_templates()
+                
+            elif sel == LANG.TAGS:
+                self.dialog_tags()
 
         except:
             log(inspect.stack,tb())
@@ -533,16 +547,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         sett_trenner = self.mb.settings_orga['trenner']
 
-        controls = [
-            10,
-            ('control',"FixedText",         
-                                    'tab0',0,250,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.SHORTCUTS ,150),                                             
-                                    {} 
-                                    ),
-            50, 
-            ]
+        controls = [10,]
         
         
         
@@ -651,14 +656,22 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                                     ('Alt',alt),       
                                     {'setActionCommand':'alt+'+s.strip(),'addActionListener':(listener,)} 
                                     ), 
-            -3,
+            0,
             ('control_List{}'.format(s.strip()),"ListBox",      
                                     'tab4',0,50,18,    
                                     ('Border','Dropdown','LineCount'),
                                     (2,True,15),       
                                     {'addItems':items,'SelectedItems':(sel,),'addItemListener':listener}
-                                    ), 
-            22,
+                                    ),
+            -4, 
+            ('controlFL{0}'.format(s.strip()),"FixedLine",         
+                                'tab0',0,430,1,   
+                                (),
+                                (),                                                  
+                                {} 
+                                ) ,  
+        
+            25,
             
             
             
@@ -862,7 +875,826 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             log(inspect.stack,tb())
             
 
-from com.sun.star.awt import XActionListener
+    def dialog_tags_elemente(self,listener):
+        if self.mb.debug: log(inspect.stack)
+        
+        
+        type = {
+             'txt':'TEXT',
+             'img':'BILD',
+             'tag':'TAG',
+             'date':'DATUM',
+             'time':'ZEIT'
+             }
+        
+        items = (
+                 LANG.TEXT,
+                 LANG.TAG,
+                 LANG.BILD,
+                 LANG.DATUM,
+                 LANG.ZEIT
+                 )
+        
+        datum_items = self.mb.class_Einstellungen.datum_items
+        akt_datum_format = datum_items[tuple(self.mb.settings_proj['datum_format'])]
+        d_items = tuple(self.mb.class_Einstellungen.datum_items2)
+        d_sel = d_items.index(akt_datum_format)
+        
+        url_pfeil_hoch = 'private:graphicrepository/res/commandimagelist/sc_arrowshapes.up-arrow.png'
+        if self.mb.programm == 'LibreOffice':
+            url_pfeil_hoch = 'private:graphicrepository/cmd/sc_arrowshapes.up-arrow.png'
+        url_pfeil_runter = 'private:graphicrepository/res/commandimagelist/sc_arrowshapes.down-arrow.png'
+        if self.mb.programm == 'LibreOffice':
+            url_pfeil_runter = 'private:graphicrepository/cmd/sc_arrowshapes.down-arrow.png'
+        
+        btn_breite = 110
+        btn_breite2 = 60
+        btn_breite3 = 100
+        
+        controls = [
+            10,
+             
+            ('controla',"FixedText",         
+                                    'tab1',0,80,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.KATEGORIE ,150),                                             
+                                    {} 
+                                    ),
+            0, 
+            ('controlb',"FixedText",         
+                                    'tab2',0,40,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.TYP ,150),                                             
+                                    {} 
+                                    ),
+            0, 
+            ('controlc',"FixedText",         
+                                    'tab3',0,250,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.BREITE ,150),                                             
+                                    {} 
+                                    ),
+            25, 
+            ]
+        
+        
+        
+        
+        tags = self.mb.tags
+        
+        y = 80
+        
+        for abf in tags['abfolge']:
+            
+            name,typ = tags['nr_name'][abf]
+            breite = str(tags['nr_breite'][abf])
+            controls.extend(
+            
+                [
+                 ('control_radio{}'.format(abf),"RadioButton",      
+                                        'tab0',0,20,20,  
+                                        (),
+                                        (),                                             
+                                        {} 
+                                        ),
+                 0,
+                 ('control_name{}'.format(abf),"Edit",      
+                                        'tab1',0,100,20,  
+                                        ('Text','MaxTextLen'),
+                                        (name ,100+abf),                                             
+                                        {'addKeyListener':listener} 
+                                        ),
+                 0,
+                 ('control_typ{}'.format(abf),"FixedText",      
+                                        'tab2',0,50,20,  
+                                        ('Label',),
+                                        (getattr(LANG, type[typ]) ,),                                             
+                                        {} 
+                                        ),
+                 0,
+                 ('control_breite{}'.format(abf),"Edit",      
+                                        'tab3',0,30,20,  
+                                        ('Text','MaxTextLen'),
+                                        (breite ,200+abf),                                             
+                                        {'addKeyListener':listener} 
+                                        ),
+                 22,
+                 
+                 ])
+            
+            y += 30
+        
+
+
+        controls.extend([
+       'Y=10',
+        ('controld',"FixedText",         
+                                    'tab5',0,250,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.NEUE_KATEGORIE ,150),                                             
+                                    {} 
+                                    ),
+        30,
+        ('controle',"FixedText",         
+                                    'tab4',0,40,20,  
+                                    ('Label',),
+                                    (LANG.NAME + ':' ,),                                             
+                                    {} 
+                                    ),
+        0,
+        ('control_txt',"Edit",      
+                                'tab5',0,140,20,  
+                                (),
+                                (),                                             
+                                {} 
+                                ), 
+        30, 
+        ('controlf',"FixedText",         
+                                'tab4',0,60,20,  
+                                ('Label',),
+                                (LANG.TYP + ':' ,),                                             
+                                {} 
+                                ),
+        0,
+        ('control_typ',"ListBox",      
+                                'tab5',0,btn_breite2,20,    
+                                ('Border','Dropdown','LineCount'),
+                                (2,True,15),       
+                                {'addItems':items,'SelectedItems':(0,)}
+                                ),  
+        30,
+        ('controlg',"FixedText",         
+                                'tab4',0,60,20,  
+                                ('Label',),
+                                (LANG.BREITE + ':' ,),                                             
+                                {} 
+                                ),
+        0,
+        ('control_breite',"Edit",      
+                                'tab5',0,btn_breite2,20,  
+                                (),
+                                (),                                             
+                                {} 
+                                ), 
+        30,
+        ('control_neue_kategorie',"Button",      
+                                'tab5',0,btn_breite,25,    
+                                ('Label',),
+                                (LANG.NEUE_KATEGORIE,),       
+                                {'setActionCommand':'neue_kategorie','addActionListener':(listener,)} 
+                                ),
+        30,
+        ('controlFa',"FixedLine",         
+                                'tab4',0,190,1,   
+                                (),
+                                (),                                                  
+                                {} 
+                                ) ,  
+        10,
+        #################################
+        ('controlh',"FixedText",         
+                                    'tab5',0,250,20,  
+                                    ('Label','FontWeight'),
+                                    (LANG.KATEGORIE_VERSCHIEBEN ,150),                                             
+                                    {} 
+                                    ),
+        30,
+        ('control_hoch',"Button",      
+                                'tab6',0,25,25,    
+                                ('ImageURL',),
+                                ( url_pfeil_hoch,),   
+                                {'setActionCommand':'hoch','addActionListener':(listener,)} 
+                                ), 
+        0,
+        ('control_runter',"Button",      
+                                'tab5',0,25,25,    
+                                ('ImageURL',),
+                                ( url_pfeil_runter,),       
+                                {'setActionCommand':'runter','addActionListener':(listener,)} 
+                                ), 
+        30,
+        ('controlFb',"FixedLine",         
+                                'tab4',0,190,1,   
+                                (),
+                                (),                                                  
+                                {} 
+                                ) ,
+        
+        ################ Kategorie Loeschen #############
+        10,
+        ('control_loeschen',"Button",      
+                                'tab5',0,btn_breite,25,    
+                                ('Label',),
+                                (LANG.KATEGORIE_LOESCHEN,),       
+                                {'setActionCommand':'loeschen','addActionListener':(listener,)} 
+                                ),  
+        30,
+        ('controlFc',"FixedLine",         
+                                'tab4',0,190,1,   
+                                (),
+                                (),                                                  
+                                {} 
+                                ) ,
+        ############# Datum Format ##################
+        10, 
+        ('controlg',"FixedText",         
+                                'tab4',0,80,20,  
+                                ('Label',),
+                                (LANG.DATUMSFORMAT,),                                             
+                                {} 
+                                ),
+        0,
+        ('control_datum_format',"ListBox",      
+                                'tab6',0,btn_breite3,20,    
+                                ('Border','Dropdown','LineCount'),
+                                (2,True,15),       
+                                {'addItems':d_items,'SelectedItems':(d_sel,)}
+                                ),
+        30,
+        ('controlFd',"FixedLine",         
+                                'tab4',0,190,1,   
+                                (),
+                                (),                                                  
+                                {} 
+                                ) ,
+        ############### UEBERNEHMEN ###################################
+        'Y=360',
+        ('control_uebernehmen',"Button",      
+                                'tab5',0,130,25,    
+                                ('Label',),
+                                (LANG.UEBERNEHMEN,),       
+                                {'setActionCommand':'uebernehmen','addActionListener':(listener,)} 
+                                ), 
+        
+        ])
+        
+    
+        
+        
+        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
+        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
+        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
+        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
+        tab0 = tab0x = 20
+        tab1 = tab1x = 35
+        tab2 = tab2x = 140
+        tab3 = tab3x = 190
+        tab4 = tab4x = 260
+        tab5 = tab5x = 310
+        tab6 = tab6x = 350
+        
+        tabs = ['tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab0x','tab1x','tab2x','tab3x','tab4x']
+        
+        tabs_dict = {}
+        for a in tabs:
+            tabs_dict.update({a:locals()[a]})
+
+        controls2 = []
+        
+        for c in controls:
+            if not isinstance(c, int) and 'Y=' not in c:
+                c2 = list(c)
+                c2[2] = tabs_dict[c2[2]]
+                controls2.append(c2)
+            else:
+                controls2.append(c)
+        
+        return controls2
+            
+            
+    def dialog_tags(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            tags = self.mb.tags
+            
+            listener = Listener_Tags(self.mb,self.container,self)             
+
+            controls = self.dialog_tags_elemente(listener)
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)             
+            
+            rows = {}
+            
+            # Controls in Hauptfenster eintragen
+            # Listboxen und controls an listener uebergeben
+            for c,i in ctrls.items():
+                if 'radio' not in c:
+                    self.container.addControl(c,ctrls[c])
+                    
+                    number = re.findall(r'\d+', c)
+                    if number == []:
+                        continue
+                    else:
+                        number = number[-1]
+                    
+                    name = c.replace('control_','').replace(str(number),'')
+                    if number in rows:
+                        rows[number].update({name:i})
+                    else:
+                        rows[number] = {name:i}
+                        
+                    
+            
+            for c,i in ctrls.items():
+                if 'radio' in c:
+                    self.container.addControl(c,ctrls[c])
+                    
+                    number = re.findall(r'\d+', c)
+                    if number == []:
+                        continue
+                    else:
+                        number = number[-1]
+                    
+                    name = c.replace('control_','').replace(str(number),'')
+                    if number in rows:
+                        rows[number].update({name:i})
+                    else:
+                        rows[number] = {name:i}
+                        
+                    rows[number]['original'] = [ int(number), tags['nr_name'][int(number)][0], tags['nr_breite'][int(number)] ]
+                    rows[number]['y'] = i.PosSize.Y
+            
+            
+            ctrls_tag_neu = {
+                             'name' : ctrls['control_txt'],
+                             'typ' : ctrls['control_typ'],
+                             'breite' : ctrls['control_breite'],
+                             }
+            
+            rows['0']['radio'].setState(True)  
+            
+            listener.rows = rows      
+            listener.ctrls_tag_neu = ctrls_tag_neu
+            
+        except:
+            log(inspect.stack,tb())
+            
+
+from com.sun.star.awt.Key import RETURN
+from com.sun.star.awt import XActionListener,XKeyListener,XFocusListener
+class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener):
+    def __init__(self,mb,container,auswahl_item_listener):
+        self.mb = mb
+        self.container = container
+        self.rows = None
+        self.ctrls_typen = 'radio','name','typ','breite'
+        self.ctrls_tag_neu = None
+        self.auswahl_item_listener = auswahl_item_listener
+        
+        self.types = {
+             LANG.TEXT : 'txt',
+             LANG.BILD : 'img',
+             LANG.TAG : 'tag',
+             LANG.DATUM : 'date',
+             LANG.ZEIT : 'time'
+             }
+        
+        items = (
+                 LANG.TEXT,
+                 LANG.TAG,
+                 LANG.BILD,
+                 LANG.DATUM,
+                 LANG.ZEIT
+                 )
+                
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        tags = self.mb.tags
+        cmd = ev.ActionCommand
+        
+        try:
+            try:
+                sel_row = int([a for a in self.rows if self.rows[a]['radio'].State][0])
+            except:
+                # kein Eintrag selektiert
+                return
+            
+            if cmd in ('runter','hoch'):
+                self.eintrag_verschieben(sel_row, cmd)
+            elif cmd == 'loeschen':
+                self.kategorie_loeschen(sel_row)
+            elif cmd == 'neue_kategorie':
+                self.neue_kategorie(sel_row)
+            elif cmd == 'uebernehmen':
+                self.kategorien_uebernehmen(sel_row)
+            
+        except:
+            log(inspect.stack,tb())        
+   
+   
+    def eintrag_verschieben(self,sel_row,cmd):
+        if self.mb.debug: log(inspect.stack)
+        
+        tags = self.mb.tags
+        
+        if cmd == 'runter':
+            richtung = 1
+        else:
+            richtung = -1
+            
+        if str(sel_row + richtung) not in self.rows:
+            return
+        
+        sel_row1 = self.rows[str(sel_row)]
+        sel_row2 = self.rows[str(sel_row + richtung)]
+        
+        ctrls1 = [sel_row1[a] for a in self.ctrls_typen]
+        hoehe1 = sel_row1['y']
+        ctrls2 = [sel_row2[a] for a in self.ctrls_typen]
+        hoehe2 = sel_row2['y']
+        
+        for c in ctrls1:
+            c.setPosSize(0,hoehe2,0,0,2)
+        for c in ctrls2:
+            c.setPosSize(0,hoehe1,0,0,2)
+        
+        sel_row1['y'] = hoehe2   
+        sel_row2['y'] = hoehe1 
+        
+        a = self.rows[str(sel_row)]
+        b = self.rows[str(sel_row + richtung)]
+        
+        self.rows[str(sel_row)] = b
+        self.rows[str(sel_row + richtung)] = a
+        
+    def breite_validieren(self,breite):    
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            return float(breite)
+        except:
+            pass
+        
+        try:
+            return float(breite.replace(',','.'))
+        except:
+            pass
+        
+        return False
+        
+    
+    def neue_kategorie(self,sel_row):
+        if self.mb.debug: log(inspect.stack)
+        
+        name = self.ctrls_tag_neu['name'].Text
+        typ = self.types[self.ctrls_tag_neu['typ'].SelectedItem]
+        breite2 = self.ctrls_tag_neu['breite'].Text
+        
+        breite = self.breite_validieren(breite2)
+        namen = [n['name'].Text for i,n in self.rows.items()]
+        
+        if not breite:
+            self.mb.nachricht(LANG.KEINE_GUELTIGE_ZAHL.format(breite2),'warningbox')
+            return
+        
+        if name in namen:
+            self.mb.nachricht(LANG.KATEGORIE_EXISTIERT.format(name),'warningbox')
+            return
+        if name == '':
+             self.mb.nachricht(LANG.KATEGORIE_NAMEN_EINGEBEN,'warningbox')
+             return
+        
+        self.ctrls_neue_kategorie(sel_row,name,typ,breite)
+        self.rows[str(sel_row)]['radio'].setState(True)  
+        
+        
+    def neue_kategorie_elemente(self,name,typ,breite,row):   
+        
+        listener = self
+        
+        type = {
+             'txt':'TEXT',
+             'img':'BILD',
+             'tag':'TAG',
+             'date':'DATUM',
+             'time':'ZEIT'
+             }
+        
+        controls = (
+            
+                [
+                 ('control_radio{}'.format(row),"RadioButton",      
+                                        'tab0',0,20,20,  
+                                        (),
+                                        (),                                             
+                                        {} 
+                                        ),
+                 0,
+                 ('control_name{}'.format(row),"Edit",      
+                                        'tab1',0,100,20,  
+                                        ('Text','MaxTextLen'),
+                                        (name ,100+row),                                             
+                                        {'addKeyListener':listener} 
+                                        ),
+                 0,
+                 ('control_typ{}'.format(row),"FixedText",      
+                                        'tab2',0,50,20,  
+                                        ('Label',),
+                                        (getattr(LANG, type[typ]) ,),                                             
+                                        {} 
+                                        ),
+                 0,
+                 ('control_breite{}'.format(row),"Edit",      
+                                        'tab3',0,30,20,  
+                                        ('Text','MaxTextLen'),
+                                        (str(breite) ,200+row),                                             
+                                        {'addKeyListener':listener} 
+                                        ),
+                 ])
+         
+        tab0 = tab0x = 20
+        tab1 = tab1x = 35
+        tab2 = tab2x = 140
+        tab3 = tab3x = 190
+        tab4 = tab4x = 260
+        tab5 = tab5x = 310
+        tab6 = tab6x = 350
+        
+        tabs = ['tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab0x','tab1x','tab2x','tab3x','tab4x']
+        
+        tabs_dict = {}
+        for a in tabs:
+            tabs_dict.update({a:locals()[a]})
+
+        controls2 = []
+        
+        for c in controls:
+            if not isinstance(c, int) and 'Y=' not in c:
+                c2 = list(c)
+                c2[2] = tabs_dict[c2[2]]
+                controls2.append(c2)
+            else:
+                controls2.append(c)
+        
+        return controls2
+        
+        
+    def ctrls_neue_kategorie(self,sel_row,name,typ,breite): 
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            tags = self.mb.tags
+            number = str(len(self.rows)) 
+            
+            controls = self.neue_kategorie_elemente(name,typ,breite,int(number))
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)             
+            
+            y = self.rows[ str( len(self.rows)-1 ) ]['y'] + 22
+            
+            # Controls in Hauptfenster eintragen
+            for c,i in ctrls.items():
+                ctrls[c].setPosSize(0,y,0,0,2)
+                self.container.addControl(c,ctrls[c])
+                
+            
+            self.rows[number] = {}           
+            self.rows[number]['original'] = 'neu'
+            self.rows[number]['y'] = y
+            self.rows[number]['breite'] = ctrls['control_breite{}'.format(number)]
+            self.rows[number]['radio'] = ctrls['control_radio{}'.format(number)]
+            self.rows[number]['typ'] = ctrls['control_typ{}'.format(number)]
+            self.rows[number]['name'] = ctrls['control_name{}'.format(number)]
+            
+            ctrl = self.container.getControl('control_radio{}'.format(number)) 
+            
+            
+            # Radiobuttons muessen entfernt und neu erzeugt werden, damit
+            # sie im Container hintereinander gesetzt werden und sie 
+            # auch wie Radiobuttons funktionieren
+            
+            # alle Radiobuttons löschen
+            radios = [self.rows[nr]['radio'] for nr in self.rows]
+            for r in radios:
+                r.dispose()
+            
+            # Radiobuttons wieder adden   
+            y = 35
+            controls = []
+            
+            abf = sorted([int(r) for r in self.rows])
+            
+            for r in abf:
+                
+                controls.extend([
+                ('control_radio{}'.format(r),"RadioButton",      
+                                20,y,20,20,  
+                                (),
+                                (),                                             
+                                {} 
+                                ),
+                
+                ])
+                y += 22
+                
+            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls) 
+            
+            # Controls in Hauptfenster eintragen
+            for c,i in ctrls.items():
+                self.container.addControl(c,ctrls[c])
+                number = filter(str.isdigit, c)
+                number = re.findall(r'\d+', c)[-1]
+#                 if number == []:
+#                     continue
+#                 else:
+#                     number = number[-1]
+                self.rows[str(number)]['radio'] = ctrls[c]
+            
+        except:
+            log(inspect.stack,tb())
+        
+           
+    def kategorie_loeschen(self,sel_row):
+        if self.mb.debug: log(inspect.stack)
+        
+        
+        sel_ctrls = [self.rows[str(sel_row)][a] for a in self.ctrls_typen]
+        
+        for c in sel_ctrls:
+            c.dispose()
+            
+        nachfolger = sorted([int(a) for a in self.rows if int(a) > sel_row]) 
+        
+        if nachfolger == []:
+            del self.rows[str(sel_row)] 
+            
+            # neue Selektion
+            if str(sel_row-1) in self.rows:
+                self.rows[str(sel_row-1)]['radio'].setState(True)  
+            elif '0' in self.rows:
+                self.rows['0']['radio'].setState(True)
+            
+            return 
+               
+        neue_hoehen = {a:self.rows[str(a-1)]['y'] for a in nachfolger}
+        
+        # y der ctrls und im dict neu setzen   
+        for nr,y in neue_hoehen.items():
+            self.rows[str(nr)]['y'] = y
+            ctrls = [self.rows[str(nr)][a] for a in self.ctrls_typen]
+            for c in ctrls:
+                c.setPosSize(0,y,0,0,2)
+        
+        # self.rows neu setzen
+        for n in nachfolger:
+            self.rows[str(n-1)] = self.rows[str(n)]
+        
+        del self.rows[str(nachfolger[-1])]  
+        
+        # neue Selektion
+        if str(sel_row) in self.rows:
+            self.rows[str(sel_row)]['radio'].setState(True)  
+        elif '0' in self.rows:
+            self.rows['0']['radio'].setState(True)  
+    
+        
+          
+    def kategorien_uebernehmen(self,sel_row):
+        if self.mb.debug: log(inspect.stack)
+        
+        reihen = {}
+        
+        for nr,ctrls in self.rows.items():
+            
+            reihen.update( {nr: {
+            'name' : ctrls['name'].Text,
+            'breite' : ctrls['breite'].Text,
+            'typ' : ctrls['typ'].Text,
+            'original' : ctrls['original']
+            
+            }})
+        
+        tags = self.mb.tags
+        
+        ord_alt_neu = {val['original'][0]:int(nr) for nr,val in reihen.items() if val['original'] != 'neu' }
+        
+        neu = [int(nr) for nr in reihen if reihen[nr]['original'] == 'neu']
+        
+        # alte Kategorien uebertragen
+        tags2 = {}
+        for kat in tags:
+            
+            if kat == 'abfolge':
+                tags2[kat] = list(range(len(reihen)))
+            if kat == 'name_nr':
+                tags2[kat] = {eintr['name']:int(nr) for nr,eintr in reihen.items() }
+            if kat == 'nr_name':
+                tags2[kat] = {int(nr) : [ eintr['name'], self.types[ eintr['typ'] ] ]  for nr,eintr in reihen.items() }
+            if kat == 'nr_breite':
+                tags2[kat] = {int(nr):eintr['breite'] for nr,eintr in reihen.items() }
+            
+            if kat == 'sichtbare':
+                tags2[kat] = [ord_alt_neu[s] for s in tags['sichtbare'] if s in ord_alt_neu ]
+                
+            if kat == 'sammlung':
+                tags2[kat] = {ord_alt_neu[nr]:v for nr,v in tags['sammlung'].items() if nr in ord_alt_neu }
+                geloescht = { tags['nr_name'][nr][0] : (tags['sammlung'][nr] if nr in tags['sammlung'] else '') 
+                             for nr in tags['nr_name'] if nr not in ord_alt_neu }
+            
+            if kat == 'ordinale':
+                tags2[kat] = {}
+                
+                for ordi,eintr in tags['ordinale'].items():
+                    #print(ordi,eintr)
+                    tags2[kat][ordi] = {ord_alt_neu[nr]:v for nr,v in eintr.items() if nr in ord_alt_neu }
+                    
+        
+        # neue Kategorien einfuegen
+        for nr in neu:
+            
+            art = self.types[ reihen[str(nr)]['typ'] ]
+            
+            if art == 'tag':
+                tags2['sammlung'][nr] == []
+                        
+            if art == 'txt':
+                eintrag = ''
+            elif art == 'tag':
+                eintrag = []
+            elif art == 'date':
+                eintrag = None
+            elif art == 'time':
+                eintrag = None
+            elif art == 'img':
+                eintrag = ''
+                
+            for ordi in tags2['ordinale']:
+                tags2['ordinale'][ordi][nr] = eintrag
+        
+        
+        # auf gueltige Eintraege ueberpruefen
+        for nr,b in tags2['nr_breite'].items():
+            breite = self.breite_validieren(b)
+            if not breite:
+                self.mb.nachricht(LANG.KEINE_GUELTIGE_ZAHL.format(b),'warningbox')
+                return
+            tags2['nr_breite'][nr] = breite
+            
+        for name,nr in tags2['name_nr'].items():
+            if name == '':
+                self.mb.nachricht(LANG.KATEGORIE_UNGUELTIG.format(nr+1),'warningbox')   
+                return
+        
+ 
+        if geloescht != {}:
+            
+            txt = []
+            
+            for name,value in geloescht.items():
+                txt.append(name)
+                if value == '': 
+                    txt.append('\r\n')
+                    continue
+                txt.append('\r\n     (')
+                txt.append(LANG.VORHANDENE_TAGS + ':  ')
+                for v in value:
+                    txt.append(v)
+                    txt.append(', ')
+                txt.append(')\r\n')
+            
+            txt2 = ''.join(txt)
+            
+            # Info und Nachfrage
+            entscheidung = self.mb.nachricht(LANG.KATEGORIE_UEBERNEHMEN.format(txt2),"warningbox",16777216)
+            # 3 = Nein oder Cancel, 2 = Ja
+            if entscheidung == 3:
+                return
+
+        # Tags uebernehmen
+        self.mb.tags = tags2
+        self.mb.class_Tags.speicher_tags()
+        
+         # neue Kategorien auf sichtbar setzen
+        for n in neu:
+            if n not in self.mb.tags['sichtbare']:
+                self.mb.tags['sichtbare'].append(n)
+        
+        # Neues Datumsformat speichern
+        datum_format = self.container.getControl('control_datum_format').SelectedItem
+        dat_items = self.mb.class_Einstellungen.datum_items2
+        dat_format_neu = self.mb.class_Einstellungen.datum_items2[datum_format]
+        if dat_format_neu != tuple(self.mb.settings_proj['datum_format']):
+            self.mb.settings_proj['datum_format'] = list(dat_format_neu)
+            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+        
+        # Ansicht erneuern
+        for c in self.container.getControls():
+            c.dispose()   
+        self.auswahl_item_listener.dialog_tags()
+        
+        self.mb.class_Sidebar.offen = {ord_alt_neu[o]:v for o,v in self.mb.class_Sidebar.offen.items() if o in ord_alt_neu}
+        for n in neu:
+            self.mb.class_Sidebar.offen.update({n:1})
+        self.mb.class_Sidebar.erzeuge_sb_layout()
+        
+        # Popup Info
+        win = self.mb.class_Einstellungen.haupt_fenster
+        self.mb.popup(LANG.AENDERUNGEN_UEBERNOMMEN,1,win)
+        
+         
+    def disposing(self,ev):
+        return False
+
 class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
     def __init__(self,mb,control_log,control_arg,control_filepath):
         self.mb = mb
@@ -1096,6 +1928,7 @@ class Uebersetzungen():
             try:
                 
                 t = txt.strip()
+                tz = txt.strip()
                 
                 if "'''" in t:
                     count = t.count("'''")
@@ -1104,7 +1937,7 @@ class Uebersetzungen():
                             t = t + "'''"  
                         else:
                             t = "u'''" + t
-                elif 'u"' in t:
+                elif ' u"' in t:
                     pass
                 elif "u'" in t:
                     t = re.sub("u'", "u'''", t)
@@ -1478,14 +2311,16 @@ class Uebersetzungen():
                     txt = getattr(lang_user, konst)
                 except:
                     txt = '*******'
+                    
                 if txt == '*******':
                     faerben = True
                 
-            
+                
                 ctrls_ueber[konst].Model.Text = txt
                 if faerben:
                     ctrls_ueber[konst].Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE
                     self.gefaerbte.append(ctrls_ueber[konst])
+                
         except:
             log(inspect.stack,tb())     
         

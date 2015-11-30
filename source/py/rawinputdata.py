@@ -283,8 +283,9 @@ class RawInputReader():
             return windll.user32.DefWindowProcA(c_int(hwnd), c_int(message), c_int(wParam), c_int(lParam))
     
         except Exception as e:
-            print(e)
-            log(inspect.stack,tb())
+            pass
+            #print(e)
+            #log(inspect.stack,tb())
 
 
 

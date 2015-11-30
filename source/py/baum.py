@@ -340,7 +340,7 @@ class Baumansicht():
                     gliederung = None
 
                 self.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung)
-                self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal)
+                self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordinal)
                             
                 # neue Datei / neuen Bereich anlegen           
                 # kommender Eintrag wurde in erzeuge_XML_Eintrag schon erhoeht
@@ -522,7 +522,7 @@ class Baumansicht():
                     sec = sections.getByName(bereichsname) 
                     
                     # loesche Sidebareintrag
-                    self.mb.class_Sidebar.loesche_dict_sb_content_eintrag(ordinal)
+                    self.mb.class_Tags.loesche_tag_eintrag(ordinal)
                                         
                     # loesche eventuell vorhandene Kind Bereiche
                     ch_sections = []
@@ -617,7 +617,7 @@ class Baumansicht():
                 
             self.mb.props[T.AB].selektierte_zeile_alt = ordinal
             self.mb.props[T.AB].selektierte_zeile = ordinal
-            self.mb.class_Sidebar.erzeuge_sb_layout(None)
+            self.mb.class_Sidebar.erzeuge_sb_layout()
              
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(zeilenordinal = ordinal)
             
@@ -702,7 +702,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     props.tastatureingabe = False
 
             props.selektierte_zeile_alt = props.selektierte_zeile
-            self.mb.class_Sidebar.erzeuge_sb_layout(None)
+            self.mb.class_Sidebar.erzeuge_sb_layout()
             
             # Bei Doppelclick Zeileneintrag bearbeiten
             if ev.Buttons == MB_LEFT:   

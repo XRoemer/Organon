@@ -495,7 +495,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
         self.mb.tree_write(tree,Path)
         
-        self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordinal_neuer_Eintrag)
+        self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordinal_neuer_Eintrag)
         
         return ordinal_neuer_Eintrag,bereichsname
      
@@ -739,7 +739,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.oOO.storeToURL(pfad2,(prop3,))
             self.oOO.close(False)
             
-            self.mb.class_Sidebar.lege_dict_sb_content_ordinal_an(ordn)
+            self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordn)
             
             StatusIndicator.end()
 

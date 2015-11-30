@@ -30,7 +30,6 @@ ERZEUGE_INDEX = u'''Crea Indice'''
 SPEICHERORT = u'''Salva nella cartella'''
 FORMATIERUNG = u'''Formattazione'''
 TEMPLATE_WRITER = u'''Modello Default di scrittura'''
-TEMPLATE_USER = u'''Usa Modello'''
 NO_TEMPLATES = u'''No Modelli'''
 EIGENES_TEMPL_ERSTELLEN = u'''Crea Modello dalla Selezione'''
 NAME = u'''Nome'''
@@ -212,7 +211,7 @@ TAG_LOESCHEN = u'''Rimuove l'etichetta da questo panello'''
 TAG_HINZUFUEGEN = u'''Cliccare per aggiungere un'etichetta'''
 ENTER_NEW_TAG = u'''Inserire una nuova etichetta e cliccare all'interno della finestra del documento.'''
 ZEIT2 = u'''Ora:'''
-DATUM = u'''Data:'''
+DATUM = u'''Data'''
 
 # TABS
 ERZEUGE_NEUEN_TAB_AUS = u'''Creare nuova Scheda da:'''
@@ -417,33 +416,7 @@ EIN_TAG_BEREITS_VORHANDEN = u'''Una delle etichette è già in uso in un'altra c
 UEBERNOMMEN = u'''Le modifiche sono state applicate.'''
 AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'''Ci sono cambiamenti non salvati. Vuoi salvare i cambiamenti?'''
 OO_ORGANIZER_INFO = u'''Se si fa uso dell'organizzatore in OpenOffice, la finestra Organon e la barra laterale saranno chiuse al successivo riavvio. Se necessario, si dovrà aprire nuovamente.'''
-ORGANIZER_INFO = u'''Utilizzo dell'Organizzatore:
 
-L'Organizzatore visualizza tutte le etichette di una scheda in una tabella.
-
-Le modifiche sono fatte da nuove voci nei campi. Le modifiche vengono apportate con un click sul pulsante "{0}".
-
-Le modifiche delle icone sul lato sinistro vengono immediatamente adottate senza una valutazione.
-
-Il menu di Calc può essere aperto cliccando su "{1}", in modo che il file può essere utilizzato in altro modo. (ad esempio la stampa)
-Non inserire righe né colonne o modificare il documento dal menu, se si vuole ancora utilizzarle con Organon. Tali modifiche potrebbero causare una corruzione delle etichette nel file.
-
-Se non si desidera applicare le modifiche, Calc può semplicemente essere chiuso.
-
-Le etichette "{2}" e "{3}" possono contenere il corpo del testo.
-Le interruzioni di linea sono create con Ctrl + Enter.
-Le voci nelle etichette "{4}", "{5}", etc. sono separate dalle virgole.
-
-Per impostare le etichette della vista ad albero (icone sulla sinistra) si deve fare click ACCANTO a loro e non su di loro. Purtroppo questa è una limitazione tecnica che non può essere eliminata facilmente.
-Possono essere inserite anche nuove icone. Anche questo richiede di fare click accanto alla posizione dove sarebbe situata in caso di un'etichetta esistente.
-
-I files potrebbero essere rinominati in Organizer, ma questo cambiamento non è ancora applicato al documento.
-
-L'Organizzatore non integra ancora tutte le funzioni. 
-(Per esempio, ora, data, viste diverse) 
-Saranno presto in arrivo :) .
-
-'''
 
 # SHORTCUTS
 SHORTCUTS = u'''Scorciatoie'''

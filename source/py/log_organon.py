@@ -148,14 +148,7 @@ class Log():
                         except:
                             print('ERROR ON WRITING ERROR TO FILE')
                             file.write(str(traceb)+'\r\n')
-                            
-                    
-                    path2 = join(self.location_debug_file,'error_log.txt')
-                    with codecs_open( path2, "a","utf-8") as file:
-                        file.write('### ERROR ### \r\n')
-                        file.write(traceb+'\r\n')
-                    
-                    
+    
                 if extras != None:
                     print(extras)
                     with codecs_open( path, "a","utf-8") as file:
@@ -175,16 +168,8 @@ class Log():
                 
                 path2 = join(self.location_debug_file,'error_log.txt')
                 with codecs_open( path2, "a","utf-8") as file:
-                    file.write('### ERROR ### \r\n')
+                    file.write('### ERROR ###1 \r\n')
                     file.write(traceb+'\r\n')
-                
-                
-                if self.path_to_project_settings != None:
-                    path3 = join(self.path_to_project_settings,'error_log.txt')
-                    with codecs_open( path3, "a","utf-8") as file:
-                        file.write('### ERROR ### \r\n')
-                        file.write(traceb+'\r\n')
-                
                 
                 try:
                     if not self.write_debug_file:

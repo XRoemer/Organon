@@ -110,9 +110,8 @@ class Projekt():
                 self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
                 
-                self.mb.class_Sidebar.lege_dict_sb_content_an()
-                self.mb.class_Sidebar.lade_sidebar()
-                self.mb.class_Sidebar.speicher_sidebar_dict()
+                self.mb.class_Tags.lege_tags_an()
+                self.mb.class_Tags.speicher_tags()
 
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
                 
@@ -716,9 +715,10 @@ class Projekt():
             erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei)
             
-            self.mb.class_Sidebar.lade_sidebar_dict()
-            self.mb.class_Sidebar.lade_sidebar()
-            self.mb.use_UM_Listener = True    
+            self.mb.class_Tags.lade_tags()
+            
+            self.mb.use_UM_Listener = True   
+             
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
             prj_ctrl = self.mb.tabsX.tableiste.getControl('ORGANON')
@@ -727,7 +727,7 @@ class Projekt():
             self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             self.mb.Listener.starte_alle_Listener()
-            self.mb.class_Sidebar.erzeuge_sb_layout(None)
+            self.mb.class_Sidebar.erzeuge_sb_layout()
             
         except Exception as e:
             log(inspect.stack,tb())
@@ -1078,7 +1078,12 @@ class Projekt():
         
     def erzeuge_proj_Settings(self):
         if self.mb.debug: log(inspect.stack)
-
+        
+        if self.mb.language == 'de':
+                datum_format = ['dd','mm','yyyy']
+        else:
+            datum_format = ['mm','dd','yyyy']
+                
         settings_proj = {
             'tag1' : 0, 
             'tag2' : 0,
@@ -1086,6 +1091,8 @@ class Projekt():
             'use_template' : self.mb.settings_proj['use_template'],
             'user_styles' : (),
             'formatierung' : 'Standard',
+            'datum_trenner' : '.',
+            'datum_format' : datum_format,
             }
             
         self.mb.speicher_settings("project_settings.txt", settings_proj)    
@@ -1542,10 +1549,7 @@ class Projekt():
             
             
             
-            settorg = self.mb.settings_orga
-            #self.mb.class_Funktionen.update_organon_templates()
-            
-            #self.mb.schreibe_settings_orga()
+
 
 
             def get_access(lvl,obj):
@@ -1562,11 +1566,110 @@ class Projekt():
             
 
 
-            ctrl = self.mb.dict_sb['controls']
-            dict_sb = self.mb.dict_sb
+            #print('wer')
             
-            #self.mb.class_Sidebar.setze_sidebar_design()
-            print('wer')
+            
+            #org = self.mb.class_Organizer
+            
+#             rangex = org.sheet.getCellRangeByPosition( 0, 0, 5,5 )
+#             cfr = rangex.CellFormatRanges.getByIndex(0)
+#             selection = org.sheet_controller.Selection
+#             
+#             ss = org.sheet_controller.ComponentWindow.StyleSettings
+#             
+#             win = org.calc_frame.ContainerWindow
+#             
+#             
+#             
+#             #set_app_style(win,self.mb)
+#             
+#             #set_app_style(win,self.mb)
+#             
+#             
+#             cur_cont = org.calc.CurrentController
+#             
+#             cur_cont.GridColor = 501
+#             
+#             selection.CellBackColor = 501
+
+
+            
+
+            cl_tags = self.mb.class_Tags
+            tags = self.mb.tags
+            
+            props = self.mb.props[T.AB]
+            
+#             tags['nr_breite'] = {i:2 for i in range(12)}
+#             tags['nr_breite'].update({
+#                                         0 : 5,
+#                                         1 : 5,
+#                                         2 : 3
+#                                       })
+            
+            
+#             name_alt = 'Objekte'
+#             name_neu = 'symphonische Dichtung'
+#             panel_nr = tags['name_nr'][name_alt]
+#             
+#             tags['name_nr'].update({name_neu:panel_nr})
+#             del tags['name_nr'][name_alt]
+#             
+#             tags['nr_name'][panel_nr][0] = name_neu
+            
+            
+#             cont = self.mb.class_Organizer.sheet_controller#.select(rangex)
+#             sel = cont.Selection
+
+            #sel.setPropertyValues(('IsTextWrapped','ShrinkToFit'),(False,True))
+            
+#             sheet = self.mb.class_Organizer.sheet
+#             orga = self.mb.class_Organizer
+#             rows = orga.rangex.Rows
+#             rows.setPropertyValue('Height',1500)       
+#             rows.setPropertyValue('OptimalHeight',True)   
+
+            
+            #tags['ordinale']['nr1'][2] = ''
+            #print(3)
+            
+            
+           
+            
+#             self.mb.settings_proj['datum_format'][0] = 'dd'
+#             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+            
+            
+            
+#             
+#             spr = self.mb.settings_proj
+#             einst = self.mb.class_Einstellungen
+#             
+#             dat_panels = [i for i,v in tags['nr_name'].items() if v[1] == 'date']
+#              
+#             for o,v in tags['ordinale'].items():
+#                 for panel_nr in dat_panels:
+#                     if v[panel_nr] == None:
+#                         pass
+#                     else:
+#                         dd,mm,yyyy = v[panel_nr].split('.')
+#                         v[panel_nr] = {
+#                                        'dd':dd,
+#                                        'mm':mm,
+#                                        'yyyy':yyyy
+#                                        }
+            
+            #tags['nr_breite'] = {i:2 for i in range(12)}
+            
+            
+            
+            
+            txt = 'panel_17'
+            #t = [t for t in txt if ]
+            t = list(filter(str.isdigit, txt))
+            
+            #import re
+            number = int(re.findall(r'\d+', txt)[-1])
             
         except:
             log(inspect.stack,tb())
@@ -1578,7 +1681,7 @@ class Projekt():
         
         
         
-def set_app_style(win,settings_orga):
+def set_app_style(win,mb):
     try:
         ctx = uno.getComponentContext()
         smgr = ctx.ServiceManager
@@ -1596,12 +1699,16 @@ def set_app_style(win,settings_orga):
         selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
         ordner = KONST.FARBE_SCHRIFT_ORDNER
         
+        settings_orga = mb.settings_orga
+
         sett = settings_orga['organon_farben']['office']
         
         def get_farbe(value):
             if isinstance(value, int):
+                return rot
                 return value
             else:
+                return rot
                 return settings_orga['organon_farben'][value]
         
         # Kann button_schrift evt. herausgenommen werden?

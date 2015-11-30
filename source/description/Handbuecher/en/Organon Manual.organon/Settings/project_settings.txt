@@ -1,4 +1,6 @@
-{'formatierung': 'Standard',
+{'datum_format': ['dd', 'mm', 'yyyy'],
+ 'datum_trenner': '.',
+ 'formatierung': 'Standard',
  'nutze_mausrad': True,
  'tag1': 1,
  'tag2': 0,
@@ -7,5 +9,5 @@
  'trenner_farbe_hintergrund': 15658734,
  'trenner_farbe_schrift': 10066329,
  'trenner_user_url': '',
- 'use_template': (False, None),
+ 'use_template': [0, ''],
  'user_styles': ()}
