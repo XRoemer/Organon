@@ -10,10 +10,10 @@ Organon is a plugin for LibreOffice and OpenOffice.
 
 Organon allows to split up large texts into parts, allows tagging and opening parts of the project in new tabs.
 
-Parts are shown in a treeview. Entries can be moved by drag and drop.
-Every entry can be tagged.
-Tags are freely configurable, can be renamed, created and deleted. Organon's Organizer is a fast way of showing and editing all tags at once.
-Tabs can be opened based on these tags. They also might freely be chosen from the folders and files of the project and they might be sorted by date and/or time.
+* Parts are shown in a treeview. Entries can be moved by drag and drop.
+* Every entry can be tagged.
+* Tags are freely configurable, can be renamed, created and deleted. Organon's Organizer is a fast way of showing and editing all tags at once.
+* Tabs can be opened based on these tags. They also might freely be chosen from the folders and files of the project and they might be sorted by date and/or time.
 
 Organon offers extensive import and export options.
 Organon's projects are platform independent and might be edited on different computers and platforms.
