@@ -21,6 +21,8 @@ Organon's projects are platform independent and might be edited on different com
 
 ####More Features are:
 * (Batch) split and combine files
+* Use Writer templates
+* Create your own Organon templates.
 * When displaying the files in a folder, the relevant section of the folder is always highlighted while editing the document. 
 * Separator, configurable by the user. When viewing a folder the separator separates the files optically from each other. 
 * Import of individual files. All filters available for Writer can be used.
