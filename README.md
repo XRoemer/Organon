@@ -4,37 +4,33 @@ Download:
 http://extensions.openoffice.org/en/project/organon
 
 
-###Organon is an organisation and navigation-tool for writer (LibreOffice and OpenOffice)
+###Organon is a tool for novelists and scientific authors.
 
-Organon creates a project with a directory tree for easy navigation between files and folders of the project. Arbitrary parts of the project can be opened in Tabs.
+It's a plugin for LibreOffice and OpenOffice.
+Organon allows to split up large texts into parts, allows tagging and opening parts of the project in new tabs.
 
-Organon creates a new entry in the sidebar, where several tags for all items can be assigned. 
+Parts are shown in a treeview. Entries can be moved by drag and drop.
+Every entry can be tagged.
+Tags are freely configurable, can be renamed, created and deleted. Organon's Organizer is a fast way of showing and editing all tags at once.
+Tabs can be opened based on these tags. They also might freely be chosen from the folders and files of the project and they might be sorted by date and/or time.
 
-In addition, Organon has a collection of text tools and extensive import and export options (batch import and export).
+Organon offers extensive import and export options.
+Organon's projects are platform independent and might be edited on different computers and platforms.
 
-####Features:
-* Drag and Drop
-* Awarding Tags
-* Organizer: fast and simple way to show and edit all tags
-* Open Parts of the Project in Tabs
-* When displaying the files in a folder, the relevant section of the folder is always highlighted while editing the document.
-* Separator, configurable by the user. When viewing a folder the separator separates the files optically from each other.
+####More Features are:
+* (Batch) split and combine files
+* When displaying the files in a folder, the relevant section of the folder is always highlighted while editing the document. 
+* Separator, configurable by the user. When viewing a folder the separator separates the files optically from each other. 
 * Import of individual files. All filters available for Writer can be used.
-* Import a folder of files, filterable (Batch Import)
+* Import a folder of files (Batch Import), filterable by extension
 * Export an arbitrary part of the project in a single file or an entire document. All Writer filters are available (.odt, .doc, .pdf ...). (Batch Export)
 * (Batch) Export to LaTex files
-* (Batch) Export to HTML files. In addition, alternative Organon Filter for easier and smoother layout of the HTML file.
-* Create a backup of the project with a single click 
-* Shortcuts
+* (Batch) Export to HTML files. In addition, alternative Organon Filter for easier layout of the HTML file.
+* Create a single click backup of the project
 * Several tags in the tree view:
   * Colors
   * Custom Icons
   * Scientific counting
-* Several tags in the sidebar:
-  * Synopsis, notes, images, general, people etc.
-  * Add previously used tags with one click.
-  * Opening new tabs based award Tags.
-  * Open and organize new tabs using the time tags
 * Text Tools:
   * Find quotes: text comparison of two texts and finding all common points. The result is stored as a browser document. All results are linked and can be accessed directly via a navigation.
   * Create Word List: A list of all words used are saved as Calc file. Chronological or alphabetical order.
