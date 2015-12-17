@@ -11,6 +11,7 @@ class Einstellungen():
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
+        self.container = None
         
         # prop, um den Listener fuer die Writer Design LBs
         # beim anfaenglichen Setzen nicht anzusprechen
@@ -27,7 +28,7 @@ class Einstellungen():
                        ('yyyy', 'dd', 'mm') : 'yyyy/dd/mm'
                        }
         self.datum_items2 = {v:i for i,v in self.datum_items.items()}
-
+        
         
     def start(self):
         if self.mb.debug: log(inspect.stack)
@@ -42,26 +43,25 @@ class Einstellungen():
         if self.mb.debug: log(inspect.stack)
         try:
             breite = 680
-            hoehe = 400
+            hoehe = 490
             breite_listbox = 150
-            
             
             sett = self.mb.settings_exp
             
             posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-            X = self.mb.dialog.Size.Width
-            Y = posSize_main.Y            
+            X = 20
+            Y = self.mb.win.AccessibleContext.LocationOnScreen.Y - posSize_main.Y +40
             
             # Listener erzeugen 
             listener = {}           
             listener.update( {'auswahl_listener': Auswahl_Item_Listener(self.mb)} )
             
             controls = self.dialog_einstellungen(listener, breite_listbox,breite,hoehe)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
+            ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)                
             
             # Hauptfenster erzeugen
             posSize = X,Y,breite,pos_y + 40
-            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
+            fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
             
             self.haupt_fenster = fenster
             
@@ -69,7 +69,9 @@ class Einstellungen():
             for c in ctrls:
                 fenster_cont.addControl(c,ctrls[c])
             
+            self.container = ctrls['control_Container']
             listener['auswahl_listener'].container = ctrls['control_Container']
+            listener['auswahl_listener'].fenster = fenster
             
         except:
             log(inspect.stack,tb())
@@ -109,21 +111,21 @@ class Einstellungen():
            
         controls = (
             10,
-            ('controlE_calc',"FixedText",        
-                                    20,0,50,20,    
+            ('controlE_calc',"FixedText",1,        
+                                    20,0,250,20,    
                                     ('Label','FontWeight'),
                                     (LANG.EINSTELLUNGEN ,150),                  
                                     {} 
                                     ), 
             20,                                                  
-            ('control_Liste',"ListBox",      
+            ('control_Liste',"ListBox",0,      
                                     20,0,breite_listbox,hoehe,    
                                     ('Border',),
                                     ( 2,),       
-                                    {'addItems':lb_items,'addItemListener':(listener['auswahl_listener'])} 
+                                    {'addItems':(lb_items,0),'addItemListener':(listener['auswahl_listener'])} 
                                     ),  
             0,
-            ('control_Container',"Container",      
+            ('control_Container',"Container",0,      
                                     breite_listbox + 40,0,breite-60-breite_listbox ,hoehe ,    
                                     ('Border',),
                                     (1,),              
@@ -134,7 +136,32 @@ class Einstellungen():
         return controls
     
     
-              
+
+            
+     
+
+    def container_anpassen(self,container,max_breite=None,max_hoehe=None,fenster=None):
+        if self.mb.debug: log(inspect.stack)
+        
+                  
+        posSize = container.PosSize
+        
+        # Breite 
+        if max_breite:
+            if max_breite > posSize.Width:
+                container.setPosSize(0,0,max_breite,0,4)
+                if fenster:
+                    unterschied = max_breite- posSize.Width
+                    fenster.setPosSize(0,0,fenster.PosSize.Width + unterschied,0,4)
+            
+        # Hoehe
+        if max_hoehe:            
+            if max_hoehe > posSize.Height:
+                container.setPosSize(0,0,0,max_hoehe,8)
+                if fenster:
+                    unterschied = max_hoehe - posSize.Height
+                    fenster.setPosSize(0,0,0,fenster.PosSize.Height + unterschied,8)
+  
 
 from com.sun.star.awt import XItemListener   
 class Auswahl_Item_Listener(unohelper.Base, XItemListener):
@@ -142,6 +169,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.container = None
+        self.fenster = None
         
     # XItemListener    
     def itemStateChanged(self, ev):  
@@ -167,6 +195,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 
             elif sel == LANG.DESIGN_ORGANON:
                 self.mb.class_Organon_Design.container = self.container
+                self.mb.class_Organon_Design.fenster = self.fenster
                 self.mb.class_Organon_Design.dialog_organon_farben()
                 
             elif sel == LANG.DESIGN_PERSONA:
@@ -291,8 +320,8 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         controls = [
             10,
-            ('controlE_calc',"FixedText",        
-                                    20,0,50,20,    
+            ('controlE_calc',"FixedText",1,        
+                                    20,0,600,20,    
                                     ('Label','FontWeight'),
                                     (LANG.HTML_AUSWAHL ,150),                  
                                     {} 
@@ -304,11 +333,11 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 
         for el in elemente:
             controls.extend([
-            ('control_{}'.format(el),"CheckBox",      
+            ('control_{}'.format(el),"CheckBox",1,      
                                     20,0,200,20,    
                                     ('Label','State'),
                                     (getattr(LANG, el),html_exp_settings[el]),       
-                                    {'setActionCommand':el,'addActionListener':(listener,)} 
+                                    {'setActionCommand':el,'addActionListener':(listener)} 
                                     ),  
             25])
             
@@ -326,7 +355,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             listener = Listener_HTML_Export_Einstellungen(self.mb)         
             
             controls = self.dialog_html_export_elemente(listener,sett)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
+            ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)                
               
             # Controls in Hauptfenster eintragen
             for c in ctrls:
@@ -341,22 +370,22 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         controls = (
             10,
-            ('controlE_calc',"FixedText",        
-                                    20,0,50,20,    
+            ('controlE_calc',"FixedText",1,        
+                                    20,0,400,20,    
                                     ('Label','FontWeight'),
                                     (LANG.NUTZE_MAUSRAD ,150),                  
                                     {} 
                                     ), 
             50,                                                  
-            ('control_CB_calc',"CheckBox",      
-                                    20,0,200,220,    
+            ('control_CB_calc',"CheckBox",1,      
+                                    20,0,200,30,    
                                     ('Label','State'),
                                     (LANG.NUTZE_MAUSRAD,nutze_mausrad),       
-                                    {'addActionListener':(listener,)} 
+                                    {'addActionListener':(listener)} 
                                     ),  
-            30,
-            ('control_Container_calc',"FixedText",      
-                                    20,0,200,200,    
+            50,
+            ('control_Container_calc',"FixedText",1,     
+                                    20,0,350,200,    
                                     ('MultiLine','Label'),
                                     (True,LANG.MAUSRAD_HINWEIS),              
                                     {} 
@@ -386,7 +415,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             listener = Listener_Mausrad_Einstellungen(self.mb)         
             
             controls = self.dialog_mausrad_elemente(listener,nutze_mausrad)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
+            ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)                
              
             # Controls in Hauptfenster eintragen
             for c in ctrls:
@@ -401,101 +430,87 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         sett_trenner = self.mb.settings_orga['trenner']
 
-        controls = (
+        controls = [
             10,
-            ('control',"FixedText",         
-                                    'tab0',0,250,20,  
+            ('control',"FixedText",1,         
+                                    'tab0',0,50,20,  
                                     ('Label','FontWeight'),
                                     (LANG.TRENNER_FORMATIERUNG ,150),                                             
                                     {} 
                                     ),
             50,
-            ('control1',"CheckBox",         
-                                    'tab0',0,200,20,   
+            ('control1',"CheckBox",1,        
+                                    'tab0',0,50,20,   
                                     ('Label','State'),
                                     (LANG.LINIE,trenner_dict['strich']),                                                  
                                     {'addItemListener':(listener_CB)} 
                                     ) ,
             0,
-            ('control11',"CheckBox",        
-                                    'tab4x',0,150,20,   
+            ('control11',"CheckBox",1,        
+                                    'tab4x',0,50,20,   
                                     ('Label','State'),
                                     (LANG.KEIN_TRENNER,trenner_dict['keiner']),                                           
                                     {'addItemListener':(listener_CB)} 
                                     ),
             50,
-            ('control2',"CheckBox",         
-                                    'tab0',0,360,20,   
+            ('control2',"CheckBox",1,         
+                                    'tab0',0,50,20,   
                                     ('Label','State'),
                                     (LANG.FARBE,trenner_dict['farbe']),                                                   
                                     {'addItemListener':(listener_CB)} 
                                     ), 
             20,
-            ('control3',"FixedText",        
-                                    'tab1',0,400,60,   
+            ('control3',"FixedText",1,        
+                                    'tab0x+15',0,400,60,   
                                     ('Label',),
                                     (LANG.TRENNER_ANMERKUNG,),                                                                            
                                     {} 
                                     ), 
              
             60,
-            ('control7',"CheckBox",         
+            ('control7',"CheckBox",1,         
                                     'tab0',0,80,20,   
                                     ('Label','State'),
                                     (LANG.BENUTZER,trenner_dict['user']),                                                  
                                     {'addItemListener':(listener_CB)} 
                                     ),              
             20,
-            ('control8',"FixedText",        
-                                    'tab1',0,20,20,   
+            ('control8',"FixedText",1,        
+                                    'tab0+15',0,20,20,   
                                     ('Label',),
                                     ('URL: ',),                                                                            
                                     {'Enable':trenner_dict['user']==1} 
                                     ), 
             0,
-            ('control10',"Button",          
-                                    'tab2',0,60,20,    
+            ('control10',"Button",1,          
+                                    'tab1',0,60,20,    
                                     ('Label',),
                                     (LANG.AUSWAHL,),                                                                         
-                                    {'Enable':trenner_dict['user']==1,'addActionListener':(listener_URL,)} 
+                                    {'Enable':trenner_dict['user']==1,'addActionListener':(listener_URL)} 
                                     ), 
             30,
-            ('control9',"FixedText",        
+            ('control9',"FixedText",1,        
                                     'tab1',-4,600,20,   
                                     ('Label',),
                                     (sett_trenner['trenner_user_url'],),                                            
                                     {'Enable':trenner_dict['user']==1} 
                                     ), 
             20,
-            )
+            ]
         
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 42
-        tab2 = tab2x = 78
-        tab3 = tab3x = 100
-        tab4 = tab4x = 230
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 15),
+                 1 : (None, 1),
+                 2 : (None, 5),
+                 3 : (None, 5),
+                 4 : (None, 5),
+                 }
         
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-        
-        return controls2
+        abstand_links = 10
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+                
+        return controls2,max_breite
             
     def dialog_trenner(self):
         if self.mb.debug: log(inspect.stack)
@@ -514,8 +529,8 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                     trenner_dict.update({t: 0})
              
 
-            controls = self.dialog_trenner_elemente(trenner_dict,listener_CB,listener_URL)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
+            controls,max_breite = self.dialog_trenner_elemente(trenner_dict,listener_CB,listener_URL)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls) 
 
 
             # UEBERGABE AN LISTENER
@@ -629,84 +644,67 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 sel = 0
 
             controls.extend([
-            ('control_{}'.format(s.strip()),"FixedText",      
-                                    'tab0',0,220,20,  
+            ('control_{}'.format(s.strip()),"FixedText",1,      
+                                    'tab0',0,100,20,  
                                     ('Label',),
                                     (shortcuts[s] ,),                                             
                                     {} 
                                     ),  
             0,
-            ('control_Shift{}'.format(s.strip()),"CheckBox",      
-                                    'tab1',0,50,20,    
+            ('control_Shift{}'.format(s.strip()),"CheckBox",1,     
+                                    'tab1',0,20,20,    
                                     ('Label','State'),
                                     ('Shift',shift),       
-                                    {'setActionCommand':'shift+'+s.strip(),'addActionListener':(listener,)} 
+                                    {'setActionCommand':'shift+'+s.strip(),'addActionListener':(listener)} 
                                     ),  
             0,
-            ('control_Ctrl{}'.format(s.strip()),"CheckBox",      
-                                    'tab2',0,50,20,    
+            ('control_Ctrl{}'.format(s.strip()),"CheckBox",1,      
+                                    'tab2',0,20,20,    
                                     ('Label','State'),
                                     ('Ctrl',ctrl),       
-                                    {'setActionCommand':'ctrl+'+s.strip(),'addActionListener':(listener,)} 
+                                    {'setActionCommand':'ctrl+'+s.strip(),'addActionListener':(listener)} 
                                     ), 
             0,
-            ('control_Alt{}'.format(s.strip()),"CheckBox",      
-                                    'tab3',0,40,20,    
+            ('control_Alt{}'.format(s.strip()),"CheckBox",1,      
+                                    'tab3',0,20,20,    
                                     ('Label','State'),
                                     ('Alt',alt),       
-                                    {'setActionCommand':'alt+'+s.strip(),'addActionListener':(listener,)} 
+                                    {'setActionCommand':'alt+'+s.strip(),'addActionListener':(listener)} 
                                     ), 
             0,
-            ('control_List{}'.format(s.strip()),"ListBox",      
+            ('control_List{}'.format(s.strip()),"ListBox",0,      
                                     'tab4',0,50,18,    
                                     ('Border','Dropdown','LineCount'),
                                     (2,True,15),       
-                                    {'addItems':items,'SelectedItems':(sel,),'addItemListener':listener}
+                                    {'addItems':(items,0),'SelectedItems':(sel,),'addItemListener':listener}
                                     ),
-            -4, 
-            ('controlFL{0}'.format(s.strip()),"FixedLine",         
-                                'tab0',0,430,1,   
+            21, 
+            ('controlFL{0}'.format(s.strip()),"FixedLine",0,         
+                                'tab0-max',0,200,1,   
                                 (),
                                 (),                                                  
                                 {} 
                                 ) ,  
         
-            25,
-            
-            
+            6,
             
             ])
-        
-    
-        
-        
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 260
-        tab2 = tab2x = 310
-        tab3 = tab3x = 360
-        tab4 = tab4x = 400
-        
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
 
-        controls2 = []
+        tabs = {
+                 0 : (None, 10),
+                 1 : (None, 5),
+                 2 : (None, 5),
+                 3 : (None, 5),
+                 4 : (None, 0),
+                 }
+         
+        abstand_links = 10
+         
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+         
+        listener.tabs = tabs3
         
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-        
-        return controls2
+        return controls2,max_breite
             
     def dialog_shortcuts(self):
         if self.mb.debug: log(inspect.stack)
@@ -714,8 +712,9 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         try:
             listener = Listener_Shortcuts(self.mb)             
 
-            controls = self.dialog_shortcuts_elemente(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)             
+            controls,max_breite = self.dialog_shortcuts_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls) 
+            self.mb.class_Einstellungen.container_anpassen(self.container,max_breite,max_hoehe,self.fenster)            
             
             listboxen = []
             conts = {}
@@ -746,7 +745,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         controls = (
             10,
-            ('control',"FixedText",         
+            ('control',"FixedText",1,         
                                     'tab0',0,250,20,  
                                     ('Label','FontWeight'),
                                     (LANG.TEMPLATES_ORGANON ,150),                                             
@@ -754,21 +753,21 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                                     ),
             50,
             
-            ('control1',"FixedText",         
+            ('control1',"FixedText",1,         
                                     'tab0',0,250,20,  
                                     ('Label',),
                                     (LANG.VORLAGENORDNER ,),                                             
                                     {} 
                                     ),
             20,
-            ('control2',"Button",        
+            ('control2',"Button",1,        
                                     'tab0',0,150,25,   
                                     ('Label',),
                                     (LANG.ORDNER_AUSSUCHEN,),                                           
-                                    {'setActionCommand':'ordner','addActionListener':(listener,)} 
+                                    {'setActionCommand':'ordner','addActionListener':(listener)} 
                                     ),
             30,
-            ('controlpfad',"FixedText",         
+            ('controlpfad',"FixedText",1,        
                                     'tab0',0,500,20,  
                                     ('Label',),
                                     (LANG.PFAD+': ' + pfad,),                                             
@@ -776,78 +775,65 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                                     ),
             60,
             
-            ('control3',"FixedText",        
+            ('control3',"FixedText",1,        
                                     'tab0',0,400,20,   
                                     ('Label',),
                                     (LANG.AKT_PRJ_ALS_TEMPL,),                                                                            
                                     {} 
                                     ), 
             20,
-            ('controlspeicherntxt',"Edit",        
+            ('controlspeicherntxt',"Edit",0,        
                                     'tab0',0,150,20,   
                                     (),
                                     (),                                                                            
                                     {} 
                                     ), 
-            20,
-            ('control7',"Button",        
+            25,
+            ('control7',"Button",1,        
                                     'tab0',0,150,25,   
                                     ('Label',),
                                     (LANG.SPEICHERN,),                                           
-                                    {'setActionCommand':'speichern','addActionListener':(listener,)} 
+                                    {'setActionCommand':'speichern','addActionListener':(listener)} 
                                     ),
             60,
             
-            ('control5',"FixedText",        
+            ('control5',"FixedText",1,        
                                     'tab0',0,400,20,   
                                     ('Label',),
                                     (LANG.TEMPLATE_LOESCHEN,),                                                                            
                                     {} 
                                     ),              
             20,
-            ('control8',"ListBox",        
+            ('control8',"ListBox",0,       
                                     'tab0',0,150,20,   
                                     ('Border','Dropdown','LineCount'),
                                     (2,True,15),       
-                                    {'addItems':items,'addItemListener':listener}
+                                    {'addItems':(items,0),'addItemListener':listener}
                                     ), 
             0,
-            ('control10',"Button",          
+            ('control10',"Button",1,          
                                     'tab4',0,80,25,    
                                     ('Label',),
                                     (LANG.LOESCHEN,),                                                                         
-                                    {'setActionCommand':'loeschen','addActionListener':(listener,)} 
+                                    {'setActionCommand':'loeschen','addActionListener':(listener)} 
                                     ), 
             
             )
         
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 42
-        tab2 = tab2x = 78
-        tab3 = tab3x = 100
-        tab4 = tab4x = 230
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 1),
+                 1 : (None, 5),
+                 2 : (None, 5),
+                 3 : (None, 5),
+                 4 : (None, 5),
+                 }
         
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
+        abstand_links = 10
         
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-        
-        return controls2
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+                
+        return controls2,max_breite
             
     def dialog_templates(self):
         if self.mb.debug: log(inspect.stack)
@@ -856,8 +842,8 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
             listener = Listener_Templates(self.mb)
 
-            controls = self.dialog_templates_elemente(listener)#trenner_dict,listener_CB,listener_URL)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
+            controls,max_breite = self.dialog_templates_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)
 
 
             # UEBERGABE AN LISTENER
@@ -910,26 +896,27 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         btn_breite = 110
         btn_breite2 = 60
         btn_breite3 = 100
-        
+
+
         controls = [
             10,
              
-            ('controla',"FixedText",         
+            ('controla',"FixedText",1,         
                                     'tab1',0,80,20,  
                                     ('Label','FontWeight'),
                                     (LANG.KATEGORIE ,150),                                             
                                     {} 
                                     ),
             0, 
-            ('controlb',"FixedText",         
+            ('controlb',"FixedText",1,         
                                     'tab2',0,40,20,  
                                     ('Label','FontWeight'),
                                     (LANG.TYP ,150),                                             
                                     {} 
                                     ),
             0, 
-            ('controlc',"FixedText",         
-                                    'tab3',0,250,20,  
+            ('controlc',"FixedText",1,         
+                                    'tab3',0,60,20,  
                                     ('Label','FontWeight'),
                                     (LANG.BREITE ,150),                                             
                                     {} 
@@ -951,28 +938,28 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             controls.extend(
             
                 [
-                 ('control_radio{}'.format(abf),"RadioButton",      
-                                        'tab0',0,20,20,  
-                                        (),
-                                        (),                                             
+                 ('control_radio{}'.format(abf),"RadioButton",1,     
+                                        'tab0',0,10,20,  
+                                        ('VerticalAlign',),
+                                        (1,),                                             
                                         {} 
                                         ),
                  0,
-                 ('control_name{}'.format(abf),"Edit",      
+                 ('control_name{}'.format(abf),"Edit",0,      
                                         'tab1',0,100,20,  
                                         ('Text','MaxTextLen'),
                                         (name ,100+abf),                                             
                                         {'addKeyListener':listener} 
                                         ),
                  0,
-                 ('control_typ{}'.format(abf),"FixedText",      
-                                        'tab2',0,50,20,  
+                 ('control_typ{}'.format(abf),"FixedText",1,      
+                                        'tab2',0,30,20,  
                                         ('Label',),
                                         (getattr(LANG, type[typ]) ,),                                             
                                         {} 
                                         ),
                  0,
-                 ('control_breite{}'.format(abf),"Edit",      
+                 ('control_breite{}'.format(abf),"Edit",0,      
                                         'tab3',0,30,20,  
                                         ('Text','MaxTextLen'),
                                         (breite ,200+abf),                                             
@@ -988,93 +975,93 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
 
         controls.extend([
        'Y=10',
-        ('controld',"FixedText",         
-                                    'tab5',0,250,20,  
+        ('controld',"FixedText",1,          
+                                    'tab5',0,150,20,  
                                     ('Label','FontWeight'),
                                     (LANG.NEUE_KATEGORIE ,150),                                             
                                     {} 
                                     ),
         30,
-        ('controle',"FixedText",         
+        ('controle',"FixedText",1,         
                                     'tab4',0,40,20,  
                                     ('Label',),
                                     (LANG.NAME + ':' ,),                                             
                                     {} 
                                     ),
         0,
-        ('control_txt',"Edit",      
-                                'tab5',0,140,20,  
+        ('control_txt',"Edit",0,      
+                                'tab5-max',0,140,20,  
                                 (),
                                 (),                                             
                                 {} 
                                 ), 
         30, 
-        ('controlf',"FixedText",         
-                                'tab4',0,60,20,  
+        ('controlf',"FixedText",1,         
+                                'tab4',0,30,20,  
                                 ('Label',),
                                 (LANG.TYP + ':' ,),                                             
                                 {} 
                                 ),
         0,
-        ('control_typ',"ListBox",      
+        ('control_typ',"ListBox",0,     
                                 'tab5',0,btn_breite2,20,    
                                 ('Border','Dropdown','LineCount'),
                                 (2,True,15),       
-                                {'addItems':items,'SelectedItems':(0,)}
+                                {'addItems':(items,0),'SelectedItems':(0,)}
                                 ),  
         30,
-        ('controlg',"FixedText",         
-                                'tab4',0,60,20,  
+        ('controlgh',"FixedText",1,         
+                                'tab4',0,30,20,  
                                 ('Label',),
                                 (LANG.BREITE + ':' ,),                                             
                                 {} 
                                 ),
         0,
-        ('control_breite',"Edit",      
+        ('control_breite',"Edit",0,      
                                 'tab5',0,btn_breite2,20,  
                                 (),
                                 (),                                             
                                 {} 
                                 ), 
         30,
-        ('control_neue_kategorie',"Button",      
-                                'tab5',0,btn_breite,25,    
+        ('control_neue_kategorie',"Button",1,      
+                                'tab5-max',0,btn_breite,25,    
                                 ('Label',),
                                 (LANG.NEUE_KATEGORIE,),       
-                                {'setActionCommand':'neue_kategorie','addActionListener':(listener,)} 
+                                {'setActionCommand':'neue_kategorie','addActionListener':(listener)} 
                                 ),
         30,
-        ('controlFa',"FixedLine",         
-                                'tab4',0,190,1,   
+        ('controlFa',"FixedLine",0,        
+                                'tab4x-max',0,190,1,   
                                 (),
                                 (),                                                  
                                 {} 
                                 ) ,  
         10,
         #################################
-        ('controlh',"FixedText",         
+        ('controlh',"FixedText",1,         
                                     'tab5',0,250,20,  
                                     ('Label','FontWeight'),
                                     (LANG.KATEGORIE_VERSCHIEBEN ,150),                                             
                                     {} 
                                     ),
         30,
-        ('control_hoch',"Button",      
-                                'tab6',0,25,25,    
+        ('control_hochxxx',"Button",0,     
+                                'tab5+30',0,25,25,    
                                 ('ImageURL',),
                                 ( url_pfeil_hoch,),   
-                                {'setActionCommand':'hoch','addActionListener':(listener,)} 
+                                {'setActionCommand':'hoch','addActionListener':(listener)} 
                                 ), 
         0,
-        ('control_runter',"Button",      
+        ('control_runterxxx',"Button",0,     
                                 'tab5',0,25,25,    
                                 ('ImageURL',),
                                 ( url_pfeil_runter,),       
-                                {'setActionCommand':'runter','addActionListener':(listener,)} 
+                                {'setActionCommand':'runter','addActionListener':(listener)} 
                                 ), 
         30,
-        ('controlFb',"FixedLine",         
-                                'tab4',0,190,1,   
+        ('controlFb',"FixedLine",0,        
+                                'tab4x-max',0,190,1,   
                                 (),
                                 (),                                                  
                                 {} 
@@ -1082,84 +1069,75 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         ################ Kategorie Loeschen #############
         10,
-        ('control_loeschen',"Button",      
+        ('control_loeschen',"Button",1,      
                                 'tab5',0,btn_breite,25,    
                                 ('Label',),
                                 (LANG.KATEGORIE_LOESCHEN,),       
-                                {'setActionCommand':'loeschen','addActionListener':(listener,)} 
+                                {'setActionCommand':'loeschen','addActionListener':(listener)} 
                                 ),  
         30,
-        ('controlFc',"FixedLine",         
-                                'tab4',0,190,1,   
+        ('controlFc',"FixedLine",0,         
+                                'tab4x-max',0,190,1,   
                                 (),
                                 (),                                                  
                                 {} 
                                 ) ,
         ############# Datum Format ##################
         10, 
-        ('controlg',"FixedText",         
-                                'tab4',0,80,20,  
+        ('controlg',"FixedText",1,        
+                                'tab4x',0,80,20,  
                                 ('Label',),
-                                (LANG.DATUMSFORMAT,),                                             
+                                (LANG.DATUMSFORMAT + ':',),                                             
                                 {} 
                                 ),
         0,
-        ('control_datum_format',"ListBox",      
-                                'tab6',0,btn_breite3,20,    
+        ('control_datum_format',"ListBox",1,      
+                                'tab5+50',0,btn_breite3,20,    
                                 ('Border','Dropdown','LineCount'),
                                 (2,True,15),       
-                                {'addItems':d_items,'SelectedItems':(d_sel,)}
+                                {'addItems':(d_items,0),'SelectedItems':(d_sel,0)}
                                 ),
         30,
-        ('controlFd',"FixedLine",         
-                                'tab4',0,190,1,   
+        ('controlFd',"FixedLine",0,        
+                                'tab4x-max',0,190,1,   
                                 (),
                                 (),                                                  
                                 {} 
                                 ) ,
         ############### UEBERNEHMEN ###################################
         'Y=360',
-        ('control_uebernehmen',"Button",      
-                                'tab5',0,130,25,    
+        ('control_uebernehmen',"Button",1,     
+                                'tab5-max',0,130,25,    
                                 ('Label',),
                                 (LANG.UEBERNEHMEN,),       
-                                {'setActionCommand':'uebernehmen','addActionListener':(listener,)} 
+                                {'setActionCommand':'uebernehmen','addActionListener':(listener)} 
                                 ), 
         
         ])
         
     
         
-        
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 35
-        tab2 = tab2x = 140
-        tab3 = tab3x = 190
-        tab4 = tab4x = 260
-        tab5 = tab5x = 310
-        tab6 = tab6x = 350
-        
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]})
 
-        controls2 = []
         
-        for c in controls:
-            if not isinstance(c, int) and 'Y=' not in c:
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 3),
+                 1 : (100,  10),
+                 2 : (None, 10),
+                 3 : (35,   55),
+                 4 : (None, 5),
+                 5 : (None, 0),
+                 }
         
-        return controls2
+        abstand_links = 10
+        
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+        
+        listener.tabs = tabs3        
+        
+        return controls2,max_breite
+    
+    
             
             
     def dialog_tags(self):
@@ -1170,9 +1148,10 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
             listener = Listener_Tags(self.mb,self.container,self)             
 
-            controls = self.dialog_tags_elemente(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)             
-            
+            controls,max_breite = self.dialog_tags_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)             
+            self.mb.class_Einstellungen.container_anpassen(self.container,max_breite,max_hoehe,self.fenster)
+ 
             rows = {}
             
             # Controls in Hauptfenster eintragen
@@ -1194,7 +1173,8 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                         rows[number] = {name:i}
                         
                     
-            
+            # Radiobuttons separat einfuegen, damit sie
+            # tatsaechlich als Radiobutton funktionieren
             for c,i in ctrls.items():
                 if 'radio' in c:
                     self.container.addControl(c,ctrls[c])
@@ -1228,7 +1208,10 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
         except:
             log(inspect.stack,tb())
-            
+    
+    
+
+    
 
 from com.sun.star.awt.Key import RETURN
 from com.sun.star.awt import XActionListener,XKeyListener,XFocusListener
@@ -1240,6 +1223,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         self.ctrls_typen = 'radio','name','typ','breite'
         self.ctrls_tag_neu = None
         self.auswahl_item_listener = auswahl_item_listener
+        self.tabs = None
         
         self.types = {
              LANG.TEXT : 'txt',
@@ -1374,55 +1358,45 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         controls = (
             
                 [
-                 ('control_radio{}'.format(row),"RadioButton",      
+                 ('control_radio{}'.format(row),"RadioButton",0,      
                                         'tab0',0,20,20,  
-                                        (),
-                                        (),                                             
+                                        ('VerticalAlign',),
+                                        (1,),                                              
                                         {} 
                                         ),
                  0,
-                 ('control_name{}'.format(row),"Edit",      
+                 ('control_name{}'.format(row),"Edit",0,      
                                         'tab1',0,100,20,  
                                         ('Text','MaxTextLen'),
                                         (name ,100+row),                                             
                                         {'addKeyListener':listener} 
                                         ),
                  0,
-                 ('control_typ{}'.format(row),"FixedText",      
-                                        'tab2',0,50,20,  
+                 ('control_typ{}'.format(row),"FixedText",1,      
+                                        'tab2',0,30,20,  
                                         ('Label',),
                                         (getattr(LANG, type[typ]) ,),                                             
                                         {} 
                                         ),
                  0,
-                 ('control_breite{}'.format(row),"Edit",      
+                 ('control_breite{}'.format(row),"Edit",0,      
                                         'tab3',0,30,20,  
                                         ('Text','MaxTextLen'),
                                         (str(breite) ,200+row),                                             
                                         {'addKeyListener':listener} 
                                         ),
                  ])
-         
-        tab0 = tab0x = 20
-        tab1 = tab1x = 35
-        tab2 = tab2x = 140
-        tab3 = tab3x = 190
-        tab4 = tab4x = 260
-        tab5 = tab5x = 310
-        tab6 = tab6x = 350
-        
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]})
 
         controls2 = []
         
         for c in controls:
             if not isinstance(c, int) and 'Y=' not in c:
+                
                 c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
+                taba,tabb = c2[3],0
+                nr = int(re.findall(r'\d+', taba )[0]) 
+                c2[3] = self.tabs[nr] + int(tabb)
+                    
                 controls2.append(c2)
             else:
                 controls2.append(c)
@@ -1438,7 +1412,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             number = str(len(self.rows)) 
             
             controls = self.neue_kategorie_elemente(name,typ,breite,int(number))
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)             
+            ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)             
             
             y = self.rows[ str( len(self.rows)-1 ) ]['y'] + 22
             
@@ -1477,27 +1451,22 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             for r in abf:
                 
                 controls.extend([
-                ('control_radio{}'.format(r),"RadioButton",      
-                                20,y,20,20,  
-                                (),
-                                (),                                             
+                ('control_radio{}'.format(r),"RadioButton",0,      
+                                10,y,20,20,  
+                                ('VerticalAlign',),
+                                (1,),                                             
                                 {} 
                                 ),
                 
                 ])
                 y += 22
                 
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls) 
+            ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls) 
             
             # Controls in Hauptfenster eintragen
             for c,i in ctrls.items():
                 self.container.addControl(c,ctrls[c])
-                number = filter(str.isdigit, c)
                 number = re.findall(r'\d+', c)[-1]
-#                 if number == []:
-#                     continue
-#                 else:
-#                     number = number[-1]
                 self.rows[str(number)]['radio'] = ctrls[c]
             
         except:
@@ -1695,6 +1664,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
     def disposing(self,ev):
         return False
 
+
 class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
     def __init__(self,mb,control_log,control_arg,control_filepath):
         self.mb = mb
@@ -1821,8 +1791,8 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         
-        filter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+        ofilter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
         
         if not ok:
             return
@@ -2056,46 +2026,46 @@ class Uebersetzungen():
         
         controls = [
             10,
-            ('control_ref',"FixedText",        
+            ('control_ref',"FixedText",0,        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Label',),
                                     (LANG.REFERENZ,),                  
                                     {} 
                                     ), 
             20,
-            ('control_ref_lb',"ListBox",        
+            ('control_ref_lb',"ListBox",0,        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Border','Dropdown','LineCount'),
                                     (2,True,15),       
-                                    {'addItems':items,'SelectedItems':(sel,),
+                                    {'addItems':(items,0),'SelectedItems':(sel,),
                                      'addItemListener':button_listener}
                                     ), 
             50,
-            ('control_odl',"FixedText",        
+            ('control_odl',"FixedText",0,        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Label',),
                                     (LANG.ORG_SPRACHDATEI_LADEN,),                  
                                     {} 
                                     ), 
             20,
-            ('control_orga',"ListBox",        
+            ('control_orga',"ListBox",0,        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Border','Dropdown','LineCount'),
                                     (2,True,15),       
-                                    {'addItems':tuple(organon_lang_files),
+                                    {'addItems':(tuple(organon_lang_files),0),
                                      'SelectedItems':(0,),
                                      'addItemListener':button_listener}
                                     ), 
             50,
-            ('control_bdl',"Button",        
+            ('control_bdl',"Button",0,        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Label',),
                                     (LANG.BENUTZER_DATEI_LADEN,),                  
                                     {'setActionCommand':'nutzer_laden',
-                                     'addActionListener':(button_listener,)}
+                                     'addActionListener':(button_listener)}
                                     ), 
             60,
-            ('control_txt',"Edit",        
+            ('control_txt',"Edit",0,        
                                     fensterbreite - tab2,0,breite,25,    
                                     ('HelpText',),
                                     (LANG.EXPORTNAMEN_EINGEBEN,),                  
@@ -2103,15 +2073,15 @@ class Uebersetzungen():
                                     ), 
             
             30,
-            ('control_speichern',"Button",        
+            ('control_speichern',"Button",0,       
                                     fensterbreite - tab2,0,breite,25,    
                                     ('Label',),
                                     (LANG.UEBERSETZUNG_SPEICHERN,),                  
                                     {'setActionCommand':'speichern',
-                                     'addActionListener':(button_listener,)}
+                                     'addActionListener':(button_listener)}
                                     ),  
             100,
-            ('control_path',"Edit",        
+            ('control_path',"Edit", 0,       
                                     fensterbreite - tab2,0,breite,25,     
                                     ('Text','TextColor','MultiLine',
                                     'Border','BackgroundColor'), 
@@ -2132,7 +2102,7 @@ class Uebersetzungen():
         button_listener = Uebersetzung_Button_Listener(self.mb,ctrls_ueber,lang_akt,self,fenster_cont)        
         
         controls = self.dialog_uebersetzung_elemente(button_listener,organon_lang_files)
-        ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)                
+        ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)                
           
         # Controls in Hauptfenster eintragen
         for c in ctrls:
@@ -2161,7 +2131,7 @@ class Uebersetzungen():
         fensterhoehe = top_h - prozent
         
         PosSize = 0,0,20,fensterhoehe
-        scrollb = self.mb.erzeuge_Scrollbar(self.cont,PosSize,self.container)
+        scrollb = self.mb.class_Fenster.erzeuge_Scrollbar(self.cont,PosSize,self.container)
         self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.cont)
 
                     
@@ -2175,7 +2145,7 @@ class Uebersetzungen():
         fensterbreite = 800
         posSize = (self.mb.win.Size.Width,prozent / 2,fensterbreite,fensterhoehe)
 
-        win, cont = self.mb.erzeuge_Dialog_Container(posSize)
+        win, cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
         cont.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
         container, model = self.mb.createControl(self.mb.ctx, "Container", 20,0,fensterbreite - 220, 1000, (), ())
@@ -2430,18 +2400,7 @@ class Scroll_Listener (unohelper.Base,XAdjustmentListener):
     def disposing(self,ev):
         return False
     
-    
-from com.sun.star.awt import XActionListener,XItemListener
-class Window_Disposer(unohelper.Base, XActionListener):
-    def __init__(self,win,mb):
-        if mb.debug: log(inspect.stack)
-        self.win = win 
-        self.mb = mb     
-    def actionPerformed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        self.win.dispose()
-    def disposing(self,ev):
-        pass  
+ 
     
 class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener):
     def __init__(self,mb,ctrls_ueber,lang_akt,class_Uebersetzung,fenster_cont):
@@ -2570,9 +2529,9 @@ class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener
         
         if use_path:
             pfad = os.path.join(self.mb.path_to_extension,'languages')
-            datei_pfad = self.mb.class_Funktionen.filepicker(filepath=pfad,filter='py')
+            datei_pfad = self.mb.class_Funktionen.filepicker(filepath=pfad,ofilter='py')
         else:
-            datei_pfad = self.mb.class_Funktionen.filepicker(filter='py')
+            datei_pfad = self.mb.class_Funktionen.filepicker(ofilter='py')
         if datei_pfad:
             lang_user,ok = self.class_Uebersetzung.lade_modul_aus_datei(datei_pfad)
             

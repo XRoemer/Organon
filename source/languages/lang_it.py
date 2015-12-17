@@ -214,6 +214,7 @@ ZEIT2 = u'''Ora:'''
 DATUM = u'''Data'''
 
 # TABS
+TABS = u'''Schede'''
 ERZEUGE_NEUEN_TAB_AUS = u'''Creare nuova Scheda da:'''
 MEHRFACHE_AUSWAHL = u'''(è possibile la selezione multipla)'''
 TAGS_SEITENLEISTE = u'''etichette pannello laterale'''

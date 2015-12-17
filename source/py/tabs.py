@@ -21,7 +21,7 @@ class Tabs():
 
         try:
             self.berechne_ordinale_in_baum_und_tab(in_tab_einfuegen)
-            self.erzeuge_Fenster(in_tab_einfuegen)    
+            self.dialog_tabs(in_tab_einfuegen)   
         except:
             log(inspect.stack,tb())
     
@@ -218,29 +218,14 @@ class Tabs():
         return ordinale
     
     
-    def erzeuge_Fenster(self,in_tab_einfuegen = False):
+    def dialog_tabs_elemente(self,button_listener,in_tab_einfuegen = False):
         if self.mb.debug: log(inspect.stack)
         
-        if in_tab_einfuegen:
-            hoehe = 640
-        else:
-            hoehe = 690
         
-        X = self.mb.dialog.Size.Width
-        posSize = X,30,310,hoehe
-        
-        win,cont = self.mb.erzeuge_Dialog_Container(posSize)
-        
-        button_listener = Auswahl_Button_Listener(self.mb,win,cont,in_tab_einfuegen)
 
-        x1 = 10
-        x2 = 280
-        x3 = 10
-        x4 = 20
-        x5 = 160
         
-        width = 120
-        width2 = 80
+        width = 20
+        width2 = 20
         
         y = 20
         
@@ -249,326 +234,328 @@ class Tabs():
             Ueberschrift = LANG.IMPORTIERE_IN_TAB
         else:
             Ueberschrift = LANG.ERZEUGE_NEUEN_TAB_AUS
-        
-        prop_names = ('Label',)
-        prop_values = (Ueberschrift,)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 200, 20, prop_names, prop_values)  
-        cont.addControl('Titel', control)
-        model.FontWeight = 200.0
-        
-        y += 20
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.MEHRFACHE_AUSWAHL,1)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 200, 20, prop_names, prop_values)  
-        cont.addControl('R1', control)
-
-        
-        #################### EIGENE AUSWAHL ########################
-        y += 40
-        
-        prop_names = ('Label','State')
-        prop_values = (LANG.EIGENE_AUSWAHL,0)
-        control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
-        cont.addControl('Eigene_Auswahl_use', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        #control.Enable = False
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.AUSWAHL,)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x5, y, width2, 20, prop_names, prop_values)  
-        cont.addControl('Eigene_Auswahl', control)
-        control.addActionListener(button_listener) 
-        control.setActionCommand('Eigene Auswahl')
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        y += 30
-        
-        
-        control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x4, y, 210, 20, (), ())  
-        cont.addControl('Line', control)
-        
-        #####################
 
 
-
-
-        
-        #################### TAGS SEITENLEISTE ########################
-        y += 30
-        
-        prop_names = ('Label',)
-        prop_values = (u'V',)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x2, y- 2, 16, 16, prop_names, prop_values)  
-        model.HelpText = LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED
-        control.addActionListener(button_listener) 
-        control.setActionCommand('V')
-        cont.addControl('but1_Seitenleiste', control)
-        
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.TAGS_SEITENLEISTE,)
-        control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
-        cont.addControl('CB_Seitenleiste', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.AUSWAHL,)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x5, y, width2, 20, prop_names, prop_values) 
-        control.addActionListener(button_listener) 
-        control.setActionCommand('Tags Seitenleiste')
-        cont.addControl('but2_Seitenleiste', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        y += 30
-        
-        prop_names = ('Label',)
-        prop_values = (u'V',)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x4, y- 2, 16, 16, prop_names, prop_values)  
-        model.HelpText = LANG.TAB_HELP_TEXT
-        control.addActionListener(button_listener) 
-        control.setActionCommand('V')
-        cont.addControl('but3_Seitenleiste', control)
-        
-        
-        prop_names = ('Label',)
-        prop_values = ('',)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", x4 + 20, y, 200, 20, prop_names, prop_values)  
-        cont.addControl('txt_Seitenleiste', control)
-        
-        
-        
-        
-        y += 30
-        
-        
-        control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x4, y, 210, 20, (), ())  
-        cont.addControl('Line', control)
-                
-        ####################
-        
-        #################### TAGS BAUMANSICHT ########################
-        y += 30
-        
-        prop_names = ('Label',)
-        prop_values = (u'V',)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x2, y- 2, 16, 16, prop_names, prop_values)  
-        model.HelpText = LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED
-        control.addActionListener(button_listener) 
-        control.setActionCommand('V')  
-        cont.addControl('but1_Baumansicht', control)      
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.TAGS_BAUMANSICHT,)
-        control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
-        cont.addControl('CB_Baumansicht', control)
-        control.Enable = True
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.AUSWAHL,)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x5, y, width2, 20, prop_names, prop_values) 
-        control.addActionListener(button_listener) 
-        control.setActionCommand('Tags Baumansicht')
-        cont.addControl('but2_Baumansicht', control)
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        y += 30        
-        
-        control, model = self.mb.createControl(self.mb.ctx, "Container", x4, y, 200, 20, (), ())  
-        cont.addControl('icons_Baumansicht', control)
-        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
-        
-        
-        y += 30
-        
-        
-        control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x4, y, 210, 20, (), ())  
-        cont.addControl('Line', control)
-                
-        ####################
-        
-        #################### SUCHE ########################
-        y += 30
-        
-        prop_names = ('Label',)
-        prop_values = (u'V',)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", x2, y- 2, 16, 16, prop_names, prop_values)  
-        model.HelpText = LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED
-        control.addActionListener(button_listener) 
-        control.setActionCommand('V')
-        cont.addControl('but1_Suche', control)
-        
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.SUCHE,)
-        control, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, width, 20, prop_names, prop_values)  
-        cont.addControl('CB_Suche', control)
-        control.Enable = False
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.AUSWAHL,)
-        control, model = self.mb.createControl(self.mb.ctx, "Edit", x5, y, width2, 20, prop_names, prop_values) 
-        control.addTextListener(button_listener) 
-        cont.addControl('edit_Suche', control)
-        
-        y += 30
-        
-        prop_names = ('Label',)
-        prop_values = ('',)
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", x4, y, 200, 20, prop_names, prop_values)  
-        cont.addControl('txt_Suche', control)
-        
-        
-        
-        y += 30
-        
-        
-        control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x4, y, 210, 20, (), ())  
-        cont.addControl('Line', control)
-                
         #################### nach Zeit / Datum ordnen ####################################
         tags = self.mb.tags
         kat_zeit = tuple(v[0] for i,v in tags['nr_name'].items() if v[1] == 'time')
         kat_datum = tuple(v[0] for i,v in tags['nr_name'].items() if v[1] == 'date')
+        
+        
+        enable_zeit = kat_zeit != ()
+        sel_zeit = int(kat_zeit != ())
+        
+        enable_datum  = kat_datum != ()
+        sel_datum = int(kat_datum != ())
               
-        y += 50
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.ZEITLICH_ANORDNEN,)
-        control0, model = self.mb.createControl(self.mb.ctx, "CheckBox", x3, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('Zeit', control0)
-        self.mb.kalkuliere_und_setze_Control(control0,'w')
-                
-        y += 20
-        
-        
-        prop_names = ('Border','Dropdown','LineCount',)
-        prop_values = (2,True,5)
-        control2, model = self.mb.createControl(self.mb.ctx, "ListBox", x5, y, width2, 18, prop_names, prop_values)  
-        control2.addItems(kat_zeit,0)
-        cont.addControl('zeit_lb', control2)
+        enable_zd = enable_datum or enable_zeit
 
-        y += 20
         
-        prop_names = ('Border','Dropdown','LineCount',)
-        prop_values = (2,True,5)
-        control4, model = self.mb.createControl(self.mb.ctx, "ListBox", x5, y, width2, 18, prop_names, prop_values)  
-        control4.addItems(kat_datum,0)
-        cont.addControl('datum_lb', control4)
-                
-        y += 40
         
-        prop_names = ('Label',)
-        prop_values = (LANG.UNAUSGEZEICHNETE,)
-        control6, model = self.mb.createControl(self.mb.ctx, "CheckBox", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('Zeit2', control6)
-        self.mb.kalkuliere_und_setze_Control(control6,'w')
+        abst1 = 15
+        abst2 = abst1 + 20
+        
+        controls = [
+        
+        10,
+        ('Titel',"FixedText",1, 
+                        'tab0', 0, 20, 20,
+                        ('Label','FontWeight'),
+                        (Ueberschrift,150),
+                        {} 
+                        ),
+        20,
+        ('R1',"FixedText",1, 
+                        'tab0', 0, 200, 20, 
+                        ('Label',),
+                        (LANG.MEHRFACHE_AUSWAHL,),
+                        {} 
+                        ),
+        #################### EIGENE AUSWAHL ########################
+        40,
+        ('Eigene_Auswahl_use',"CheckBox",1, 
+                        'tab0', 0, width, 20,  
+                        ('Label','State'),
+                        (LANG.EIGENE_AUSWAHL,0),
+                        {} 
+                        ),
+        0,
+        ('Eigene_Auswahl',"Button",1, 
+                        'tab1', 0, width2, 20,  
+                        ('Label',),
+                        (LANG.AUSWAHL,),
+                        {'setActionCommand':'Eigene Auswahl','addActionListener':(button_listener)} 
+                        ),
+        30,
+        ('Line1',"FixedLine",0, 
+                        'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
+                        (), 
+                        (),
+                        {} 
+                        ),
+        #################### TAGS SEITENLEISTE ########################
+        30,
+        ('but1_Seitenleiste',"Button",0, 
+                        'tab2', 0, 16, 16, 
+                        ('Label','HelpText'),
+                        (u'V',LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED),
+                        {'setActionCommand':'V','addActionListener':(button_listener)} 
+                        ),
+        0,
+        ('CB_Seitenleiste',"CheckBox",1, 
+                        'tab0', 0, width, 20,  
+                        ('Label',),
+                        (LANG.TAGS_SEITENLEISTE,),
+                        {} 
+                        ),
+        0,
+        ('but2_Seitenleiste',"Button",1, 
+                        'tab1', 0, width2, 20, 
+                        ('Label',),
+                        (LANG.AUSWAHL,),
+                        {'setActionCommand':'Tags Seitenleiste','addActionListener':(button_listener)} 
+                        ),
+        30,
+        ('but3_Seitenleiste',"Button",0, 
+                        'tab0x+{}'.format(abst1), 0, 16, 16,  
+                        ('Label','HelpText'),
+                        (u'V',LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V','addActionListener':(button_listener)} 
+                        ),
+        0,
+        ('txt_Seitenleiste',"FixedText",0, 
+                        'tab0x+{}'.format(abst1+20), 0, 200, 50,  
+                        ('Label','MultiLine'),
+                        ('',True),
+                        {} 
+                        ),
+        45,
+        ('Line2',"FixedLine",0, 
+                        'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
+                        (), 
+                        (),
+                        {} 
+                        ),  
+        #################### TAGS BAUMANSICHT ########################
+        30,
+        ('but1_Baumansicht',"Button",0, 
+                        'tab2', 0, 16, 16,  
+                        ('Label','HelpText'),
+                        (u'V',LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED),
+                        {'setActionCommand':'V','addActionListener':(button_listener)}
+                        ), 
+        0,
+        ('CB_Baumansicht',"CheckBox",1, 
+                        'tab0', 0, width, 20,  
+                        ('Label','Enable'),
+                        (LANG.TAGS_BAUMANSICHT,True),
+                        {} 
+                        ),
+        ('but2_Baumansicht',"Button",1, 
+                        'tab1', 0, width2, 20, 
+                        ('Label',),
+                        (LANG.AUSWAHL,),
+                        {'setActionCommand':'Tags Baumansicht','addActionListener':(button_listener)}
+                        ),
+        30,
+        ('but3_Baumansicht',"Button",0, 
+                        'tab0x+{}'.format(abst1), 0, 16, 16,  
+                        ('Label','HelpText'),
+                        (u'V',LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V','addActionListener':(button_listener)} 
+                        ),  
+        0,      
+        ('icons_Baumansicht',"Container",0, 
+                        'tab0x+{}-max'.format(abst1+20), 0, 200, 20, 
+                        (), 
+                        (),
+                        {}
+                        ),  
+        30,
+        ('Line3',"FixedLine",0, 
+                        'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
+                        (), 
+                        (),
+                        {}
+                        ),
+        #################### SUCHE ########################
+        30,
+        ('but1_Suche',"Button",0, 
+                        'tab2', 0, 16, 16,  
+                        ('Label','HelpText'),
+                        (u'V',LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED),
+                        {'setActionCommand':'V','addActionListener':(button_listener),'Enable':False}
+                        ),
+        0,
+        ('CB_Suche',"CheckBox",1, 
+                        'tab0', 0, width, 20,  
+                        ('Label',),
+                        (LANG.SUCHE,),
+                        {'Enable':False} 
+                        ),
+        0,
+        ('edit_Suche',"Edit",0, 
+                        'tab1-tab1-E', 0, width2, 20, 
+                        ('Label',),
+                        (LANG.AUSWAHL,),
+                        {'addTextListener':(button_listener),'Enable':False }
+                        ),
+        20,
+        ('txt_Suche',"FixedText",1, 
+                        'tab0x+{}'.format(abst1), 0, 200, 20,  
+                        ('Label',),
+                        ('',),
+                        {'Enable':False} 
+                        ),
+        20,
+        ('Line4',"FixedLine",0, 
+                        'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
+                        (), 
+                        (),
+                        {}
+                        ),  
+        ####################################################################
+        50,
+        ('Zeit',"CheckBox",1, 
+                        'tab0', 0, 290, 20,  
+                        ('Label',),
+                        (LANG.ZEITLICH_ANORDNEN,),
+                        {'Enable':enable_datum or enable_zeit} 
+                        ),        
         
         # RadioButtons
-        
-        y -= 60
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.NUTZE_ZEIT,)
-        control1, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('z1', control1)
-        
-        self.mb.kalkuliere_und_setze_Control(control1,'w')
-        
-        y += 20
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.NUTZE_DATUM,)
-        control3, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('z2', control3)
-        self.mb.kalkuliere_und_setze_Control(control3,'w')
-        
-        y += 20
-        
-        prop_names = ('Label',)
-        prop_values = (LANG.NUTZE_ZEIT_UND_DATUM,)
-        control5, model = self.mb.createControl(self.mb.ctx, "RadioButton", x4 + 7, y, 290, 20, prop_names, prop_values)  
-        cont.addControl('z3', control5)
-        self.mb.kalkuliere_und_setze_Control(control5,'w')
-        
-        
-        if kat_zeit != ():
-            control1.State = 1
-            control2.selectItem(kat_zeit[0],True)
-        else:
-            control1.setEnable(False)
-            control2.setEnable(False)
-            
-        if kat_datum != ():
-            control4.selectItem(kat_datum[0],True)
-            if kat_zeit == ():
-                control3.State = 1
-        else:
-            control3.setEnable(False)
-            control4.setEnable(False)
-            
-        if kat_datum == () and kat_zeit == ():
-            control0.setEnable(False)
-            control5.setEnable(False)
-            control6.setEnable(False)
-        
-        
-        y += 40
-        
-        y += 30
-        
+        30,
+        ('z1',"RadioButton",1, 
+                        'tab0x+{}'.format(abst1), 0, 30, 20, 
+                        ('Label','State'),
+                        (LANG.NUTZE_ZEIT,int(enable_zeit)) ,
+                        {'Enable':enable_zeit}
+                        ),
+        20,
+        ('z2',"RadioButton",1, 
+                        'tab0x+{}'.format(abst1), 0, 30, 20,
+                        ('Label','State'),
+                        (LANG.NUTZE_DATUM,int(enable_datum and not enable_zeit)),
+                        {'Enable':enable_datum}
+                        ),      
+        20,
+        ('z3',"RadioButton",1, 
+                        'tab0x+{}'.format(abst1), 0, 30, 20,  
+                        ('Label',),
+                        (LANG.NUTZE_ZEIT_UND_DATUM,),
+                        {'Enable':enable_datum and enable_zeit}
+                        ),
+        -40,
+        ('zeit_lb',"ListBox",1, 
+                        'tab1-tab1-E', 0, width2, 18,  
+                        ('Border','Dropdown','LineCount',),
+                        (2,True,5),
+                        {'addItems':(kat_zeit,0),'SelectedItems':(0,),'Enable': enable_zeit}
+                        ),
+        20,
+        ('datum_lb',"ListBox",1, 
+                        'tab1-tab1-E', 0, width2, 18, 
+                        ('Border','Dropdown','LineCount',),
+                        (2,True,5), 
+                        {'addItems':(kat_datum,0),'SelectedItems':(0,),'Enable':enable_datum}
+                        ),
+        50,
+        ('Zeit2',"CheckBox",1, 
+                        'tab0x+{}'.format(abst1), 0, 20, 20, 
+                        ('Label',),
+                        (LANG.UNAUSGEZEICHNETE,), 
+                        {'Enable':enable_datum or enable_zeit}
+                        ),
+        20,
         ###########################  TRENNER #####################################################
-        control, model = self.mb.createControl(self.mb.ctx, "FixedLine", x1, y, 290, 20, (), ())  
-        cont.addControl('Line', control)
+        ('Line5',"FixedLine",0, 
+                        'tab0x-max', 0, 50, 20, 
+                        (), 
+                        (),
+                        {}
+                        ),  
         
+        ]
         
         if not in_tab_einfuegen:
-            y += 30
             
-            prop_names = ('Label',)
-            prop_values = (LANG.TABNAME,)
-            control, model = self.mb.createControl(self.mb.ctx, "FixedText", x1, y, 80, 20, prop_names, prop_values)  
-            cont.addControl('tab_name_eingabe', control)
-            self.mb.kalkuliere_und_setze_Control(control,'w')
+            controls.extend([
+            30,
             
-            y += 20
             
-            prop_names = ('Text',)
-            prop_values = ('Tab %s' %str(len(self.mb.tabsX.Hauptfelder)+1),)
-            control, model = self.mb.createControl(self.mb.ctx, "Edit", x3, y, width2, 20, prop_names, prop_values) 
-            cont.addControl('tab_name', control)
+            ('tab_name_eingabe',"FixedText",1, 
+                            'tab0', 0, 80, 20,  
+                            ('Label',),
+                            (LANG.TABNAME,),
+                            {}
             
-        y += 50
+            
+            ),
+            20,
+            
+            
+            ('tab_name',"Edit",0, 
+                            'tab0-tab1', 0, width2, 20, 
+                            ('Text',),
+                            ('Tab %s' %str(len(self.mb.tabsX.Hauptfelder)+1),),
+                            {}
+                            ),
+            
+
+            ])
+            
+        controls.extend([
+        50,
+        ('but_ok',"Button",1,
+                        'tab1-tab2', 0, width2, 30, 
+                        ('Label',),
+                        (LANG.OK,), 
+                        {'setActionCommand':'ok_tab' if in_tab_einfuegen else 'ok','addActionListener':(button_listener)}
+                        ),
+        20,
+        ])
+
+
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 0),
+                 1 : (None, 20),
+                 2 : (None, 5),
+                 }
         
-        prop_names = ('Label',)
-        prop_values = (LANG.OK,)
-        control, model = self.mb.createControl(self.mb.ctx, "Button", 210, y, width2, 30, prop_names, prop_values)  
-        control.addActionListener(button_listener)  
-        if in_tab_einfuegen:
-            control.setActionCommand('ok_tab')
-        else:          
-            control.setActionCommand('ok')
-        cont.addControl('but_ok', control)
+        abstand_links = 10
         
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)    
+        
+        return controls2,max_breite
         
     
+    def dialog_tabs(self,in_tab_einfuegen):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
 
-        
-        
+            button_listener = Auswahl_Button_Listener(self.mb,in_tab_einfuegen)
+
+            controls,max_breite = self.dialog_tabs_elemente(button_listener,in_tab_einfuegen)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)
+
+            X = self.mb.dialog.Size.Width
+            posSize = X,30,max_breite,max_hoehe
+            
+            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            button_listener.win = win
+            button_listener.fenster_cont = cont
+            
+            # Controls in Hauptfenster eintragen
+            for c in ctrls:
+                cont.addControl(c,ctrls[c])
+            
+        except:
+            log(inspect.stack,tb())
+            
+    
  
-
-        
-    
     def sortiere_ordinale(self,ordinale):
         if self.mb.debug: log(inspect.stack)
         
@@ -673,11 +660,11 @@ class Tabs():
 
 from com.sun.star.awt import XActionListener,XTextListener
 class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
-    def __init__(self,mb,win,fenster_cont,in_tab_einfuegen = False):
+    def __init__(self,mb,in_tab_einfuegen = False):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.win = win
-        self.fenster_cont = fenster_cont
+        self.win = None
+        self.fenster_cont = None
         self.in_tab_einfuegen = in_tab_einfuegen
         
         
@@ -825,7 +812,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         x,y = self.get_fenster_position(ev)
         posSize = (x,y,breite + 20,400)
         
-        win,cont = self.mb.erzeuge_Dialog_Container(posSize)   
+        win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)   
                     
         cont.addControl('ausgewaehlte_XXX', control)
         cont.addControl('ausgewaehlte_YYY', controlT2)
@@ -879,7 +866,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             x,y = self.get_fenster_position(ev)
             posSize = (x,y,970,400)
             
-            win,cont = self.mb.erzeuge_Dialog_Container(posSize)
+            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
 
             sammlung = self.mb.tags['sammlung']
             tag_panels = [[i,v[0]] for i,v in self.mb.tags['nr_name'].items() if v[1] == 'tag']
@@ -1023,7 +1010,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
          fenster,
          fenster_cont,
          control_innen,
-         ctrls) = self.mb.class_Funktionen.erzeuge_treeview_mit_checkbox(
+         ctrls) = self.mb.class_Fenster.erzeuge_treeview_mit_checkbox(
                                                                 tab_name=tab_name,
                                                                 pos=pos,
                                                                 auswaehlen=True)
@@ -1250,14 +1237,11 @@ class TabsX():
         self.breite_sichtbar -= 2 * self.kante
         self.tab_listener = Tab_Leiste_Listener(self.mb,self.Hauptfelder,self.organon_fenster)
         
-#         xml_tree = self.mb.props['ORGANON'].xml_tree
-#         root = xml_tree.getroot()
-#         prj_ord = root.find(".//*[@Art='prj']").tag
         self.prj_ord = 'nr0'
         
         self.tableiste,tab_model = self.mb.createControl(self.mb.ctx,'Container',0,0,
                                     self.breite_sichtbar + 2 * self.kante,0,
-                                   ('BackgroundColor',),(KONST.FARBE_GLIEDERUNG,))
+                                   ('BackgroundColor',),(KONST.FARBE_TABS_TRENNER,))
         return self.tableiste
     
     def erzeuge_neuen_tab(self,tab_name,loesche=False):
@@ -1355,8 +1339,8 @@ class TabsX():
                     ('Label','Border','BackgroundColor',
                      'TextColor',
                      'Align','VerticalAlign'),
-                    (tab_name,0,KONST.FARBE_HF_HINTERGRUND,
-                     KONST.FARBE_MENU_SCHRIFT,
+                    (tab_name,0,KONST.FARBE_TABS_HINTERGRUND,
+                     KONST.FARBE_TABS_SCHRIFT,
                      1,1))
         
         ctrl.addMouseListener(self.tab_listener)
@@ -1454,14 +1438,16 @@ class TabsX():
                 neu.setVisible(True)
                 
                 tab_icon = self.tableiste.getControl(tab_name)
-                tab_icon.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
+                tab_icon.Model.BackgroundColor = KONST.FARBE_TABS_SEL_HINTERGRUND
+                tab_icon.Model.TextColor = KONST.FARBE_TABS_SEL_SCHRIFT
                 
                 if not wurde_geloescht:
                     alt = self.Hauptfelder[T.AB]
                     alt.setVisible(False)
     
                     tab_icon_alt = self.tableiste.getControl(T.AB)
-                    tab_icon_alt.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+                    tab_icon_alt.Model.BackgroundColor = KONST.FARBE_TABS_HINTERGRUND
+                    tab_icon_alt.Model.TextColor = KONST.FARBE_TABS_SCHRIFT
                 
                 if wurde_geloescht:
                     pass

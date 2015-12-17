@@ -238,7 +238,7 @@ class Baumansicht():
         Height = self.mb.win.Size.Height - MBHoehe - tableiste_hoehe
         PosSize = 0,MBHoehe,0,Height
         
-        control = self.mb.erzeuge_Scrollbar(win,PosSize,control_innen)
+        control = self.mb.class_Fenster.erzeuge_Scrollbar(win,PosSize,control_innen)
         
 
     def korrigiere_scrollbar(self):
@@ -280,7 +280,7 @@ class Baumansicht():
                 nav_cont.setPosSize(0, 0,0,0,2)
                 # Mausradlistener ausschalten
                 self.mb.mausrad_an = False
-        #pd()
+        
         
     # Nur fuers Debugging
     def finde_falschen_bereich(self):
@@ -1948,7 +1948,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             posSize = x+20,y,BREITE +50,HOEHE +10
             
             # Fenster erzeugen
-            win,cont = self.mb.erzeuge_Dialog_Container(posSize,1+16)
+            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,1+16)
             
             # Listener fuers Dispose des Fensters
             from menu_bar import Schliesse_Menu_Listener

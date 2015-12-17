@@ -51,7 +51,10 @@ if load_reload:
 def pydevBrk():  
     # adjust your path 
     if platform == 'linux':
-        sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc')  
+        # Ubuntu
+        #sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc') 
+        # Fedora
+        sys.path.append('/root/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc')     
     else:
         sys.path.append(r'C:/Users/Homer/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc')  
     from pydevd import settrace
@@ -237,7 +240,12 @@ class Take_Over_Old_Settings():
                 else:
                     # hier werden nur in b vorhandene keys gesetzt
                     # daher werden auch alte designs mit eigenem Namen ignoriert
-                    pass
+                    
+                    # nur vorhandene shortcuts werden in den dict eingetragen. Daher
+                    # existiert in a kein key von b und muss hier gesetzt werden.
+                    if 'shortcuts' in path:
+                        a[key] = b[key]
+                    
             
             return a
         except Exception as e:
@@ -290,7 +298,7 @@ if settings_orga_prev != None:
     # in den Settings hinzukommen, ist dies eine sichere Methode, bereits gesetzte Settings
     # zu uebernehmen, waehrend die neuen ihren default-Wert aus der Installations Datei behalten.
     # Nicht mehr benoetigte Settings werden entfernt.
-
+    
     neuer_dict = TO().merge(settings_orga,settings_orga_prev)
     
     if neuer_dict != None:
@@ -334,7 +342,14 @@ def set_konst():
         KONST.FARBE_TRENNER_HINTERGRUND = sett['organon_farben']['trenner_farbe_hintergrund']
         KONST.FARBE_TRENNER_SCHRIFT     = sett['organon_farben']['trenner_farbe_schrift']
         
-        # KONST.FARBE_ORGANON_FENSTER
+        KONST.FARBE_TABS_HINTERGRUND    = sett['organon_farben']['tabs_hintergrund']
+        KONST.FARBE_TABS_SCHRIFT        = sett['organon_farben']['tabs_schrift']
+        KONST.FARBE_TABS_SEL_HINTERGRUND= sett['organon_farben']['tabs_sel_hintergrund']
+        KONST.FARBE_TABS_SEL_SCHRIFT    = sett['organon_farben']['tabs_sel_schrift']
+        KONST.FARBE_TABS_TRENNER        = sett['organon_farben']['tabs_trenner']
+        KONST.FARBE_LINIEN              = sett['organon_farben']['linien']
+        KONST.FARBE_DEAKTIVIERT         = sett['organon_farben']['deaktiviert']
+        
     except Exception as e:
         log(inspect.stack,tb())
 
@@ -346,10 +361,13 @@ set_konst()
 
 
 dict_sb = {
-           'controls':{},
-           'erzeuge_sb_layout':None,
-           'optionsfenster':None,
-           'sb_closed':None
+           'controls' : {},
+           'erzeuge_sb_layout' : None,
+           'setze_sidebar_design'  : None,
+           'design_gesetzt' : False,
+           'sb_closed' : True,
+           'seitenleiste' : None,
+           'orga_sb' : None
            }
 
 
@@ -377,14 +395,16 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
                     sidebar = arg.Value
                 elif arg.Name == "Theme":
                     theme = arg.Value
-
-            xUIElement = XUIPanel(self.ctx, xFrame, xParentWindow, url, theme)
             
+
+            
+            xUIElement = XUIPanel(self.ctx, xFrame, xParentWindow, url, theme)
+
             # getting the real panel window 
             # for setting the content       
             xUIElement.getRealInterface()
             panelWin = xUIElement.Window
-            
+
             # panelWin has to be set visible
             panelWin.Visible = True
             
@@ -553,6 +573,10 @@ class Factory(unohelper.Base, XSingleComponentFactory):
         Before no services can be created, later on the dialog window's background
         isn't editable anymore.
         '''
+
+        if debug: log(inspect.stack)
+        self.debug = debug
+        
         self.ctx = ctx
         
         print("factory init")
@@ -562,13 +586,14 @@ class Factory(unohelper.Base, XSingleComponentFactory):
             
     
     def createInstanceWithArgumentsAndContext(self, args, ctx):
+        if self.debug: log(inspect.stack)
         
         try:
             self.pypath_erweitern()
             
             posSize = 0,0,0,0
             win,cont = erzeuge_Dialog_Container(posSize)
-            start_main(cont,ctx,path_to_extension,win,self)
+            self.start_main(cont,ctx,path_to_extension,win)
             
             return win
         
@@ -578,6 +603,8 @@ class Factory(unohelper.Base, XSingleComponentFactory):
     
     
     def pypath_erweitern(self):
+        if self.debug: log(inspect.stack)
+        
         try:
             ctx = uno.getComponentContext()
             smgr = ctx.ServiceManager
@@ -593,6 +620,64 @@ class Factory(unohelper.Base, XSingleComponentFactory):
             
         except Exception as e:
             log(inspect.stack,tb())
+            
+    
+    def start_main(self,window,ctx,path_to_extension,win):
+        if self.debug: log(inspect.stack)
+        
+        try:
+            ctx = uno.getComponentContext()
+            smgr = ctx.ServiceManager
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            frame = desktop.Frames.getByIndex(0)
+            
+            if desktop.ActiveFrame != None:
+                frame = desktop.ActiveFrame
+            
+            try:
+                if settings_orga['organon_farben']['design_office'] and g.geladen == 'neu':
+                    
+                    g.geladen = 'alt'
+                    
+                    listener = Listener_To_Restart_Component()
+                    
+                    if 'OpenOffice' in frame.Title : 
+                        listener.win = window
+                        window.addWindowListener(listener)    
+                
+                    if 'LibreOffice' in frame.Title:
+                        eventb = ctx.getByName("/singletons/com.sun.star.frame.theGlobalEventBroadcaster")
+                        listener.eventb= eventb
+                        eventb.addDocumentEventListener(listener)
+                        
+                    return
+                    
+            except Exception as e:
+                log(inspect.stack,tb()) 
+            
+            dialog = window
+            debug = settings_orga['log_config']['output_console']
+    
+            import menu_start
+            
+            args = (pd,
+                    dialog,
+                    ctx,
+                    path_to_extension,
+                    win,
+                    dict_sb,
+                    debug,
+                    self,
+                    log,
+                    class_Log,
+                    KONST,
+                    settings_orga)
+            
+            Menu_Start = menu_start.Menu_Start(args)
+            Menu_Start.erzeuge_Startmenu()
+    
+        except Exception as e:
+            log(inspect.stack,tb())
     
 
 g_ImplementationHelper.addImplementation(*Factory.get_imple())
@@ -605,120 +690,64 @@ RESOURCE_URL = "private:resource/dockingwindow/9809"
 EXT_ID = "xaver.roemers.organon"
 
 
-
-from com.sun.star.awt import  XTopWindowListener
-class Top_Window_Listener(unohelper.Base,XTopWindowListener):
+from com.sun.star.document import  XDocumentEventListener
+from com.sun.star.awt import  XWindowListener
+class Listener_To_Restart_Component(unohelper.Base,XWindowListener,XDocumentEventListener):
     
-    def __init__(self,frame):
-        self.frame = frame
+    def __init__(self):
+        if debug: log(inspect.stack)
+        # LO
+        self.eventb = None
+        # OO
+        self.win = None
 
-    def windowOpened(self,ev):
+    
+    def windowShown(self,ev): 
+        # OO
+        if debug: log(inspect.stack)
+        
+        self.win.removeWindowListener(self) 
+        self.lade_Komponente_neu()
+    
+    def documentEventOccured(self,ev):
+        # LO
+        if ev.EventName == 'OnLayoutFinished':
+            if debug: log(inspect.stack)
+            self.eventb.removeDocumentEventListener(self)
+            self.lade_Komponente_neu()
+    
+    def lade_Komponente_neu(self):
+        if debug: log(inspect.stack)
+        
         ctx = uno.getComponentContext()
         smgr = ctx.ServiceManager
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
         desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-        try:
 
-            # um den Listener nur einmal anzusprechen
-            if g.geladen == 'neu':
-                g.geladen = 'alt'    
-                    
+        try:
+            from threading import Thread
+
+            def sleeper(desktop1):   
                 URL="private:factory/swriter"
-                self.frame.loadComponentFromURL(URL,'_top',0,())   
-        
+                desktop1.ActiveFrame.loadComponentFromURL(URL,'_top','',())  
+
+            t = Thread(target=sleeper,args=(desktop,))
+            t.start()
+                
         except Exception as e:
             log(inspect.stack,tb())
-
-    def windowActivated(self,ev):   pass
-    def windowClosing(self,ev):     pass
-    def windowClosed(self,ev):      pass
-    def windowMinimized(self,ev):   pass
-    def windowNormalized(self,ev):  pass
-    def windowDeactivated(self,ev): pass
-        
-
-from com.sun.star.document import  XDocumentEventListener
-class Doc_Event_Listener(unohelper.Base,XDocumentEventListener):
+            
+    def windowHidden(self,ev):pass
+    def windowNormalized(self,ev):pass
+    def windowDeactivated(self,ev):pass
+    def windowOpened(self,ev):pass
+    def windowResized(self,ev):pass
+    def windowMoved(self,ev):pass
+    def disposing(self,ev):pass
     
-    def __init__(self,frame):
-        self.frame = frame
-        
-    def documentEventOccured(self,ev):
-
-        ctx = uno.getComponentContext()
-        smgr = ctx.ServiceManager
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-        desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-        
-        if ev.EventName == 'OnLayoutFinished':
-            self.eventb.removeDocumentEventListener(self.listener)
-
-            try:
-                # um den Listener nur einmal anzusprechen
-                if g.geladen == 'neu':
-                    g.geladen = 'alt'    
-                if desktop.Name == '':
-                    desktop.Name = 'gestartet'
-                    
-                    from threading import Thread
-
-                    def sleeper(desktop1):   
-                        import time
-                        #time.sleep(2)  
-                        URL="private:factory/swriter"
-                        desktop1.ActiveFrame.loadComponentFromURL(URL,'_top','',())  
-
-                    t = Thread(target=sleeper,args=(desktop,))
-                    t.start()
-                    
-            except Exception as e:
-                log(inspect.stack,tb())
 
 
 
-def start_main(window,ctx,path_to_extension,win,factory):
 
-    try:
-        ctx = uno.getComponentContext()
-        smgr = ctx.ServiceManager
-        desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-        frame = desktop.Frames.getByIndex(0)
-        
-        if desktop.ActiveFrame != None:
-            frame = desktop.ActiveFrame
-        
-        if settings_orga['organon_farben']['design_office']:
-            if 'OpenOffice' in frame.Title:
-                # in OO muss die Componente neu gestartet werden, damit das
-                # Lineal eingefaerbt wird.    
-                listener = Top_Window_Listener(frame)
-                frame.ContainerWindow.addTopWindowListener(listener)    
-
-        
-        dialog = window
-        debug = settings_orga['log_config']['output_console']
-
-        import menu_start
-        
-        args = (pd,
-                dialog,
-                ctx,
-                path_to_extension,
-                win,
-                dict_sb,
-                debug,
-                factory,
-                log,
-                class_Log,
-                KONST,
-                settings_orga)
-        
-        Menu_Start = menu_start.Menu_Start(args)
-        Menu_Start.erzeuge_Startmenu()
-
-    except Exception as e:
-        log(inspect.stack,tb())
-        
 
 
 
@@ -793,6 +822,8 @@ class XUIPanel( unohelper.Base,  XSidebarPanel, XUIElement, XToolPanel, XCompone
   
 
 def set_app_style():
+    if debug: log(inspect.stack)
+    
     try:
         ctx = uno.getComponentContext()
         smgr = ctx.ServiceManager
@@ -927,18 +958,7 @@ def set_app_style():
                 win.setBackground(statusleiste_hintergrund) # Hintergrund Statuszeile
                 win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
         
-        try:
-            # set listener to restart LO
-            if 'LibreOffice' in frame.Title:
-                listener = Doc_Event_Listener(frame)  
-                doc = desktop.getCurrentComponent() 
-                eventb = ctx.getByName("/singletons/com.sun.star.frame.theGlobalEventBroadcaster")
-                listener.eventb= eventb
-                listener.listener = listener
-                eventb.addDocumentEventListener(listener)
-             
-        except Exception as e:
-            log(inspect.stack,tb()) 
+        
 
 
         top_wins = []
@@ -963,7 +983,10 @@ def set_app_style():
         
         layoutmgr = frame.LayoutManager
         statusbar = layoutmgr.getElement("private:resource/statusbar/statusbar")
-        stilaenderung(statusbar.RealInterface)
+        try:
+            stilaenderung(statusbar.RealInterface)
+        except:
+            pass
         
         
         STYLES_LINEAL = {

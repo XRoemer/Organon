@@ -212,7 +212,7 @@ class Shortcuts():
         x = x + ctrl_txt.AccessibleContext.Size.Width
         
         posSize = x,y,400,50
-        win,cont = self.mb.erzeuge_Dialog_Container(posSize)
+        win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
         
         ctrl, model = self.mb.createControl(self.mb.ctx, "Edit", 10, 10, 380, 30, (), ())   
         ctrl.Text = txt

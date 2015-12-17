@@ -655,8 +655,8 @@ class Projekt():
                 return
 
             if filepicker:
-                filter = ('Organon Project','*.organon')
-                filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+                ofilter = ('Organon Project','*.organon')
+                filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
                 
                 if not ok:
                     return
@@ -696,7 +696,6 @@ class Projekt():
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Baumansicht.erzeuge_Scrollbar()    
-            #self.mb.class_Baumansicht.korrigiere_scrollbar()
             self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['ORGANON'].Hauptfeld.Context.Context)
 
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
@@ -722,11 +721,13 @@ class Projekt():
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
             prj_ctrl = self.mb.tabsX.tableiste.getControl('ORGANON')
-            prj_ctrl.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
+            prj_ctrl.Model.BackgroundColor = KONST.FARBE_TABS_SEL_HINTERGRUND
+            prj_ctrl.Model.TextColor = KONST.FARBE_TABS_SEL_SCHRIFT
             
             self.mb.class_Baumansicht.korrigiere_scrollbar()
             
             self.mb.Listener.starte_alle_Listener()
+            
             self.mb.class_Sidebar.erzeuge_sb_layout()
             
         except Exception as e:
@@ -1134,7 +1135,6 @@ class Projekt():
             # Auswahl
             'auswahl' : 1,
             'ausgewaehlte' : {},
-            'hoehe_auswahlfenster' : 200,
             
             # HTML Export
             'html_export' : {
@@ -1490,108 +1490,6 @@ class Projekt():
 #                                                                             auswaehlen=True)
             
             
-            def stylisieren():
-                set_app_style(seitenleiste,self.mb.settings_orga)
-                set_app_style(panelWin,self.mb.settings_orga)
-                
-                
-                wind = orga_sb.AccessibleContext.AccessibleParent
-                
-                seitenleiste_iconbar = orga_sb.AccessibleContext.AccessibleParent
-                seitenleiste_iconbar.Background = 1002500
-                icons = seitenleiste_iconbar.Windows
-                for w in icons: 
-                    set_app_style(w,self.mb.settings_orga)
-                    w.Background = 501
-                
-                
-                par = seitenleiste_iconbar.AccessibleContext.AccessibleParent
-                set_app_style(seitenleiste_iconbar,self.mb.settings_orga)
-                
-                parpar = par.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleParent
-                
-                for w in par.Windows: 
-                    set_app_style(w,self.mb.settings_orga)
-                    w.Background = 501
-                    for x in w.Windows:
-                        set_app_style(x,self.mb.settings_orga)
-                        #x.Background = 501
-                        x.setProperty('BackgroundColor',501)
-                        for y in x.AccessibleContext.AccessibleParent.Windows:
-                            set_app_style(y,self.mb.settings_orga)
-                            y.Background = 501
-                    
-                for y in parpar.Windows:
-                    set_app_style(y,self.mb.settings_orga)
-                    y.Background = 501
-                    
-                #orga_sb.setState(True)
-                
-                
-    #             child = orga_sb.AccessibleContext.getAccessibleChild(0)
-    #             set_app_style(child,self.mb.settings_orga)
-    #             child.Background = 501
-                
-                
-    #             for y in child.Windows:
-    #                 set_app_style(y,self.mb.settings_orga)
-    #                 y.Background = 501
-                
-                
-                pos = seitenleiste.PosSize
-                #seitenleiste.draw(pos.X,pos.Y)
-                
-                
-                #seitenleiste.enableDialogControl(False)
-            
-            #sb.requestLayout()
-            
-            
-            
-            
-
-
-
-            def get_access(lvl,obj):
-                attr1 = 'AccessibleContext'
-                attr2 = 'AccessibleParent'            
-                
-                ct = obj
-                
-                for l in range(lvl):
-                    ct = getattr(ct,attr1)
-                    ct = getattr(ct,attr2)
-                return ct
-            
-            
-
-
-            #print('wer')
-            
-            
-            #org = self.mb.class_Organizer
-            
-#             rangex = org.sheet.getCellRangeByPosition( 0, 0, 5,5 )
-#             cfr = rangex.CellFormatRanges.getByIndex(0)
-#             selection = org.sheet_controller.Selection
-#             
-#             ss = org.sheet_controller.ComponentWindow.StyleSettings
-#             
-#             win = org.calc_frame.ContainerWindow
-#             
-#             
-#             
-#             #set_app_style(win,self.mb)
-#             
-#             #set_app_style(win,self.mb)
-#             
-#             
-#             cur_cont = org.calc.CurrentController
-#             
-#             cur_cont.GridColor = 501
-#             
-#             selection.CellBackColor = 501
-
 
             
 
@@ -1599,40 +1497,6 @@ class Projekt():
             tags = self.mb.tags
             
             props = self.mb.props[T.AB]
-            
-#             tags['nr_breite'] = {i:2 for i in range(12)}
-#             tags['nr_breite'].update({
-#                                         0 : 5,
-#                                         1 : 5,
-#                                         2 : 3
-#                                       })
-            
-            
-#             name_alt = 'Objekte'
-#             name_neu = 'symphonische Dichtung'
-#             panel_nr = tags['name_nr'][name_alt]
-#             
-#             tags['name_nr'].update({name_neu:panel_nr})
-#             del tags['name_nr'][name_alt]
-#             
-#             tags['nr_name'][panel_nr][0] = name_neu
-            
-            
-#             cont = self.mb.class_Organizer.sheet_controller#.select(rangex)
-#             sel = cont.Selection
-
-            #sel.setPropertyValues(('IsTextWrapped','ShrinkToFit'),(False,True))
-            
-#             sheet = self.mb.class_Organizer.sheet
-#             orga = self.mb.class_Organizer
-#             rows = orga.rangex.Rows
-#             rows.setPropertyValue('Height',1500)       
-#             rows.setPropertyValue('OptimalHeight',True)   
-
-            
-            #tags['ordinale']['nr1'][2] = ''
-            #print(3)
-            
             
            
             
@@ -1659,18 +1523,27 @@ class Projekt():
 #                                        'yyyy':yyyy
 #                                        }
             
-            #tags['nr_breite'] = {i:2 for i in range(12)}
+
+                    
+            #self.mb.class_Funktionen.zeitmesser(do2)    
             
             
             
             
-            txt = 'panel_17'
-            #t = [t for t in txt if ]
-            t = list(filter(str.isdigit, txt))
+                  
             
-            #import re
-            number = int(re.findall(r'\d+', txt)[-1])
+            hf = self.mb.props[T.AB].Hauptfeld
+            tabsX = self.mb.tabsX
             
+            org = self.mb.settings_orga['organon_farben']
+            sett = self.mb.settings_orga
+            
+            datum_items = self.mb.class_Einstellungen.datum_items
+            form = self.mb.settings_proj['datum_format']
+            #self.mb.settings_proj['datum_format'][0] = 'dd'
+            
+#             print(datum_items)
+#             print(form)
         except:
             log(inspect.stack,tb())
             pd()
@@ -1681,180 +1554,7 @@ class Projekt():
         
         
         
-def set_app_style(win,mb):
-    try:
-        ctx = uno.getComponentContext()
-        smgr = ctx.ServiceManager
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-        desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-        frame = desktop.Frames.getByIndex(0)
-        comp = frame.ComponentWindow
-        
-        rot = 16275544
-
-        hf = KONST.FARBE_HF_HINTERGRUND
-        menu = KONST.FARBE_MENU_HINTERGRUND
-        schrift = KONST.FARBE_SCHRIFT_DATEI
-        menu_schrift = KONST.FARBE_MENU_SCHRIFT
-        selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
-        ordner = KONST.FARBE_SCHRIFT_ORDNER
-        
-        settings_orga = mb.settings_orga
-
-        sett = settings_orga['organon_farben']['office']
-        
-        def get_farbe(value):
-            if isinstance(value, int):
-                return rot
-                return value
-            else:
-                return rot
-                return settings_orga['organon_farben'][value]
-        
-        # Kann button_schrift evt. herausgenommen werden?
-        button_schrift = get_farbe(sett['button_schrift'])
-        
-        statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
-        statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
-        
-        felder_hintergrund = get_farbe(sett['felder_hintergrund'])
-        felder_schrift = get_farbe(sett['felder_schrift'])
-        
-        # Sidebar
-        sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
-        sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
-        sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
-        sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
-        
-        trenner_licht = get_farbe(sett['trenner_licht'])
-        trenner_schatten = get_farbe(sett['trenner_schatten'])
-        
-        # Lineal
-        OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
-        OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
-        OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
-        
-        LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
-        LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
-        LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
-        LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
-        LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
-        
-        
-        LO = ('LibreOffice' in frame.Title)
-        
-        STYLES = {  
-                  # Allgemein
-                    'ButtonRolloverTextColor' : button_schrift, # button rollover
-                    
-                    'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
-                    'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
-                    
-                    # Trenner
-                    'LightColor' : menu, # Fenster Trenner
-                    'ShadowColor' : menu, # Fenster Trenner
-                    
-                    # OO Lineal + Trenner
-                     
-                    'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
-                                        else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
-                    'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
-                                         else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
-                        
-                    # Sidebar
-                    'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
-                    'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
-                    'FaceColor' : (schrift if LO        # LO Formatvorlagen Treeview Verbinder
-                                    else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
-                    'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
-                                    else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
-                    'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
-                    'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
-                    
-                    
-                    'ActiveBorderColor' : rot,#k.A.
-                    'ActiveColor' : rot,#k.A.
-                    'ActiveTabColor' : rot,#k.A.
-                    'ActiveTextColor' : rot,#k.A.
-                    'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
-                    'CheckedColor' : rot,#k.A.
-                    'DeactiveBorderColor' : rot,#k.A.
-                    'DeactiveColor' : rot,#k.A.
-                    'DeactiveTextColor' : rot,#k.A.
-                    'DialogTextColor' : rot,#k.A.
-                    'DisableColor' : rot,
-                    'FieldRolloverTextColor' : rot,#k.A.
-                    'GroupTextColor' : rot,#k.A.
-                    'HelpColor' : rot,#k.A.
-                    'HelpTextColor' : rot,#k.A.
-                    'InactiveTabColor' : rot,#k.A.
-                    'InfoTextColor' : rot,#k.A.
-                    'MenuBarColor' : rot,#k.A.
-                    'MenuBarTextColor' : rot,#k.A.
-                    'MenuBorderColor' : rot,#k.A.
-                    'MenuColor' : rot,#k.A.
-                    'WindowColor' : rot,#k.A.
-
-                    'MenuHighlightColor' : rot,#k.A.
-                    'MenuHighlightTextColor' : rot,#k.A.
-                    'MenuTextColor' : schrift,#k.A.
-                    'MonoColor' : rot, #k.A.
-                    'RadioCheckTextColor' : schrift,#k.A.
-                    'WorkspaceColor' : rot, #k.A.
-#                     erzeugen Fehler:
-#                     'FaceGradientColor' : 502,
-                    'SeparatorColor' : 502,                    
-                    }
-        
  
-        def stilaenderung(win,ignore=[]):
-
-            for s in STYLES:
-                if s in ignore: 
-                    pass
-                else:
-                    try:
-                        val = STYLES[s]
-                        setattr(win.StyleSettings, s, val)
-                    except Exception as e:
-                        pass
-            try:    
-                
-                win.Model.BackgroundColor = hf 
-            except Exception as e:
-                print(e)
-                #pd()
-                pass
-                #win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
-            #pd()
-
-
-        
-        # folgende Properties wuerden die Eigenschaften
-        # der Office Menubar und aller Buttons setzen
-        ignore = ['ButtonTextColor',
-                 'LightColor',
-                 'MenuBarTextColor',
-                 'MenuBorderColor',
-                 'ShadowColor'
-                 ]
-
-
-        
-        stilaenderung(win)
-        parent = win.AccessibleContext.AccessibleParent
-        #stilaenderung(win.Windows[0])
-        #stilaenderung(win.Windows[1])
-#         
-        stilaenderung(parent)
-        
-#         for w in parent.AccessibleContext.AccessibleParent.Windows:
-#             stilaenderung(w)
-        
-        
-        #pd()
-    except Exception as e:
-        log(inspect.stack,tb())    
 
 from com.sun.star.awt import XWindowListener
 from com.sun.star.lang import XEventListener

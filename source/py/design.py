@@ -22,6 +22,7 @@ class Organon_Design():
         # wird bei Aufruf von dialog_organon_farben oder dialog_persona
         # durch den Auswahl_Item_Listener gesetzt 
         self.container = None
+        self.fenster = None
         
         self.personas_kopiert = False
 
@@ -120,377 +121,262 @@ class Organon_Design():
 
     def dialog_organon_farben_elemente(self,listener):
         if self.mb.debug: log(inspect.stack)
-                        
+        
+        
+        
+        
+        controls2 = []
+        
+        listener_ctrls = [
+                            'menu_hintergrund',
+                            'menu_schrift',
+                            'hf_hintergrund',
+                            'schrift_ordner',
+                            'schrift_datei',
+                            'ausgewaehlte_zeile',
+                            'editierte_zeile',
+                            'gezogene_zeile',
+                            'gliederung',
+                            'textfeld',
+                            'trenner_farbe_hintergrund',
+                            'trenner_farbe_schrift',
+                            ]
+        
+        ctrls = [
+                 ('Titel',LANG.MENULEISTE),
+                 ('Farbe','menu_hintergrund',KONST.FARBE_MENU_HINTERGRUND),
+                 ('Beschreibung',LANG.HINTERGRUND),
+                 ('Farbe','menu_schrift',KONST.FARBE_MENU_SCHRIFT),
+                 ('Beschreibung',LANG.SCHRIFT),
+                 ('Sep'),
+                 
+                 ('Titel',LANG.BAUMANSICHT),
+                 ('Farbe','hf_hintergrund',KONST.FARBE_HF_HINTERGRUND),
+                 ('Beschreibung',LANG.HINTERGRUND),
+                 ('Farbe','schrift_ordner',KONST.FARBE_SCHRIFT_ORDNER),
+                 ('Beschreibung',LANG.ORDNER),
+                 ('Farbe','schrift_datei',KONST.FARBE_SCHRIFT_DATEI),
+                 ('Beschreibung',LANG.DATEI),
+                 ('Sep'),
+                 
+                 ('Titel',LANG.ZEILE),
+                 ('Farbe','ausgewaehlte_zeile',KONST.FARBE_AUSGEWAEHLTE_ZEILE),
+                 ('Beschreibung',LANG.AUSGEWAEHLTE_ZEILE),
+                 ('Farbe','editierte_zeile',KONST.FARBE_EDITIERTE_ZEILE),
+                 ('Beschreibung',LANG.EDITIERTE_ZEILE),
+                 ('Farbe','gezogene_zeile',KONST.FARBE_GEZOGENE_ZEILE),
+                 ('Beschreibung',LANG.GEZOGENE_ZEILE),
+                 ('Sep'),
+                 
+                 ('Farbe','gliederung',KONST.FARBE_GLIEDERUNG),
+                 ('Beschreibung',LANG.GLIEDERUNG),
+                 ('Sep'),
+                 
+                 ('Titel',LANG.TRENNER),
+                 ('Farbe','trenner_farbe_hintergrund',KONST.FARBE_TRENNER_HINTERGRUND),
+                 ('Beschreibung',LANG.HINTERGRUND),
+                 ('Farbe','trenner_farbe_schrift',KONST.FARBE_TRENNER_SCHRIFT),
+                 ('Beschreibung',LANG.SCHRIFT),
+                 ('Sep'),
+                 
+                 ('Titel',LANG.TABS),
+                 ('Farbe','tabs_hintergrund',KONST.FARBE_TABS_HINTERGRUND),
+                 ('Beschreibung',LANG.HINTERGRUND),
+                 ('Farbe','tabs_schrift',KONST.FARBE_TABS_SCHRIFT),
+                 ('Beschreibung',LANG.SCHRIFT),
+                 ('Farbe','tabs_sel_hintergrund',KONST.FARBE_TABS_SEL_HINTERGRUND),
+                 ('Beschreibung',u'{0} {1}'.format(LANG.AUSGEWAEHLTE_ZEILE,LANG.HINTERGRUND_ABK)),
+                 ('Farbe','tabs_sel_schrift',KONST.FARBE_TABS_SEL_SCHRIFT),
+                 ('Beschreibung',u'{0} {1}'.format(LANG.AUSGEWAEHLTE_ZEILE,LANG.SCHRIFT)),
+                 ('Farbe','tabs_trenner',KONST.FARBE_TABS_TRENNER),
+                 ('Beschreibung',LANG.TRENNER),
+                 ('Sep'),
+                 
+                 ('Farbe','linien',KONST.FARBE_LINIEN),
+                 ('Beschreibung',LANG.LINIEN),
+                 ('Sep'),
+                 
+                 ('Titel',LANG.DEAKTIVIERTE_BUTTONS),
+                 ('Farbe','deaktiviert',KONST.FARBE_DEAKTIVIERT),
+                 ('Beschreibung',LANG.SCHRIFT),
+                 
+                 ]
+        
+
         controls = [
             10,
-            ('control1',"FixedText",         
-                                    'tab0',0,168,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.ORGANON_DESIGN ,150),                                             
-                                    {} 
-                                    ),
-            0,
-            ('control_Writer_Design',"CheckBox",        
-                                    'tab3',3,100,20,  
+            ('control_Writer_Design',"CheckBox",1,        
+                                    'tab2',3,100,20,  
                                     ('Label','FontWeight','State'),
                                     (LANG.WRITER_DESIGN,150,self.mb.settings_orga['organon_farben']['design_office']),                                                                    
-                                    {'setActionCommand':'writer_design','addActionListener':(listener,)} 
+                                    {'setActionCommand':'writer_design','addActionListener':(listener)} 
                                     ),
             0,
-            ('control_wDesign_bearbeiten',"Button",          
-                                    'tab4',-2,100,23,    
+            ('control_wDesign_bearbeiten',"Button",1,          
+                                    'tab3-max',-2,100,23,    
                                     ('Label',),
                                     (LANG.BEARBEITEN,),                                                                         
-                                    {'setActionCommand':'writer_design_bearbeiten','addActionListener':(listener,)} 
+                                    {'setActionCommand':'writer_design_bearbeiten','addActionListener':(listener)} 
                                     ), 
             30,
-            ('controlTit1',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.MENULEISTE,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control2',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_MENU_HINTERGRUND,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control3',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.HINTERGRUND,),                                                                    
-                                    {} 
-                                    ),  
-                    
-            20,
-            ('control4',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_MENU_SCHRIFT,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control5',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.SCHRIFT,),                                                                    
-                                    {} 
-                                    ),  
-            0,
-            ###############################################################
-            ('controlF1',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('controlTit2',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.BAUMANSICHT,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control6',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_HF_HINTERGRUND,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control7',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.HINTERGRUND,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control8',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_SCHRIFT_ORDNER,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control9',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.ORDNER,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control10',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_SCHRIFT_DATEI,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control11',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.DATEI,),                                                                    
-                                    {} 
-                                    ),  
-            0,
-            ###############################################################
-            ('controlF2',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('controlTit3',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.ZEILE,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control12',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_AUSGEWAEHLTE_ZEILE,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control13',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.AUSGEWAEHLTE_ZEILE,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control14',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_EDITIERTE_ZEILE,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control15',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.EDITIERTE_ZEILE,),                                                                    
-                                    {} 
-                                    ),  
-                    
-            20,
-            ('control16',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_GEZOGENE_ZEILE,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control17',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.GEZOGENE_ZEILE,),                                                                    
-                                    {} 
-                                    ),  
-            0,
-            ###############################################################
-            ('controlF3',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('control18',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_GLIEDERUNG,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control19',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.GLIEDERUNG,),                                                                    
-                                    {} 
-                                    ), 
-            ###############################################################
-            ('controlF4',"FixedLine",         
-                                    'tab0',20,168,1,   
-                                    (),
-                                    (),                                                  
-                                    {} 
-                                    ) ,
-            24,
-            ('controlTit4',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.TRENNER,150),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control20',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_TRENNER_HINTERGRUND,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control21',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.HINTERGRUND,),                                                                    
-                                    {} 
-                                    ),  
-            20,
-            ('control22',"FixedText",        
-                                    'tab0',0,32,16,  
-                                    ('BackgroundColor','Label','Border'),
-                                    (KONST.FARBE_TRENNER_SCHRIFT,'    ',1),       
-                                    {'addMouseListener':(listener)} 
-                                    ),  
-            0,
-            ('control23',"FixedText",        
-                                    'tab2',0,100,20,  
-                                    ('Label',),
-                                    (LANG.SCHRIFT,),                                                                    
-                                    {} 
-                                    ), 
+            ('control_Fenster_Design',"CheckBox",1,        
+                                    'tab2',3,100,20,  
+                                    ('Label','FontWeight','State'),
+                                    (LANG.DESIGN_ORGANON_FENSTER,150,self.mb.settings_orga['organon_farben']['design_organon_fenster']),                                                                    
+                                    {'setActionCommand':'fenster_design','addActionListener':(listener)} 
+                                    ),
+            ]
+        
+        
+        controls.extend(['Y=-10'])
+        
+        zaehler = 0
+        
+        for c in ctrls:
+
+            if c[0] == 'Titel':
+            
+                controls.extend([
+                                 20,
+                                [u'Tit_{}'.format(c[1]),"FixedText",1,        
+                                        'tab1',0,100,20,  
+                                        ('Label','FontWeight'),
+                                        (c[1],150),                                                                    
+                                        {} 
+                                        ],  
+                                ]
+                                )
+            elif c[0] == 'Farbe':
+            
+                controls.extend([
+                                 20,
+                                [c[1],"FixedText",0,        
+                                        'tab0',0,32,16,  
+                                        ('BackgroundColor','Label','Border'),
+                                        (c[2],'    ',1),       
+                                        {'addMouseListener':(listener)} 
+                                        ],
+                                ]  
+                                )
+            elif c[0] == 'Beschreibung':
+                
+                controls.extend([
+                                [u'Beschr_{}'.format(zaehler),"FixedText", 1,       
+                                        'tab1',0,100,20,  
+                                        ('Label',),
+                                        (c[1],),                                                                    
+                                        {} 
+                                        ], 
+                                ]
+                                )
+                
+            elif c == 'Sep':
+                
+                controls.extend([
+                                [u'fixed_L{}'.format(zaehler),"FixedLine",0,         
+                                        'tab0x-tab1-E',20,168,1,   
+                                        (),
+                                        (),                                                  
+                                        {} 
+                                        ],
+                               5 ]
+                                )
+            zaehler += 1
+                
+
+        controls.extend([
+            
 
                   
-            -296,
-            ###############################################################
-            ###############################################################
+            'Y=80',
             ######################  DESIGN ################################
-            ###############################################################
-            ('controlD1',"FixedText",        
-                                    'tab3',0,168,20,  
+            ('controlD1',"FixedText",1,        
+                                    'tab2',0,168,20,  
                                     ('Label','FontWeight'),
                                     (LANG.DESIGNS,150),                                                                    
                                     {} 
                                     ), 
             25, 
-            ###############################################################
-            ###############################################################
             ######################## SPEICHERN ############################
-            ###############################################################
-            ('controlE1',"Edit",          
-                                    'tab4',0,100,20,    
+            ('textfeld',"Edit",1,          
+                                    'tab3-max',0,100,20,    
                                     ('HelpText',),
                                     (LANG.AUSWAHL,),                                                                         
                                     {} 
                                     ), 
             30,
-            ('controlB1',"Button",          
-                                    'tab4',0,100,23,    
+            ('controlB1',"Button",1,          
+                                    'tab3',0,100,23,    
                                     ('Label',),
                                     (LANG.NEUES_DESIGN,),                                                                         
-                                    {'setActionCommand':'neues_design','addActionListener':(listener,)} 
+                                    {'setActionCommand':'neues_design','addActionListener':(listener)} 
                                     ), 
             30,
-            ('controlB3',"Button",          
-                                    'tab4',0,100,23,    
+            ('controlB3',"Button",1,          
+                                    'tab3-max',0,100,23,    
                                     ('Label',),
                                     (LANG.LOESCHEN,),                                                                         
-                                    {'setActionCommand':'loeschen','addActionListener':(listener,)} 
+                                    {'setActionCommand':'loeschen','addActionListener':(listener)} 
                                     ), 
             30,
-            ('controlB4',"Button",          
-                                    'tab4',0,100,23,    
+            ('controlB4',"Button",1,          
+                                    'tab3-max',0,100,23,    
                                     ('Label',),
                                     (LANG.EXPORT_2,),                                                                         
-                                    {'setActionCommand':'export','addActionListener':(listener,)} 
+                                    {'setActionCommand':'export','addActionListener':(listener)} 
                                     ), 
             30,
-            ('controlB5',"Button",          
-                                    'tab4',0,100,23,    
+            ('controlB5',"Button",1,          
+                                    'tab3-max',0,100,23,    
                                     ('Label',),
                                     (LANG.IMPORT_2,),                                                                         
-                                    {'setActionCommand':'import','addActionListener':(listener,)} 
+                                    {'setActionCommand':'import','addActionListener':(listener)} 
                                     ), 
-            30,
+            'Y=40',
             ]
 
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 42
-        tab2 = tab2x = 78
-        tab3 = tab3x = 220
-        tab4 = tab4x = 340
-        
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-
-        return controls2
-    
-    
-    def dialog_organon_design_elemente_RB(self,listener):
-        if self.mb.debug: log(inspect.stack)
-                
+            )
+            
+            
+            
         sett = self.mb.settings_orga
         design_items = list(sett['designs'])
 
-        controls = []
+        
         aktiv = sett['organon_farben']['aktiv']
             
         for d in design_items:
             state = int(aktiv == d)
             design_control = [
                                  
-            ('control%s'%d,"RadioButton",      
-                                    'tab3',70,100,20,    
+            ('control%s_radio'%d,"RadioButton",1,      
+                                    'tab2',70,100,20,    
                                     ('Label','State'),
                                     (d,state), 
-                                    {'setActionCommand':d,'addActionListener':(listener,)}      
+                                    {'setActionCommand':d,'addActionListener':(listener)}      
                                     ), 
             20,]  
 
             controls.extend(design_control)
-
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0 = tab0x = 20
-        tab1 = tab1x = 42
-        tab2 = tab2x = 78
-        tab3 = tab3x = 220
-        tab4 = tab4x = 200
+            
+            
+            
+        tabs = {
+                 0 : (None, 10),
+                 1 : (None, 40),
+                 2 : (None, 25),
+                 3 : (None, 0),
+                 }
         
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab0x','tab1x','tab2x','tab3x','tab4x']
+        abstand_links = 10
         
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        for c in controls:
-            if not isinstance(c, int):
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
         
-        return controls2
+        listener.tabs = tabs3        
+        
+        return controls2,max_breite
     
+ 
             
     def dialog_organon_farben(self):
         if self.mb.debug: log(inspect.stack)
@@ -498,36 +384,26 @@ class Organon_Design():
         try:
             listener = Listener_Organon_Farben(self.mb,self)
 
-            controls = self.dialog_organon_farben_elemente(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
-
+            controls,max_breite = self.dialog_organon_farben_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)
+            self.mb.class_Einstellungen.container_anpassen(self.container,max_breite,max_hoehe+10,self.fenster)
+            
             # UEBERGABE AN LISTENER
-            listener.ctrls = {
-                            'menu_hintergrund' : ctrls['control2'],
-                            'menu_schrift' : ctrls['control4'],
-                            'hf_hintergrund' : ctrls['control6'],
-                            'schrift_ordner' : ctrls['control8'],
-                            'schrift_datei' : ctrls['control10'],
-                            'ausgewaehlte_zeile' : ctrls['control12'],
-                            'editierte_zeile' : ctrls['control14'],
-                            'gezogene_zeile' : ctrls['control16'],
-                            'gliederung' : ctrls['control18'],
-                            'textfeld' : ctrls['controlE1'],
-                            'trenner_farbe_hintergrund' : ctrls['control20'],
-                            'trenner_farbe_schrift' : ctrls['control22'],
-                            }
-
+            listener.ctrls = ctrls
+            
+            radios = {}
             # Controls in Hauptfenster eintragen
-            for c in ctrls:
-                self.container.addControl(c,ctrls[c])
+            for c,v in ctrls.items():
+                if 'radio' in c: 
+                    radios[c] = v
+                else:
+                    self.container.addControl(c,v)
                  
-            controls = self.dialog_organon_design_elemente_RB(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
             
             ctrls_RB = {}
             
-            # Controls in Hauptfenster eintragen
-            for c in ctrls:
+            # RadioButtons in Hauptfenster eintragen
+            for c in radios:
                 self.container.addControl(c,ctrls[c])
                 ctrls_RB.update({ ctrls[c].Model.Label : ctrls[c] })
             
@@ -542,127 +418,127 @@ class Organon_Design():
         
         controls = [
             1,
-            ('control_theme',"ImageControl",         
-                                    'tab0',0,self.container.Size.Width-6,80,  
+            ('control_theme',"ImageControl",0,         
+                                    'tab0x-max',0,self.container.Size.Width-6,80,  
                                     ('Label','FontWeight','BackgroundColor','Border'),
                                     (LANG.ORGANON_DESIGN ,150,KONST.FARBE_MENU_HINTERGRUND,0),                                             
                                     {} 
                                     ),
             20,
-            ('control_theme_tit',"FixedText",        
-                                    'tab_theme',0,100,30,  
-                                    ('Label','FontWeight','TextColor'),
-                                    (LANG.THEMA_TITEL,150,KONST.FARBE_MENU_SCHRIFT),                                                                    
+            ('control_theme_tit',"Edit",0,        
+                                    'tab4x+40',0,80,25,  
+                                    ('Text','FontWeight','TextColor','PaintTransparent','Border'),
+                                    (LANG.THEMA_TITEL,150,KONST.FARBE_MENU_SCHRIFT,True,0),                                                                    
                                     {} 
                                     ),  
-            30,
-            ('control_theme_untertit',"FixedText",        
-                                    'tab_theme2',0,200,30,  
-                                    ('Label','TextColor'),
-                                    (LANG.THEMA_UNTERTITEL,KONST.FARBE_MENU_SCHRIFT),                                                                    
+            30, 
+            ('control_theme_untertit',"Edit",1,        
+                                    'tab2x',0,200,25,  
+                                    ('Text','TextColor','PaintTransparent','Border'),
+                                    (LANG.THEMA_UNTERTITEL,KONST.FARBE_MENU_SCHRIFT,True,0),                                                                    
                                     {} 
                                     ),  
             ############################ PERSONAS ######################################
             'Y=120',
-            ('control_VP',"FixedText",        
+            ('control_VP',"FixedText",1,       
                                     'tab1',0,150,20,  
                                     ('Label','FontWeight'),
                                     (LANG.VORHANDENE_PERSONAS,150),                                                                    
                                     {} 
                                     ),  
             30,
-            ('control_personas_list',"ListBox",        
+            ('control_personas_list',"ListBox",0,       
                                     'tab1',0,120,20,  
                                     ('Border','Dropdown','LineCount'),
                                     ( 2,True,10),       
-                                    {'addItems':persona_items,'addItemListener':listener}
+                                    {'addItems':(persona_items,0),'addItemListener':listener}
                                     ), 
              
                     
             ############################# EIGENES PERSONAS #####################################
             'Y=120',
-            ('control_farbe_schrift',"FixedText",        
+            ('control_farbe_schrift',"FixedText",0,       
                                     'tab4',0,32,16,  
                                     ('BackgroundColor','Label','Border'),
                                     (KONST.FARBE_MENU_SCHRIFT,'    ',1),       
                                     {'addMouseListener':(listener)} 
                                     ),  
             0,
-            ('control5',"FixedText",        
-                                    'tab5',0,100,20,  
+            ('control5',"FixedText",1,      
+                                    'tab4+40',0,100,20,  
                                     ('Label',),
                                     (LANG.FARBE_SCHRIFT,),                                                                    
                                     {} 
                                     ),  
             25,
-            ('control_solid',"RadioButton",        
-                                    'tab3',0,150,25,  
+            ('control_solid',"RadioButton",1,        
+                                    'tab3x',0,150,25,  
                                     ('Label','State'),
                                     (LANG.HINTERGRUND_EINFARBIG,1),                                                                    
-                                    {'setActionCommand':'control_solid','addActionListener':(listener,)}
+                                    {'setActionCommand':'control_solid','addActionListener':(listener)}
                                     ), 
             25,
-            ('control_farbe_hintergrund',"FixedText",        
+            ('control_farbe_hintergrund',"FixedText",0,        
                                     'tab4',0,32,16,  
                                     ('BackgroundColor','Label','Border'),
                                     (KONST.FARBE_MENU_HINTERGRUND,'    ',1),       
                                     {'addMouseListener':(listener)} 
                                     ),  
             0,
-            ('control3',"FixedText",        
-                                    'tab5',0,100,20,  
+            ('control3',"FixedText",1,        
+                                    'tab4+40',0,100,20,  
                                     ('Label',),
                                     (LANG.FARBE,),                                                                    
                                     {} 
                                     ),  
                     
             25,
-            ('control_gradient',"RadioButton",        
-                                    'tab3',0,150,25,  
+            ('control_gradient',"RadioButton",1,        
+                                    'tab3x',0,150,25,  
                                     ('Label',),
                                     (LANG.HINTERGRUND_GRADIENT,),                                                                    
-                                    {'setActionCommand':'control_gradient','addActionListener':(listener,)}
+                                    {'setActionCommand':'control_gradient','addActionListener':(listener)}
                                     ), 
             25,
-            ('control_farbe_hintergrund2',"FixedText",        
+            ('control_farbe_hintergrund2',"FixedText",0,        
                                     'tab4',0,32,16,  
                                     ('BackgroundColor','Label','Border'),
                                     (KONST.FARBE_MENU_HINTERGRUND,'    ',1),       
                                     {'addMouseListener':(listener)} 
                                     ),
             0,
-            ('control_f2text',"FixedText",        
-                                    'tab5',0,100,20,  
+            ('control_f2text',"FixedText",1,        
+                                    'tab4+40',0,100,20,  
                                     ('Label',),
                                     (LANG.FARBE2,),                                                                    
                                     {} 
                                     ),
             25,
-            ('control_url_nutzer',"RadioButton",        
-                                    'tab3',0,150,25,  
+            ('control_url_nutzer',"RadioButton",1,       
+                                    'tab3x',0,150,25,  
                                     ('Label',),
                                     (LANG.HINTERGRUND_NUTZER,),                                                                    
-                                    {'setActionCommand':'control_url_nutzer','addActionListener':(listener,)}
+                                    {'setActionCommand':'control_url_nutzer','addActionListener':(listener)}
                                     ), 
               
                     
             20,
-            ('control_url_aussuchen',"Button",        
+            ('control_url_aussuchen',"Button",1,        
                                     'tab4',0,80,20,  
                                     ('Label',),
                                     (LANG.AUSWAHL,),                                                                    
-                                    {'setActionCommand':'control_url_aussuchen','addActionListener':(listener,)}
+                                    {'setActionCommand':'control_url_aussuchen','addActionListener':(listener)}
                                     ), 
             30,
-            ('control_url',"FixedText",          
-                                    'tab4',0,300,20,    
+            ('control_url',"FixedText",0,         
+                                    'tab4x',0,300,20,    
                                     ('Label',),
                                     (LANG.URL,),                                                                         
                                     {} 
                                     ), 
             20,
-            ('control_url_info',"FixedText",          
-                                    'tab4',0,300,20,    
+            ('control_url_info',"FixedText",1,          
+                                    'tab4x',0,300,20,    
                                     ('Label',),
                                     (LANG.URL_INFO,),                                                                         
                                     {} 
@@ -674,67 +550,56 @@ class Organon_Design():
             ###############################################################
  
             
-            ('control_personas_name',"Edit",          
-                                    'tab7',0,100,20,    
+            ('control_personas_name',"Edit",0,          
+                                    'tab7-max',0,100,20,    
                                     ('HelpText',),
                                     (LANG.PERSONANAMEN_EINGEBEN,),                                                                         
                                     {} 
                                     ), 
             30,
-            ('control_neues_thema',"Button",          
-                                    'tab7',0,100,23,    
+            ('control_neues_thema',"Button",1,          
+                                    'tab7-max',0,100,23,    
                                     ('Label',),
                                     (LANG.NEUES_PERSONA_THEMA,),                                                                         
-                                    {'setActionCommand':'neues_persona','addActionListener':(listener,)} 
+                                    {'setActionCommand':'neues_persona','addActionListener':(listener)} 
                                     ),
             60,
-            ('control_thema_loeschen',"Button",          
-                                    'tab7',0,100,23,    
+            ('control_thema_loeschen',"Button",1,          
+                                    'tab7',0,50,23,    
                                     ('Label',),
                                     (LANG.PERSONA_LOESCHEN,),                                                                         
-                                    {'setActionCommand':'loesche_persona','addActionListener':(listener,)} 
+                                    {'setActionCommand':'loesche_persona','addActionListener':(listener)} 
                                     ), 
             150,
-            ('control_anwenden',"Button",          
-                                    'tab6',0,150,23,    
+            ('control_anwenden',"Button",1,         
+                                    'tab6x',0,50,23,    
                                     ('Label',),
                                     (LANG.PERSONA_ANWENDEN,),                                                                         
-                                    {'setActionCommand':'anwenden','addActionListener':(listener,)} 
+                                    {'setActionCommand':'anwenden','addActionListener':(listener)} 
                                     ), 
             ]
 
-        # Tabs waren urspruenglich gesetzt, um sie in der Klasse Design richtig anzupassen.
-        # Das fehlt. 'tab...' wird jetzt nur in Zahlen uebersetzt. Beim naechsten 
-        # groesseren Fenster, das ich schreibe und das nachtraegliche Berechnungen benoetigt,
-        # sollte der Code generalisiert werden. Vielleicht grundsaetzlich ein Modul fenster.py erstellen?
-        tab0_0 = 1
-        tab_theme = self.container.Size.Width/2 - 30
-        tab_theme2 = self.container.Size.Width/2 - 100
-        tab0 = 0
-        tab1 = 20
-        tab2 = 35
-        tab3 = self.container.Size.Width/2 - 47
-        tab4 = self.container.Size.Width/2 - 30
-        tab5 = self.container.Size.Width/2 + 10
-        tab6 = 310
-        tab7 = 360
-        
-        tabs = ['tab_theme','tab_theme2','tab0_0','tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab7']
-        
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
 
-        controls2 = []
-        for c in controls:
-            if not isinstance(c, int) and 'Y=' not in c:
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-         
-        return controls2
+    
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 0),
+                 1 : (None, 30),
+                 2 : (None, 0),
+                 3 : (None, 0),
+                 4 : (None, 80),
+                 5 : (None, 0),
+                 6 : (None, 10),
+                 7 : (None, 0),
+                 }
+        
+        abstand_links = 2
+        
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+        
+        listener.tabs = tabs3        
+        
+        return controls2,max_breite
     
               
     def dialog_persona(self):
@@ -748,8 +613,12 @@ class Organon_Design():
             listener = Listener_Persona(self.mb,personas_dict,personas_list,gallery_user_path)
             
             # controls erzeugen
-            controls = self.dialog_persona_elemente(listener,tuple(personas_list))
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
+            controls,max_breite = self.dialog_persona_elemente(listener,tuple(personas_list))
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)
+            
+            container = self.mb.class_Einstellungen.container
+            fenster = self.mb.class_Einstellungen.haupt_fenster
+            self.mb.class_Einstellungen.container_anpassen(container,max_breite,max_hoehe,fenster)
             
             # Uebergabe an listener
             listener.ctrls = ctrls
@@ -760,7 +629,14 @@ class Organon_Design():
                 
             listener.ctrl_container = self.container
             listener.theme_ansicht_erneuern()
-
+            
+            
+            
+            ct = ctrls['control_theme_untertit']
+            
+            #ct.Model.ImageURL = KONST.URL_IMGS+'punkt_rot.png' 
+            #ct.Model.PaintTransparent = True
+            #ctrls['control_theme_untertit'].Model.Border = 0
         except:
             log(inspect.stack,tb())
             
@@ -795,8 +671,165 @@ class Organon_Design():
         except:
             log(inspect.stack,tb())
            
-
-  
+           
+    def set_app_style(self,win,settings_orga):
+        try:
+            ctx = uno.getComponentContext()
+            smgr = ctx.ServiceManager
+            toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            frame = desktop.Frames.getByIndex(0)
+            comp = frame.ComponentWindow
+            
+            rot = 16275544
+    
+            hf = KONST.FARBE_HF_HINTERGRUND
+            menu = KONST.FARBE_MENU_HINTERGRUND
+            schrift = KONST.FARBE_SCHRIFT_DATEI
+            menu_schrift = KONST.FARBE_MENU_SCHRIFT
+            selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+            ordner = KONST.FARBE_SCHRIFT_ORDNER
+            linien = KONST.FARBE_LINIEN
+            deaktiviert = KONST.FARBE_DEAKTIVIERT
+            
+            sett = settings_orga['organon_farben']['office']
+            
+            def get_farbe(value):
+                if isinstance(value, int):
+                    return value
+                else:
+                    return settings_orga['organon_farben'][value]
+            
+            # Kann button_schrift evt. herausgenommen werden?
+            button_schrift = get_farbe(sett['button_schrift'])
+            
+            statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
+            statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
+            
+            felder_hintergrund = get_farbe(sett['felder_hintergrund'])
+            felder_schrift = get_farbe(sett['felder_schrift'])
+            
+            # Sidebar
+            sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
+            sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
+            sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
+            sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
+            
+            trenner_licht = get_farbe(sett['trenner_licht'])
+            trenner_schatten = get_farbe(sett['trenner_schatten'])
+            
+            # Lineal
+            OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
+            OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
+            OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
+            
+            LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
+            LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
+            LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
+            LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
+            LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
+            
+            
+            LO = ('LibreOffice' in frame.Title)
+            
+            STYLES = {  
+                      # Allgemein
+                        'ButtonRolloverTextColor' : button_schrift, # button rollover
+                        
+                        'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
+                        'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
+                        
+                        # Trenner
+                        'LightColor' : linien, # Fenster Trenner
+                        'ShadowColor' : linien, # Fenster Trenner
+                        
+                        # OO Lineal + Trenner
+                         
+                        'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
+                                            else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
+                        'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
+                                             else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
+                            
+                        # Sidebar
+                        'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
+                        'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
+                        'FaceColor' : (schrift if LO        # LO Formatvorlagen Treeview Verbinder
+                                        else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
+                        'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
+                                        else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
+                        'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
+                        'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
+                        
+                        
+    #                     'ActiveBorderColor' : rot,#k.A.
+    #                     'ActiveColor' : rot,#k.A.
+    #                     'ActiveTabColor' : rot,#k.A.
+    #                     'ActiveTextColor' : rot,#k.A.
+    #                     'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
+    #                     'CheckedColor' : rot,#k.A.
+    #                     'DeactiveBorderColor' : rot,#k.A.
+    #                     'DeactiveColor' : rot,#k.A.
+    #                     'DeactiveTextColor' : rot,#k.A.
+                        'DialogTextColor' : rot,#k.A.
+                        'DisableColor' : deaktiviert,
+    #                     'FieldRolloverTextColor' : rot,#k.A.
+    #                     'GroupTextColor' : rot,#k.A.
+    #                     'HelpColor' : rot,#k.A.
+    #                     'HelpTextColor' : rot,#k.A.
+    #                     'InactiveTabColor' : rot,#k.A.
+    #                     'InfoTextColor' : rot,#k.A.
+    #                     'MenuBarColor' : rot,#k.A.
+    #                     'MenuBarTextColor' : rot,#k.A.
+    #                     'MenuBorderColor' : rot,#k.A.
+                        'MenuColor' : rot,#k.A.
+                        'WindowColor' : hf,#k.A.
+    
+    #                     'MenuHighlightColor' : rot,#k.A.
+    #                     'MenuHighlightTextColor' : rot,#k.A.
+                        'MenuTextColor' : schrift,#k.A.
+    #                     'MonoColor' : rot, #k.A.
+                        'RadioCheckTextColor' : schrift,#k.A.
+    #                     'WorkspaceColor' : rot, #k.A.
+    #                     erzeugen Fehler:
+    #                     'FaceGradientColor' : 502,
+                        'SeparatorColor' : 502,                    
+                        }
+            
+     
+            def stilaenderung(win,ignore=[]):
+    
+                for s in STYLES:
+                    if s in ignore: 
+                        pass
+                    else:
+                        try:
+                            val = STYLES[s]
+                            setattr(win.StyleSettings, s, val)
+                        except Exception as e:
+                            pass
+                        
+                    win.Model.BackgroundColor = hf 
+                    #win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
+            
+    
+    
+            
+            # folgende Properties wuerden die Eigenschaften
+            # der Office Menubar und aller Buttons setzen
+            ignore = ['ButtonTextColor',
+                     'LightColor',
+                     'MenuBarTextColor',
+                     'MenuBorderColor',
+                     'ShadowColor'
+                     ]
+    
+    
+            
+            stilaenderung(win)
+            
+        except Exception as e:
+            log(inspect.stack,tb())
+      
                 
 from com.sun.star.awt import XMouseListener, XActionListener, XItemListener
 class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
@@ -851,16 +884,41 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                         self.setze_farbe_trenner(farbe,c)
                     elif c == 'trenner_farbe_schrift':
                         self.setze_farbe_trenner(farbe,c)
+                        
+                    elif c == 'tabs_sel_hintergrund':
+                        self.setze_farbe_sel_tab_hintergrund(farbe)
+                    elif c == 'tabs_sel_schrift':
+                        self.setze_farbe_sel_tab_schrift(farbe)
+                    elif c == 'tabs_hintergrund':
+                        self.setze_farbe_tab_hintergrund(farbe)
+                    elif c == 'tabs_schrift':
+                        self.setze_farbe_tab_schrift(farbe)
+                    elif c == 'tabs_trenner':
+                        self.setze_farbe_tab_trenner(farbe)
+                        
+                    elif c == 'linien':
+                        self.setze_farbe_linien(farbe)
+                        
+                    elif c == 'deaktiviert':
+                        self.setze_farbe_deaktiviert(farbe)
                     
                     ev.Source.Model.BackgroundColor = farbe  
                     self.mb.schreibe_settings_orga()
                     break
         except:
             log(inspect.stack,tb())   
+            
+            
+            
+            setze_farbe(self.setze_farbe_sel_tab_hintergrund,'tabs_sel_hintergrund')
+            setze_farbe(self.setze_farbe_sel_tab_schrift,'tabs_sel_schrift')
+            setze_farbe(self.setze_farbe_tab_hintergrund,'tabs_hintergrund')
+            setze_farbe(self.setze_farbe_tab_schrift,'tabs_schrift')
+            setze_farbe(self.setze_farbe_sel_tab_trenner,'tabs_trenner')
     
     def waehle_farbe(self,ev,art):  
         if self.mb.debug: log(inspect.stack)
-
+        print(art)
         farbe = self.mb.class_Funktionen.waehle_farbe(self.mb.settings_orga['organon_farben'][art])
         
         self.mb.settings_orga['organon_farben'][art] = farbe
@@ -902,6 +960,11 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                 
             elif cmd == 'writer_design':
                 self.nutze_writer_design(ev.Source)
+            
+            elif cmd == 'fenster_design':
+                design = self.mb.settings_orga['organon_farben']['design_organon_fenster']
+                design = 0 if design else 1
+                self.mb.settings_orga['organon_farben']['design_organon_fenster'] = design
                 
                 
             else:
@@ -921,14 +984,14 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
 
             sett = self.mb.settings_orga
             
-            ctrls,pos_y = self.dialog_writer_design()
+            ctrls,max_hoehe,max_breite = self.dialog_writer_design()
 
             x,y = loc.X + loc.Width + 20,loc.Y
 
                
             # Hauptfenster erzeugen
-            posSize = x,y,breite,pos_y + 40
-            fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
+            posSize = x,y,max_breite,max_hoehe + 20
+            fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
             self.bearbeitungs_fenster = fenster
             
             
@@ -974,12 +1037,12 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         try:
             listener = Listener_Writer_Design(self.mb)
 
-            controls = self.dialog_writer_design_elemente(listener)
-            ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
+            controls,max_breite = self.dialog_writer_design_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)  
                 
             listener.ctrls = ctrls
 
-            return ctrls, pos_y 
+            return ctrls, max_hoehe ,max_breite
   
         except:
             log(inspect.stack,tb())
@@ -992,17 +1055,8 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         from collections import OrderedDict
-        fixed_line_length = 250
                 
         controls = [
-            10,
-            ('control1',"FixedText",         
-                                    'tab0',0,168,20,  
-                                    ('Label','FontWeight'),
-                                    (LANG.WRITER_DESIGN ,150),                                             
-                                    {} 
-                                    ),
-            10,
             ]
         
         
@@ -1039,7 +1093,6 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         cts1['LO_tab_fuellung'] = [LANG.TAB_FUELLUNG,sett['LO_tab_fuellung']]           if LO else [] 
         cts1['LO_tab_trenner'] = [LANG.TAB_TRENNER,sett['LO_tab_trenner']]              if LO else [] 
         
-        
 
         def get_farbe(value):
             try:
@@ -1063,7 +1116,13 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                     LANG.ZEILE       + ' ' + LANG.GEZOGENE_ZEILE,
                     LANG.GLIEDERUNG,
                     LANG.TRENNER     + ' ' + LANG.HINTERGRUND,
-                    LANG.TRENNER     + ' ' + LANG.SCHRIFT
+                    LANG.TRENNER     + ' ' + LANG.SCHRIFT,
+                    
+                    LANG.TABS     + ' ' + LANG.HINTERGRUND,
+                    LANG.TABS     + ' ' + LANG.SCHRIFT,
+                    LANG.TABS     + ' ' + LANG.AUSGEWAEHLTE_ZEILE + ' ' + LANG.HINTERGRUND_ABK,
+                    LANG.TABS     + ' ' + LANG.AUSGEWAEHLTE_ZEILE + ' ' + LANG.SCHRIFT,
+                    LANG.TABS     + ' ' + LANG.AUSGEWAEHLTE_ZEILE + ' ' + LANG.TRENNER
                     )
         
         lb_items_syn = (
@@ -1078,6 +1137,12 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                         "gliederung",
                         "trenner_farbe_hintergrund",
                         "trenner_farbe_schrift",
+                        
+                        "tabs_hintergrund",
+                        "tabs_schrift",
+                        "tabs_sel_hintergrund",
+                        "tabs_sel_schrift",
+                        "linien",
                         )
         
         self.lb_dict = {lb_items_syn[i] : lb_items[i] for i in range(len(lb_items))}
@@ -1091,12 +1156,15 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             controls = []
             
             for c in cts:
+                
+                tab_line = '{0}-{1}-E'.format(tabs[0],tabs[2])
+                
                 if cts[c] == []: continue
                 
                 elif 'sep' in cts[c][0]:
                     cont = [
-                            ('control_{}'.format(c),"FixedLine",         
-                                    tabs[0],20,fixed_line_length,1,   
+                            ('control_{}'.format(c),"FixedLine",0,         
+                                    tab_line,20,20,1,   
                                     (),
                                     (),                                                  
                                     {} 
@@ -1108,8 +1176,8 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                 elif 'tit' in cts[c][0]:
                     cont = [
                             30,
-                            ('control_{}'.format(c),"FixedText",        
-                                        tabs[0],0,100,20,  
+                            ('control_{}'.format(c),"FixedText",1,        
+                                        tabs[2],0,50,20,  
                                         ('Label','FontWeight'),
                                         (cts[c][1],150),                                                                    
                                         {} 
@@ -1123,22 +1191,22 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
 
                     cont = [
                             20,
-                            ('control_{}'.format(c),"FixedText",        
+                            ('control_{}'.format(c),"FixedText",0,        
                                         tabs[0],0,32,16,  
                                         ('BackgroundColor','Label','Border'),
                                         (farbe,'    ',1),       
                                         {'addMouseListener':(listener)} 
                                         ), 
                             0,                                                  
-                            ('control_{}LB'.format(c),"ListBox",      
-                                        tabs[1],0,60,15,    
+                            ('control_{}LB'.format(c),"ListBox",0,      
+                                        tabs[1],0,40,15,    
                                         ('Border','Dropdown','LineCount'),
-                                        ( 2,True,15),       
-                                        {'addItems':lb_items, 'addItemListener':listener} 
+                                        ( 2,True,16),       
+                                        {'addItems':(lb_items,0), 'addItemListener':listener} 
                                         ), 
                             0,
-                            ('control_{}L'.format(c),"FixedText",        
-                                        tabs[2],0,170,20,  
+                            ('control_{}L'.format(c),"FixedText",1,        
+                                        tabs[2],0,20,20,  
                                         ('Label',),
                                         (cts[c][0],),                                                                    
                                         {} 
@@ -1147,14 +1215,14 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                     
                     
                     controls.extend(cont)
-                
+            
             return controls
         
         conts = erzeuge_conts(cts1,['tab0','tab1','tab2'])
         controls.extend(conts)
 
-       
-       # SEITENLEISTE
+        
+        # SEITENLEISTE
         
         cts3 = OrderedDict()
         cts3[''] = ['tit',LANG.SIDEBAR]
@@ -1181,7 +1249,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
          
         
         conts = erzeuge_conts(cts3,['tab3','tab4','tab5'],10)
-        conts[0] = 'Y=50'
+        conts[0] = 'Y=30'
         controls.extend(conts)
 
 
@@ -1191,31 +1259,31 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             personas_dict,personas_list,gallery_user_path = self.mb.class_Organon_Design.get_personas() 
             
             cts = [
-                   'Y=50',
-                    ('control_VP',"FixedText",        
-                                            'tab6',0,100,20,  
+                   'Y=30',
+                    ('control_VP',"FixedText",1,        
+                                            'tab6x',0,50,20,  
                                             ('Label','FontWeight'),
                                             (LANG.PERSONA,150),                                                                    
                                             {} 
                                             ), 
                    0,
-                   ('control_use_persona',"CheckBox",        
-                                            'tab8',0,120,20,  
+                   ('control_use_persona',"CheckBox",1,       
+                                            'tab8',0,50,20,  
                                             ('Label','State'),
                                             ( LANG.NUTZE_PERSONA,sett['nutze_personas']),       
-                                            {'addActionListener':(listener,)}
+                                            {'addActionListener':(listener)}
                                             ), 
                     20,
-                    ('control_personas_list',"ListBox",        
-                                            'tab6',0,120,20,  
+                    ('control_personas_list',"ListBox",0,        
+                                            'tab6x-tab7-E',0,102,20,  
                                             ('Border','Dropdown','LineCount'),
                                             ( 2,True,10),       
-                                            {'addItems':tuple(personas_list),'addItemListener':listener}
+                                            {'addItems':(tuple(personas_list),0),'addItemListener':listener}
                                             ), 
                    
                    30,
-                   ('controlFix2',"FixedLine",         
-                                    'tab6',20,fixed_line_length,1,   
+                   ('controlFix2',"FixedLine",0,         
+                                    'tab6-max',20,20,1,   
                                     (),
                                     (),                                                  
                                     {} 
@@ -1232,24 +1300,24 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         
         # DOCUMENT/DOCUMENTBACKGROUND
         if LO:
-            Y = 40
+            Y = 30
         else:
-            Y = 'Y=50'
+            Y = 'Y=30'
             
         cts = [
                Y,
-                ('control_DB',"FixedText",        
-                                        'tab6',0,100,20,  
+                ('control_DB',"FixedText",1,        
+                                        'tab6x',0,50,20,  
                                         ('Label','FontWeight'),
                                         (LANG.DOCUMENT,150),                                                                    
                                         {} 
                                         ), 
                0,
-               ('control_nutze_dok_farbe',"CheckBox",        
-                                        'tab8',0,120,20,  
+               ('control_nutze_dok_farbe',"CheckBox",1,        
+                                        'tab8',0,50,20,  
                                         ('Label','State'),
                                         ( LANG.NUTZE_DOK_FARBE,sett['nutze_dok_farbe']),       
-                                        {'addActionListener':(listener,)}
+                                        {'addActionListener':(listener)}
                                         ), 
                 0,
                 ]
@@ -1264,32 +1332,26 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         controls.extend(conts)      
         
         
-        tab0 = 20
-        tab1 = 80
-        tab2 = 150
-        tab3 = 320
-        tab4 = 380
-        tab5 = 450
-        tab6 = 660
-        tab7 = 720
-        tab8 = 790
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 5),
+                 1 : (None, 5),
+                 2 : (None, 30),
+                 3 : (None, 5),
+                 4 : (None, 5),
+                 5 : (None, 30),
+                 6 : (None, 5),
+                 7 : (None, 5),
+                 8 : (None, 0),
+                 }
         
-        tabs = ['tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab7','tab8']
+        abstand_links = 10
         
-        tabs_dict = {}
-        for a in tabs:
-            tabs_dict.update({a:locals()[a]  })
-
-        controls2 = []
-        for c in controls:
-            if not isinstance(c, int) and 'Y=' not in c:
-                c2 = list(c)
-                c2[2] = tabs_dict[c2[2]]
-                controls2.append(c2)
-            else:
-                controls2.append(c)
-
-        return controls2
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+        
+        listener.tabs = tabs3        
+        
+        return controls2,max_breite
     
     
     def nutze_writer_design(self,src):
@@ -1323,6 +1385,10 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             neu = copy.deepcopy(k)
             while k in sett:
                 k = k+'x'
+            
+            # aendern
+            # ueberpruefen, ob ein Wert fehlt
+            
             sett.update({ k : odict[neu] })
         
         self.mb.schreibe_settings_orga()
@@ -1415,6 +1481,14 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             setze_farbe(self.setze_farbe_schrift_dateien,'schrift_datei')
             setze_farbe(self.setze_farbe_schrift_ordner,'schrift_ordner')
             setze_farbe(self.setze_farbe_gliederung,'gliederung')
+            
+            setze_farbe(self.setze_farbe_sel_tab_hintergrund,'tabs_sel_hintergrund')
+            setze_farbe(self.setze_farbe_sel_tab_schrift,'tabs_sel_schrift')
+            setze_farbe(self.setze_farbe_tab_hintergrund,'tabs_hintergrund')
+            setze_farbe(self.setze_farbe_tab_schrift,'tabs_schrift')
+            setze_farbe(self.setze_farbe_tab_trenner,'tabs_trenner')
+            setze_farbe(self.setze_farbe_linien,'linien')
+            setze_farbe(self.setze_farbe_deaktiviert,'deaktiviert')
                         
             setze_farbe2('FARBE_AUSGEWAEHLTE_ZEILE','ausgewaehlte_zeile')            
             setze_farbe2('FARBE_EDITIERTE_ZEILE','editierte_zeile')
@@ -1433,11 +1507,13 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             sett['design_office'] = use_design
 
             if sett['design_office']:
+                
                 if self.mb.programm == 'LibreOffice':
                     if sett['office']['nutze_personas']:
                         self.mb.class_Organon_Design.setze_persona(sett['office']['persona_url'])
                     else:
                         self.mb.class_Organon_Design.setze_persona('','')
+                        
                 if sett['office']['nutze_dok_farbe']:
                     dok_farbe = sett['office']['dok_farbe']
                     dok_hintergrund = sett['office']['dok_hintergrund']
@@ -1610,6 +1686,60 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                     gliederung.Model.TextColor = farbe
         
         KONST.FARBE_GLIEDERUNG = farbe
+        
+    def setze_farbe_sel_tab_hintergrund(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+        
+        tab_ctrl = self.mb.tabsX.tableiste.getControl(T.AB)
+        tab_ctrl.Model.BackgroundColor = farbe
+        
+        KONST.FARBE_TABS_SEL_HINTERGRUND = farbe
+        
+    def setze_farbe_sel_tab_schrift(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+        
+        tab_ctrl = self.mb.tabsX.tableiste.getControl(T.AB)
+        tab_ctrl.Model.TextColor = farbe
+        
+        KONST.FARBE_TABS_SEL_SCHRIFT = farbe
+        
+    def setze_farbe_tab_hintergrund(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+        
+        for tab in self.mb.props:
+            if tab != T.AB:
+                tab_ctrl = self.mb.tabsX.tableiste.getControl(tab)
+                tab_ctrl.Model.BackgroundColor = farbe
+        
+        KONST.FARBE_TABS_HINTERGRUND = farbe
+        
+    def setze_farbe_tab_schrift(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+        
+        for tab in self.mb.props:
+            if tab != T.AB:
+                tab_ctrl = self.mb.tabsX.tableiste.getControl(tab)
+                tab_ctrl.Model.TextColor = farbe
+        
+        KONST.FARBE_TABS_SCHRIFT = farbe
+        
+    def setze_farbe_tab_trenner(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+
+        self.mb.tabsX.tableiste.Model.BackgroundColor = farbe
+        
+        KONST.FARBE_TABS_TRENNER = farbe
+
+    def setze_farbe_linien(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+
+        KONST.FARBE_LINIEN = farbe
+        
+    def setze_farbe_deaktiviert(self,farbe):
+        if self.mb.debug: log(inspect.stack)
+
+        KONST.FARBE_DEAKTIVIERT = farbe
+
 
 
 class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XActionListener):
@@ -1793,32 +1923,37 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
         
         if url == 'unveraendert':
             url = self.ctrls['control_theme'].Model.ImageURL    
-            
+        
+        
+        X = self.ctrls['control_theme'].PosSize.X
+        breite = self.ctrl_container.Size.Width-6
+        
         self.ctrls['control_theme'].dispose()
         
         bg_color = self.ctrls['control_farbe_hintergrund'].Model.BackgroundColor
         
         controls = [
                 1,
-                ('control_theme',"ImageControl",         
-                    1,0,self.ctrl_container.Size.Width-6,80,  
+                ('control_theme',"ImageControl",0,        
+                    X,0,breite,80,  
                     ('Label','FontWeight','ImageURL','Border','BackgroundColor'),
                     (LANG.ORGANON_DESIGN ,150,url,0,bg_color),                                             
                     {} 
                     ),
                 ]
 
-        ctrls,pos_y = self.mb.erzeuge_fensterinhalt(controls)
+        ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)
         
         self.ctrl_container.addControl('control_theme',ctrls['control_theme'])
         self.ctrls.update({'control_theme': ctrls['control_theme']})
-        self.ctrls['control_theme'].draw(1,1)
+        
          
         for c in self.ctrls['control_theme_tit'],self.ctrls['control_theme_untertit']:
             x,y = c.PosSize.X,c.PosSize.Y
             c.Model.TextColor = self.ctrls['control_farbe_schrift'].Model.BackgroundColor
-            c.draw(x,y+1)
-    
+            
+        
+        
             
     def disposing(self,ev):
         
@@ -2017,8 +2152,8 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
     def file_aussuchen(self): 
         if self.mb.debug: log(inspect.stack)
         
-        filter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter)
+        ofilter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter)
         
         if not ok:
             return None

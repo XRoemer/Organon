@@ -27,6 +27,7 @@ files = [
     'languages/lang_de.py',
     'languages/lang_en.py',
     'languages/lang_it.py',
+    'languages/lang_it.txt',
 
     'py/factory.py',
     'py/log_organon.py',
@@ -54,6 +55,8 @@ files = [
     'py/design.py',
     'py/organizer.py',
     'py/shortcuts.py',
+    'py/tags.py',
+    'py/fenster.py',
 
     'py/schalter.py',
 

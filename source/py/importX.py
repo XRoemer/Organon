@@ -11,7 +11,10 @@ class ImportX():
         self.fenster_import = None
         self.fenster_filter = None
         
-        self.auszuschliessende_filter = ('org.openoffice.da.writer2bibtex','org.openoffice.da.writer2latex','BibTeX_Writer','LaTeX_Writer')
+        self.auszuschliessende_filter = ('org.openoffice.da.writer2bibtex',
+                                         'org.openoffice.da.writer2latex',
+                                         'BibTeX_Writer',
+                                         'LaTeX_Writer')
         
         
     def importX(self):
@@ -27,189 +30,234 @@ class ImportX():
                 if self.fenster_filter != None:
                     self.fenster_filter.toFront()
             else:
-                self.erzeuge_importfenster()
+                self.dialog_importfenster()
                 
         except Exception as e:
             self.mb.nachricht('ImportX ' + str(e),"warningbox")
             log(inspect.stack,tb())
 
- 
-    def erzeuge_importfenster(self): 
+
+    def dialog_importfenster_elemente(self):
         if self.mb.debug: log(inspect.stack)
-        
-        breite = 400
-        hoehe = 460
         
         imp_set = self.mb.settings_imp
         
-        
+        listenerA2 = Auswahl_Button_Listener(self.mb)
+        filter_CB_listener = Filter_CheckBox_Listener(self.mb)
+        listenerA = Auswahl_CheckBox_Listener(self.mb)
+        filter_Ausw_B_listener = Filter_Auswahl_Button_Listener(self.mb)
+        listener_imp = Import_Button_Listener(self.mb)
 
-        posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
-        X = self.mb.dialog.Size.Width 
-        Y = posSize_main.Y 
-        Width = breite
-        Height = hoehe
         
-        posSize = X,Y,Width,Height
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-        fenster_cont.Model.Text = LANG.IMPORT
+        listener = (listenerA2,
+                    filter_CB_listener,
+                    listenerA,
+                    filter_Ausw_B_listener,
+                    listener_imp)
         
-        self.fenster_import = fenster
-        listenerDisp = Fenster_Dispose_Listener(self.mb,self)
-        fenster_cont.addEventListener(listenerDisp)
+        y = 0
         
-        y = 10
+        controls = [
         
+        10,
         # Titel
-        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
-        controlE.Text = LANG.IMPORT
-        modelE.FontWeight = 200.0
-        fenster_cont.addControl('Titel', controlE)
-        self.mb.kalkuliere_und_setze_Control(controlE,'w')
+        ('controlE0',"FixedText",1,
+                            'tab0',y ,50,20,
+                            ('Label','FontWeight'),
+                            (LANG.IMPORT,150),
+                            {}
+                            ), 
+        30,
+        ('control1',"CheckBox",1,
+                            'tab0',y,120,22,
+                            ('Label','State'),
+                            (LANG.IMPORT_DATEI, int(imp_set['imp_dat'])),
+                            {'setActionCommand':'model1','addActionListener':(listenerA)} 
+                            ),  
+        30,
+        ('control2',"CheckBox",1,
+                            'tab0',y,120,22,
+                            ('Label','State'),
+                            (LANG.IMPORT_ORDNER, int(not int(imp_set['imp_dat']))),
+                            {'setActionCommand':'model2','addActionListener':(listenerA)} 
+                            ),  
+        20,
         
-        y += 30
-        
-        control1, model1 = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
-        model1.Label = LANG.IMPORT_DATEI
-        model1.State = int(imp_set['imp_dat'])
-        control1.ActionCommand = 'model1'
-        fenster_cont.addControl('ImportD', control1)
-        self.mb.kalkuliere_und_setze_Control(control1,'w')
-        
-        y += 30
-        
-        control2, model2 = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,120,22,(),() )  
-        model2.Label = LANG.IMPORT_ORDNER
-        model2.State = not int(imp_set['imp_dat'])
-        control2.ActionCommand = 'model2'
-        fenster_cont.addControl('ImportO', control2)
-        self.mb.kalkuliere_und_setze_Control(control2,'w')
-        
-        y += 20
-        
-        control3, model3 = self.mb.createControl(self.mb.ctx,"CheckBox",40,y,180,22,(),() )  
-        model3.Label = LANG.ORDNERSTRUKTUR
-        model3.State =  int(imp_set['ord_strukt'])
-        control3.Enable = not int(imp_set['imp_dat'])
-        control3.ActionCommand = 'struktur'
-        fenster_cont.addControl('struktur', control3)
-        self.mb.kalkuliere_und_setze_Control(control3,'w')
-        
-        # CheckBox Listener
-        listenerA = Auswahl_CheckBox_Listener(self.mb,model1,model2,control3)
-        control1.addActionListener(listenerA)
-        control2.addActionListener(listenerA)
-        control3.addActionListener(listenerA)
-                    
-        y += 40
-        
+        ('control3',"CheckBox",1,
+                            'tab0x+18',y,180,22,
+                            ('Label','State'),
+                            (LANG.ORDNERSTRUKTUR, int(imp_set['ord_strukt']) ),
+                            {'setActionCommand':'struktur','addActionListener':(listenerA),
+                             'Enable' : not int(imp_set['imp_dat']) } 
+                            ),              
+        40,
         # Trenner -----------------------------------------------------------------------------
-        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
-        fenster_cont.addControl('Trenner', controlT)
-        
-        y += 40
-        
-        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,50,20,(),() )  
-        controlE.Text = LANG.DATEIFILTER
-        fenster_cont.addControl('Filter', controlE)
-        self.mb.kalkuliere_und_setze_Control(controlE,'w')
-        
+        ('controlT',"FixedLine",0,
+                            'tab0x-max',y ,40,40,
+                            (),
+                            (),
+                            {}
+                            ),  
+        40,
+        ('controlE1',"FixedText",1,
+                            'tab0',y ,50,20,
+                            ('Label',),
+                            (LANG.DATEIFILTER,),
+                            {}
+                            ), 
+        0,
+        (u'control_{}'.format(LANG.EIGENE_AUSWAHL),"CheckBox",1,
+                            'tab2', y, 100, 22,
+                            ('Label', 'State'),
+                            (LANG.EIGENE_AUSWAHL, int(imp_set['auswahl']) ),
+                            {'setActionCommand':'auswahl', 'addActionListener':(filter_CB_listener)} 
+                            ), 
+        0,         
+        ]
+
+
         buttons = {}
         filters = ('odt','doc','docx','rtf','txt')
-        filter_CB_listener = Filter_CheckBox_Listener(self.mb,buttons,fenster)
+        
         for filt in filters:
-            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",100 ,y,80,22,(),() ) 
-            control.ActionCommand = filt 
-            model.Label = filt
-            model.State = imp_set[filt]    
-            control.addActionListener(filter_CB_listener)                 
-            fenster_cont.addControl(filt, control)
-            buttons.update({filt:control})
-            if imp_set['auswahl'] == 1:
-                control.Enable = False
-            y += 16
+            name = u'control_{}'.format(filt)
+            controls.extend([
+                (name,"CheckBox",1,
+                                'tab0+80' ,y,80,22,
+                                ('Label','State'),
+                                (filt,int(imp_set[filt]) ),
+                                {'setActionCommand':filt,'addActionListener':(filter_CB_listener),
+                                'Enable': 0 if imp_set['auswahl'] == 1 else 1} 
+                                ),  
+                16,         
+            ])
 
+            buttons.update({filt:name})
+            
+            
+        buttons.update({'auswahl':u'control_{}'.format(LANG.EIGENE_AUSWAHL)})
         
-        control, model = self.mb.createControl(self.mb.ctx,"CheckBox",180 ,y-5*16,100,22,(),() )  
-        buttons.update({'auswahl':control})
-        control.ActionCommand = 'auswahl'
-        model.Label = LANG.EIGENE_AUSWAHL
-        model.State = imp_set['auswahl']   
-        control.addActionListener(filter_CB_listener)                    
-        fenster_cont.addControl('auswahl', control)      
-        self.mb.kalkuliere_und_setze_Control(control,'w')
+        controls.extend([
         
-        
-        control, model = self.mb.createControl(self.mb.ctx,"Button",180 + 16,y - 3*16  ,80,20,(),() )  ###
-        control.Label = LANG.AUSWAHL
-        fenster_cont.addControl('Filter_Auswahl', control)  
-        self.mb.kalkuliere_und_setze_Control(control,'w')
-        
-        filter_Ausw_B_listener = Filter_Auswahl_Button_Listener(self.mb,fenster)
-        control.addActionListener(filter_Ausw_B_listener)  
-        
-        
-        y += 20   
-        
+        ('control',"Button",1,
+                            'tab2',y,80,20,
+                            ('Label',),
+                            (LANG.AUSWAHL,),
+                            {'addActionListener':(filter_Ausw_B_listener)}
+                            ),
+        20,   
         # Trenner -----------------------------------------------------------------------------
-        controlT, modelT = self.mb.createControl(self.mb.ctx,"FixedLine",20,y-10 ,breite - 40,40,(),() )  
-        fenster_cont.addControl('Trenner', controlT)
+        ('controlT',"FixedLine",0,
+                            'tab0x-max',y ,40,40,
+                            (),
+                            (),
+                            {}
+                            ),  
+        40,
+        ('controlA',"Button",1,
+                            'tab0-tab0-E',y  ,110,22,
+                            ('Label',),
+                            (LANG.DATEIAUSWAHL,),
+                            {'setActionCommand':'Datei','addActionListener':(listenerA2)} 
+                            ),       
+        25,
+        ('controlE2',"FixedText",0,
+                            'tab0x-max',y ,100,70,
+                            ('Label','MultiLine'),
+                            ('-' if imp_set['url_dat'] in (None,'') else uno.fileUrlToSystemPath(decode_utf(imp_set['url_dat'])),True ),
+                            {}
+                            ),  
+        70,   
+        ('controlA2',"Button",1,
+                            'tab0-tab0-E',y  ,110,22,
+                            ('Label',),
+                            (LANG.ORDNERAUSWAHL,),
+                            {'setActionCommand':'Ordner','addActionListener':(listenerA2)} 
+                            ), 
+        25,
+        ('controlE3',"FixedText",0,
+                            'tab0x-max',y ,100,70,
+                            ('Label','MultiLine'),
+                            ('-' if imp_set['url_ord'] in (None,'') else uno.fileUrlToSystemPath(decode_utf(imp_set['url_ord'])), True),
+                            {}
+                            ), 
+        70,
+        ('controlI',"Button",1,
+                            'tab2',y  ,80,30,
+                            ('Label',),
+                            (LANG.IMPORTIEREN,),
+                            {'addActionListener':(listener_imp)} 
+                            ),
+        20,
         
-        y += 40
-
-        controlA, modelA = self.mb.createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
-        controlA.Label = LANG.DATEIAUSWAHL
-        controlA.ActionCommand = 'Datei'
-        fenster_cont.addControl('Auswahl', controlA) 
-        self.mb.kalkuliere_und_setze_Control(controlA,'w')
-        
-        y += 25
-        
-        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
-        text = imp_set['url_dat']
-        if text == None or text == '': 
-            text = '-'
-        else:
-            text = uno.fileUrlToSystemPath(decode_utf(text))
-        controlE.Text = text
-        fenster_cont.addControl('Filter', controlE)    
-        self.mb.kalkuliere_und_setze_Control(controlE,'w')
-        
-        y += 40   
-        
-        controlA2, modelA2 = self.mb.createControl(self.mb.ctx,"Button",20,y  ,110,20,(),() )  ###
-        controlA2.Label = LANG.ORDNERAUSWAHL
-        controlA2.ActionCommand = 'Ordner'
-        fenster_cont.addControl('Auswahl2', controlA2)             
-        self.mb.kalkuliere_und_setze_Control(controlA2,'w')
-        
-        y += 25
-        
-        controlE2, modelE2 = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,600,20,(),() )  
-        text = imp_set['url_ord']
-        if text == None or text == '': 
-            text = '-'
-        else:
-            text = uno.fileUrlToSystemPath(decode_utf(text))
-        controlE2.Text = text
-        fenster_cont.addControl('Filter2', controlE2) 
-        
-        listenerA2 = Auswahl_Button_Listener(self.mb,modelE,modelE2)
-        controlA.addActionListener(listenerA2)
-        controlA2.addActionListener(listenerA2)   
+        ])
         
         
-        y += 60
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 5),
+                 1 : (None, 5),
+                 2 : (None, 5),
+                 3 : (None, 5),
+                 4 : (None, 5),
+                 5 : (None, 0),
+                 }
         
-        controlI, modelI = self.mb.createControl(self.mb.ctx,"Button",breite - 80 - 20,y  ,80,30,(),() )  ###
-        controlI.Label = LANG.IMPORTIEREN
-        listener_imp = Import_Button_Listener(self.mb,fenster)
-        controlI.addActionListener(listener_imp)
-        self.mb.kalkuliere_und_setze_Control(controlI,'w')
-        fenster_cont.addControl('importieren', controlI) 
+        abstand_links = 10
         
-        fenster.setPosSize(0,0,0,y + 40,8)
-    
+        controls2, tabs3, max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)    
+        
+        return controls2, max_breite, buttons, listener
+        
+    def dialog_importfenster(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            
+            controls, max_breite, buttons, listener = self.dialog_importfenster_elemente()
+            ctrls, max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)   
+            
+            listenerDisp = Fenster_Dispose_Listener(self.mb,self)
+            
+            posSize_main = self.mb.desktop.ActiveFrame.ContainerWindow.PosSize
+            X = self.mb.dialog.Size.Width 
+            Y = posSize_main.Y 
+            
+            posSize = None,None,max_breite,max_hoehe
+            fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            fenster_cont.Model.Text = LANG.IMPORT
+            
+            self.fenster_import = fenster
+            
+            fenster_cont.addEventListener(listenerDisp)
+            
+            (listenerA2,
+            filter_CB_listener,
+            listenerA,
+            filter_Ausw_B_listener,
+            listener_imp) = listener
+            
+            listenerA2.model1 = ctrls['controlE2'].Model
+            listenerA2.model2 = ctrls['controlE3'].Model
+            filter_CB_listener.buttons = buttons
+            filter_CB_listener.fenster = fenster
+            listenerA.model1 = ctrls['control1'].Model
+            listenerA.model2 = ctrls['control2'].Model
+            listenerA.contr_strukt = ctrls['control3']
+            filter_Ausw_B_listener.importfenster = fenster
+            listener_imp.fenster = fenster
+            
+            for i,name in buttons.items():
+                buttons[i] = ctrls[name]
+                
+            # Controls in Hauptfenster eintragen
+            for c in ctrls:
+                fenster_cont.addControl(c,ctrls[c])
+        except Exception as e:
+            log(inspect.stack,tb())
+            
+        
+         
     
     def get_flags(self,x):
         #if self.mb.debug: log(inspect.stack)
@@ -396,14 +444,12 @@ from com.sun.star.awt import XItemListener, XActionListener, XFocusListener
 from com.sun.star.style.BreakType import NONE as BREAKTYPE_NONE  
 class Import_Button_Listener(unohelper.Base, XActionListener):
     
-    def __init__(self,mb,fenster):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.fenster = fenster
+        self.fenster = None
         
-        
-
-        
+            
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         
@@ -429,7 +475,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 self.fenster.dispose()
                 self.mb.class_Import.fenster_import = None
                 
-                self.mb.Listener.remove_Undo_Manger_Listener()
+                self.mb.Listener.remove_Undo_Manager_Listener()
                 lade = self.ordner_importieren()
     
                 if lade:
@@ -454,8 +500,9 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = 'Hidden'
         prop.Value = True
-    
-        self.oOO = self.mb.desktop.loadComponentFromURL(url_dat,'_blank',8+32,(prop,))
+        
+        url_dat2 = uno.systemPathToFileUrl(url_dat)
+        self.oOO = self.mb.desktop.loadComponentFromURL(url_dat2,'_blank',8+32,(prop,))
         
         # moeglicherweise vorhandene Links entfernen
         self.entferne_links(self.oOO)
@@ -1032,12 +1079,12 @@ class Import_CheckBox_Listener(unohelper.Base, XItemListener):
      
 
 class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb,model1,model2,contr_strukt):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.model1 = model1
-        self.model2 = model2
-        self.contr_strukt = contr_strukt
+        self.model1 = None
+        self.model2 = None
+        self.contr_strukt = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1071,71 +1118,75 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
         
            
 class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb,importfenster):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.importfenster = importfenster
+        self.importfenster = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
-
-        imp_set = self.mb.settings_imp  
         
-        if self.mb.programm == 'OpenOffice':
-            # OO erzeugt unregelmaessig einen Fehler, den ich nicht finden konnte, und stuerzt ab
-            # OO verliert die Werte fuer den Eintrag 'writer8' im dict filters_import
-            # daher werden die filter hier noch mal berechnet
-            self.erzeuge_filter()
-            filters = self.filters_import
-        else:
-            filters = self.mb.filters_import
-        
-    
-        ps = self.importfenster.PosSize
-        posSize = ps.X+ps.Width+20,ps.Y,400,len(filters)*16 + 70
-        
-        fenster, fenster_cont = self.mb.erzeuge_Dialog_Container(posSize)
-        
-        self.mb.class_Import.fenster_filter = fenster
-        
-        buttons = {}
-        f_listener = Filter_CheckBox_Listener2(self.mb,buttons)
-
-        y = 20
-        
-        # Titel
-        control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
-        control.Text = LANG.FILTER
-        model.FontWeight = 200.0
-        fenster_cont.addControl('Titel', control)
-
-        control, model = self.mb.createControl(self.mb.ctx,"Button",160,y-3,100,20,(),() )  
-        control.Label = LANG.ALLE_WAEHLEN
-        control.ActionCommand = 'alle_waehlen'
-        control.addActionListener(f_listener)
-        fenster_cont.addControl('Alle', control)  
-
-        y += 30
-        
-        filter_name = sorted(filters)
-        
-        for name in filter_name:
+        try:
+            imp_set = self.mb.settings_imp  
             
-            control, model = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,400,22,(),() )  
-            model.Label = filters[name][0]             
-            control.ActionCommand = name
-            
-            control.addActionListener(f_listener)
-            fenster_cont.addControl(name, control)
-              
-  
-            if name in imp_set['filterauswahl'].keys():
-                control.State = imp_set['filterauswahl'][name]
+            if self.mb.programm == 'OpenOffice':
+                # OO erzeugt unregelmaessig einen Fehler, den ich nicht finden konnte, und stuerzt ab
+                # OO verliert die Werte fuer den Eintrag 'writer8' im dict filters_import
+                # daher werden die filter hier noch mal berechnet
+                self.erzeuge_filter()
+                filters = self.filters_import
             else:
-                imp_set['filterauswahl'].update({name:0})
-            buttons.update({name:control})
- 
-            y += 16
+                filters = self.mb.filters_import
+            
+        
+            ps = self.importfenster.PosSize
+            posSize = ps.X+ps.Width+20,ps.Y,400,len(filters)*16 + 70
+            
+            fenster, fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            
+            self.mb.class_Import.fenster_filter = fenster
+            
+            buttons = {}
+            f_listener = Filter_CheckBox_Listener2(self.mb,buttons)
+    
+            y = 20
+            
+            # Titel
+            control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
+            control.Text = LANG.FILTER
+            model.FontWeight = 200.0
+            fenster_cont.addControl('Titel', control)
+    
+            control, model = self.mb.createControl(self.mb.ctx,"Button",160,y-3,100,20,(),() )  
+            control.Label = LANG.ALLE_WAEHLEN
+            control.ActionCommand = 'alle_waehlen'
+            control.addActionListener(f_listener)
+            fenster_cont.addControl('Alle', control)  
+    
+            y += 30
+            
+            filter_name = sorted(filters)
+            
+            for name in filter_name:
+                
+                control, model = self.mb.createControl(self.mb.ctx,"CheckBox",20,y,400,22,(),() )  
+                model.Label = filters[name][0]             
+                control.ActionCommand = name
+                
+                control.addActionListener(f_listener)
+                fenster_cont.addControl(name, control)
+                  
+      
+                if name in imp_set['filterauswahl'].keys():
+                    control.State = imp_set['filterauswahl'][name]
+                else:
+                    imp_set['filterauswahl'].update({name:0})
+                buttons.update({name:control})
+     
+                y += 16
+        except:
+            log(inspect.stack,tb())
+            
         
       
     def disposing(self,ev):
@@ -1239,13 +1290,14 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
         
        
 class Filter_CheckBox_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb,buttons,fenster):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.buttons = buttons
-        self.fenster = fenster
+        self.buttons = None
+        self.fenster = None
         
     def actionPerformed(self,ev):
+        
         if self.mb.debug: log(inspect.stack)
         
         imp_set = self.mb.settings_imp  
@@ -1292,11 +1344,11 @@ class Filter_CheckBox_Listener2(unohelper.Base, XActionListener):
 
 class Auswahl_Button_Listener(unohelper.Base, XActionListener):
     
-    def __init__(self,mb,model1,model2):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.model1 = model1
-        self.model2 = model2
+        self.model1 = None
+        self.model2 = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)

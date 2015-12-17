@@ -52,7 +52,7 @@ class Log():
         self.log_args = log_config['log_args']
         
          
-        if self.write_debug_file:
+        if self.debug and self.write_debug_file:
             self.schreibe_logfile_kopfzeile()
 
     
@@ -207,7 +207,9 @@ class Log():
                     inhalt = 'pyuno object'
                 a.append((arg,inhalt))
             
-            a = unicode(a)[1:-1]
+            # aendern
+            #a = unicode(a)[1:-1]
+            a = a[1:-1]
             return a
         except:
             print(tb())

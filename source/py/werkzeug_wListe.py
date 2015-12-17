@@ -36,7 +36,7 @@ class WListe():
         Y = 30
         posSize = (X,Y,0,0)
         
-        oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize)
+        oWindow,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
         self.erzeuge_Menu(cont,oWindow)
 
         
@@ -323,7 +323,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             posSize = (X,Y,400,0)
 
             container,Y,listener = self.erzeuge_auswahl(text)
-            oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize)
+            oWindow,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
             listener.window = oWindow
             
             y_desk = self.mb.current_Contr.ComponentWindow.PosSize.Height
@@ -415,7 +415,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         else:
             try:
                 PosSize = 0,0,0,y_desk 
-                control = self.mb.erzeuge_Scrollbar(fenster_cont,PosSize,control_innen)
+                control = self.mb.class_Fenster.erzeuge_Scrollbar(fenster_cont,PosSize,control_innen)
             except:
                 log(inspect.stack,tb())
             
@@ -423,8 +423,8 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def filepicker(self,ctrl):
         if self.mb.debug: log(inspect.stack)
         
-        filter = ('Find Quotations','*.txt')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+        ofilter = ('Find Quotations','*.txt')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
         
         if not ok:
             return

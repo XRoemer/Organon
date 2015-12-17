@@ -52,6 +52,7 @@ class Menu_Start():
             self.ctx = ctx
             self.smgr = self.ctx.ServiceManager
             self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
+            self.doc = self.get_doc()
             self.path_to_extension = path_to_extension
             self.programm = self.get_office_name()
             self.platform = sys.platform
@@ -60,21 +61,17 @@ class Menu_Start():
             self.settings_orga = settings_orga 
             self.zuletzt_geladene_Projekte = self.get_zuletzt_geladene_Projekte()
             self.dict_sb = dict_sb
+            self.dict_sb['setze_sidebar_design'] = self.setze_sidebar_design
             self.templates = {}
             
             try:
                 self.templates.update({'standard_stil':self.get_stil(),
                                        'get_stil':self.get_stil})
                 
-                
-                self.event_listener = Document_Close_Listener(self)
-                self.doc = self.get_doc()
-                self.doc.addDocumentEventListener(self.event_listener)
-                
-#                 if self.settings_orga['organon_farben']['design_office']:
-#                     #self.design_gesetzt = True
-#                     self.setze_sidebar_design()
-#                 pd()
+                if self.settings_orga['organon_farben']['design_office']:
+                    event_listener = Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(self)
+                    self.doc.addDocumentEventListener(event_listener)
+
             except:
                 log(inspect_stack,tb())
                 
@@ -106,13 +103,12 @@ class Menu_Start():
                         ok = True
                         projekt_pfad = a.Value.split(';')[1]
                         break
+            
             if not ok:
                 return False        
             
-            #projekt_pfad = 'C:\\Users\\Homer\\Documents\\organon projekte\\test2.organon\\test2.organon'
-            #projekt_pfad = 
-            #self.erzeuge_Startmenu()
-#         
+
+        
 #             # Das Editfeld ueberdeckt kurzzeitig das Startmenu fuer eine bessere Anzeige
 #             control, model = self.createControl(self.ctx,"Edit",0,0,1500,1500,(),() )  
 #             model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
@@ -166,7 +162,7 @@ class Menu_Start():
         self.dialog.addControl('Hauptfeld_aussen1',self.cont)  
 
 
-        Attr = (150,60,120,153,'Hauptfeld_aussen1', 0)    
+        Attr = (160,60,120,153,'Hauptfeld_aussen1', 0)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control, model = self.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
@@ -180,9 +176,9 @@ class Menu_Start():
         self.listener = Menu_Listener(self)
         
         
-        PosX = 30
+        PosX = 25
         PosY = 50
-        Width = 100
+        Width = 110
         Height = 30
         
         control, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
@@ -233,7 +229,10 @@ class Menu_Start():
             self.cont.addControl('Hauptfeld_aussen1',control) 
             PosY += 25
 
-        self.wurde_als_template_geoeffnet()
+        ist_template = self.wurde_als_template_geoeffnet()
+        if not ist_template:
+            pass
+        
         
     def erzeuge_Menu(self):
         if debug: log(inspect_stack)
@@ -409,6 +408,116 @@ class Menu_Start():
             return {}
         
         return default_template_style
+
+
+    def setze_sidebar_design(self): 
+        # In LO wird setze_sidebar_design bei aktivem Design durch 
+        # einen Thread gerufen. Globale Variablen stehen nicht zur
+        # Verfuegung, daher wird inspect erneut importiert.
+        import inspect
+        
+        if debug: log(inspect.stack)
+        try:
+            
+            def get_farbe(value):
+                if isinstance(value, int):
+                    return value
+                else:
+                    return self.settings_orga['organon_farben'][value]
+            
+            
+            personen = self.dict_sb['controls']['organon_sidebar']
+            theme = personen[0].Theme
+    
+            
+            sett = self.settings_orga['organon_farben']['office']['sidebar']
+            
+            hintergrund = get_farbe(sett['hintergrund'])
+            schrift = get_farbe(sett['schrift'])
+            
+            titel_hintergrund = get_farbe(sett['titel_hintergrund'])
+            titel_schrift = get_farbe(sett['titel_schrift'])
+            
+            panel_titel_hintergrund = get_farbe(sett['panel_titel_hintergrund'])
+            panel_titel_schrift = get_farbe(sett['panel_titel_schrift'])
+    
+            leiste_hintergrund = get_farbe(sett['leiste_hintergrund'])
+            leiste_selektiert_hintergrund = get_farbe(sett['leiste_selektiert_hintergrund'])
+            leiste_icon_umrandung = get_farbe(sett['leiste_icon_umrandung'])
+            
+            border_horizontal = get_farbe(sett['border_horizontal'])
+            border_vertical = get_farbe(sett['border_vertical'])
+            
+            # folgende muessen bereits in factory.py gesetzt werden
+            # selected_schrift, eigene_fenster_hintergrund, schrift, selected_hintergrund
+            
+            
+            # Tabbar  
+            theme.setPropertyValue('Paint_TabBarBackground', leiste_hintergrund)
+            theme.setPropertyValue('Paint_TabItemBackgroundNormal', leiste_hintergrund)
+            theme.setPropertyValue('Color_TabMenuSeparator', leiste_hintergrund)
+            theme.setPropertyValue('Paint_TabItemBackgroundHighlight', leiste_selektiert_hintergrund)
+            theme.setPropertyValue('Color_TabItemBorder', leiste_icon_umrandung)            
+            theme.setPropertyValue('Int_ButtonCornerRadius', 0)
+            
+            # Hintergruende
+            theme.setPropertyValue('Paint_PanelBackground', hintergrund)
+            theme.setPropertyValue('Paint_DeckBackground', hintergrund)
+            theme.setPropertyValue('Paint_DeckTitleBarBackground', titel_hintergrund)
+            
+            tbb = theme.Paint_PanelTitleBarBackground
+            tbb.StartColor = panel_titel_hintergrund
+            tbb.EndColor = panel_titel_hintergrund
+            theme.setPropertyValue('Paint_PanelTitleBarBackground', tbb)
+    
+            # Borders
+            theme.setPropertyValue('Paint_HorizontalBorder', border_horizontal)
+            theme.setPropertyValue('Paint_VerticalBorder', border_vertical)
+            
+            # Schriften
+            theme.setPropertyValue('Color_DeckTitleFont', titel_schrift)
+            theme.setPropertyValue('Color_PanelTitleFont', panel_titel_schrift)
+            
+    
+            theme.setPropertyValue('Paint_ToolBoxBorderBottomRight', hintergrund) # buttons Umrandung
+            theme.setPropertyValue('Paint_ToolBoxBorderTopLeft', hintergrund) # buttons Umrandung
+    
+            tbb = theme.Paint_ToolBoxBackground # buttons Hintergrund
+            tbb.StartColor = hintergrund 
+            tbb.EndColor = hintergrund
+            theme.setPropertyValue('Paint_ToolBoxBackground', tbb)
+            
+            rot = 16275544
+                       
+            theme.setPropertyValue('Paint_DropDownBackground', rot)
+            theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', rot) #??? 
+            theme.setPropertyValue('Color_Highlight', rot)
+            theme.setPropertyValue('Color_HighlightText', rot)
+            theme.setPropertyValue('Color_DropDownBorder', rot)
+            theme.setPropertyValue('Color_PanelTitleFont', rot)
+            
+            # Panel Titel
+            dict_sb = self.dict_sb
+            sl = dict_sb['seitenleiste']
+            
+            if sl:
+                try:
+                    # erzeugt in fedora xfce einen fehler
+                    sl.StyleSettings.ButtonTextColor = schrift
+                except:
+                    pass
+                self.dict_sb['design_gesetzt'] = True
+
+            sb = personen[1]
+            sb.requestLayout()
+            
+            
+            
+            
+        except:
+            log(inspect.stack,tb())
+            
+        
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
@@ -509,24 +618,14 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
            
 
 from com.sun.star.document import XDocumentEventListener
-class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
-    '''
-    Lets Writer close without warning.
-    As everything is saved by Organon, a warning isn't necesarry.
-    Even more it might confuse the user.
-    
-    '''
+class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEventListener):
+
     def __init__(self,ms):
         if debug: log(inspect_stack)
         self.ms = ms
 
-    def documentEventOccured(self,ev):
-        #if self.ms.debug: 
-            #log(inspect.stack,extras=self.ms.doc.StringValue)
-            #log(inspect.stack,extras=ev.EventName)
+    def documentEventOccured(self,ev):        
         
-        #print(ev.EventName)
-
         if ev.EventName == 'OnLayoutFinished':
             
             # Abfrage, ob ueberhaupt ein Layout fuer die 
@@ -536,23 +635,16 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
             # Evt. gilt das aber auch für das gesamte Dokument
             
             ctrl = self.ms.dict_sb['controls']
-            #print('organon_sidebar' in ctrl)
+            
             if 'organon_sidebar' not in ctrl:
+                if debug: log(inspect_stack)
+                
                 self.seitenleiste_erzeugen()
-            
-#             try:   
-#                 if self.ms.settings_orga['organon_farben']['design_office']:
-#                     print('hier')
-#                     self.ms.Menu_Bar.class_Sidebar.setze_sidebar_design()
-#                     
-#             except:
-#                log(inspect_stack,tb()) 
-#                pd()
-        
-            
+                
+            self.ms.doc.removeDocumentEventListener(self)
+      
     def disposing(self,ev):
         return False
-    
     
     def seitenleiste_erzeugen(self):
         if debug: log(inspect_stack)
@@ -565,6 +657,9 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
                 wins = contr.ComponentWindow.Windows
                 
                 childs = []
+                
+                from com.sun.star.uno.TypeClass import INTERFACE
+                otype = uno.Type('com.sun.star.awt.XTopWindow2',INTERFACE)
         
                 for w in wins:
                     if not w.isVisible():continue
@@ -575,84 +670,252 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
                         child = w.AccessibleContext.getAccessibleChild(0)
                         if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
                             continue
+                        if otype not in child.Types:
+                            continue
                         else:
                             childs.append(child)
                             
                 orga_sb = None
-                ch = None
-                try:
-                    for c in childs:
+                if len(childs) == 1:
+                    seitenleiste = childs[0]
+                else:
+                    seitenleiste = None
+                
+                if seitenleiste:
+                    for w in seitenleiste.Windows:
                         try:
-                            for w in c.Windows:
-                                try:
-                                    for w2 in w.Windows:
-                                        if w2.AccessibleContext.AccessibleDescription == 'Organon':
-                                            orga_sb = w2
-                                            ch = c
-                                except:
-                                    pass
+                            for w2 in w.Windows:
+                                if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                                    orga_sb = w2
                         except:
                             pass
-                except:
-                    log(inspect_stack,tb())
-        
-                return orga_sb,ch
+                
+                return orga_sb,seitenleiste
             
-            def sl_erzeugen():
-            
-                def dispatch(cmd,oprop=('',None)):
+                        
+            def dispatch2(cmd,oprop=('',None)):
                     
+                    if debug: log(inspect_stack,extras='dispatch erzeugt')
                     sm = uno.getComponentContext().ServiceManager
                     dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
-                    #dispatcher = self.ms.createUnoService("com.sun.star.frame.DispatchHelper")
                     
                     prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
                        
                     prop.Name = oprop[0]
                     prop.Value = oprop[1]
+                    
                     res = dispatcher.executeDispatch(self.ms.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
             
-                def sleeper(fkt,fkt2,fkt3,orga_sb): 
+            
+            
+            def sl_erzeugen():
+
+                def sleeper(fkt,fkt2,dict_sb,orga_sb): 
                     
-                    fkt3('Sidebar')  
                     import time
                     
                     while orga_sb == None:
                         time.sleep(.1) 
                         orga_sb,seitenleiste = fkt()
                         
-                    fkt2(orga_sb)
+                    fkt2(orga_sb,dict_sb)
             
-                def resume(orga_sb): 
-                    orga_sb.setState(True)    
-                    dispatch('Sidebar')
+                def resume(orga_sb,dict_sb): 
+                    
+                    orga_sb.setState(True)  
+                    
+                    import time 
+                    time.sleep(.2) 
+                    dict_sb['setze_sidebar_design']()
+                    dict_sb['sb_closed'] = False
+                    dict_sb['orga_sb'] = orga_sb
                     
                     
                 try:   
+                    dict_sb = self.ms.dict_sb
                     orga_sb,seitenleiste = get_seitenleiste()
                     
-                    if not orga_sb:
-
+                    if seitenleiste and not orga_sb:
+                        # LO
+                        dict_sb['seitenleiste'] = seitenleiste
+                        
                         from threading import Thread
-                        t = Thread(target=sleeper,args=(get_seitenleiste,resume,dispatch,orga_sb))
+                        t = Thread(target=sleeper,args=(get_seitenleiste,resume,dict_sb,orga_sb))
                         t.start() 
-                         
-                        return t 
-                    else:
-                        orga_sb.setState(True)
-                    
+                        
+                    elif seitenleiste and orga_sb:
+                        # OO
+                        orga_sb.setState(True)   
+                        dict_sb['setze_sidebar_design']()
+                        dict_sb['sb_closed'] = False
+                        dict_sb['seitenleiste'] = seitenleiste
+                        dict_sb['orga_sb'] = orga_sb
+
                 except:
                     log(inspect_stack,tb())
-
-            try: 
-                t = sl_erzeugen()
-            except:
-                log(inspect_stack,tb())
+            
+            t = sl_erzeugen()
 
         except:
             log(inspect_stack,tb())
             
+
+   
+    def set_seitenleiste_stiel_OO(self,seitenleiste):
+        if debug: log(inspect_stack)
+        try:
+            ctx = uno.getComponentContext()
+            smgr = ctx.ServiceManager
+            toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            frame = desktop.Frames.getByIndex(0)
+            comp = frame.ComponentWindow
             
+            rot = 16275544
+    
+            hf = KONST.FARBE_HF_HINTERGRUND
+            menu = KONST.FARBE_MENU_HINTERGRUND
+            schrift = KONST.FARBE_SCHRIFT_DATEI
+            menu_schrift = KONST.FARBE_MENU_SCHRIFT
+            selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+            ordner = KONST.FARBE_SCHRIFT_ORDNER
+            
+            sett = self.ms.settings_orga['organon_farben']['office']
+            
+            def get_farbe(value):
+                if isinstance(value, int):
+                    return value
+                else:
+                    return self.ms.settings_orga['organon_farben'][value]
+            
+            # Kann button_schrift evt. herausgenommen werden?
+            button_schrift = get_farbe(sett['button_schrift'])
+            
+            statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
+            statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
+            
+            felder_hintergrund = get_farbe(sett['felder_hintergrund'])
+            felder_schrift = get_farbe(sett['felder_schrift'])
+            
+            # Sidebar
+            sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
+            sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
+            sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
+            sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
+            
+            trenner_licht = get_farbe(sett['trenner_licht'])
+            trenner_schatten = get_farbe(sett['trenner_schatten'])
+            
+            # Lineal
+            OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
+            OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
+            OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
+            
+            LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
+            LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
+            LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
+            LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
+            LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
+            
+            
+            LO = ('LibreOffice' in frame.Title)
+            
+            STYLES = {  
+                      # Allgemein
+                        'ButtonRolloverTextColor' : button_schrift, # button rollover
+                        
+                        'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
+                        'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
+                        
+                        # Trenner
+                        'LightColor' : trenner_licht, # Fenster Trenner
+                        'ShadowColor' : trenner_schatten, # Fenster Trenner
+                        
+                        # OO Lineal + Trenner
+                         
+                        'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
+                                            else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
+                        'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
+                                             else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
+                            
+                        # Sidebar
+                        'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
+                        'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
+                        'FaceColor' : (hf if LO        # LO Formatvorlagen Treeview Verbinder
+                                        else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
+                        'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
+                                        else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
+                        'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
+                        'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
+                        
+                        
+#                         'ActiveBorderColor' : rot,#k.A.
+#                         'ActiveColor' : rot,#k.A.
+#                         'ActiveTabColor' : rot,#k.A.
+#                         'ActiveTextColor' : rot,#k.A.
+#                         'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
+#                         'CheckedColor' : rot,#k.A.
+#                         'DeactiveBorderColor' : rot,#k.A.
+#                         'DeactiveColor' : rot,#k.A.
+#                         'DeactiveTextColor' : rot,#k.A.
+#                         'DialogTextColor' : rot,#k.A.
+#                         'DisableColor' : rot,
+#                         'FieldRolloverTextColor' : rot,#k.A.
+#                         'GroupTextColor' : rot,#k.A.
+#                         'HelpColor' : rot,#k.A.
+#                         'HelpTextColor' : rot,#k.A.
+#                         'InactiveTabColor' : rot,#k.A.
+#                         'InfoTextColor' : rot,#k.A.
+#                         'MenuBarColor' : rot,#k.A.
+#                         'MenuBarTextColor' : rot,#k.A.
+#                         'MenuBorderColor' : rot,#k.A.
+#                         'MenuColor' : rot,#k.A.
+#                         'MenuHighlightColor' : rot,#k.A.
+#                         'MenuHighlightTextColor' : rot,#k.A.
+#                         'MenuTextColor' : rot,#k.A.
+#                         'MonoColor' : rot, #k.A.
+#                         'RadioCheckTextColor' : rot,#k.A.
+#                         'WorkspaceColor' : rot, #k.A.
+#                         erzeugen Fehler:
+#                         'FaceGradientColor' : 502,
+#                         'SeparatorColor' : 502,                    
+                        }
+            
+     
+            def stilaenderung(win,ignore=[]):
+    
+                for s in STYLES:
+                    if s in ignore: 
+                        pass
+                    else:
+                        try:
+                            val = STYLES[s]
+                            setattr(win.StyleSettings, s, val)
+                        except Exception as e:
+                            pass
+                        
+                    win.setBackground(statusleiste_hintergrund) # Hintergrund Statuszeile
+                    win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
+            
+            
+            
+            
+            stilaenderung(seitenleiste)
+            
+            
+            
+            
+            
+            return
+        
+            
+            
+        except Exception as e:
+            log(inspect_stack,tb())
+            
+
+            
+
             
             
             

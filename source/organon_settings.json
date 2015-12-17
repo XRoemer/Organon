@@ -39,7 +39,16 @@
         "trenner_farbe_schrift": 8553090,
         "menu_hintergrund": 15790320,
 
+        "tabs_hintergrund": 13884141,
+        "tabs_schrift": 0,
+        "tabs_sel_hintergrund": 3000059,
+        "tabs_sel_schrift": 0,
+        "tabs_trenner": 15790320,
+        "linien": 15790320,
+        "deaktiviert": 3000059,
+
         "design_office":0,
+        "design_organon_fenster":1,
         "office": {
         	"nutze_personas" : 1,
         	"persona_url" : "OO Blue/footer.png;OO Blue/footer.png;#000000;#636363",
@@ -130,10 +139,12 @@
 	            "trenner_licht": "schrift_datei",
 	            "persona_url": "",
 	            "LO_tab_fuellung": "menu_hintergrund"
+	           
 	        },
 	        "schrift_datei": 0,
 	        "hf_hintergrund": 13880262,
 	        "design_office": 0,
+	        "design_organon_fenster":1,
 	        "menu_hintergrund": 13027014,
 	        "trenner_farbe_hintergrund": 15658734,
 	        "gliederung": 0,
@@ -141,7 +152,16 @@
 	        "editierte_zeile": 16771014,
 	        "ausgewaehlte_zeile": 14866636,
 	        "trenner_farbe_schrift": 10066329,
-	        "gezogene_zeile": 16741376
+	        "gezogene_zeile": 16741376,
+
+	        "tabs_hintergrund": 13880262,
+	        "tabs_schrift": 0,
+	        "tabs_sel_hintergrund": 16741376,
+	        "tabs_sel_schrift": 0,
+	        "tabs_trenner": 16777215,
+	        "linien": 10066329,
+	        "deaktiviert": 6118749
+
 	    },
 	    "Greyscale": {
 	        "schrift_ordner": 0,
@@ -183,10 +203,12 @@
 	            "trenner_licht": "schrift_datei",
 	            "persona_url": "Greyscale/footer.png;Greyscale/footer.png;#d0d0d0;#636363",
 	            "LO_tab_fuellung": "menu_hintergrund"
+	           
 	        },
-	        "schrift_datei": 6184542,
+	        "schrift_datei": 4671303,
 	        "hf_hintergrund": 15198183,
 	        "design_office": 1,
+	        "design_organon_fenster":1,
 	        "menu_hintergrund": 4539717,
 	        "trenner_farbe_hintergrund": 15658734,
 	        "gliederung": 10724259,
@@ -194,7 +216,16 @@
 	        "editierte_zeile": 10658466,
 	        "ausgewaehlte_zeile": 14145495,
 	        "trenner_farbe_schrift": 10066329,
-	        "gezogene_zeile": 7566195
+	        "gezogene_zeile": 7566195,
+
+	        "tabs_hintergrund": 15198183,
+	        "tabs_schrift": 8421504,
+	        "tabs_sel_hintergrund": 7566195,
+	        "tabs_sel_schrift": 14211288,
+	        "tabs_trenner": 4539717,
+	        "linien": 4539717,
+	        "deaktiviert": 11053224
+
 	    },
 	    "OO Blue": {
 	        "schrift_ordner": 24971,
@@ -236,10 +267,12 @@
 	            "trenner_licht": 15790320,
 	            "persona_url": "OO Blue/footer.png;OO Blue/footer.png;#000000;#636363",
 	            "LO_tab_fuellung": "menu_hintergrund"
+	           
 	        },
 	        "schrift_datei": 0,
 	        "hf_hintergrund": 13884141,
 	        "design_office": 1,
+	        "design_organon_fenster":1,
 	        "menu_hintergrund": 15790320,
 	        "trenner_farbe_hintergrund": 15790320,
 	        "gliederung": 6250335,
@@ -247,7 +280,15 @@
 	        "editierte_zeile": 15790320,
 	        "ausgewaehlte_zeile": 12765426,
 	        "trenner_farbe_schrift": 8553090,
-	        "gezogene_zeile": 3000059
+	        "gezogene_zeile": 3000059,
+
+	        "tabs_hintergrund": 13884141,
+	        "tabs_schrift": 0,
+	        "tabs_sel_hintergrund": 3000059,
+	        "tabs_sel_schrift": 0,
+	        "tabs_trenner": 15790320,
+	        "linien": 15790320,
+	        "deaktiviert": 8224125
 	    },
 	    "Sand": {
 	        "schrift_ordner": 13535232,
@@ -289,10 +330,12 @@
 	            "trenner_licht": 13747109,
 	            "persona_url": "Sand/footer.png;Sand/footer.png;#140f06;#636363",
 	            "statusleiste_hintergrund": 13747109
+	           
 	        },
 	        "schrift_datei": 5324057,
 	        "ausgewaehlte_zeile": 14931123,
 	        "design_office": 1,
+	        "design_organon_fenster":1,
 	        "menu_hintergrund": 13747109,
 	        "trenner_farbe_hintergrund": 12760473,
 	        "gliederung": 10921638,
@@ -300,7 +343,15 @@
 	        "editierte_zeile": 14803425,
 	        "hf_hintergrund": 16707016,
 	        "trenner_farbe_schrift": 16707016,
-	        "gezogene_zeile": 16767897
+	        "gezogene_zeile": 16767897,
+
+	        "tabs_hintergrund": 16707016,
+	        "tabs_schrift": 5324057,
+	        "tabs_sel_hintergrund": 16767897,
+	        "tabs_sel_schrift": 5324057,
+	        "tabs_trenner": 13747109,
+	        "linien": 13747109,
+	        "deaktiviert": 14931123
 	    },
 	    "Dark": {
 	        "schrift_ordner": 16275544,
@@ -342,10 +393,12 @@
 	            "trenner_licht": "hf_hintergrund",
 	            "persona_url": "Dark/footer.png;Dark/footer.png;#d1c4c4;#636363",
 	            "LO_tab_fuellung": "menu_hintergrund"
+	           
 	        },
 	        "schrift_datei": 13747396,
 	        "hf_hintergrund": 2041132,
 	        "design_office": 1,
+	        "design_organon_fenster":1,
 	        "menu_hintergrund": 3884884,
 	        "trenner_farbe_hintergrund": 2041132,
 	        "gliederung": 8625594,
@@ -353,7 +406,15 @@
 	        "editierte_zeile": 6841205,
 	        "ausgewaehlte_zeile": 4609123,
 	        "trenner_farbe_schrift": 10066329,
-	        "gezogene_zeile": 16741376
+	        "gezogene_zeile": 16741376,
+
+	        "tabs_hintergrund": 2041132,
+	        "tabs_schrift": 13747396,
+	        "tabs_sel_hintergrund": 16741376,
+	        "tabs_sel_schrift": 2041132,
+	        "tabs_trenner": 3884884,
+	        "linien": 3884884,
+	        "deaktiviert": 5201776
 	    }
 	}
 }

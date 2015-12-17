@@ -219,6 +219,7 @@ ZEIT2 = u'Zeit:'
 DATUM = u'Datum'
 
 # TABS
+TABS = u'''Tabs'''
 ERZEUGE_NEUEN_TAB_AUS = u'Erzeuge neuen Tab aus:'
 MEHRFACHE_AUSWAHL = u'(Mehrfachauswahl möglich)'
 TAGS_SEITENLEISTE = u'Tags Seitenleiste'
@@ -305,6 +306,12 @@ GEZOGENE_ZEILE = u'gezogen'
 DESIGNS = u'Design'
 NEUES_DESIGN = u'Neues Design'
 LOESCHEN = u'Löschen'
+
+DESIGN_ORGANON_FENSTER = u'''Design Organon Fenster'''
+DEAKTIVIERTE_BUTTONS = u'''Deaktivierte Buttons'''
+DEAKTIVIERT = u'''deaktiviert'''
+HINTERGRUND_ABK = u'''Hgr.'''
+LINIEN = u'''Linien'''
 
 KEINE_JSON_DATEI = u'Dies ist keine gültige .json Datei'
 DESIGNNAMEN_EINGEBEN = u'Geben Sie einen Namen für das Design an'

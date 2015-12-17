@@ -33,7 +33,7 @@ class Index():
         Y = 30
         posSize = (X,Y,0,0)
         
-        oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize)
+        oWindow,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
         self.erzeuge_Menu(cont,oWindow)
         
 
@@ -242,8 +242,8 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def filepicker(self,ctrl):
         if self.mb.debug: log(inspect.stack)
 
-        filter = ('Source','*.txt;*.odt')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(filter=filter,sys=True)
+        ofilter = ('Source','*.txt;*.odt')
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
         
         if not ok:
             return

@@ -248,7 +248,7 @@ class Organizer():
             self.bilder_reihe[row][panel_nr]['hoehe'] = hoehe
             self.bilder_reihe[row][panel_nr]['values'] = [ ordinal,url,panel_nr,cell ]  
             
-            self.update_reihe_ansicht(row) 
+            self.update_bilder_pos(row) 
             self.update_icon_pos(col, row)
             self.tags_org['ordinale'][ordinal][panel_nr] = url
         except:
@@ -332,6 +332,22 @@ class Organizer():
         shape.setSize(s)
         
         
+    def setze_icon_pos(self,shape,cell):
+        if self.mb.debug: log(inspect.stack)
+        
+        breite = cell.Size.Width
+                        
+        p = shape.Position
+        p.X = cell.Position.X + breite/20
+        p.Y = cell.Position.Y + (cell.Size.Height - hoehe/10*9) /2
+        shape.setPosition(p)
+        
+        s = shape.Size
+        s.Height = hoehe/10*9
+        s.Width = breite/10*9
+        shape.setSize(s)
+        
+        
     def setze_zell_hoehe(self,cell,hoehe):  
         if self.mb.debug: log(inspect.stack)
         
@@ -343,31 +359,39 @@ class Organizer():
             # Bei einem Update des Bildes muss erneut geprueft werden
             if cell.Size.Height < hoehe:
                 cell.Rows.setPropertyValue('Height',hoehe)   
-        
-    
-    def update_reihe_ansicht(self,row):
-        if self.mb.debug: log(inspect.stack)
-        
-        shapes = [v for a,v in self.bilder_reihe[row].items()]
-        
-        cell = self.sheet.getCellByPosition(0,row)
-            
-        cell.Rows.setPropertyValue('OptimalHeight',True)
-        
-        if shapes != []:
-            h_max = sorted([v['hoehe'] for a,v in self.bilder_reihe[row].items()])[-1]
-            self.setze_zell_hoehe(cell,h_max)
-            
-            for v in shapes:
-                shape = v['shape']
-                hoehe = v['hoehe']
-                cell = v['values'][3]
-                self.setze_shape_pos(shape,cell,hoehe)
-                
 
-    def update_icon_pos(self,col,row):
+ 
+    def update_bilder_pos(self,row):
         if self.mb.debug: log(inspect.stack)
+        
+        def setze_bild(r):
+            shapes = [v for a,v in self.bilder_reihe[r].items()]
+            
+            cell = self.sheet.getCellByPosition(0,r)
                 
+            cell.Rows.setPropertyValue('OptimalHeight',True)
+            
+            if shapes != []:
+                h_max = sorted([v['hoehe'] for a,v in self.bilder_reihe[r].items()])[-1]
+                self.setze_zell_hoehe(cell,h_max)
+                
+                for v in shapes:
+                    shape = v['shape']
+                    hoehe = v['hoehe']
+                    cell = v['values'][3]
+                    self.setze_shape_pos(shape,cell,hoehe)
+        
+        
+        if self.mb.programm == 'LibreOffice':
+            for row in self.bilder_reihe:
+                setze_bild(row)
+        else:
+            if row in self.bilder_reihe:
+                setze_bild(row)
+            
+    def update_icon_pos_OO(self,col,row):
+        if self.mb.debug: log(inspect.stack)
+        
         def berechne_pos(c):
             pos = c.Position
             h = c.Size.Height
@@ -379,17 +403,16 @@ class Organizer():
             return pos
 
         def do(name,cell):
+            
             icon = self.icons[name]
-            url = icon.Control.ImageURL
-            self.draw_page.remove(icon)
-            icon.dispose()
-
             pos = berechne_pos(cell)
-            icon = self.erzeuge_img_button([pos.X,pos.Y],name,url)
-            self.draw_page.add(icon)
+            
+            size = icon.Size
+            size.Height = 500
+            icon.setSize(size)
+            
             icon.setPosition(berechne_pos(cell))
-            self.icons.update({name:icon})
-            icon.addEventListener(self.listener2)
+
         
         try:
             visible_tags_tv = self.mb.settings_proj['tag1'],self.mb.settings_proj['tag2']
@@ -405,6 +428,58 @@ class Organizer():
                 cell = self.sheet.getCellByPosition(self.pos[0]-2,row)
                 do(name,cell)
             
+        except:
+            log(inspect.stack,tb())    
+
+    def update_icon_pos(self,col,row):
+        if self.mb.debug: log(inspect.stack)
+        
+        visible_tags_tv = self.mb.settings_proj['tag1'],self.mb.settings_proj['tag2']
+        OO = self.mb.programm == 'OpenOffice'
+        
+        
+        def berechne_pos(c):
+            pos = c.Position
+            h = c.Size.Height
+            h2 = 500#i.Size.Height
+            hh = int((float(h) - h2)/2)
+            
+            y = pos.Y + hh
+            pos.Y = y
+            return pos
+
+        def do(name,cell):
+            icon = self.icons[name]
+            pos = berechne_pos(cell)
+            icon.setPosition(berechne_pos(cell))
+            
+            if OO:
+                size = icon.Size
+                size.Height = 500
+                icon.setSize(size)
+
+        
+        def aendere_pos(ordi,r):
+            if visible_tags_tv[0]:
+                name = 'IMG_{}'.format(ordi)
+                cell = self.sheet.getCellByPosition(self.pos[0]-1,r)
+                do(name,cell)
+                
+            if visible_tags_tv[1]:
+                name = 'IMGU_{}'.format(ordi)
+                cell = self.sheet.getCellByPosition(self.pos[0]-2,r)
+                do(name,cell)
+
+
+        try:
+            ordinal = self.Eintraege[row-self.pos[1]-1][0]
+            
+            if OO:
+                aendere_pos(ordinal,row)
+            else:
+                for i,e in enumerate(self.Eintraege):
+                    ordinal = e[0]
+                    aendere_pos(ordinal,self.pos[1] + i + 1)
         except:
             log(inspect.stack,tb())
             
@@ -678,9 +753,10 @@ class Organizer():
         
         weiter = True
         zu_loeschen = []
+        papierkorb_ord = self.mb.props[T.AB].Papierkorb
         
         for e in range(len(Eintraege)):
-            if Eintraege[e][2] == 'Papierkorb':
+            if Eintraege[e][0] == papierkorb_ord:
                 weiter = False
             if weiter:
                 Eintraege[e] = list(Eintraege[e])
@@ -858,6 +934,7 @@ class Organizer():
                     shape2.addEventListener(self.listener2)
                 
                 y1 += 1
+            
         except:
             log(inspect.stack,tb())
             
@@ -1176,7 +1253,9 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 self.tag_hinzufuegen(tag,ordinal,panel_nr)
                 
             cell = self.Org.sheet.getCellByPosition(col,row)
-            cell.String = self.liste_nach_zelle(inhalt)
+            i = self.liste_nach_zelle(inhalt)
+            self.setze_zelle(col,row,i)
+            
         except:
             log(inspect.stack,tb())        
             
@@ -1185,7 +1264,7 @@ class Modify_Listener(unohelper.Base, XModifyListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-
+            
             for a in aenderungen:
                 
                 col,row,inhalt = a
@@ -1201,22 +1280,17 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 
                 visible_tags_tv = self.mb.settings_proj['tag1'],self.mb.settings_proj['tag2']
  
-                if row in self.Org.bilder_reihe and (visible_tags_tv[0] or visible_tags_tv[1]):
-                    def bns():
-                        self.Org.update_reihe_ansicht(row)
-                        self.Org.update_icon_pos(col,row)
+                if (visible_tags_tv[0] or visible_tags_tv[1]):
+                    def bns(r):
+                        self.Org.update_bilder_pos(r)
+                        self.Org.update_icon_pos(col,r)
                     bild_neu_setzen = bns
                     
-                elif row in self.Org.bilder_reihe:
-                    def bns2():
-                        self.Org.update_reihe_ansicht(row)
+                else:
+                    def bns2(r):
+                        self.Org.update_bilder_pos(r)
                     bild_neu_setzen = bns2
                     
-                else:
-                    def p():
-                        pass
-                    bild_neu_setzen = p
-
 
                 # PROJEKTNAME
                 if (col,row) == (self.Org.pos[0],self.Org.pos[1] + 1):
@@ -1232,12 +1306,12 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 # LEERER INHALT
                 if inhalt == '':
                     self.setze_leeren_inhalt(col,row,panel_nr,ordinal)
-                    bild_neu_setzen()
+                    bild_neu_setzen(row)
                     continue
                 # TEXT PANELS          
                 if panel_nr in self.Org.txt_panels:
                     self.setze_txt_panels(col,row,panel_nr,ordinal,inhalt)
-                    bild_neu_setzen()
+                    bild_neu_setzen(row)
                     continue
                 # DATUM         
                 if panel_nr in self.Org.date_panels:
@@ -1272,8 +1346,10 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                     self.mb.nachricht(LANG.EIN_TAG_BEREITS_VORHANDEN,"infobox")
                     self.zuruecksetzen(col,row,panel_nr)                   
                 else:
-                    self.setze_aenderung(col,row,panel_nr,ordinal,inhalt,geloeschte,hinzugefuegte)
-                    bild_neu_setzen()
+                    self.setze_aenderung(col,row,panel_nr,ordinal,inhalt,geloeschte,hinzugefuegte)                    
+                    bild_neu_setzen(row)
+                        
+
                
         except:
             log(inspect.stack,tb())
@@ -1415,7 +1491,7 @@ class Icons_Listener(unohelper.Base,XScriptListener):
             
             
             posSize = X,Y,120,85
-            win,cont = self.mb.erzeuge_Dialog_Container(posSize,parent=parent)
+            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,parent=parent)
             cont.addControl('loeschen', control)
             cont.addControl('aendern', control2)
             
@@ -1473,7 +1549,7 @@ class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
                     shape.dispose()
 
                     org.bild_einfuegen(col,row,self.panel_nr,url=url)
-                    org.update_reihe_ansicht(row) 
+                    org.update_bilder_pos(row) 
                     org.update_icon_pos(col,row)
                          
             elif cmd == 'loeschen':
@@ -1486,7 +1562,7 @@ class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
                 del org.bilder_reihe[row][self.panel_nr]
                 org.setze_zelle_und_tag(c+1,r,cell,'',self.ordinal,self.panel_nr)
 
-                org.update_reihe_ansicht(row) 
+                org.update_bilder_pos(row) 
                 org.update_icon_pos(col,row)  
                 org.tags_org['ordinale'][self.ordinal][self.panel_nr] = ''
                  

@@ -6,11 +6,16 @@ from pickle import load as pickle_load
 from pickle import dump as pickle_dump
 
 class Sidebar(): 
+    '''
+    Die Methode setze_sidebar_design findet sich im Modul menu_start,
+    da sie dort schon gebraucht wird und es keine direkte Verbindung
+    der zwei Module gibt. setze_sidebar_design wird via 
+    dict_sb['setze_sidebar_design'] uebergeben.
+    '''
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb     
-        self.design_gesetzt = False   
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
 
         self.hoehen = [] 
@@ -26,11 +31,12 @@ class Sidebar():
         
         dict_sb = self.mb.dict_sb
         
-        if not self.design_gesetzt:
+        if not dict_sb['design_gesetzt']:
             if self.mb.settings_orga['organon_farben']['design_office']:
-                self.design_gesetzt = True
-                self.setze_sidebar_design()
-
+                dict_sb['setze_sidebar_design']()
+                
+                
+        
         # hoehen zuruecksetzen
         self.hoehen = []
 
@@ -362,10 +368,7 @@ class Sidebar():
                     height = 30
                 
                 self.hoehen.append([panel_nr,height])
-       
-            
-            
-            
+
             
             y = 0
             y2 = 0
@@ -394,90 +397,7 @@ class Sidebar():
             log(inspect.stack,tb())  
             
                   
-    def setze_sidebar_design(self):  
-        
-        try:
-            
-            def get_farbe(value):
-                if isinstance(value, int):
-                    return value
-                else:
-                    return self.mb.settings_orga['organon_farben'][value]
-            
-            
-            personen = self.mb.dict_sb['controls']['organon_sidebar']
-            theme = personen[0].Theme
-    
-            
-            sett = self.mb.settings_orga['organon_farben']['office']['sidebar']
-            
-            hintergrund = get_farbe(sett['hintergrund'])
-            
-            titel_hintergrund = get_farbe(sett['titel_hintergrund'])
-            titel_schrift = get_farbe(sett['titel_schrift'])
-            
-            panel_titel_hintergrund = get_farbe(sett['panel_titel_hintergrund'])
-            panel_titel_schrift = get_farbe(sett['panel_titel_schrift'])
-    
-            leiste_hintergrund = get_farbe(sett['leiste_hintergrund'])
-            leiste_selektiert_hintergrund = get_farbe(sett['leiste_selektiert_hintergrund'])
-            leiste_icon_umrandung = get_farbe(sett['leiste_icon_umrandung'])
-            
-            border_horizontal = get_farbe(sett['border_horizontal'])
-            border_vertical = get_farbe(sett['border_vertical'])
-            
-            # folgende muessen bereits in factory.py gesetzt werden
-            # selected_schrift, eigene_fenster_hintergrund, schrift, selected_hintergrund
-            
-            
-            # Tabbar  
-            theme.setPropertyValue('Paint_TabBarBackground', leiste_hintergrund)
-            theme.setPropertyValue('Paint_TabItemBackgroundNormal', leiste_hintergrund)
-            theme.setPropertyValue('Color_TabMenuSeparator', leiste_hintergrund)
-            theme.setPropertyValue('Paint_TabItemBackgroundHighlight', leiste_selektiert_hintergrund)
-            theme.setPropertyValue('Color_TabItemBorder', leiste_icon_umrandung)            
-            theme.setPropertyValue('Int_ButtonCornerRadius', 0)
-            
-            # Hintergruende
-            theme.setPropertyValue('Paint_PanelBackground', hintergrund)
-            theme.setPropertyValue('Paint_DeckBackground', hintergrund)
-            theme.setPropertyValue('Paint_DeckTitleBarBackground', titel_hintergrund)
-            
-            tbb = theme.Paint_PanelTitleBarBackground
-            tbb.StartColor = panel_titel_hintergrund
-            tbb.EndColor = panel_titel_hintergrund
-            theme.setPropertyValue('Paint_PanelTitleBarBackground', tbb)
-    
-            # Borders
-            theme.setPropertyValue('Paint_HorizontalBorder', border_horizontal)
-            theme.setPropertyValue('Paint_VerticalBorder', border_vertical)
-            
-            # Schriften
-            theme.setPropertyValue('Color_DeckTitleFont', titel_schrift)
-            theme.setPropertyValue('Color_PanelTitleFont', panel_titel_schrift)
-            
-    
-            theme.setPropertyValue('Paint_ToolBoxBorderBottomRight', hintergrund) # buttons Umrandung
-            theme.setPropertyValue('Paint_ToolBoxBorderTopLeft', hintergrund) # buttons Umrandung
-    
-            tbb = theme.Paint_ToolBoxBackground # buttons Hintergrund
-            tbb.StartColor = hintergrund 
-            tbb.EndColor = hintergrund
-            theme.setPropertyValue('Paint_ToolBoxBackground', tbb)
-            
-    #         theme.setPropertyValue('Paint_DropDownBackground', rot)
-    #         theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', rot) #??? 
-    #         theme.setPropertyValue('Color_Highlight', rot)
-    #         theme.setPropertyValue('Color_HighlightText', rot)
-    #         theme.setPropertyValue('Color_DropDownBorder', rot)
-        
-            sb = personen[1]
-            sb.requestLayout()
-        
-        except:
-            log(inspect.stack,tb())
-            
-        
+
 
        
            
@@ -506,7 +426,7 @@ class Sidebar():
 #  
 #             n_button.setState(True)
 #             o_button.setState(True)
-#             #pd()
+#             
 #         except:
 #             log(inspect.stack,tb())
 
@@ -919,11 +839,7 @@ class Tags_Collapse_Button_Listener(unohelper.Base, XMouseListener):
             log(inspect.stack,tb())
         
 
-        
-        
-        
-        
-        
+
         
         
         

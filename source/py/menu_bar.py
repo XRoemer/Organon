@@ -173,10 +173,11 @@ class Menu_Bar():
             self.class_Organon_Design = self.lade_modul('design','Organon_Design')
             self.class_Organizer =      self.lade_modul('organizer','Organizer')
             self.class_Shortcuts =      self.lade_modul('shortcuts','Shortcuts')
+            self.class_Fenster =        self.lade_modul('fenster','Fenster')
             
             
             # TABS
-            self.tabsX = self.lade_modul('tabs','TabsX')#(self,self.win,log)
+            self.tabsX = self.lade_modul('tabs','TabsX')
             self.tabsX.run(self.win)
             self.prj_tab = self.tabsX.erzeuge_neuen_tab('ORGANON')
             self.dialog.addControl('tableiste',self.tabsX.tableiste)
@@ -349,6 +350,7 @@ class Menu_Bar():
             if load_reload:
                 control, model = self.createControl(self.ctx, "FixedText", x+30, 2, 50, 20, (), ())           
                 model.Label = 'Test'  
+                model.TextColor = KONST.FARBE_MENU_SCHRIFT
                 control.addMouseListener(listener)
                 
                 menuB_control.addControl('Test', control)
@@ -382,7 +384,7 @@ class Menu_Bar():
                 prefSize = control.getPreferredSize()
      
                 Hoehe = prefSize.Height 
-                Breite = prefSize.Width + 10
+                Breite = prefSize.Width + 20
                 control.setPosSize(0,0,Breite ,Hoehe,12)
                 
                 control.addMouseListener(listener)
@@ -419,7 +421,7 @@ class Menu_Bar():
             sep.setPosSize(0,0,xBreite ,0,4)
         
         try:
-            controlTexttools.setPosSize(xBreite +30,0,0 ,0,1)
+            controlTexttools.setPosSize(xBreite + 30,0,0 ,0,1)
         except:
             pass
         
@@ -459,11 +461,7 @@ class Menu_Bar():
                     control_I, model_I = self.createControl(self.ctx, "ImageControl", 5, y, 16,16, (), ())
                     model_I.Border = 0
                     
-                    prefSize = control.getPreferredSize()
-         
-                    Hoehe = prefSize.Height 
-                    Breite = prefSize.Width +15
-                    control.setPosSize(0,0,Breite ,Hoehe,12)
+                    
                     
                     if item[1] == 'Ueberschrift':
                         model.FontWeight = 150
@@ -499,7 +497,11 @@ class Menu_Bar():
                         if panel_nr in self.tags['sichtbare']:
                             model_I.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
                         
-                        
+                    prefSize = control.getPreferredSize()
+         
+                    Hoehe = prefSize.Height 
+                    Breite = prefSize.Width + 15
+                    control.setPosSize(0,0,Breite ,Hoehe,12)
 
                     if xBreite < Breite:
                         xBreite = Breite
@@ -680,151 +682,8 @@ class Menu_Bar():
             
           
     def debug_time(self):
-        zeit = "%0.2f" %(self.time.clock()-self.timer_start)
-        return zeit
+        return "%0.2f" %(self.time.clock()-self.timer_start)
 
-        
-    def erzeuge_Dialog_Container(self,posSize,Flags=1+32+64+128,parent=None):
-        if self.debug: log(inspect.stack)
-        
-        ctx = self.ctx
-        smgr = self.smgr
-        
-        X,Y,Width,Height = posSize
-        
-        if parent == None:
-            parent = self.topWindow 
-    
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-        oCoreReflection = smgr.createInstanceWithContext("com.sun.star.reflection.CoreReflection", ctx)
-    
-        # Create Uno Struct
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.WindowDescriptor")
-        oReturnValue, oWindowDesc = oXIdlClass.createObject(None)
-        # global oWindow
-        oWindowDesc.Type = uno.Enum("com.sun.star.awt.WindowClass", "TOP")
-        oWindowDesc.WindowServiceName = ""
-        oWindowDesc.Parent = parent
-        oWindowDesc.ParentIndex = -1
-        oWindowDesc.WindowAttributes = Flags # Flags fuer com.sun.star.awt.WindowAttribute
-    
-        oXIdlClass = oCoreReflection.forName("com.sun.star.awt.Rectangle")
-        oReturnValue, oRect = oXIdlClass.createObject(None)
-        oRect.X = X
-        oRect.Y = Y
-        oRect.Width = Width 
-        oRect.Height = Height 
-        
-        oWindowDesc.Bounds = oRect
-    
-        # create window
-        oWindow = toolkit.createWindow(oWindowDesc)
-         
-        # create frame for window
-        oFrame = smgr.createInstanceWithContext("com.sun.star.frame.Frame",ctx)
-        oFrame.initialize(oWindow)
-        oFrame.setCreator(self.desktop)
-        oFrame.activate()
-        oFrame.Name = 'Xaver' # no effect
-        oFrame.Title = 'Xaver2' # no effect
-        # create new control container
-        cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
-        cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-        cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
-        
-        #cont_model.ForegroundColor = KONST.FARBE_SCHRIFT_DATEI
-        cont.setModel(cont_model)
-        # need createPeer just only the container
-        cont.createPeer(toolkit, oWindow)
-        #cont.setPosSize(0, 0, 0, 0, 15)
-
-        oFrame.setComponent(cont, None)
-        
-        # PosSize muss erneut gesetzt werden, um die Anzeige zu erneuern,
-        # sonst bleibt ein Teil des Fensters schwarz
-        oWindow.setPosSize(0,0,Width,Height,12)
-        
-        # um das fenster bei sehr vielen Controls schneller zu schliessen,
-        # wird es vom Listener auf invisible(True) gesetzt
-        dispose_listener = Window_Dispose_Listener(oWindow,self)
-        cont.addEventListener(dispose_listener)
-        
-        # muss noch genauer ausgetueftelt werden
-        set_app_style(cont,self.settings_orga)
-        
-        return oWindow,cont
-    
-    
-    def erzeuge_fensterinhalt(self,controls,pos_y=None):
-        # Controls und Models erzeugen
-        if pos_y == None:
-            pos_y = 0
-        ctrls = {}
-        
-        pos_y_max = [0]
-        
-        for ctrl in controls:
-            if isinstance(ctrl,int):
-                pos_y += ctrl
-            elif 'Y=' in ctrl:
-                pos_y_max.append(pos_y)
-                pos_y = int(ctrl.split('Y=')[1])
-            else:
-                name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
-                locals()[name],locals()[name.replace('control','model')] = self.createControl(self.ctx,unoCtrl,X,pos_y+Y,width,height,prop_names,prop_values)
-                
-                if 'calc' in name:
-                    w,h = self.kalkuliere_und_setze_Control(locals()[name],'w')
-    
-                    
-                if 'setActionCommand' in extras:
-                    locals()[name].setActionCommand(extras['setActionCommand'])
-                if 'addItems' in extras:
-                    locals()[name].addItems(extras['addItems'],0)
-                if 'Enable' in extras:
-                    locals()[name].Enable = extras['Enable']
-                if 'addActionListener' in extras:
-                    for l in extras['addActionListener']:
-                        locals()[name].addActionListener(l)
-                if 'addKeyListener' in extras:
-                    locals()[name].addKeyListener(extras['addKeyListener'])
-                if 'addMouseListener' in extras:
-                    locals()[name].addMouseListener(extras['addMouseListener'])
-                if 'addItemListener' in extras:
-                    locals()[name].addItemListener(extras['addItemListener'])      
-                if 'addFocusListener' in extras:
-                    locals()[name].addFocusListener(extras['addFocusListener'])                     
-                if 'SelectedItems' in extras:
-                    locals()[name].Model.SelectedItems = extras['SelectedItems']
-                
-                ctrls.update({name:locals()[name]})    
-        
-        pos_y_max.append(pos_y)
-        return ctrls,max(pos_y_max)
-    
-    def erzeuge_Scrollbar(self,fenster_cont,PosSize,control_innen):
-        if self.debug: log(inspect.stack)
-           
-        PosX,PosY,Width,Height = PosSize
-        Width = 20
-        
-        control, model = self.createControl(self.ctx,"ScrollBar",PosX,PosY,Width,Height,(),() )  
-        model.Orientation = 1
-        model.LiveScroll = True        
-        model.ScrollValueMax = control_innen.PosSize.Height/4 
-                
-        control.LineIncrement = fenster_cont.PosSize.Height/Height*50
-        control.BlockIncrement = 200
-        control.Maximum =  control_innen.PosSize.Height  
-        control.VisibleSize = Height      
-
-        listener = self.scrollbar_listener(self,control_innen)
-        listener.fenster_cont = control_innen
-        control.addAdjustmentListener(listener) 
-        
-        fenster_cont.addControl('ScrollBar',control) 
-        
-        return control 
      
     def loesche_undo_Aktionen(self):
         if self.debug: log(inspect.stack)
@@ -862,7 +721,7 @@ class Menu_Bar():
         if self.debug: log(inspect.stack) 
         # diese Methode existiert, um alle Schreibvorgaenge
         # des XML_trees bei Bedarf kontrollieren zu koennen
-        self.pruefe()
+        #self.pruefe()
         tree.write(pfad)
     
     def prettyprint(self,pfad,oObject,w=600):
@@ -871,28 +730,7 @@ class Menu_Bar():
         imp = pformat(oObject,width=w)
         with codecs_open(pfad , "w",'utf-8') as file:
             file.write(imp)
-        
-
-    def oeffne_dokument_in_neuem_fenster(self,URL):
-        if self.debug: log(inspect.stack)
-        
-        self.new_doc = self.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
             
-        contWin = self.new_doc.CurrentController.Frame.ContainerWindow               
-        contWin.setPosSize(0,0,870,900,12)
-        
-        lmgr = self.new_doc.CurrentController.Frame.LayoutManager
-        for elem in lmgr.Elements:
-        
-            if lmgr.isElementVisible(elem.ResourceURL):
-                lmgr.hideElement(elem.ResourceURL)
-                
-        lmgr.HideCurrentUI = True  
-        
-        viewSettings = self.new_doc.CurrentController.ViewSettings
-        viewSettings.ZoomType = 3
-        viewSettings.ZoomValue = 100
-        viewSettings.ShowRulers = False
     
     def kalkuliere_und_setze_Control(self,ctrl,h_or_w = None):
         #if self.debug: log(inspect.stack)
@@ -903,6 +741,9 @@ class Menu_Bar():
         
         if h_or_w == None:
             ctrl.setPosSize(0,0,Breite,Hoehe,12)
+        elif h_or_w == 'w_pruefen':
+            if Breite > ctrl.Size.Width:
+                ctrl.setPosSize(0,0,Breite,0,4)
         elif h_or_w == 'h':
             ctrl.setPosSize(0,0,0,Hoehe,8)
         elif h_or_w == 'w':
@@ -914,12 +755,12 @@ class Menu_Bar():
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
         try:
-            #smgr = ctx.getServiceManager()
             ctrl = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
             ctrl_model = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
             ctrl_model.setPropertyValues(names,values)
             ctrl.setModel(ctrl_model)
             ctrl.setPosSize(x,y,width,height,15)
+            #ctrl_model.BackgroundColor = 501
             return (ctrl, ctrl_model)
         except:
             log(inspect.stack,tb())
@@ -964,7 +805,7 @@ class Menu_Bar():
         controls = list((x,'') for x in controls)
         
         posSize = x3+2,y3,Breite +20,Hoehe +20
-        win,cont = self.erzeuge_Dialog_Container(posSize,Flags=1+512)
+        win,cont = self.class_Fenster.erzeuge_Dialog_Container(posSize,Flags=1+512)
         
         # Listener fuers Dispose des Fensters
         listener2 = Schliesse_Menu_Listener(self,texttools=True)
@@ -1060,161 +901,7 @@ class Menu_Bar():
           
         return items
         
-def set_app_style(win,settings_orga):
-    try:
-        ctx = uno.getComponentContext()
-        smgr = ctx.ServiceManager
-        toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-        desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-        frame = desktop.Frames.getByIndex(0)
-        comp = frame.ComponentWindow
-        
-        rot = 16275544
 
-        hf = KONST.FARBE_HF_HINTERGRUND
-        menu = KONST.FARBE_MENU_HINTERGRUND
-        schrift = KONST.FARBE_SCHRIFT_DATEI
-        menu_schrift = KONST.FARBE_MENU_SCHRIFT
-        selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
-        ordner = KONST.FARBE_SCHRIFT_ORDNER
-        
-        sett = settings_orga['organon_farben']['office']
-        
-        def get_farbe(value):
-            if isinstance(value, int):
-                return value
-            else:
-                return settings_orga['organon_farben'][value]
-        
-        # Kann button_schrift evt. herausgenommen werden?
-        button_schrift = get_farbe(sett['button_schrift'])
-        
-        statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
-        statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
-        
-        felder_hintergrund = get_farbe(sett['felder_hintergrund'])
-        felder_schrift = get_farbe(sett['felder_schrift'])
-        
-        # Sidebar
-        sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
-        sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
-        sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
-        sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
-        
-        trenner_licht = get_farbe(sett['trenner_licht'])
-        trenner_schatten = get_farbe(sett['trenner_schatten'])
-        
-        # Lineal
-        OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
-        OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
-        OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
-        
-        LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
-        LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
-        LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
-        LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
-        LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
-        
-        
-        LO = ('LibreOffice' in frame.Title)
-        
-        STYLES = {  
-                  # Allgemein
-                    'ButtonRolloverTextColor' : button_schrift, # button rollover
-                    
-                    'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
-                    'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
-                    
-                    # Trenner
-                    'LightColor' : menu, # Fenster Trenner
-                    'ShadowColor' : menu, # Fenster Trenner
-                    
-                    # OO Lineal + Trenner
-                     
-                    'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
-                                        else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
-                    'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
-                                         else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
-                        
-                    # Sidebar
-                    'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
-                    'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
-                    'FaceColor' : (schrift if LO        # LO Formatvorlagen Treeview Verbinder
-                                    else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
-                    'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
-                                    else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
-                    'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
-                    'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
-                    
-                    
-#                     'ActiveBorderColor' : rot,#k.A.
-#                     'ActiveColor' : rot,#k.A.
-#                     'ActiveTabColor' : rot,#k.A.
-#                     'ActiveTextColor' : rot,#k.A.
-#                     'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
-#                     'CheckedColor' : rot,#k.A.
-#                     'DeactiveBorderColor' : rot,#k.A.
-#                     'DeactiveColor' : rot,#k.A.
-#                     'DeactiveTextColor' : rot,#k.A.
-                    'DialogTextColor' : rot,#k.A.
-                    'DisableColor' : rot,
-#                     'FieldRolloverTextColor' : rot,#k.A.
-#                     'GroupTextColor' : rot,#k.A.
-#                     'HelpColor' : rot,#k.A.
-#                     'HelpTextColor' : rot,#k.A.
-#                     'InactiveTabColor' : rot,#k.A.
-#                     'InfoTextColor' : rot,#k.A.
-#                     'MenuBarColor' : rot,#k.A.
-#                     'MenuBarTextColor' : rot,#k.A.
-#                     'MenuBorderColor' : rot,#k.A.
-                    'MenuColor' : rot,#k.A.
-                    'WindowColor' : hf,#k.A.
-
-#                     'MenuHighlightColor' : rot,#k.A.
-#                     'MenuHighlightTextColor' : rot,#k.A.
-                    'MenuTextColor' : schrift,#k.A.
-#                     'MonoColor' : rot, #k.A.
-                    'RadioCheckTextColor' : schrift,#k.A.
-#                     'WorkspaceColor' : rot, #k.A.
-#                     erzeugen Fehler:
-#                     'FaceGradientColor' : 502,
-                    'SeparatorColor' : 502,                    
-                    }
-        
- 
-        def stilaenderung(win,ignore=[]):
-
-            for s in STYLES:
-                if s in ignore: 
-                    pass
-                else:
-                    try:
-                        val = STYLES[s]
-                        setattr(win.StyleSettings, s, val)
-                    except Exception as e:
-                        pass
-                    
-                win.Model.BackgroundColor = hf 
-                #win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
-        
-
-
-        
-        # folgende Properties wuerden die Eigenschaften
-        # der Office Menubar und aller Buttons setzen
-        ignore = ['ButtonTextColor',
-                 'LightColor',
-                 'MenuBarTextColor',
-                 'MenuBorderColor',
-                 'ShadowColor'
-                 ]
-
-
-        
-        stilaenderung(win)
-        
-    except Exception as e:
-        log(inspect.stack,tb())
        
 
 class Props():
@@ -1610,7 +1297,7 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
                     y = self.mb.prj_tab.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
                     posSize = x,y,Breite +20,Hoehe +20
                     
-                    oWindow,cont = self.mb.erzeuge_Dialog_Container(posSize,1+16+512,parent=self.mb.win)
+                    oWindow,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,1+16+512,parent=self.mb.win)
                     
                     # Listener fuers Dispose des Fensters
                     listener2 = Schliesse_Menu_Listener(self.mb)
@@ -2055,7 +1742,7 @@ class Mitteilungen():
                 parent = self.mb.win
         
         posSize = parent.PosSize.Width/2-100, parent.PosSize.Height/2-50, 0, 0
-        fenster,fenster_cont = self.mb.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=parent)
+        fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=parent)
         
         ctrl, model = self.mb.createControl(self.ctx, "FixedText", 10, 15, 0, 0, (), ())          
         model.Label = nachricht
@@ -2579,28 +2266,5 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
             log(inspect.stack,tb())
 
         
-        
-from com.sun.star.lang import XEventListener
-class Window_Dispose_Listener(unohelper.Base,XEventListener):
-    '''
-    Closing the dialog window holding 50+ controls might
-    freeze Writer. This listener closes the window
-    explicitly
-    
-    '''
-    def __init__(self,fenster,mb):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
-        self.fenster = fenster
-    
-    def disposing(self,ev):
-
-        if 'win' in self.mb.platform:
-            # Beschleunigt das Dispose ungemein !
-            self.fenster.setVisible(False)
-            return
-        else:
-            self.fenster.dispose()
-
-        
+      
 
