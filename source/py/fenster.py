@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unohelper
-from uno import fileUrlToSystemPath
-import json
-import copy
+
 
 class Fenster():
     
@@ -390,7 +388,6 @@ class Fenster():
         if self.mb.debug: log(inspect.stack)
         
         control_innen, model = self.mb.createControl(self.mb.ctx,"Container",20,0,400,100,(),() )
-        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
         if auswaehlen:
             listener_innen = Auswahl_CheckBox_Listener(self.mb)
@@ -418,8 +415,6 @@ class Fenster():
         posSize = X,Y,x,y
         
         fenster,fenster_cont = self.erzeuge_Dialog_Container(posSize)
-        fenster_cont.Model.Text = LANG.AUSWAHL
-        fenster_cont.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
 
         fenster_cont.addControl('Container_innen', control_innen)
         
@@ -427,7 +422,7 @@ class Fenster():
             listener_innen.ctrls = ctrls
         
         if erzeuge_scrollbar:
-            self.mb.class_Fenster.erzeuge_Scrollbar(fenster_cont,(0,0,0,y),control_innen)
+            self.erzeuge_Scrollbar(fenster_cont,(0,0,0,y),control_innen)
             self.mb.class_Mausrad.registriere_Maus_Focus_Listener(fenster_cont)
         
         return y,fenster,fenster_cont,control_innen,ctrls
@@ -451,7 +446,6 @@ class Fenster():
             control, model = self.mb.createControl(self.mb.ctx,"FixedText",x,y ,300,20,(),() )  
             control.Text = LANG.AUSWAHL_TIT
             model.FontWeight = 150.0
-            model.TextColor = KONST.FARBE_SCHRIFT_DATEI
             control_innen.addControl('Titel', control)
             
             y += 30
@@ -460,7 +454,6 @@ class Fenster():
             control, model = self.mb.createControl(self.mb.ctx,"FixedText",x + 40,y ,300,20,(),() )  
             control.Text = LANG.ORDNER_CLICK
             model.FontWeight = 150.0
-            model.TextColor = KONST.FARBE_SCHRIFT_DATEI
             control_innen.addControl('ausw', control)
             x_pref = control.getPreferredSize().Width + x + 40
             
@@ -499,10 +492,8 @@ class Fenster():
                 
                 if art in ('dir','prj'):
                     model2.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/Ordner_16.png' 
-                    model1.TextColor = KONST.FARBE_SCHRIFT_ORDNER
                 else:
                     model2.ImageURL = 'private:graphicrepository/res/sx03150.png' 
-                    model1.TextColor = KONST.FARBE_SCHRIFT_DATEI
                 control_innen.addControl('Titel', control2)   
                   
                     
@@ -524,7 +515,7 @@ class Fenster():
             log(inspect.stack,tb())  
             
             
-    def erzeuge_Scrollbar(self,fenster_cont,PosSize,control_innen):
+    def erzeuge_Scrollbar(self,fenster_cont,PosSize,control_innen,called_from_hf=False):
         if self.mb.debug: log(inspect.stack)
            
         PosX,PosY,Width,Height = PosSize
@@ -544,9 +535,29 @@ class Fenster():
         listener.fenster_cont = control_innen
         control.addAdjustmentListener(listener) 
         
+        if called_from_hf:
+            listener.called_from_hf = True
+        
         fenster_cont.addControl('ScrollBar',control) 
         
         return control 
+    
+    def erzeuge_Scrollbar2(self,win = None):
+        if self.mb.debug: log(inspect.stack)
+        
+        if win == None:
+            win = self.mb.prj_tab
+            
+        nav_cont_aussen = win.getControl('Hauptfeld_aussen')
+        control_innen = nav_cont_aussen.getControl('Hauptfeld')
+        
+        MBHoehe = 22
+        tableiste_hoehe = self.mb.tabsX.tableiste_hoehe 
+
+        Height = self.mb.win.Size.Height - MBHoehe - tableiste_hoehe
+        PosSize = 0,MBHoehe,0,Height
+        
+        control = self.erzeuge_Scrollbar(win,PosSize,control_innen,called_from_hf=True)
               
     
 from com.sun.star.lang import XEventListener

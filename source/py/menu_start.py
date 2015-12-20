@@ -185,8 +185,12 @@ class Menu_Start():
         control.setActionCommand('neues_projekt')
         control.addActionListener(self.listener)
         model.Label = self.LANG.NEW_PROJECT
-        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-
+        #model.BackgroundColor = 501#KONST.FARBE_HF_HINTERGRUND
+  
+        #model.TextLineColor = 501
+        
+        #setattr(self.cont.StyleSettings, 'WorkspaceColor', 501)
+        
         
         self.cont.addControl('Hauptfeld_aussen1',control)  
         
@@ -197,7 +201,7 @@ class Menu_Start():
         control.addActionListener(self.listener)
         model.Label = self.LANG.OPEN_PROJECT
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-        
+                
         self.cont.addControl('Hauptfeld_aussen1',control) 
         
         
@@ -254,7 +258,8 @@ class Menu_Start():
                     self.settings_orga,
                     self.templates
                     )
-            
+            import time
+            class_Log.timer_start = time.clock()
             self.module_mb = menu_bar
             
             self.Menu_Bar = menu_bar.Menu_Bar(args)
@@ -292,7 +297,7 @@ class Menu_Start():
             if 'lang_' + language in vars():
                 lang = vars()['lang_' + language]
             else:
-                lang = vars()[lang_en]  
+                lang = lang_en
             
             return lang
         except Exception as e:

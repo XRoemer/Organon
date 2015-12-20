@@ -11,7 +11,7 @@ class Mausrad():
         self.mb = mb
         self.is_running = False
         
-        # Der Code fuer das Mausrad funktioniert nur unter Windows.
+        # Der Code fuer das Mausrad funktioniert nur unter Windows und Linux.
         if sys.platform.lower() not in['win32','linux','linux2']:
             self.mb.settings_orga['mausrad'] = False
  
@@ -64,8 +64,12 @@ class Mausrad():
                 rir.start()
                                 
                 while self.mb.mausrad_an:
-                    ev = rir.pollEvents()
-                    time.sleep(.01)
+                    try:
+                        ev = rir.pollEvents()
+                        time.sleep(.01)
+                    except:
+                        rir.stop()
+                        pass
                     
                 rir.stop()
             
@@ -75,6 +79,7 @@ class Mausrad():
             t.start()
         except:
             log(inspect.stack,tb())
+            
             
     
     def get_mausrad_linux(self): 
@@ -133,6 +138,30 @@ class Mausrad():
         
         self.hauptfeld.setPosSize(0, y ,0,0,2)
         self.scrollLeiste.Model.ScrollValue = -y
+        
+        if True:
+            self.schalte_sichtbarkeit_hf_ctrls()
+    
+    def schalte_sichtbarkeit_hf_ctrls(self):
+        
+        try:
+            props = self.mb.props[T.AB]
+            co = props.Hauptfeld.PosSize.Y
+            tv = self.mb.win.PosSize.Height
+            tableiste = self.mb.tabsX.tableiste.Size
+            
+            untergrenze = -co - 20
+            obergrenze = -co + tv - tableiste.Height - 20
+    
+            Ys = props.dict_zeilen_posY
+    
+            for y,v in Ys.items():
+                if untergrenze < y < obergrenze:
+                    props.dict_posY_ctrl[y].setVisible(True)
+                else:
+                    props.dict_posY_ctrl[y].setVisible(False)
+        except:
+            log(inspect.stack,tb())
         
     
     def registriere_Maus_Focus_Listener(self,cont):

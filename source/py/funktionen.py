@@ -21,6 +21,7 @@ class Funktionen():
         if ordinal == None:
             xml_projekt = root.find(".//*[@Name='%s']" % self.mb.projekt_name)
             alle_elem = xml_projekt.findall('.//')
+            ordinal = xml_projekt.tag
         else:
             xml_projekt = root.find(".//%s" % ordinal)
             alle_elem = xml_projekt.findall('.//')
@@ -38,13 +39,19 @@ class Funktionen():
                 icon = hf_zeile.getControl('icon')
                 icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
                 
-        tag = xml_projekt.tag
+        
         self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(xml_projekt.tag,xml_projekt,'zu',True)
         self.mb.class_Projekt.erzeuge_dict_ordner() 
-        self.mb.class_Baumansicht.korrigiere_scrollbar()    
-        
-        Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
+        self.mb.class_Baumansicht.korrigiere_scrollbar()   
+        self.mb.class_Baumansicht.selektiere_zeile(ordinal)
+         
+        if T.AB == 'ORGANON':
+            Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
+        else:
+            Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
         self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
+        
+        
 
        
     def erzeuge_Tag1_Container(self,ord_source,X,Y,window_parent=None):
@@ -306,7 +313,7 @@ class Funktionen():
             cur_text = self.mb.doc.Text.createTextCursor()
             cur_text.gotoRange(bm.Anchor,False)
             cur_text.goRight(60,True)
-            neuer_Name = cur_text.String.split('\n')[0]
+            neuer_Name = cur_text.String.split('\n')[0].strip()
             
             # alte Datei in Helferdatei speichern
             orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
@@ -451,7 +458,20 @@ class Funktionen():
                     elems = nachfolger_xml.findall('.//')
                     if len(elems) > 0:
                         self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
-                        return False, None    
+                        return False, None 
+                    
+                for tab in self.mb.props:
+                    if tab != 'ORGANON':
+                        tree = self.mb.props[tab].xml_tree
+                        root = tree.getroot()
+                        nach_xml = root.find('.//' + nachfolger)
+                        if nach_xml != None:
+                            dateiname = nachfolger_xml.attrib['Name']
+                            txt = '{0}\r\n{1}'.format(LANG.KEINE_KOMBINATION_MOEGLICH,
+                                                      LANG.NOCH_IN_TAB_GEOEFFNET.format(dateiname,tab))
+                            self.mb.nachricht(txt)
+                            return False, None 
+                                           
                     
                 return True, nachfolger
             
@@ -630,7 +650,7 @@ class Funktionen():
         else:
             return folderpicker.getDirectory()
     
-    def filepicker(self,filepath=None,ofilter=None,sys=True):
+    def filepicker(self,filepath=None,ofilter=None,url_to_sys=True):
         if self.mb.debug: log(inspect.stack)
         
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
@@ -647,13 +667,13 @@ class Funktionen():
 
         if Filepicker.Files == '':
             return None
-        if sys:
+        if url_to_sys:
             return uno.fileUrlToSystemPath(Filepicker.Files[0])
         else:
             return Filepicker.Files[0]
         
         
-    def filepicker2(self,ofilter=None,sys=True):
+    def filepicker2(self,ofilter=None,url_to_sys=True):
         if self.mb.debug: log(inspect.stack)
         
         Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FilePicker")
@@ -666,16 +686,20 @@ class Funktionen():
             Filepicker.appendFilter(*ofilter)
             
         Filepicker.execute()
+        file_len = len(Filepicker.Files)
         
-        file_len = len(Filepicker.getSelectedFiles())
+        #file_len = len(Filepicker.getSelectedFiles())
                    
         if file_len == 0:
             return None,False
         
         path = Filepicker.Files[0]
 
-        if sys:
-            return uno.fileUrlToSystemPath(path),True
+        if url_to_sys:
+            try:
+                return uno.fileUrlToSystemPath(path),True
+            except:
+                return None,False
         else:
             return path,True
         
@@ -712,6 +736,11 @@ class Funktionen():
         for tab_name in self.mb.props:
         
             # alle Zeilen
+            if self.mb.props[tab_name].Hauptfeld == None:
+                # Nicht geoeffnete Tabs brauchen nicht
+                # angepasst zu werden
+                continue
+            
             controls_zeilen = self.mb.props[tab_name].Hauptfeld.Controls
             tree = self.mb.props[tab_name].xml_tree
             root = tree.getroot()
@@ -1056,8 +1085,9 @@ class Funktionen():
         
     def zeitmesser(self,fkt):
         z = time.clock()
-        fkt()
+        result = fkt()
         print( round(time.clock()-z,3))
+        return result
         
         
 

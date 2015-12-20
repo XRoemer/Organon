@@ -494,10 +494,11 @@ class Sidebar():
             old_image_path = self.mb.tags['ordinale'][ordinal][panel_nr]
             
             self.mb.tags['ordinale'][ordinal][panel_nr] = ''
-            self.bild_loeschen(old_image_path,panel_nr)
             
             if erzeuge_layout:
                 self.mb.class_Sidebar.erzeuge_sb_layout()
+                
+            self.bild_loeschen(old_image_path,panel_nr)
         except:
             log(inspect.stack,tb())
 

@@ -54,7 +54,8 @@ class Shortcuts():
                          'BAUMANSICHT_HOCH' : self.tv_up,
                          'BAUMANSICHT_RUNTER' : self.tv_down,
                          'BENENNE_DATEI_UM' : self.datei_umbenennen,
-                         'DATEIEN_VEREINEN' :  self.mb.class_Funktionen.vereine_dateien,                    
+                         'DATEIEN_VEREINEN' :  self.mb.class_Funktionen.vereine_dateien,   
+                         'KONSOLENAUSGABE' :  self.toggle_logging,                  
                           }
 
 
@@ -181,6 +182,18 @@ class Shortcuts():
         self.mb.class_Funktionen.mache_tag_sichtbar(sett[tag],tag)
         
         self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+        
+    def toggle_logging(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        new_state = int(not self.mb.debug)
+        
+        self.mb.class_Log.output_console = new_state
+        self.mb.settings_orga['log_config']['output_console'] = new_state
+        self.mb.schreibe_settings_orga()
+        self.mb.debug = new_state
+        
+        self.mb.popup('{0}: {1}'.format(LANG.KONSOLENAUSGABE,new_state), 1)
         
     def tv_up(self):
         if self.mb.debug: log(inspect.stack)

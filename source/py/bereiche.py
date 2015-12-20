@@ -178,9 +178,8 @@ class Bereiche():
         except:
             log(inspect.stack,tb())
             
-
-                     
-    def erzeuge_bereich(self,i,path,sicht,papierkorb=False):
+    
+    def erzeuge_bereich_papierkorb(self,i,path):
         if self.mb.debug: log(inspect.stack)
         
         nr = str(i) 
@@ -190,17 +189,36 @@ class Bereiche():
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
         
-        if papierkorb:
-            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-            SFLink.FileURL = path
-            SFLink.FilterName = 'writer8'
-            newSection.setPropertyValue('FileLink',SFLink)
+        
+        SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+        SFLink.FileURL = path
+        SFLink.FilterName = 'writer8'
+        newSection.setPropertyValue('FileLink',SFLink)
+            
+        newSection.setName('OrganonSec'+nr)
+        
+        sectionN = sections.getByIndex(sections.Count-1)
+        textSectionCursor = text.createTextCursorByRange(sectionN.Anchor)
+        textSectionCursor.gotoEnd(False)
+        
+        text.insertTextContent(textSectionCursor, newSection, False)
+    
+                     
+    def erzeuge_bereich(self,i,path,sicht):
+        if self.mb.debug: log(inspect.stack)
+        
+        nr = str(i) 
+        
+        text = self.mb.doc.Text
+        sections = self.mb.doc.TextSections  
+        
+        newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
             
         newSection.setName('OrganonSec'+nr)
         
         if sicht == 'nein':
             newSection.IsVisible = False
-
+            
         if sections.Count == 0:
             # bei leerem Projekt
             textSectionCursor = text.createTextCursor()

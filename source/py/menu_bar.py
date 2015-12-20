@@ -278,7 +278,7 @@ class Menu_Bar():
                 
         return version
     
-    def erzeuge_Menu(self,win):
+    def erzeuge_Menu(self,win,tab=False):
         if self.debug: log(inspect.stack)
         
         try:             
@@ -293,15 +293,25 @@ class Menu_Bar():
             win.setPosSize(0,self.tabsX.tableiste_hoehe,0,0,2)
             bereich = self.props[T.AB].selektierte_zeile_alt
             
-            Menueintraege = [
-                (LANG.FILE,'a'),
-                (LANG.BEARBEITEN_M,'a'),
-                (LANG.ANSICHT,'a'),            
-                ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
-                ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
-                ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
-                 LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
-                ]
+            if tab:
+                Menueintraege = [
+                    (LANG.FILE,'a'),
+                    (LANG.BEARBEITEN_M,'a'),
+                    (LANG.ANSICHT,'a'),            
+                    ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
+                     LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
+                    ]
+            else:
+                
+                Menueintraege = [
+                    (LANG.FILE,'a'),
+                    (LANG.BEARBEITEN_M,'a'),
+                    (LANG.ANSICHT,'a'),            
+                    ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
+                    ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
+                    ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
+                     LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
+                    ]
             
             x = 0
             
@@ -909,6 +919,7 @@ class Props():
         if debug: log(inspect.stack)
         
         self.dict_zeilen_posY = {}
+        self.dict_posY_ctrl = {}
         self.dict_ordner = {}               # enthaelt alle Ordner und alle ihnen untergeordneten Zeilen
         self.dict_bereiche = {}             # drei Unterdicts: Bereichsname,ordinal,Bereichsname-ordinal
         
@@ -1412,7 +1423,7 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
         self.texttools = False
         self.win2 = None
         
-    def mousePressed(self, ev):
+    def mouseReleased(self, ev):
         if self.mb.debug: log(inspect.stack)  
         try:
             sel = ev.Source.Text
@@ -1505,13 +1516,12 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         self.window.dispose()
         self.mb.geoeffnetesMenu = None
-        # damit der Zeilen_Listener nicht auf mouse_released reagiert,
-        # wenn das fenster geschlossen wird
-        self.mb.class_Zeilen_Listener.menu_geklickt = True
+        
         if self.texttools:
             self.texttools = False
             self.win2.dispose()
             self.mb.texttools_geoeffnet = False
+        
 
     def mouseExited(self,ev):
         ev.value.Source.Model.FontWeight = 100
@@ -1519,7 +1529,7 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
     def mouseEntered(self,ev):
         ev.value.Source.Model.FontWeight = 150
         return False
-    def mouseReleased(self,ev):
+    def mousePressed(self,ev):
         return False
     def disposing(self,ev):
         return False
@@ -2078,14 +2088,44 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
 
 from com.sun.star.awt import XAdjustmentListener
 class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
+    
     def __init__(self,mb,fenster_cont):   
+        
         if mb.debug: log(inspect.stack) 
         self.fenster_cont = None
+        self.mb = mb
+        self.called_from_hf = False
+        
     def adjustmentValueChanged(self,ev):
+        
         self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
+        if self.called_from_hf:
+            self.schalte_sichtbarkeit_hf_ctrls()
+            
     def disposing(self,ev):
         return False
-
+    
+    def schalte_sichtbarkeit_hf_ctrls(self):
+        
+        try:
+            props = self.mb.props[T.AB]
+            co = props.Hauptfeld.PosSize.Y
+            tv = self.mb.win.PosSize.Height
+            tableiste = self.mb.tabsX.tableiste.Size
+    
+            untergrenze = -co - 20
+            obergrenze = -co + tv - tableiste.Height - 20
+            
+            Ys = props.dict_zeilen_posY
+    
+            for y,v in Ys.items():
+                if untergrenze < y < obergrenze:
+                    props.dict_posY_ctrl[y].setVisible(True)
+                else:
+                    props.dict_posY_ctrl[y].setVisible(False)
+        except:
+            log(inspect.stack,tb())
+            
             
 from com.sun.star.awt import XWindowListener
 from com.sun.star.lang import XEventListener
@@ -2151,7 +2191,7 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
         
         #print(ev.EventName)
         
-        if ev.EventName == 'OnLayoutFinished':
+        #if ev.EventName == 'OnLayoutFinished':
             
             # Abfrage, ob ueberhaupt ein Layout fuer die 
             # Seitenleiste erzeugt werden soll, fehlt.
@@ -2159,7 +2199,7 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
             # da die Seitenleiste jetzt ohne Neustart designed werden kann.
             # Evt. gilt das aber auch für das gesamte Dokument
             
-            ctrl = self.mb.dict_sb['controls']
+            #ctrl = self.mb.dict_sb['controls']
             
 #             if 'organon_sidebar' not in ctrl:
 #                 self.seitenleiste_erzeugen()

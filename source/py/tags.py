@@ -113,7 +113,7 @@ class Tags():
                             vorkommen = True
                 if not vorkommen:
                     try:
-                        os.remove(uno.fileUrlToSystemPath(bildUrl))
+                        os.remove(uno.fileUrlToSystemPath(url))
                     except:
                         log(inspect.stack,tb())
     

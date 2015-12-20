@@ -1370,29 +1370,52 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
     def import_design(self):
         if self.mb.debug: log(inspect.stack)
         
-        sett = self.mb.settings_orga['designs'] 
+        try:
         
-        pfad = self.mb.class_Funktionen.filepicker()
-        if pfad == None: return
-        
-        odict = self.mb.class_Funktionen.oeffne_json(pfad)
-        if odict == None:
-            self.mb.nachricht(LANG.KEINE_JSON_DATEI,"warningbox")
-            return
-        
-        
-        for k in odict:
-            neu = copy.deepcopy(k)
-            while k in sett:
-                k = k+'x'
+            sett = self.mb.settings_orga['designs'] 
             
-            # aendern
-            # ueberpruefen, ob ein Wert fehlt
+            pfad = self.mb.class_Funktionen.filepicker()
+            if pfad == None: return
             
-            sett.update({ k : odict[neu] })
-        
-        self.mb.schreibe_settings_orga()
-        self.ansicht_erneuern()
+            odict = self.mb.class_Funktionen.oeffne_json(pfad)
+            if odict == None:
+                self.mb.nachricht(LANG.KEINE_JSON_DATEI,"warningbox")
+                return
+            
+            
+            vorbild = sett[list(sett)[0]]
+            
+            
+            for k in odict:
+                neu = copy.deepcopy(k)
+                while k in sett:
+                    k = k+'x'
+                
+    
+                # ueberpruefen, ob ein Wert fehlt
+                for key,value in vorbild['office']['sidebar'].items():
+                    if key not in odict[neu]['office']['sidebar']:
+                        odict[neu]['office']['sidebar'][key] = value
+                        
+                for key,value in vorbild['office'].items():
+                    if key == 'sidebar': continue
+                    if key not in odict[neu]['office']:
+                        odict[neu]['office'][key] = value
+                        
+                for key,value in vorbild.items():
+                    if key == 'office': continue
+                    if key not in odict[neu]:
+                        odict[neu][key] = value
+                
+                
+                sett.update({ k : odict[neu] })
+            
+            self.mb.schreibe_settings_orga()
+            self.ansicht_erneuern()
+            
+        except:
+            log(inspect.stack,tb())
+            
     
     def export_design(self):
         if self.mb.debug: log(inspect.stack)
@@ -1426,6 +1449,11 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         sett = self.mb.settings_orga['designs']  
+        
+        if len(sett) < 2:
+            self.mb.nachricht(LANG.NICHT_ALLE_DESIGNS_LOESCHEN,"warningbox")
+            return
+        
         active,act_name = None, None
         
         for c in self.RBs:
@@ -1568,6 +1596,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         for tab in self.mb.props:
             # Hauptfeld
             hf = self.mb.props[tab].Hauptfeld
+            if hf == None: continue
             menuleiste = hf.Context.Context.getControl('Organon_Menu_Bar')
             menuleiste.Model.BackgroundColor = farbe
         
@@ -1587,6 +1616,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         for tab in self.mb.props:
             # Hauptfeld
             hf = self.mb.props[tab].Hauptfeld
+            if hf == None: continue
             menuleiste = hf.Context.Context.getControl('Organon_Menu_Bar')
         
             try:
@@ -1611,6 +1641,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         for tab in self.mb.props:
             # Hauptfeld
             hf = self.mb.props[tab].Hauptfeld
+            if hf == None: continue
             hf.Model.BackgroundColor = farbe
             hf.Context.Context.Model.BackgroundColor = farbe
             
@@ -1632,6 +1663,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         for tab in self.mb.props:
             # Hauptfeld
             hf = self.mb.props[tab].Hauptfeld
+            if hf == None: continue
             papierkorb = self.mb.props[tab].Papierkorb
             
             xml = self.mb.props[tab].xml_tree
@@ -1657,6 +1689,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         for tab in self.mb.props:
             # Hauptfeld
             hf = self.mb.props[tab].Hauptfeld
+            if hf == None: continue
             
             xml = self.mb.props[tab].xml_tree
             root = xml.getroot()
@@ -1676,6 +1709,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         for tab in self.mb.props:
             # Hauptfeld
             hf = self.mb.props[tab].Hauptfeld
+            if hf == None: continue
             
             # Zeilen im Hauptfeld
             zeilen = hf.Controls

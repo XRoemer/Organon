@@ -243,7 +243,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         if self.mb.debug: log(inspect.stack)
 
         ofilter = ('Source','*.txt;*.odt')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,url_to_sys=True)
         
         if not ok:
             return

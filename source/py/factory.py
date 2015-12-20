@@ -35,7 +35,7 @@ from codecs import open as codecs_open
             # DEBUGGING / REMOTE CONTROL #
 ####################################################
 
-load_reload = False
+load_reload = True
 
 if load_reload:
     sys.dont_write_bytecode = True

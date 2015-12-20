@@ -1435,6 +1435,19 @@ class TabsX():
             if tab_name != T.AB:
                 
                 neu = self.Hauptfelder[tab_name]
+                
+                if len(neu.Controls) == 0:
+                    # wenn Tab noch nicht angewaehlt wurde
+                    # muss er noch erzeugt werden
+                    self.mb.erzeuge_Menu(neu,tab=True)
+                    Eintraege = self.get_tab_Eintraege(tab_name) 
+                    self.erzeuge_Hauptfeld(neu,tab_name,Eintraege)
+     
+                    erste_datei = self.get_erste_datei(tab_name)
+                    self.setze_selektierte_zeile(erste_datei,tab_name)
+                    self.mb.class_Baumansicht.korrigiere_scrollbar()
+                    
+
                 neu.setVisible(True)
                 
                 tab_icon = self.tableiste.getControl(tab_name)
@@ -1473,7 +1486,7 @@ class TabsX():
                 
         except:
             log(inspect.stack,tb())
-        
+            
         
     def schliesse_Tab(self,abfrage = True):
         if self.mb.debug: log(inspect.stack)
@@ -1739,7 +1752,7 @@ class TabsX():
         try:
             props = self.mb.props
             self.mb.props[tab_name].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(win)  
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(win)  
+            self.mb.class_Fenster.erzeuge_Scrollbar2(win)  
             self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name)    
         except:
             log(inspect.stack,tb())
@@ -1747,7 +1760,7 @@ class TabsX():
             
     def erzeuge_Eintraege_und_Bereiche(self,Eintraege,tab_name):
         if self.mb.debug: log(inspect.stack)        
-        props = self.mb.props
+        props = self.mb.props[tab_name]
         Bereichsname_dict = {}
         ordinal_dict = {}
         Bereichsname_ord_dict = {}
@@ -1755,7 +1768,7 @@ class TabsX():
         index2 = 0
         
         if self.mb.settings_proj['tag3']:
-            tree = self.mb.props[tab_name].xml_tree
+            tree = props.xml_tree
             root = tree.getroot()
             gliederung = self.mb.class_Gliederung.rechne(tree)
         else:
@@ -1765,15 +1778,16 @@ class TabsX():
         for eintrag in Eintraege:
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
                   
-            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,
-                                                                               self.mb.class_Zeilen_Listener,
+            index,ctrl = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,
                                                                                gliederung,index,tab_name,
                                                                                neuer_tab=True)
             
             if sicht == 'ja':
                 # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
-                self.mb.props[tab_name].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                self.mb.props[tab_name].sichtbare_bereiche.append('OrganonSec'+str(index2))
+                pos_Y = (index-1) * KONST.ZEILENHOEHE
+                props.dict_zeilen_posY.update({ pos_Y : eintrag })
+                props.sichtbare_bereiche.append( 'OrganonSec' + str(index2) )
+                props.dict_posY_ctrl.update({ pos_Y : ctrl })
                 
             # Bereiche   
             inhalt = name
@@ -1785,9 +1799,9 @@ class TabsX():
             
             index2 += 1
 
-        self.mb.props[tab_name].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
-        self.mb.props[tab_name].dict_bereiche.update({'ordinal':ordinal_dict})
-        self.mb.props[tab_name].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
+        props.dict_bereiche.update({'Bereichsname':Bereichsname_dict})
+        props.dict_bereiche.update({'ordinal':ordinal_dict})
+        props.dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
         
         self.mb.class_Projekt.erzeuge_dict_ordner(tab_name)
 
@@ -1805,14 +1819,7 @@ class TabsX():
                 self.erzeuge_props(tab_name)
                 Eintraege = self.get_tab_Eintraege(tab_name)        
 
-                win = self.erzeuge_neuen_tab(tab_name)
-                self.mb.erzeuge_Menu(win)
-                self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
-
-                erste_datei = self.get_erste_datei(tab_name)
-                self.setze_selektierte_zeile(erste_datei,tab_name)
-                self.mb.class_Baumansicht.korrigiere_scrollbar()
-                
+                win = self.erzeuge_neuen_tab(tab_name)  
                 self.Hauptfelder[tab_name].setVisible(False)
             
             T.AB = 'ORGANON'

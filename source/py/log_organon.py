@@ -124,9 +124,9 @@ class Log():
             
 
             if self.log_args:
-                string = '{0: <8.8}  {1: <10.10}  {2: <22.22}  {3: <30.30}  ( caller: {4: <40.40}  args:{5}'.format(self.debug_time(),modul,xclass,function,call,argues)
+                string = '{0: <8.8}  {1: <12.12}  {2: <24.24}  {3: <34.34}  ( caller: {4: <44.44}  args:{5}'.format(self.debug_time(),modul,xclass,function,call,argues)
             else:
-                string = '{0: <8.8}  {1: <10.10}  {2: <22.22}  {3: <30.30}  ( caller: {4: <40.40}'.format(self.debug_time(),modul,xclass,function,call)
+                string = '{0: <8.8}  {1: <12.12}  {2: <24.24}  {3: <34.34}  ( caller: {4: <44.44}'.format(self.debug_time(),modul,xclass,function,call)
 
             try:
                 print(string)

@@ -267,12 +267,6 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             ordinale = [ordinal]
         
         text = []
-#         for o in ordinale:
-#             sec_name = props.dict_bereiche['ordinal'][o]
-#             sec = self.mb.doc.TextSections.getByName(sec_name)
-#             t = sec.Anchor.String.splitlines()
-#             text.extend(t)
-
         pfade = []
         
         for o in ordinale:
@@ -424,7 +418,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         ofilter = ('Find Quotations','*.txt')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,url_to_sys=True)
         
         if not ok:
             return

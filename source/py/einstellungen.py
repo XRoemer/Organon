@@ -284,7 +284,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             Hoehe = prefSize.Height 
             Breite = prefSize.Width
             control_path.setPosSize(0,0,Breite+10,0,4)
-            #fenster.setPosSize(0,0,Breite+10+tab1,0,4)
             
             y += 20
             
@@ -586,6 +585,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                  ['GLIEDERUNG' , LANG.SICHTBARKEIT + ' ' + LANG.GLIEDERUNG],
                  ['BAUMANSICHT_HOCH' , LANG.BAUMANSICHT_HOCH],
                  ['BAUMANSICHT_RUNTER' , LANG.BAUMANSICHT_RUNTER],
+                 ['KONSOLENAUSGABE' , LANG.KONSOLENAUSGABE]
                  ]
         
         shortcuts = OrderedDict()
@@ -1792,7 +1792,7 @@ class Listener_Trenner(unohelper.Base,XItemListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         ofilter = ('Image','*.jpg;*.JPG;*.png;*.PNG;*.gif;*.GIF')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,url_to_sys=True)
         
         if not ok:
             return

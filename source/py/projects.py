@@ -656,7 +656,7 @@ class Projekt():
 
             if filepicker:
                 ofilter = ('Organon Project','*.organon')
-                filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
+                filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,url_to_sys=True)
                 
                 if not ok:
                     return
@@ -695,7 +695,7 @@ class Projekt():
             self.mb.tabsX.setze_selektierte_zeile(erste_datei,T.AB)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Baumansicht.erzeuge_Scrollbar()    
+            self.mb.class_Fenster.erzeuge_Scrollbar2()    
             self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['ORGANON'].Hauptfeld.Context.Context)
 
             # Wenn die UDProp verloren gegangen sein sollte, wieder setzen
@@ -712,7 +712,7 @@ class Projekt():
             self.mb.tabsX.lade_tabs()
             
             erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei)
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei,action='lade_projekt')
             
             self.mb.class_Tags.lade_tags()
             
@@ -759,7 +759,7 @@ class Projekt():
             props.selektierte_zeile = props.Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
-            self.mb.class_Baumansicht.erzeuge_Scrollbar(self.mb.prj_tab)    
+            self.mb.class_Fenster.erzeuge_Scrollbar2()    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
                          
             # damit von den Bereichen in die Datei verlinkt wird, muss sie gespeichert werden   
@@ -844,6 +844,8 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
         
         try:
+            props = self.mb.props[T.AB]
+            
             CB = self.mb.class_Bereiche
             CB.leere_Dokument()    ################################  rausnehmen
             CB.starte_oOO()
@@ -854,8 +856,9 @@ class Projekt():
             index = 0
             index2 = 0 
             
+            
             if self.mb.settings_proj['tag3']:
-                tree = self.mb.props[T.AB].xml_tree
+                tree = props.xml_tree
                 root = tree.getroot()
                 gliederung = self.mb.class_Gliederung.rechne(tree)
             else:
@@ -866,13 +869,15 @@ class Projekt():
                 # Navigation
                 ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag2 = eintrag   
                          
-                index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung,index)
+                index, ctrl = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,gliederung,index)
                 self.mb.class_XML.erzeuge_XML_Eintrag(eintrag)  
     
                 if sicht == 'ja':
                     # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
-                    self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                    self.mb.props['ORGANON'].sichtbare_bereiche.append('OrganonSec'+str(index2))
+                    pos_Y = (index-1)*KONST.ZEILENHOEHE
+                    props.dict_zeilen_posY.update({ pos_Y : eintrag })
+                    self.mb.props['ORGANON'].sichtbare_bereiche.append('OrganonSec' + str(index2) )
+                    props.dict_posY_ctrl.update({ pos_Y : ctrl })
                     
                 # Bereiche   
                 inhalt = name
@@ -880,7 +885,7 @@ class Projekt():
                 path2 = uno.systemPathToFileUrl(path)
                 
                 if art == 'waste':
-                    CB.erzeuge_bereich(index2,path2,sicht,True) 
+                    CB.erzeuge_bereich_papierkorb(index2,path2) 
                 else:
                     CB.erzeuge_bereich(index2,path2,sicht) 
     
@@ -890,9 +895,9 @@ class Projekt():
                 
                 index2 += 1
             
-            self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
-            self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
-            self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
+            props.dict_bereiche.update({'Bereichsname':Bereichsname_dict})
+            props.dict_bereiche.update({'ordinal':ordinal_dict})
+            props.dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
             
             self.erzeuge_helfer_bereich()
             CB.loesche_leeren_Textbereich_am_Ende()  
@@ -938,6 +943,7 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
 
         CB = self.mb.class_Bereiche
+        props = self.mb.props[T.AB]
         
         self.erzeuge_dict_ordner()
         
@@ -951,7 +957,7 @@ class Projekt():
         
         
         if self.mb.settings_proj['tag3']:
-            tree = self.mb.props[T.AB].xml_tree
+            tree = props.xml_tree
             root = tree.getroot()
             gliederung = self.mb.class_Gliederung.rechne(tree)
         else:
@@ -962,19 +968,20 @@ class Projekt():
             # Navigation
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag   
                      
-            index = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung,index)
+            index, ctrl = self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,gliederung,index)
             
             if sicht == 'ja':
-                # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
-                self.mb.props[T.AB].dict_zeilen_posY.update({(index-1)*KONST.ZEILENHOEHE:eintrag})
-                self.mb.props['ORGANON'].sichtbare_bereiche.append('OrganonSec'+str(index2))
+                pos_Y = (index-1) * KONST.ZEILENHOEHE
+                props.dict_zeilen_posY.update({ pos_Y : eintrag})
+                props.dict_posY_ctrl.update({ pos_Y : ctrl })
+                self.mb.props['ORGANON'].sichtbare_bereiche.append( 'OrganonSec' + str(index2) )
                 
             # Bereiche   
             path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)
             path2 = uno.systemPathToFileUrl(path)
             # Der Papierkorb muss mit einem File verlinkt werden, damit die Bereiche richtig eingefuegt werden koennen
             if art == 'waste':
-                CB.erzeuge_bereich(index2,path2,sicht,True) 
+                CB.erzeuge_bereich_papierkorb(index2,path2) 
             else:
                 CB.erzeuge_bereich(index2,path2,sicht) 
 
@@ -984,21 +991,21 @@ class Projekt():
                 self.mb.viewcursor.gotoStart(False)
                 first_time = False
             
-            Bereichsname_dict.update({'OrganonSec'+str(index2):path})
-            ordinal_dict.update({ordinal:'OrganonSec'+str(index2)})
-            Bereichsname_ord_dict.update({'OrganonSec'+str(index2):ordinal})
+            Bereichsname_dict.update({ 'OrganonSec' + str(index2) : path })
+            ordinal_dict.update({ ordinal : 'OrganonSec' + str(index2) })
+            Bereichsname_ord_dict.update({ 'OrganonSec' + str(index2) : ordinal })
             
             index2 += 1
 
-        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname':Bereichsname_dict})
-        self.mb.props[T.AB].dict_bereiche.update({'ordinal':ordinal_dict})
-        self.mb.props[T.AB].dict_bereiche.update({'Bereichsname-ordinal':Bereichsname_ord_dict})
+        props.dict_bereiche.update({ 'Bereichsname' : Bereichsname_dict})
+        props.dict_bereiche.update({ 'ordinal' : ordinal_dict})
+        props.dict_bereiche.update({ 'Bereichsname-ordinal' : Bereichsname_ord_dict})
         
         self.erzeuge_helfer_bereich()
         CB.loesche_leeren_Textbereich_am_Ende() 
            
                    
-    def erzeuge_dict_ordner(self,tab_name=None):
+    def erzeuge_dict_ordner(self, tab_name=None):
         if self.mb.debug: log(inspect.stack)
 
         if tab_name:
@@ -1024,19 +1031,19 @@ class Projekt():
                 ordner.append(eintrag.tag)
         
         
-        def get_tree_info(elem, dict,tag,helfer):
+        def get_tree_info(elem, odict,tag,helfer):
             helfer.append(elem.tag)
             # hier wird self.mb.props[T.AB].dict_ordner geschrieben
-            dict[tag] = helfer
+            odict[tag] = helfer
             if elem.attrib['Zustand'] == 'auf':# or elem.attrib['Art'] == 'waste':
                 for child in list(elem):
-                    get_tree_info(child, dict,tag,helfer)
+                    get_tree_info(child, odict,tag,helfer)
 
         # Fuer alle Ordner eine Liste ihrer Kinder erstellen -> self.mb.props[T.AB].dict_ordner       
         for tag in sorted(ordner):
-            dir = root.find('.//'+tag)
+            odir = root.find('.//'+tag)
             helfer = []
-            get_tree_info(dir,self.mb.props[TAB].dict_ordner,tag,helfer)
+            get_tree_info(odir,self.mb.props[TAB].dict_ordner,tag,helfer)
         
         
 
@@ -1544,6 +1551,76 @@ class Projekt():
             
 #             print(datum_items)
 #             print(form)
+
+            pro = self.mb.props
+            
+            
+            
+            
+            LANG.NICHT_ALLE_DESIGNS_LOESCHEN = u'''Sie können nicht alle Designs löschen'''
+            LANG.NOCH_IN_TAB_GEOEFFNET = u'''{0} ist noch in {1} geöffnet'''
+            
+            ctrl = props.Hauptfeld.getControl('nr0')
+            
+            #print(ctrl.isVisible())
+            
+            
+            
+           
+            
+            co = props.Hauptfeld.PosSize.Y
+            tv = self.mb.win.PosSize.Height
+            tableiste = self.mb.tabsX.tableiste.Size
+
+            untergrenze = -co - 20
+            obergrenze = -co + tv - tableiste.Height - 20
+
+            Ys = props.dict_zeilen_posY
+
+            def do():
+            
+                #sichtbare = {}
+                #unsichtbare = {}
+                    
+                for y,v in Ys.items():
+                    if untergrenze < y < obergrenze:
+                        #target = sichtbare
+                        ctrl = props.Hauptfeld.getControl(v[0])
+                        ctrl.setVisible(True)
+                    else:
+                        #target = unsichtbare
+                        ctrl = props.Hauptfeld.getControl(v[0])
+                        ctrl.setVisible(False)
+                        
+                    #target[y] = v
+                    
+                    
+                
+                
+                    
+                    
+                #return sichtbare, unsichtbare
+                
+#                 for s in sorted(sichtbare):
+#                     print(sichtbare[s][2])
+            
+            self.mb.class_Funktionen.zeitmesser(do)
+            
+            def do2():
+                for u,v in unsicht.items():
+                    ctrl = props.Hauptfeld.getControl(v[0])
+                    ctrl.setVisible(True)
+                    
+                for u,v in sicht.items():
+                    ctrl = props.Hauptfeld.getControl(v[0])
+                    ctrl.setVisible(True)
+            
+            #self.mb.class_Funktionen.zeitmesser(do2)
+            
+            print('#################')
+            
+            #print(self.mb.scrollbar_listener.called_from_hf)
+            
         except:
             log(inspect.stack,tb())
             pd()

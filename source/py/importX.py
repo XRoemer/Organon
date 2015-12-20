@@ -653,7 +653,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             else:
                 gliederung = None
             
-            self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,self.mb.class_Zeilen_Listener,gliederung)
+            self.mb.class_Baumansicht.erzeuge_Zeile_in_der_Baumansicht(eintrag,gliederung)
             
                         
             # neue Datei / neuen Bereich anlegen           
@@ -1140,10 +1140,38 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
             
         
             ps = self.importfenster.PosSize
-            posSize = ps.X+ps.Width+20,ps.Y,400,len(filters)*16 + 70
             
+            X = ps.X + ps.Width + 20
+            Y = ps.Y
+            width = 420
+            height_container = len(filters)*16 + 70
+            
+            height_importfenster = self.importfenster.Size.Height
+            
+            if height_container > height_importfenster:
+                height = height_importfenster
+                erzeuge_sb = True
+                abstand = 20
+            else:
+                height = height_container + 20
+                erzeuge_sb = False
+                abstand = 0
+                        
+            posSize = X, Y, width + 20, height
+
             fenster, fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
             
+            
+            container_control, container_model = self.mb.createControl(self.mb.ctx, "Container", abstand, 20, 
+                                                                       width, height_container, 
+                                                                       (),())          
+            
+            fenster_cont.addControl('Container', container_control)
+            
+            if erzeuge_sb:
+                self.mb.class_Fenster.erzeuge_Scrollbar(fenster_cont,(0,0,20,height),container_control)
+                #self.mb.class_Mausrad.registriere_Maus_Focus_Listener(fenster_cont)
+
             self.mb.class_Import.fenster_filter = fenster
             
             buttons = {}
@@ -1155,13 +1183,13 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
             control, model = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
             control.Text = LANG.FILTER
             model.FontWeight = 200.0
-            fenster_cont.addControl('Titel', control)
+            container_control.addControl('Titel', control)
     
             control, model = self.mb.createControl(self.mb.ctx,"Button",160,y-3,100,20,(),() )  
             control.Label = LANG.ALLE_WAEHLEN
             control.ActionCommand = 'alle_waehlen'
             control.addActionListener(f_listener)
-            fenster_cont.addControl('Alle', control)  
+            container_control.addControl('Alle', control)  
     
             y += 30
             
@@ -1174,7 +1202,7 @@ class Filter_Auswahl_Button_Listener(unohelper.Base, XActionListener):
                 control.ActionCommand = name
                 
                 control.addActionListener(f_listener)
-                fenster_cont.addControl(name, control)
+                container_control.addControl(name, control)
                   
       
                 if name in imp_set['filterauswahl'].keys():

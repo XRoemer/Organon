@@ -418,7 +418,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         if self.mb.debug: log(inspect.stack)
 
         ofilter = ('Find Quotations','*.txt')
-        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,sys=True)
+        filepath,ok = self.mb.class_Funktionen.filepicker2(ofilter=ofilter,url_to_sys=True)
         
         if not ok:
             return
@@ -429,13 +429,13 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def folderpicker(self):
         if self.mb.debug: log(inspect.stack)
         
-        Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
-        Filepicker.execute()
+        folderpicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
+        folderpicker.execute()
         
-        if Filepicker.Directory == '':
+        if folderpicker.Directory == '':
             return
         
-        filepath = uno.fileUrlToSystemPath(Filepicker.getDirectory())
+        filepath = uno.fileUrlToSystemPath(folderpicker.getDirectory())
         self.controls['ordner'].Model.Label = filepath
         
         
