@@ -35,7 +35,7 @@ from codecs import open as codecs_open
             # DEBUGGING / REMOTE CONTROL #
 ####################################################
 
-load_reload = True
+load_reload = False
 
 if load_reload:
     sys.dont_write_bytecode = True
@@ -840,6 +840,7 @@ def set_app_style():
         menu_schrift = KONST.FARBE_MENU_SCHRIFT
         selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
         ordner = KONST.FARBE_SCHRIFT_ORDNER
+                
         
         sett = settings_orga['organon_farben']['office']
         
@@ -888,6 +889,9 @@ def set_app_style():
                     'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
                     'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
                     
+                    'RadioCheckTextColor' : statusleiste_schrift,#k.A.
+
+                    
                     # Trenner
                     'LightColor' : trenner_licht, # Fenster Trenner
                     'ShadowColor' : trenner_schatten, # Fenster Trenner
@@ -916,9 +920,9 @@ def set_app_style():
 #                     'ActiveTextColor' : rot,#k.A.
 #                     'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
 #                     'CheckedColor' : rot,#k.A.
-#                     'DeactiveBorderColor' : rot,#k.A.
-#                     'DeactiveColor' : rot,#k.A.
-#                     'DeactiveTextColor' : rot,#k.A.
+#                     'DeactiveColor' : deaktiviert,
+#                     'DeactiveBorderColor' : deaktiviert,#k.A.
+#                     'DeactiveTextColor' : deaktiviert,#k.A.
 #                     'DialogTextColor' : rot,#k.A.
 #                     'DisableColor' : rot,
 #                     'FieldRolloverTextColor' : rot,#k.A.
@@ -935,11 +939,10 @@ def set_app_style():
 #                     'MenuHighlightTextColor' : rot,#k.A.
 #                     'MenuTextColor' : rot,#k.A.
 #                     'MonoColor' : rot, #k.A.
-#                     'RadioCheckTextColor' : rot,#k.A.
 #                     'WorkspaceColor' : rot, #k.A.
-#                     erzeugen Fehler:
-#                     'FaceGradientColor' : 502,
-#                     'SeparatorColor' : 502,                    
+                    #erzeugen Fehler:
+                    #'FaceGradientColor' : 502,
+                    #'SeparatorColor' : 502,                    
                     }
         
  

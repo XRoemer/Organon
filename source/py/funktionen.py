@@ -306,7 +306,13 @@ class Funktionen():
             
             # Bookmark setzen
             bm = self.mb.doc.createInstance('com.sun.star.text.Bookmark')
-            bm.Name = 'kompliziertkompliziert'            
+            bm_name = 'kompliziertkompliziert' + zeilenordinal 
+            bm.Name = bm_name
+            
+            if bm_name in self.mb.doc.Bookmarks.ElementNames:
+                zu_loeschendes_bm = self.mb.doc.Bookmarks.getByName(bm_name)
+                zu_loeschendes_bm.dispose()
+                    
             text.insertTextContent(vc,bm,False)
             
             # neuen dateinamen herausfinden
@@ -342,7 +348,7 @@ class Funktionen():
             
             # Textanfang und Bookmark in Datei loeschen 
             bms = doc_new.Bookmarks
-            bm2 = bms.getByName('kompliziertkompliziert')
+            bm2 = bms.getByName('kompliziertkompliziert' + zeilenordinal)
             new_OrgInnerSec = doc_new.TextSections.getByName(new_OrgInnerSec_name)
             
             cur_new.gotoRange(bm2.Anchor,False)
@@ -402,8 +408,8 @@ class Funktionen():
             self.mb.class_Sidebar.erzeuge_sb_layout()
                 
         except Exception as e:
-            self.mb.nachricht('teile_text ' + str(e),"warningbox")
             log(inspect.stack,tb())
+            self.mb.nachricht('teile_text ' + str(e),"warningbox")
             
     def teile_text_batch(self):
         if self.mb.debug: log(inspect.stack)
@@ -605,7 +611,6 @@ class Funktionen():
         cp = self.mb.createUnoService("com.sun.star.ui.dialogs.ColorPicker")
         #cp = self.mb.createUnoService("com.sun.star.cui.ColorPicker")
         
-        print(initial_value)
         values = cp.getPropertyValues()
         
         values[0].Value = initial_value
@@ -615,7 +620,7 @@ class Funktionen():
         cp.dispose()
         
         farbe = cp.PropertyValues[0].Value
-        print('resultat',farbe)
+        
         return farbe
     
     def dezimal_to_rgb(self,farbe):
@@ -688,7 +693,6 @@ class Funktionen():
         Filepicker.execute()
         file_len = len(Filepicker.Files)
         
-        #file_len = len(Filepicker.getSelectedFiles())
                    
         if file_len == 0:
             return None,False
@@ -1848,10 +1852,16 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
                     else:
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
                     
-                    tag2_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag2')
-                    if tag2_button != None:
-                        tag2_button.Model.ImageURL = url
                         
+                    try:
+                        # Wenn noch nicht alle Tabs aufgerufen worden sind, existieren manche
+                        # Hauptfelder noch nicht. Daher try/except als schnelle Loesung
+                        tag2_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag2')
+                        if tag2_button != None:
+                            tag2_button.Model.ImageURL = url
+                    except:
+                        pass
+                    
                     self.mb.tree_write(tree,Path)
         except:
             log(inspect.stack,tb())
@@ -1988,10 +1998,15 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
                         Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
                     else:
                         Path = os.path.join(self.mb.pfade['tabs'], name + '.xml')
-                    
-                    tag1_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag1')
-                    if tag1_button != None:
-                        tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
+                        
+                    try:
+                        # Wenn noch nicht alle Tabs aufgerufen worden sind, existieren manche
+                        # Hauptfelder noch nicht. Daher try/except als schnelle Loesung
+                        tag1_button = self.mb.props[name].Hauptfeld.getControl(ord_source).getControl('tag1')
+                        if tag1_button != None:
+                            tag1_button.Model.ImageURL = KONST.URL_IMGS+'punkt_%s.png' %sel
+                    except:
+                        pass
                     
                     self.mb.tree_write(tree,Path)
                     

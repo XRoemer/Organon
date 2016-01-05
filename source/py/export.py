@@ -606,15 +606,17 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             return
         
         if sett['einz_dok']:
-            self.exp_in_ein_dokument(sections)
+            ok = self.exp_in_ein_dokument(sections)
         elif sett['einz_dat']:
-            self.exp_in_einzel_dat(sections)
+            ok = self.exp_in_einzel_dat(sections)
         elif sett['neues_proj']:
-            self.exp_in_neues_proj(sections)
+            ok = self.exp_in_neues_proj(sections)
         
-        self.ueberpruefe_auf_ungespeicherte()    
-        self.mb.nachricht(LANG.EXPORT_ERFOLGREICH,"infobox")
-
+        if ok:
+            self.ueberpruefe_auf_ungespeicherte()    
+            self.mb.nachricht(LANG.EXPORT_ERFOLGREICH,"infobox")
+        else:
+            self.mb.nachricht(LANG.EXPORT_NICHT_ERFOLGREICH,"warningbox")
 
     def ueberpruefe_auf_ungespeicherte(self):
         if self.mb.debug: log(inspect.stack)
@@ -688,7 +690,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             if sett['dok_einfuegen']:
                 URL = sett['url']
                 if URL != '':
-                    if not os.path.exists(uno.fileUrlToSystemPath(URL)):
+                    if not os.path.exists(URL):
                         trennerDat_existiert = False
                     
                 
@@ -791,7 +793,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         cur.gotoEnd(False)
                         URL = sett['url']
                         SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-                        SFLink2.FileURL = URL
+                        SFLink2.FileURL = uno.systemPathToFileUrl(URL)
 
                         newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                         newSection2.setPropertyValue('FileLink',SFLink2)
@@ -843,12 +845,15 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             else:
                 oOO.storeToURL(Path3,(prop,))
 
-            
+            ok = True
         except:
             log(inspect.stack,tb())
+            ok = False
+            
         self.mb.class_Bereiche.schliesse_oOO()   
         st_ind.end() 
         
+        return ok
         
     def exp_in_einzel_dat(self,sections):
         if self.mb.debug: log(inspect.stack)
@@ -987,7 +992,16 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         oOO.Text.insertTextContent(cur,newSection,False)                   
                         
                         # Den durch Organon angelegten Textbereich wieder loeschen
-                        cur.gotoRange(newSection.Anchor,False)  
+                        try:
+                            cur.gotoRange(newSection.Anchor,False)  
+                        except:
+                            # aendern
+                            # Tabellen erzeugen hier einen Fehler
+                            # allerdings ist nicht klar, ob diese Zeile ueberhaupt gebraucht
+                            # wird. Evtl. reicht removeTextContent auch aus.
+                            # pruefen !!!
+                            pass
+                            
                         
                         # entferne OrgInnerSec
                         tsecs = oOO.TextSections
@@ -1058,11 +1072,14 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                          
                 self.mb.class_Bereiche.schliesse_oOO()    
                 st_ind.setValue(zaehler)
+                
+            ok = True
         except:
             log(inspect.stack,tb())
+            ok = False
 
         st_ind.end()  
-
+        return ok
 
     def exp_in_neues_proj(self,sections):
         if self.mb.debug: log(inspect.stack)
@@ -1083,10 +1100,12 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             pfad_zu_neuem_ordner = os.path.join(speicherort,neuer_projekt_name + '.organon')
             
             self.mb.class_Export.kopiere_projekt(neuer_projekt_name,pfad_zu_neuem_ordner,ordinale,tree,tags_neu)
-                        
+            
+            return True       
         except Exception as e:
             self.mb.nachricht('exp_in_neues_proj ' + str(e),"warningbox")
             log(inspect.stack,tb())
+            return False
     
     def et_und_ordinale_berechnen(self,sections,projektname):
         if self.mb.debug: log(inspect.stack)

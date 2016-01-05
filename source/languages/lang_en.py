@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+
 # Menubar
 EINSTELLUNGEN = u'''Preferences'''
 BEARBEITEN_M = u'''Edit'''
 ANSICHT = u'''View'''
 FILE = u'''File'''
-TITEL = u'''Titel'''
+TITEL = u'''Title'''
 PAPIERKORB = u'''Waste Bin'''
 FORMATIERUNG_SPEICHERN = u'''Save formatting of last edited file: {0}'''
+DATEI_NICHT_GESPEICHERT = u'''File couldn't be saved'''
 KEINE = u'''None'''
 KAPITEL = u'''Chapter'''
 SZENE = u'''Scene'''
@@ -89,6 +91,7 @@ Proceed?'''
 FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'''This function can only be used from the project tab.'''
 KEINE_KOMBINATION_MOEGLICH = u'''These files can't be combined.'''
 DATEIEN_VEREINEN = u'''Combine Files'''
+NOCH_IN_TAB_GEOEFFNET = u'''{0} is opened in {1}'''
 
 # TREEVIEW
 ORDNER_AUSKLAPPEN = u'''Unfold folder'''
@@ -113,6 +116,7 @@ Should Organon set up an entry in the galerie?
 EXPORT_2 = u'''Export'''
 EXPORT = u'''EXPORT'''
 EXPORT_ERFOLGREICH = u'''successfully exported'''
+EXPORT_NICHT_ERFOLGREICH = u'''Export didn't work!'''
 ALLES = u'''All'''
 SICHTBARE = u'''Visible'''
 AUSWAHL = u'''Selection'''
@@ -312,6 +316,7 @@ DESIGNNAMEN_EINGEBEN = u'''Please enter a name for the new design'''
 DESIGN_EXISTIERT = u'''This design already exists'''
 EXPORTNAMEN_EINGEBEN = u'''Please enter a name for the file to be exported'''
 DATEI_EXISTIERT = u'''The file already exists'''
+NICHT_ALLE_DESIGNS_LOESCHEN = u'''You can't delete all designs'''
 
 # PERSONAS
 PERSONA = u'''Persona'''
@@ -319,7 +324,6 @@ DESIGN_PERSONA = u'''Design: Personas'''
 DESIGN_ORGANON = u'''Design: Organon'''
 DESIGN_TRENNER = u'''Design: Separator'''
 DESIGN_OFFICE = u'''Design: Office'''
-THEMA_TITEL = u'''Persona'''
 THEMA_UNTERTITEL = u'''Font color of menubar'''
 NEUES_PERSONA_THEMA = u'''New Persona'''
 PERSONA_ANWENDEN = u'''Set Persona'''
@@ -344,6 +348,7 @@ KEIN_PERSONA_SELEKTIERT = u'''No Persona selected'''
 LOESCHEN_BESTAETIGEN = u'''Do you really want to delete "{0}"?'''
 ORDNER_NICHT_ENTFERNT = u'''The directory '{0}' couldn't be deleted.'''
 AENDERUNG_NACH_NEUSTART = u'''Changes will be visible after a restart of Writer.'''
+KEIN_PERSONA = u'''No Persona'''
 
 # WRITER DESIGN
 WRITER_DESIGN = u'''Writer Design'''
@@ -467,7 +472,7 @@ BENENNE_DATEI_UM = u'''Rename File'''
 
 # TAGS CATEGORIES
 AUSWAHL_KEIN_ERGEBNIS = u'''No results for your selection'''
-            
+
 TAGS = u'''Tags'''
 TAG = u'''Tag'''
 KATEGORIE = u'''Category'''
@@ -527,7 +532,7 @@ TEMPLATE_WIRKLICH_LOESCHEN = u'''This will remove the template from disk. Do you
 TEMPLATE_NICHT_GELADEN = u'''ERROR: The project couldn't be created from the template.
 
 {}'''
-GLEICHER_PFAD = u'''Template and new project own the same name and path.'''    
+GLEICHER_PFAD = u'''Template and new project own the same name and path.'''
 ORG_TEMPLATES_SETZEN = u'''Organon Templates can be set under Organon Menu/File/Preferences/Templates .'''
 WRITER_TEMPLATES_SETZEN = u'''The user templates of Writer are shown. See the manual for further information.'''
 

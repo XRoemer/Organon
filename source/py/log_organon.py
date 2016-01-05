@@ -37,7 +37,6 @@ class Log():
         
         self.path_to_extension = path_to_extension
         self.timer_start = clock()
-        self.path_to_project_settings = None
         
         # Default Debug Settings
         if log_config['location_debug_file'] == '':
@@ -207,8 +206,6 @@ class Log():
                     inhalt = 'pyuno object'
                 a.append((arg,inhalt))
             
-            # aendern
-            #a = unicode(a)[1:-1]
             a = a[1:-1]
             return a
         except:

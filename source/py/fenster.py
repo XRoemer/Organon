@@ -69,7 +69,6 @@ class Fenster():
             return ctrls,max_hoehe + 20
         except:
             log(inspect.stack,tb())
-             
             
             
     def berechne_tabs(self,controls,tabs,abstand_links):  
@@ -91,8 +90,8 @@ class Fenster():
         try:
             tabs_breiten = {t:0 for t in tabs}
             tabs_breite_ctrl_max = {t:0 for t in tabs}
-            mindest_breite = {t:0 if v[0] == None else v[0] for t,v in tabs.items()}
-            abstand = {t:0 if v[1] == None else v[1] for t,v in tabs.items()}
+            #mindest_breite = {t:0 if v[0] == None else v[0] for t,v in tabs.items()}
+            #abstand = {t:0 if v[1] == None else v[1] for t,v in tabs.items()}
             letzter_tab = sorted(tabs)[-1]
     
             alle_tabs = {}
@@ -217,8 +216,8 @@ class Fenster():
             tabs_breiten_list = [tabs_breiten[v] for v in sorted(tabs_breiten)]
             tabs_breiten_summen = [sum(tabs_breiten_list[:i+1]) for i in range(len(tabs_breiten_list))]
             
-            s_tabs2 = [tabs[v][1] for v in sorted(tabs)]
-            summen_tabs = [sum(s_tabs2[:i+1]) for i in range(len(s_tabs2))]
+            #s_tabs2 = [tabs[v][1] for v in sorted(tabs)]
+            #summen_tabs = [sum(s_tabs2[:i+1]) for i in range(len(s_tabs2))]
              
             neue_tabs = {k+1:tabs_breiten_summen[k]  + abstand_links for k,v in tabs.items()}
             neue_tabs[0] = abstand_links
@@ -331,18 +330,14 @@ class Fenster():
         oFrame.initialize(oWindow)
         oFrame.setCreator(self.mb.desktop)
         oFrame.activate()
-#         oFrame.Name = 'Xaver' # no effect
-#         oFrame.Title = 'Xaver2' # no effect
+
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
         cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
         
-        #cont_model.ForegroundColor = KONST.FARBE_SCHRIFT_DATEI
         cont.setModel(cont_model)
-        # need createPeer just only the container
         cont.createPeer(toolkit, oWindow)
-        #cont.setPosSize(0, 0, 0, 0, 15)
 
         oFrame.setComponent(cont, None)
         
@@ -531,7 +526,7 @@ class Fenster():
         control.Maximum =  control_innen.PosSize.Height  
         control.VisibleSize = Height      
 
-        listener = self.mb.scrollbar_listener(self.mb,control_innen)
+        listener = ScrollBar_Listener(self.mb,control_innen)
         listener.fenster_cont = control_innen
         control.addAdjustmentListener(listener) 
         
@@ -646,5 +641,43 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
             return 1      
     
     
+from com.sun.star.awt import XAdjustmentListener
+class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
     
+    def __init__(self,mb,fenster_cont):   
+        
+        if mb.debug: log(inspect.stack) 
+        self.fenster_cont = None
+        self.mb = mb
+        self.called_from_hf = False
+        
+    def adjustmentValueChanged(self,ev):
+        
+        self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
+        if self.called_from_hf:
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
+            
+    def disposing(self,ev):
+        return False
+    
+    def schalte_sichtbarkeit_hf_ctrls(self):
+        
+        try:
+            props = self.mb.props[T.AB]
+            co = props.Hauptfeld.PosSize.Y
+            tv = self.mb.win.PosSize.Height
+            tableiste = self.mb.tabsX.tableiste.Size
+    
+            untergrenze = -co - 20
+            obergrenze = -co + tv - tableiste.Height - 20
+            
+            Ys = props.dict_zeilen_posY
+    
+            for y in Ys:
+                if untergrenze < y < obergrenze:
+                    props.dict_posY_ctrl[y].setVisible(True)
+                else:
+                    props.dict_posY_ctrl[y].setVisible(False)
+        except:
+            log(inspect.stack,tb())    
                 

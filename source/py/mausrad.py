@@ -10,6 +10,7 @@ class Mausrad():
         if mb.debug: log(inspect.stack)
         self.mb = mb
         self.is_running = False
+        self.called_from_treeview = False
         
         # Der Code fuer das Mausrad funktioniert nur unter Windows und Linux.
         if sys.platform.lower() not in['win32','linux','linux2']:
@@ -20,6 +21,9 @@ class Mausrad():
         if self.mb.debug: log(inspect.stack)
 
         try:
+            
+            self.called_from_treeview = called_from_treeview
+            
             try:               
                 if not self.mb.settings_orga['mausrad']:
                     return
@@ -139,8 +143,9 @@ class Mausrad():
         self.hauptfeld.setPosSize(0, y ,0,0,2)
         self.scrollLeiste.Model.ScrollValue = -y
         
-        if True:
-            self.schalte_sichtbarkeit_hf_ctrls()
+        if self.called_from_treeview:
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
+        
     
     def schalte_sichtbarkeit_hf_ctrls(self):
         
@@ -155,7 +160,7 @@ class Mausrad():
     
             Ys = props.dict_zeilen_posY
     
-            for y,v in Ys.items():
+            for y in Ys:
                 if untergrenze < y < obergrenze:
                     props.dict_posY_ctrl[y].setVisible(True)
                 else:

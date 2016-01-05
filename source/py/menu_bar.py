@@ -40,7 +40,7 @@ class Menu_Bar():
              logX,
              class_LogX,
              settings_organon,
-             templates) = args
+             ) = args
 
             
             ###### DEBUGGING ########
@@ -106,19 +106,18 @@ class Menu_Bar():
             self.props.update({T.AB :Props()})
             self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
             self.tags = None
-            self.templates = templates
             self.registrierte_maus_listener = []
             self.maus_fenster = None
             self.mausrad_an = False
             self.texttools_geoeffnet = False
-            
+            self.writer_vorlagen = {}
 
             # Settings
             self.settings_orga = settings_organon
             self.settings_exp = None
             self.settings_imp = None
             self.settings_proj = {}
-            self.user_styles = ()
+            
     
             # Pfade
             self.pfade = {}
@@ -192,24 +191,13 @@ class Menu_Bar():
             self.class_Gliederung = Gliederung()
             
             #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
-            
-            
-            
+
             
             # Listener  
-            self.w_listener = Dialog_Window_Size_Listener(self)    
-            self.keyhandler = Key_Handler(self)                                           
-            self.scrollbar_listener = ScrollBar_Listener
             self.use_UM_Listener = False
 
             self.Listener = Listener(self)  
-                        
-#             self.Listener.add_Undo_Manager_Listener()
-#             self.Listener.add_Dialog_Event_Listener()
-            self.Listener.add_Tab_Listener()
-#             self.Listener.add_Document_Close_Listener()
-#             self.Listener.add_Dialog_Window_Size_Listener()
-            
+  
             self.class_Funktionen.update_organon_templates()
             
         except:
@@ -600,6 +588,10 @@ class Menu_Bar():
         
         lang = __import__('lang_en')
         
+        # Wenn die Uebersetzung nicht existiert und logging eingeschaltet ist,
+        # wird der versuchte Import als Fehler geloggt.
+        # aendern
+        
         try:
             loc = locale[0:2]
             self.language = loc
@@ -862,6 +854,7 @@ class Menu_Bar():
                 LANG.TRENNE_TEXT,
                 LANG.TEXT_BATCH_DEVIDE,
                 LANG.DATEIEN_VEREINEN,
+                'SEP',
                 LANG.TEXTTOOLS,
                 'SEP',
                 LANG.UNFOLD_PROJ_DIR,
@@ -951,21 +944,8 @@ class Listener():
         self.VC_selection_listener  = ViewCursor_Selection_Listener(self.mb)  
         self.w_listener             = Dialog_Window_Size_Listener(self.mb)    
         self.undo_mgr_listener      = Undo_Manager_Listener(self.mb)
-        #self.tab_listener           = Tab_Leiste_Listener(self.mb)
         self.listener_doc_close     = Document_Close_Listener(self.mb)
-        
-        # Der Scrollbar Listener wird (noch ?) nicht zentral verwaltet
-
-        #self.use_UM_Listener = False
-        
-        '''
-        Der w_listener wird auch in den Tabs verwendet und braucht noch eine
-        Sonderbehandlung !!!
-        
-        '''
-        
-        
-        
+        self.keyhandler             = Key_Handler(self.mb)  
         
         self.blocked = False
 
@@ -1007,6 +987,10 @@ class Listener():
                     fkt = getattr(self, 'remove_' + key)
                     fkt()
                     self.states[key] = False
+                    
+                
+                self.mb.current_Contr.removeKeyHandler(self.keyhandler)
+                
             except:
                 pass
                 
@@ -1106,38 +1090,6 @@ class Listener():
         self.mb.doc.removeDocumentEventListener(self.listener_doc_close)
         self.states['Document_Close_Listener'] = False
         
-    def add_Tab_Listener(self):
-        self.versuchter_start('Tab_Listener')
-        return
-        if self.blocked : return
-        if not self.states['Tab_Listener']:
-            if self.mb.debug: log(inspect.stack)
-            if self.mb.programm == 'LibreOffice':
-                self.mb.tabsX[1].addTabListener(self.tab_listener)  
-            else:
-                self.mb.tabsX.addTabListener(self.tab_listener)  
-            self.states['Tab_Listener'] = True
-        else:
-            self.versuchter_start('Tab_Listener')
-    
-    def remove_Tab_Listener(self):
-        return
-        if self.blocked : return
-        if self.mb.debug: log(inspect.stack)
-        if self.mb.programm == 'LibreOffice':
-            self.mb.tabsX[1].removeTabListener(self.tab_listener) 
-        else:
-            self.mb.tabsX.removeTabListener(self.tab_listener)   
-        self.states['Tab_Listener'] = False
-    
- 
- 
- 
- 
- 
- 
- 
-        
 
 
 
@@ -1177,7 +1129,10 @@ class Tab ():
     
 
 class Design():
-    
+    '''
+    Alte Klasse um die Tabs in Organon Fenster zu berechnen.
+    Ueberfluessig, sobald alle Organon Fenster auf das fenster.py Modul umgestellt sind.
+    '''
     def __init__(self):
         if debug: log(inspect.stack)
         
@@ -1431,7 +1386,7 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 self.do()
 
             if sel == LANG.NEW_PROJECT:
-                self.mb.class_Projekt.erzeuge_neues_Projekt()
+                self.mb.class_Projekt.dialog_neues_projekt_anlegen()
                 
             elif sel == LANG.OPEN_PROJECT:
                 self.mb.class_Projekt.lade_Projekt()
@@ -1665,21 +1620,7 @@ class DropDown_Tags_SB_Listener(unohelper.Base, XMouseListener):
                 ctrl.Model.ImageURL = 'private:graphicrepository/svx/res/apply.png' 
                 
             self.mb.class_Sidebar.erzeuge_sb_layout()
-            
-            # Wenn die Sidebar sichtbar ist, auf und zu schalten,
-            # um den Sidebar tag sichtbar zu machen 
-#             try:
-#                 controls = self.mb.dict_sb['controls']
-#                 if controls != {}:
-#                     okey = list(controls)[0]
-#                     xParent = controls[okey][0].xParentWindow
-#                     if xParent.isVisible():
-#                         self.mb.class_Sidebar.schalte_sidebar_button()
-#                         
-#                         ev.Source.setFocus()
-#             except:
-#                 log(inspect.stack,tb()) 
-            
+
         except:
             log(inspect.stack,tb())   
 
@@ -1705,7 +1646,6 @@ class Mitteilungen():
         doc = desktop.getCurrentComponent()                
         ParentWin = doc.CurrentController.Frame.ContainerWindow
 
-        MsgTitle = "Mitteilung"
         MsgType = MsgType.lower()
         #available msg types
         MsgTypes = ("messbox", "infobox", "errorbox", "warningbox", "querybox")
@@ -1725,9 +1665,16 @@ class Mitteilungen():
         tk = ParentWin.getToolkit()
         msgbox = tk.createWindow(aDescriptor)
         msgbox.MessageText = MsgText
-
+        
+        farben = self.mb.settings_orga['organon_farben']
+        
+        if farben['design_organon_fenster']:
+            msgbox.setBackground(farben['hf_hintergrund'])
+            msgbox.StyleSettings.FieldTextColor = farben['schrift_datei']
+        
         x = msgbox.execute()
         msgbox.dispose()
+        
         return x
     
     def nachricht_si(self,nachricht,zeit):
@@ -1942,6 +1889,9 @@ class Key_Handler(unohelper.Base, XKeyHandler):
                     if self.mb.debug: log(inspect.stack)
                     self.mb.doc.UndoManager.undo()
         return False
+    
+    def disposing(self,ev):
+        return False
 
 
 from com.sun.star.view import XSelectionChangeListener
@@ -1963,13 +1913,8 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
 
         try:
             if self.mb.selbstruf:
-                #if self.mb.debug: print('selection selbstruf')
                 return False
-            
-            
-#             self.att2 = self.mb.class_Funktionen.get_attribs(selectionvc,4)
-#             diffs = self.mb.class_Funktionen.find_differences(self.att1,self.att2)
-            
+
             selected_ts = self.mb.current_Contr.ViewCursor.TextSection   
 
             if selected_ts == None:
@@ -2012,7 +1957,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 self.test_for_parent_section(selected_ts,sec)
                 selected_ts = sec[0]
                 s_name = selected_ts.Name
-                #log(inspect.stack,extras=s_name)
+                
                 # steht nach test_for... selcted_text... nicht auf einer OrganonSec, 
                 # ist der Bereich ausserhalb des Organon trees
                 if 'OrganonSec' not in selected_ts.Name:
@@ -2085,46 +2030,6 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             
         props.selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      
-
-from com.sun.star.awt import XAdjustmentListener
-class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
-    
-    def __init__(self,mb,fenster_cont):   
-        
-        if mb.debug: log(inspect.stack) 
-        self.fenster_cont = None
-        self.mb = mb
-        self.called_from_hf = False
-        
-    def adjustmentValueChanged(self,ev):
-        
-        self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
-        if self.called_from_hf:
-            self.schalte_sichtbarkeit_hf_ctrls()
-            
-    def disposing(self,ev):
-        return False
-    
-    def schalte_sichtbarkeit_hf_ctrls(self):
-        
-        try:
-            props = self.mb.props[T.AB]
-            co = props.Hauptfeld.PosSize.Y
-            tv = self.mb.win.PosSize.Height
-            tableiste = self.mb.tabsX.tableiste.Size
-    
-            untergrenze = -co - 20
-            obergrenze = -co + tv - tableiste.Height - 20
-            
-            Ys = props.dict_zeilen_posY
-    
-            for y,v in Ys.items():
-                if untergrenze < y < obergrenze:
-                    props.dict_posY_ctrl[y].setVisible(True)
-                else:
-                    props.dict_posY_ctrl[y].setVisible(False)
-        except:
-            log(inspect.stack,tb())
             
             
 from com.sun.star.awt import XWindowListener
@@ -2144,7 +2049,8 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
     def windowMoved(self,ev):pass
         #print('windowMoved')
     def windowShown(self,ev):
-        pass#self.mb.class_Baumansicht.korrigiere_scrollbar()
+        pass
+        #self.mb.class_Baumansicht.korrigiere_scrollbar()
         #print('windowShown')
     def windowHidden(self,ev):pass
    
@@ -2162,13 +2068,20 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
 
             if 'files' in self.mb.pfade: 
                 self.mb.class_Tags.speicher_tags()   
-                self.mb.class_Sidebar.tags_und_dict_sb_zuruecksetzen()    
+                
+                self.mb.tags['sichtbare'] = []
+                # Wenn Organon durch den Organon Schalter geschlossen wird,
+                # existiert die Seitenleiste noch und wird hier wieder zurueckgesetzt
+                desk = self.mb.desktop
+                if hasattr(desk.CurrentComponent,'CurrentController'):
+                    self.mb.dict_sb['erzeuge_sb_layout']()
 
+            self.mb.Listener.entferne_alle_Listener()
             self.mb = None
 
         except:
             log(inspect.stack,tb())
-
+            
         return False
 
 
@@ -2176,8 +2089,8 @@ from com.sun.star.document import XDocumentEventListener
 class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
     '''
     Lets Writer close without warning.
-    As everything is saved by Organon, a warning isn't necesarry.
-    Even more it might confuse the user.
+    As everything is saved by Organon, a warning isn't necessary.
+    Even more: it might confuse the user.
     
     '''
     def __init__(self,mb):
@@ -2185,26 +2098,6 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
         self.mb = mb
 
     def documentEventOccured(self,ev):
-        #if self.mb.debug: 
-            #log(inspect.stack,extras=self.mb.doc.StringValue)
-            #log(inspect.stack,extras=ev.EventName)
-        
-        #print(ev.EventName)
-        
-        #if ev.EventName == 'OnLayoutFinished':
-            
-            # Abfrage, ob ueberhaupt ein Layout fuer die 
-            # Seitenleiste erzeugt werden soll, fehlt.
-            # TODO: Design Seitenleiste und Design Organon insgesamt trennen,
-            # da die Seitenleiste jetzt ohne Neustart designed werden kann.
-            # Evt. gilt das aber auch für das gesamte Dokument
-            
-            #ctrl = self.mb.dict_sb['controls']
-            
-#             if 'organon_sidebar' not in ctrl:
-#                 self.seitenleiste_erzeugen()
-                
-        
         if ev.EventName == 'OnPrepareViewClosing':
             if self.mb.debug: log(inspect.stack)
             # Um das Dokument ohne Speicherabfrage zu schliessen
@@ -2213,98 +2106,3 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
     def disposing(self,ev):
         return False
     
-    
-    def seitenleiste_erzeugen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:       
-            def get_seitenleiste():
-                
-                desk = self.mb.desktop
-                contr = desk.CurrentComponent.CurrentController
-                wins = contr.ComponentWindow.Windows
-                
-                childs = []
-        
-                for w in wins:
-                    if not w.isVisible():continue
-                    
-                    if w.AccessibleContext.AccessibleChildCount == 0:
-                        continue
-                    else:
-                        child = w.AccessibleContext.getAccessibleChild(0)
-                        if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
-                            continue
-                        else:
-                            childs.append(child)
-                            
-                orga_sb = None
-                ch = None
-                try:
-                    for c in childs:
-                        for w in c.Windows:
-                            try:
-                                for w2 in w.Windows:
-                                    if w2.AccessibleContext.AccessibleDescription == 'Organon':
-                                        orga_sb = w2
-                                        ch = c
-                            except:
-                                pass
-                except:
-                    log(inspect.stack,tb())
-        
-                return orga_sb,ch
-            
-            def sl_erzeugen():
-            
-                def dispatch(cmd,oprop=('',None)):
-                    
-                    sm = uno.getComponentContext().ServiceManager
-                    dispatcher = self.mb.createUnoService("com.sun.star.frame.DispatchHelper")
-                    
-                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-                       
-                    prop.Name = oprop[0]
-                    prop.Value = oprop[1]
-                    res = dispatcher.executeDispatch(self.mb.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
-            
-                def sleeper(fkt,fkt2,fkt3,orga_sb): 
-                    
-                    fkt3('Sidebar')  
-
-                    while orga_sb == None:
-                        time.sleep(.1) 
-                        orga_sb,seitenleiste = fkt()
-                        
-                    fkt2(orga_sb)
-            
-                def resume(orga_sb): 
-                    orga_sb.setState(True)    
-                    dispatch('Sidebar')
-                
-                try:   
-                    orga_sb,seitenleiste = get_seitenleiste()
-                    
-                    if not orga_sb:
-
-                        from threading import Thread
-                        t = Thread(target=sleeper,args=(get_seitenleiste,resume,dispatch,orga_sb))
-                        t.start() 
-                         
-                        return t 
-                    else:
-                        orga_sb.setState(True)
-                except:
-                    log(inspect.stack,tb())
-
-            try: 
-                t = sl_erzeugen()
-            except:
-                log(inspect.stack,tb())
-
-        except:
-            log(inspect.stack,tb())
-
-        
-      
-

@@ -23,8 +23,8 @@ class Sidebar():
         
         self.url_expand = None
         self.url_collapse = None
-      
-        
+
+
     def erzeuge_sb_layout(self):
         if self.mb.dict_sb['sb_closed']:return
         if self.mb.debug: log(inspect.stack)
@@ -32,11 +32,11 @@ class Sidebar():
         dict_sb = self.mb.dict_sb
         
         if not dict_sb['design_gesetzt']:
+            # faerbt nur noch die Schrift in der Menuleiste 
             if self.mb.settings_orga['organon_farben']['design_office']:
                 dict_sb['setze_sidebar_design']()
                 
-                
-        
+                      
         # hoehen zuruecksetzen
         self.hoehen = []
 
@@ -47,16 +47,15 @@ class Sidebar():
             sb = dict_sb['controls']['organon_sidebar'][1]
             panelWin = xUIElement.Window
             
-            
+            self.url_expand = xUIElement.Theme.Image_Expand
+            self.url_collapse = xUIElement.Theme.Image_Collapse
+
             # alte Eintraege im einzelnen Panel vorher loeschen
             for conts in panelWin.Controls:
                 conts.dispose()
-            
 
-            self.url_expand = xUIElement.Theme.Image_Expand
-            self.url_collapse = xUIElement.Theme.Image_Collapse
-            
             orga_sb,seitenleiste = self.get_seitenleiste()
+            
             try:
                 breite_sidebar = seitenleiste.PosSize.Width
             except:
@@ -99,13 +98,16 @@ class Sidebar():
                     
                     if panel_nr not in self.offen:
                         self.offen[panel_nr] = 1
-                    if self.offen[panel_nr]:
-                        url = self.url_collapse
-                    else:
-                        url = self.url_expand
+                    
+                    url = self.url_collapse if self.offen[panel_nr] else self.url_expand
                         
-                    cont_icon, model = self.mb.createControl(self.mb.ctx, "ImageControl", 8,9 , 9, 9,
+                    cont_icon, model = self.mb.createControl(self.mb.ctx, "ImageControl", 8,9 , 10, 10,
                                                              ('ImageURL','Border'), (url,0))  
+                    
+                    # falls kein icon in der graphic repository vorhanden ist
+                    if cont_icon.PreferredSize.Height == 0:
+                        model.ImageURL = KONST.IMG_PLUS if self.offen[panel_nr] else KONST.IMG_MINUS
+                        
                     cont_icon.addMouseListener(listener)
                     container1.addControl('label',cont_icon)
                     
@@ -395,42 +397,7 @@ class Sidebar():
             
         except:
             log(inspect.stack,tb())  
-            
-                  
-
-
-       
-           
-    
-#     def schalte_sidebar_button(self):
-#         if self.mb.debug: log(inspect.stack)
-# 
-#         try:
-#             controls = self.mb.dict_sb['controls']
-#             okey = list(controls)[0]
-#             window = controls[okey][0].window
-# 
-#             a = window.AccessibleContext.AccessibleParent
-#             b = a.AccessibleContext.AccessibleParent
-#             c = b.AccessibleContext.AccessibleParent
-#             d = c.AccessibleContext.AccessibleParent
-#             e = d.AccessibleContext.AccessibleParent
-#             
-#             Seitenleiste_fenster = e.Windows[0]
-# 
-#             for window in Seitenleiste_fenster.Windows:
-#                 if window.AccessibleContext.AccessibleDescription == 'Organon':
-#                     o_button = window
-#                 else:
-#                     n_button = window
-#  
-#             n_button.setState(True)
-#             o_button.setState(True)
-#             
-#         except:
-#             log(inspect.stack,tb())
-
-        
+                        
         
     def berechne_bildgroesse(self,model,hoehe):
         if self.mb.debug: log(inspect.stack)
@@ -517,13 +484,6 @@ class Sidebar():
         except:
             log(inspect.stack,tb())            
         
-
-    def tags_und_dict_sb_zuruecksetzen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        self.mb.dict_sb['controls'] = {}
-        self.mb.dict_sb['erzeuge_Layout'] = None   
-        self.mb.tags['sichtbare'] = []
     
     def get_seitenleiste(self):
         if self.mb.debug: log(inspect.stack)

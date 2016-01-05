@@ -33,7 +33,11 @@ class Version():
         '0.9.9.8.1':None,
         '0.9.9.8.2':None,
         '0.9.9.8.3':self.an_09984b_anpassen,
-        #'0.9.9.8.4':self.an_09985b_anpassen,
+        '0.9.9.8.4':None,
+        '0.9.9.8.5':None,
+        '0.9.9.8.6':None,
+        '0.9.9.8.7':None,
+        '0.9.9.8.8':None,
         
         } 
         
@@ -148,9 +152,6 @@ class Version():
         if self.mb.debug: log(inspect.stack) 
         
         try:
-            # aendern :
-            # Datumsformat fuer englische Version muss evtl angepasst werden
-            
             # neue Datum Formatierung
             
             if self.mb.language == 'de':
@@ -335,16 +336,6 @@ A backup of your project with the old settings will be created in the backup fol
             
         
         
-    def an_09985b_anpassen(self):
-        if self.mb.debug: log(inspect.stack) 
-        
-        try:
-            pass
-        # aendern
-        # neue Werte in alte Designs eintragen
-        except:
-            log(inspect.stack,tb())
-        
-        
+       
         
         

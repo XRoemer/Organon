@@ -262,7 +262,7 @@ class RawInputReader():
                      
                     if GetRawInputData(lParam, RID_INPUT, byref(raw), byref(dwSize), sizeof(RAWINPUTHEADER)) == dwSize.value:
                         RIM_TYPEMOUSE = 0x00000000
-                        RIM_TYPEKEYBOARD = 0x00000001
+                        #RIM_TYPEKEYBOARD = 0x00000001
                          
                         if raw.header.dwType == RIM_TYPEMOUSE:
                              

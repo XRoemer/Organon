@@ -86,8 +86,6 @@ class Organon_Design():
                 
         config_access.commitChanges()
         
-        #self.mb.nachricht(LANG.AENDERUNG_NACH_NEUSTART,"infobox")
-        
         
     def setze_dok_farben(self,dok_farbe,hintergrund):
         if self.mb.debug: log(inspect.stack)
@@ -363,7 +361,7 @@ class Organon_Design():
             
         tabs = {
                  0 : (None, 10),
-                 1 : (None, 40),
+                 1 : (None, 20),
                  2 : (None, 25),
                  3 : (None, 0),
                  }
@@ -428,7 +426,7 @@ class Organon_Design():
             ('control_theme_tit',"Edit",0,        
                                     'tab4x+40',0,80,25,  
                                     ('Text','FontWeight','TextColor','PaintTransparent','Border'),
-                                    (LANG.THEMA_TITEL,150,KONST.FARBE_MENU_SCHRIFT,True,0),                                                                    
+                                    (LANG.PERSONA,150,KONST.FARBE_MENU_SCHRIFT,True,0),                                                                    
                                     {} 
                                     ),  
             30, 
@@ -452,6 +450,12 @@ class Organon_Design():
                                     ('Border','Dropdown','LineCount'),
                                     ( 2,True,10),       
                                     {'addItems':(persona_items,0),'addItemListener':listener}
+                                    ), 
+            ('control_Abstand',"FixedText",1,       
+                                    'tab0',0,150,20,  
+                                    (),
+                                    (),                                                                    
+                                    {} 
                                     ), 
              
                     
@@ -551,39 +555,46 @@ class Organon_Design():
  
             
             ('control_personas_name',"Edit",0,          
-                                    'tab7-max',0,100,20,    
+                                    'tab6-tab6-E',0,100,20,    
                                     ('HelpText',),
                                     (LANG.PERSONANAMEN_EINGEBEN,),                                                                         
                                     {} 
                                     ), 
             30,
             ('control_neues_thema',"Button",1,          
-                                    'tab7-max',0,100,23,    
+                                    'tab6-tab6-E',0,100,23,    
                                     ('Label',),
                                     (LANG.NEUES_PERSONA_THEMA,),                                                                         
                                     {'setActionCommand':'neues_persona','addActionListener':(listener)} 
                                     ),
             60,
             ('control_thema_loeschen',"Button",1,          
-                                    'tab7',0,50,23,    
+                                    'tab6-tab6-E',0,50,23,    
                                     ('Label',),
                                     (LANG.PERSONA_LOESCHEN,),                                                                         
                                     {'setActionCommand':'loesche_persona','addActionListener':(listener)} 
                                     ), 
-            150,
+            120,
+            ('control_kein_persona',"Button",1,         
+                                    'tab6-tab6-E',0,50,23,    
+                                    ('Label',),
+                                    (LANG.KEIN_PERSONA,),                                                                         
+                                    {'setActionCommand':'kein_persona','addActionListener':(listener)} 
+                                    ), 
+            60,
             ('control_anwenden',"Button",1,         
-                                    'tab6x',0,50,23,    
+                                    'tab6-tab6-E',0,50,23,    
                                     ('Label',),
                                     (LANG.PERSONA_ANWENDEN,),                                                                         
                                     {'setActionCommand':'anwenden','addActionListener':(listener)} 
-                                    ), 
+                                    ),
             ]
 
 
     
         # feste Breite, Mindestabstand
         tabs = {
-                 0 : (None, 0),
+                 0 : (None, 5),
                  1 : (None, 30),
                  2 : (None, 0),
                  3 : (None, 0),
@@ -2041,6 +2052,9 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             elif ev.ActionCommand == 'neues_persona':
                 self.erstelle_neues_persona()
                 return
+            elif ev.ActionCommand == 'kein_persona':
+                self.mb.class_Organon_Design.setze_persona('','')
+                return
             elif ev.ActionCommand == 'loesche_persona':
                 self.loesche_persona()
                 return
@@ -2205,12 +2219,12 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
                     break
 
             if cmd == 'control_farbe_schrift':
-                farbe,rgb = self.get_farbe()
+                farbe,rgb = self.get_farbe(cmd)
                 self.ctrls['control_farbe_schrift'].Model.BackgroundColor = farbe
                 self.theme_ansicht_erneuern(url='unveraendert')
                     
             elif cmd == 'control_farbe_hintergrund':
-                farbe,rgb = self.get_farbe()
+                farbe,rgb = self.get_farbe(cmd)
                 self.ctrls['control_farbe_hintergrund'].Model.BackgroundColor = farbe
                 
                 if self.ctrls['control_solid'].State == 1:
@@ -2222,7 +2236,7 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
                 
                     
             elif cmd == 'control_farbe_hintergrund2':
-                farbe,rgb = self.get_farbe()
+                farbe,rgb = self.get_farbe(cmd)
                 self.ctrls['control_farbe_hintergrund2'].Model.BackgroundColor = farbe
                 if self.ctrls['control_gradient'].State == 1:
                     url = self.erzeuge_personas(gradient=True)
@@ -2232,14 +2246,14 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             log(inspect.stack,tb())
             
             
-    def get_farbe(self):
+    def get_farbe(self,cmd):
         if self.mb.debug: log(inspect.stack) 
-                  
-        cp = self.mb.ctx.ServiceManager.createInstanceWithContext("com.sun.star.cui.ColorPicker",self.mb.ctx)
-        cp.execute()
-        cp.dispose()
         
-        farbe = cp.PropertyValues[0].Value
+        ctrl = self.ctrls[cmd]
+        urspr_farbe = ctrl.Model.BackgroundColor
+        
+        farbe = self.mb.class_Funktionen.waehle_farbe(initial_value=urspr_farbe)
+
         return farbe,self.mb.class_Funktionen.dezimal_to_rgb(farbe) 
              
     def mouseExited(self, ev):

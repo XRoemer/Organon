@@ -347,7 +347,10 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-
+            if self.mb.settings_exp == None:
+                # Noch kein Projekt geladen
+                return
+            
             sett = self.mb.settings_exp['html_export']
 
             # Listener erzeugen 
@@ -1144,6 +1147,10 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
+            if self.mb.settings_exp == None:
+                # Noch kein Projekt geladen
+                return
+            
             tags = self.mb.tags
             
             listener = Listener_Tags(self.mb,self.container,self)             

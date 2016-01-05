@@ -62,15 +62,23 @@ class Menu_Start():
             self.zuletzt_geladene_Projekte = self.get_zuletzt_geladene_Projekte()
             self.dict_sb = dict_sb
             self.dict_sb['setze_sidebar_design'] = self.setze_sidebar_design
-            self.templates = {}
             
-            try:
-                self.templates.update({'standard_stil':self.get_stil(),
-                                       'get_stil':self.get_stil})
-                
+            try:                
                 if self.settings_orga['organon_farben']['design_office']:
-                    event_listener = Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(self)
-                    self.doc.addDocumentEventListener(event_listener)
+                    
+                    orga_sb,seitenleiste = self.get_seitenleiste()
+                     
+                    if None in (orga_sb,seitenleiste):
+                        event_listener = Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(self)
+                        self.doc.addDocumentEventListener(event_listener)
+                    else:
+                        self.dict_sb['seitenleiste'] = seitenleiste
+                        self.dict_sb['orga_sb'] = orga_sb
+                        
+                        # schaltet die Seitenleiste um, damit das XUIElement in der factory erzeugt wird
+                        icons_sl = orga_sb.AccessibleContext.AccessibleParent.Windows[1]
+                        icons_sl.setState(True)
+                        orga_sb.setState(True)
 
             except:
                 log(inspect_stack,tb())
@@ -107,13 +115,6 @@ class Menu_Start():
             if not ok:
                 return False        
             
-
-        
-#             # Das Editfeld ueberdeckt kurzzeitig das Startmenu fuer eine bessere Anzeige
-#             control, model = self.createControl(self.ctx,"Edit",0,0,1500,1500,(),() )  
-#             model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-#             self.cont.addControl('wer',control)
-            
             self.cont.dispose()
             self.erzeuge_Menu()
             
@@ -127,10 +128,8 @@ class Menu_Start():
             orga_name = path.basename(sys_pfad).split('.')[0] + '.organon'
             sys_pfad1 = sys_pfad.split(orga_name)[0]
             pfad = path.join(sys_pfad1,orga_name,orga_name)
-            
 
             self.Menu_Bar.class_Projekt.lade_Projekt(False,pfad)
-            
           
         except:
             log(inspect_stack,tb())
@@ -165,15 +164,16 @@ class Menu_Start():
         Attr = (160,60,120,153,'Hauptfeld_aussen1', 0)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
-        control, model = self.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
+        control0, model = self.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
         
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/organon icon_120.png' 
         model.Border = False   
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-        self.cont.addControl('Hauptfeld_aussen1',control)  
+        self.cont.addControl('Hauptfeld_aussen1',control0)  
         
        
         self.listener = Menu_Listener(self)
+        
         
         
         PosX = 25
@@ -181,39 +181,44 @@ class Menu_Start():
         Width = 110
         Height = 30
         
-        control, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
-        control.setActionCommand('neues_projekt')
-        control.addActionListener(self.listener)
-        model.Label = self.LANG.NEW_PROJECT
-        #model.BackgroundColor = 501#KONST.FARBE_HF_HINTERGRUND
-  
-        #model.TextLineColor = 501
-        
-        #setattr(self.cont.StyleSettings, 'WorkspaceColor', 501)
-        
-        
-        self.cont.addControl('Hauptfeld_aussen1',control)  
+        control1, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
+        control1.setActionCommand('neues_projekt')
+        control1.addActionListener(self.listener)
+        model.Label = self.LANG.NEW_PROJECT 
+               
+        self.cont.addControl('neues_projekt',control1)  
         
         PosY += 50
         
-        control, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
-        control.setActionCommand('projekt_laden')
-        control.addActionListener(self.listener)
+        control2, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
+        control2.setActionCommand('projekt_laden')
+        control2.addActionListener(self.listener)
         model.Label = self.LANG.OPEN_PROJECT
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
                 
-        self.cont.addControl('Hauptfeld_aussen1',control) 
+        self.cont.addControl('projekt_laden',control2) 
         
         
         PosY += 70
         
-        control, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
-        control.setActionCommand('anleitung_laden')
-        control.addActionListener(self.listener)
+        control3, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
+        control3.setActionCommand('anleitung_laden')
+        control3.addActionListener(self.listener)
         model.Label = self.LANG.LOAD_DESCRIPTION
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
-        self.cont.addControl('Hauptfeld_aussen1',control) 
+        self.cont.addControl('anleitung_laden',control3) 
+        
+        
+        breiten = []
+        for c in (control1,control2,control3):
+            breiten.append(c.getPreferredSize().Width)
+        max_breite = max(breiten)
+        
+        for c in (control1,control2,control3):
+            c.setPosSize(0,0,max_breite,0,4)
+        
+        control0.setPosSize(25 + max_breite + 20, 0,0,0,1)
         
         PosY += 150
         
@@ -234,8 +239,6 @@ class Menu_Start():
             PosY += 25
 
         ist_template = self.wurde_als_template_geoeffnet()
-        if not ist_template:
-            pass
         
         
     def erzeuge_Menu(self):
@@ -256,7 +259,6 @@ class Menu_Start():
                     log,
                     class_Log,
                     self.settings_orga,
-                    self.templates
                     )
             import time
             class_Log.timer_start = time.clock()
@@ -264,7 +266,7 @@ class Menu_Start():
             
             self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu(self.Menu_Bar.prj_tab)
-
+            
         except:
             log(inspect.stack,tb())    
     
@@ -353,66 +355,48 @@ class Menu_Start():
             
         return doc
     
-    def get_stil(self):
+    def get_seitenleiste(self):
         if debug: log(inspect_stack)
-
-        try:
-            ctx = uno.getComponentContext()
-            smgr = ctx.ServiceManager
-            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-            doc = desktop.getCurrentComponent() 
-            
-            if doc == None:
-                doc = self.get_doc()                
-            
-            oStyleFamilies = doc.StyleFamilies 
-            oPageStyles = oStyleFamilies.getByName("PageStyles")
-            oDefaultStyle = oPageStyles.getByName("Standard")
-            
-            style = {}
-            
-            nicht_nutzbar_OO = ['DisplayName','FooterText','FooterTextLeft','FooterTextRight',
-                            'HeaderText','HeaderTextLeft','HeaderTextRight',
-                            'ImplementationName','IsPhysical','Name','ParentStyle',
-                            'PropertiesToDefault','PropertyToDefault'
-                            ]
-            
-            nicht_nutzbar_LO = ['DisplayName','FooterText','FooterTextLeft','FooterTextRight',
-                            'HeaderText','HeaderTextLeft','HeaderTextRight',
-                            'ImplementationName','IsPhysical','Name','ParentStyle',
-                            'PropertiesToDefault','PropertyToDefault',
-    
-                            'FillBitmap','FooterTextFirst','HeaderTextFirst',
-                            'FillBackground','FillBitmapLogicalSize','FillBitmapMode',
-                            'FillBitmapName','FillBitmapOffsetX','FillBitmapOffsetY',
-                            'FillBitmapPositionOffsetX','FillBitmapPositionOffsetY',
-                            'FillBitmapRectanglePoint','FillBitmapSizeX','FillBitmapSizeY',
-                            'FillBitmapStretch','FillBitmapTile','FillColor',
-                            'FillGradient','FillGradientName','FillGradientStepCount',
-                            'FillHatch','FillHatchName','FillStyle','FillTransparence',
-                            'FillTransparenceGradient','FillTransparenceGradientName',
-                            'FooterIsShared','HeaderIsShared'
-                            ]
-            
-            for o in dir(oDefaultStyle):
-                value = getattr(oDefaultStyle,o)
-                if type(value) in [str,int,type(u''),bool,type(None)]:
-                    style.update({o:value})
-                    
-            if self.programm == 'OpenOffice':
-                nicht_nutzbar = nicht_nutzbar_OO
+              
+        desk = self.desktop
+        contr = desk.CurrentComponent.CurrentController
+        wins = contr.ComponentWindow.Windows
+         
+        childs = []
+         
+        from com.sun.star.uno.TypeClass import INTERFACE
+        otype = uno.Type('com.sun.star.awt.XTopWindow2',INTERFACE)
+ 
+        for w in wins:
+            if not w.isVisible():continue
+             
+            if w.AccessibleContext.AccessibleChildCount == 0:
+                continue
             else:
-                nicht_nutzbar = nicht_nutzbar_LO
-                    
-            default_template_style = {s:style[s] for s in style}# if s[0] not in nicht_nutzbar}
-            
-            #log(inspect_stack,extras=str(len(default_template_style)))
-            
-        except Exception as e:
-            log(inspect_stack,tb())
-            return {}
-        
-        return default_template_style
+                child = w.AccessibleContext.getAccessibleChild(0)
+                if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
+                    continue
+                if otype not in child.Types:
+                    continue
+                else:
+                    childs.append(child)
+                     
+        orga_sb = None
+        if len(childs) == 1:
+            seitenleiste = childs[0]
+        else:
+            seitenleiste = None
+         
+        if seitenleiste:
+            for w in seitenleiste.Windows:
+                try:
+                    for w2 in w.Windows:
+                        if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                            orga_sb = w2
+                except:
+                    pass
+         
+        return orga_sb,seitenleiste
 
 
     def setze_sidebar_design(self): 
@@ -434,7 +418,7 @@ class Menu_Start():
             personen = self.dict_sb['controls']['organon_sidebar']
             theme = personen[0].Theme
     
-            
+            rot = 16275544
             sett = self.settings_orga['organon_farben']['office']['sidebar']
             
             hintergrund = get_farbe(sett['hintergrund'])
@@ -472,7 +456,7 @@ class Menu_Start():
             
             tbb = theme.Paint_PanelTitleBarBackground
             tbb.StartColor = panel_titel_hintergrund
-            tbb.EndColor = panel_titel_hintergrund
+            tbb.EndColor = hintergrund
             theme.setPropertyValue('Paint_PanelTitleBarBackground', tbb)
     
             # Borders
@@ -480,8 +464,9 @@ class Menu_Start():
             theme.setPropertyValue('Paint_VerticalBorder', border_vertical)
             
             # Schriften
-            theme.setPropertyValue('Color_DeckTitleFont', titel_schrift)
-            theme.setPropertyValue('Color_PanelTitleFont', panel_titel_schrift)
+            if self.programm == 'OpenOffice':
+                theme.setPropertyValue('Color_DeckTitleFont', titel_schrift)
+                theme.setPropertyValue('Color_PanelTitleFont', panel_titel_schrift)
             
     
             theme.setPropertyValue('Paint_ToolBoxBorderBottomRight', hintergrund) # buttons Umrandung
@@ -492,14 +477,14 @@ class Menu_Start():
             tbb.EndColor = hintergrund
             theme.setPropertyValue('Paint_ToolBoxBackground', tbb)
             
-            rot = 16275544
+#             rot = 16275544
                        
-            theme.setPropertyValue('Paint_DropDownBackground', rot)
-            theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', rot) #??? 
-            theme.setPropertyValue('Color_Highlight', rot)
-            theme.setPropertyValue('Color_HighlightText', rot)
-            theme.setPropertyValue('Color_DropDownBorder', rot)
-            theme.setPropertyValue('Color_PanelTitleFont', rot)
+#             theme.setPropertyValue('Paint_DropDownBackground', rot)
+#             theme.setPropertyValue('Paint_ToolBoxBorderCenterCorners', rot) #??? 
+#             theme.setPropertyValue('Color_Highlight', rot)
+#             theme.setPropertyValue('Color_HighlightText', rot)
+#             theme.setPropertyValue('Color_DropDownBorder', rot)
+#             theme.setPropertyValue('Color_PanelTitleFont', rot)
             
             # Panel Titel
             dict_sb = self.dict_sb
@@ -516,12 +501,9 @@ class Menu_Start():
             sb = personen[1]
             sb.requestLayout()
             
-            
-            
-            
         except:
             log(inspect.stack,tb())
-            
+        
         
    
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
@@ -554,7 +536,7 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
             if ev.ActionCommand == 'neues_projekt':
                 self.menu.cont.dispose()
                 self.menu.erzeuge_Menu()
-                self.menu.Menu_Bar.class_Projekt.erzeuge_neues_Projekt()
+                self.menu.Menu_Bar.class_Projekt.dialog_neues_projekt_anlegen()
                 
             elif ev.ActionCommand == 'projekt_laden':
                 self.menu.cont.dispose()
@@ -630,15 +612,9 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
         self.ms = ms
 
     def documentEventOccured(self,ev):        
-        
+        #print(ev.EventName)
         if ev.EventName == 'OnLayoutFinished':
-            
-            # Abfrage, ob ueberhaupt ein Layout fuer die 
-            # Seitenleiste erzeugt werden soll, fehlt.
-            # TODO: Design Seitenleiste und Design Organon insgesamt trennen,
-            # da die Seitenleiste jetzt ohne Neustart designed werden kann.
-            # Evt. gilt das aber auch für das gesamte Dokument
-            
+
             ctrl = self.ms.dict_sb['controls']
             
             if 'organon_sidebar' not in ctrl:
@@ -698,18 +674,18 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
                 return orga_sb,seitenleiste
             
                         
-            def dispatch2(cmd,oprop=('',None)):
-                    
-                    if debug: log(inspect_stack,extras='dispatch erzeugt')
-                    sm = uno.getComponentContext().ServiceManager
-                    dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
-                    
-                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-                       
-                    prop.Name = oprop[0]
-                    prop.Value = oprop[1]
-                    
-                    res = dispatcher.executeDispatch(self.ms.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
+#             def dispatch2(cmd,oprop=('',None)):
+#                     
+#                     if debug: log(inspect_stack,extras='dispatch erzeugt')
+#                     sm = uno.getComponentContext().ServiceManager
+#                     dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
+#                     
+#                     prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+#                        
+#                     prop.Name = oprop[0]
+#                     prop.Value = oprop[1]
+#                     
+#                     res = dispatcher.executeDispatch(self.ms.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
             
             
             
@@ -759,7 +735,7 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
                 except:
                     log(inspect_stack,tb())
             
-            t = sl_erzeugen()
+            sl_erzeugen()
 
         except:
             log(inspect_stack,tb())
@@ -769,6 +745,7 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
     def set_seitenleiste_stiel_OO(self,seitenleiste):
         if debug: log(inspect_stack)
         try:
+            
             ctx = uno.getComponentContext()
             smgr = ctx.ServiceManager
             toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    

@@ -731,6 +731,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     s.dispose()
                     if source != target:
                         self.zeilen_neu_ordnen(source,target,action)   
+                        self.mb.class_Baumansicht.korrigiere_scrollbar()  
     
             
         except:
@@ -1043,10 +1044,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             sections = self.mb.doc.TextSections
             self.verlinke_Bereiche(sections)
             
-            
-            
-            
-            
+
             # Sichtbarkeit der Bereiche umschalten
             self.schalte_sichtbarkeit_der_Bereiche(action=action)     
             
@@ -1159,9 +1157,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         # bei Verschieben in den Papierkorb
         if 'inPapierkorbEinfuegen' in action and target_xml.attrib['Zustand'] == 'zu':
             
-#             source_xml = root.find('.//'+source)
-#             source_xml.attrib['Sicht'] = 'nein'
-            
             # dict_ordner muss vorher erneuert werden
             self.mb.class_Projekt.erzeuge_dict_ordner()               
             self.schalte_sichtbarkeit_des_hf(target,target_xml,'auf')
@@ -1175,15 +1170,15 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return eintraege
         
    
-    def schalte_sichtbarkeit_des_hf(self,selbst,selbst_xml,zustand,zeige_projektordner = False):
-        if self.mb.debug: log(inspect.stack)
+    def schalte_sichtbarkeit_des_hf(self,selbst,selbst_xml,zustand,zeige_projektordner=False,hf_ctrls=True):
+        #if self.mb.debug: log(inspect.stack)
         
         props = self.mb.props[T.AB]
         tree = props.xml_tree
         root = tree.getroot()
         
-        def durchlaufe_baum(dir):  
-            for child in dir:
+        def durchlaufe_baum(odir):  
+            for child in odir:
                 #print(child.tag,child.attrib['Name'])
                 if child.attrib['Art'] in ('dir','waste','prj'):  
                     #print('wird sichtbar 1', child.attrib['Name'],child.attrib['Zustand'],child.attrib['Parent'])  
@@ -1196,7 +1191,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     if child.attrib['Zustand'] == 'auf':                        
                         durchlaufe_baum(child)
                 else:
-                    if dir.attrib['Zustand'] == 'auf':
+                    if odir.attrib['Zustand'] == 'auf':
                         #print('wird sichtbar 2', child.attrib['Name'],'pg')
                         tar = props.Hauptfeld.getControl(child.tag)
                         tar.Visible = True           
@@ -1209,9 +1204,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             durchlaufe_baum(selbst_xml)
         
         if zustand == 'auf':
-            dir = props.dict_ordner[selbst]
+            odir = props.dict_ordner[selbst]
             
-            for child in dir:
+            for child in odir:
                 if child != selbst:
                     tar = props.Hauptfeld.getControl(child)
                     tar.Visible = False
@@ -1229,11 +1224,13 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             path = os.path.join(self.mb.pfade['tabs'] ,  T.AB + '.xml' )
         tree = props.xml_tree
         self.mb.tree_write(tree,path)
-    
-        self.schalte_sichtbarkeit_hf_ctrls()
+        
+        if hf_ctrls:
+            self.schalte_sichtbarkeit_hf_ctrls()
         
         
     def schalte_sichtbarkeit_hf_ctrls(self):
+        if self.mb.debug: log(inspect.stack)
         
         try:
             props = self.mb.props[T.AB]
@@ -1246,14 +1243,14 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             Ys = props.dict_zeilen_posY
     
-            for y,v in Ys.items():
+            for y in Ys:
                 if untergrenze < y < obergrenze:
                     props.dict_posY_ctrl[y].setVisible(True)
                 else:
                     props.dict_posY_ctrl[y].setVisible(False)
         except:
             log(inspect.stack,tb())
-         
+            
         
     def verlinke_Bereiche(self,sections):
         if self.mb.debug: log(inspect.stack)
@@ -1299,7 +1296,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     def get_links(self):
         if self.mb.debug: log(inspect.stack)
         
-        dict = {}
+        odict = {}
         sections = self.mb.doc.TextSections
         names = sections.ElementNames
          
@@ -1308,36 +1305,35 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 sec = sections.getByName(name)
 
                 if sec.FileLink.FileURL != '':
-                    dict.update({sec.FileLink.FileURL:sec.Name})
+                    odict.update({sec.FileLink.FileURL:sec.Name})
          
-        return dict
+        return odict
     
     
     def get_sections(self):
         
-        dict = {}
+        odict = {}
         sections = self.mb.doc.TextSections
         names = sections.ElementNames
 
         for name in names:
             if 'OrganonSec' in name:
                 sec = sections.getByName(name)
-                dict.update({name:sec})
-        return dict
+                odict.update({name:sec})
+        return odict
     
     
     def get_links2(self,sections_uno):
         if self.mb.debug: log(inspect.stack)
  
-        dict = {}
+        odict = {}
         sections = self.mb.doc.TextSections
-        names = sections.ElementNames
 
         for name in sections_uno:
             sec = sections_uno[name]
-            dict.update({sec.FileLink.FileURL:sec.Name})
+            odict.update({sec.FileLink.FileURL:sec.Name})
 
-        return dict       
+        return odict       
     
     def finde_eltern_bereich(self,sec):
         if self.mb.debug: log(inspect.stack)
@@ -1352,7 +1348,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal=None,action=None,add_listener=True):
         if self.mb.debug: log(inspect.stack)
 
-        
         try:
             
             props = self.mb.props[T.AB]
@@ -1377,23 +1372,16 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
 #                     #self.mb.viewcursor.gotoStart(False)           
 #                     self.mb.sec_helfer2.IsVisible = True
 #                     self.mb.viewcursor.gotoStart(False)
-#                  
-#                  
-#                  
-#                 
 #             except:
 #                 pass
+
             sections_uno = self.get_sections()
-            
             
             tree = self.mb.props[T.AB].xml_tree
             root = tree.getroot()       
-            zeile_xml = root.find('.//'+zeilenordinal)
-            papierk = root.find('.//'+props.Papierkorb)
-            papierk_inhalt = papierk.findall('.//')
+            papierk = root.find('.//' + props.Papierkorb)
             
-            #self.mb.viewcursor.gotoStart(False)
-               
+                           
             # Ordner
             if zeilenordinal in props.dict_ordner:
                 zeilen_in_ordner_ordinal = props.dict_ordner[zeilenordinal]
@@ -1454,7 +1442,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     self.mb.props['ORGANON'].sichtbare_bereiche.append(props.dict_bereiche['ordinal'][b]) 
                    
             else:
-            # Seiten 
+            # Dateien 
                 
                 selekt_bereich_name = props.dict_bereiche['ordinal'][zeilenordinal]
                 selekt_bereich = self.mb.doc.TextSections.getByName(selekt_bereich_name)
@@ -1488,31 +1476,16 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 self.mb.viewcursor.gotoRange(selekt_bereich.Anchor.Start,False)
                 self.mb.sec_helfer.IsVisible = False
                 self.mb.props['ORGANON'].sichtbare_bereiche = [selekt_bereich_name]
-                
-                #sec = self.finde_eltern_bereich(self.mb.viewcursor.TextSection)
-                
-                
-                # HACK ! Manchmal wird die Ansicht des Dokumentenfensters nicht vollstaendig erneuert.
-                # Scheint mit Formatierungen des Textes zusammenzuhaengen.
-                # Daher wird die Anzeige von Textbereichen gesetzt, um die 
-                # Ansicht zu aktualisieren.
-                oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
-                self.mb.current_Contr.ViewSettings.ShowTextBoundaries = oBool
-                
-               
+                  
             self.mb.loesche_undo_Aktionen()    
-            
             self.mb.sec_helfer2.IsVisible = False
 
             if add_listener:
                 self.mb.Listener.add_VC_selection_listener() 
-            #self.mb.use_UM_Listener = True
             
         except:
             log(inspect.stack,tb())
-            
-        
-        
+                
     
     def schalte_sichtbarkeit_des_ersten_Bereichs(self):
         if self.mb.debug: log(inspect.stack)
@@ -1550,7 +1523,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         if self.mb.debug: log(inspect.stack)
         
         dict_filelinks = self.get_links2(sections_uno)
-
+        
         try:
             url_in_dict = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][name])
             url_sec = bereich.FileLink.FileURL
@@ -1565,8 +1538,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     empty_file = os.path.join(self.mb.pfade['odts'],'empty_file.odt') 
                     self.SFLink2.FileURL = uno.systemPathToFileUrl(empty_file)
                     sec.setPropertyValue('FileLink',self.SFLink2)
-                    #print('link neu gesetzt ##############',sec.FileLink.FileURL)
-                 
+
                 if url_in_dict != bereich.FileLink.FileURL:
                     bereich.setPropertyValue('FileLink',self.SFLink)
 
@@ -1631,9 +1603,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         try:
             trenner_name = 'trenner' + sec.Name.split('OrganonSec')[1]
             sec_name =  sec.Name
-            
-            #print('#',str(sec.Anchor.Text).split('{implementationName')[0])
-            
+                        
             sec_ordinal = os.path.basename(sec.FileLink.FileURL).split('.')[0]
             sec_nachfolger_name = 'OrganonSec' + str(int(sec.Name.split('OrganonSec')[1])+1)
 
@@ -1657,10 +1627,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
             sec_text = sec.Anchor.Text
             sec_nachfolger_text = sec_nachfolger.Anchor.Text
-            
-#             print(str(sec_text).split('{implementationName')[0])
-#             print(str(sec_nachfolger_text).split('{implementationName')[0])
-
 
             cur = None
             
@@ -1678,7 +1644,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     
                     if cont[i].Anchor.Text == sec_text:
                         cur = cont[i].Anchor.Text.createTextCursor()
-                        cur_text = cur.Text
                         cur.gotoRange(cur.TextSection.Anchor.Start,False) 
             else:    
                 cur = sec_nachfolger.Anchor.Text.createTextCursor()
@@ -1718,10 +1683,8 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         if nachfolger_ordinal == self.mb.props[T.AB].Papierkorb:
             sec_trenner.setPropertyValue('BackGraphicURL','')
             sec_trenner.Anchor.setString('')
-            
             return
                 
-        
         tree = self.mb.props[T.AB].xml_tree
         root = tree.getroot()
         nachfolger_xml = root.find('.//'+nachfolger_ordinal)
@@ -1790,7 +1753,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         try:
             if trenner_name not in self.mb.doc.TextSections.ElementNames:
                 return
-#         log(inspect.stack,None,str(trenner_name+';'+sec.Name))
             trenner = self.mb.doc.TextSections.getByName(trenner_name)
             trenner.IsVisible = False
         except:
@@ -1885,7 +1847,6 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                         if selbst_xml.attrib['Art'] == 'waste':
                             ev.Source.Model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_offen.png'
                                                     
-                        self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(selbst,selbst_xml,zustand)    
                     else:
                         selbst_xml.attrib['Zustand'] = 'zu'
                         if selbst_xml.attrib['Art'] in ('dir','prj'):
@@ -1896,12 +1857,12 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                             ev.Source.Model.ImageURL = bild_ordner
                         if selbst_xml.attrib['Art'] == 'waste':
                             ev.Source.Model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png'
+                         
                             
-                        self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(selbst,selbst_xml,zustand)
-                       
+                    self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(selbst,selbst_xml,zustand,hf_ctrls=False)
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
                     self.mb.class_Baumansicht.korrigiere_scrollbar()
-                    
+                    self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
                 except:
                     log(inspect.stack,tb())
                 
@@ -2081,4 +2042,45 @@ class Tag2_Listener (unohelper.Base, XMouseListener):
         return False
 
 
+from com.sun.star.document import XDocumentEventListener
+class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
+    '''
+    Lets Writer close without warning.
+    As everything is saved by Organon, a warning isn't necesarry.
+    Even more it might confuse the user.
+    
+    '''
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+
+    def documentEventOccured(self,ev):
+        #if self.mb.debug: 
+            #log(inspect.stack,extras=self.mb.doc.StringValue)
+            #log(inspect.stack,extras=ev.EventName)
+        
+        print(ev.EventName)
+        
+#         #if ev.EventName == 'OnLayoutFinished':
+#             
+#             # Abfrage, ob ueberhaupt ein Layout fuer die 
+#             # Seitenleiste erzeugt werden soll, fehlt.
+#             # TODO: Design Seitenleiste und Design Organon insgesamt trennen,
+#             # da die Seitenleiste jetzt ohne Neustart designed werden kann.
+#             # Evt. gilt das aber auch für das gesamte Dokument
+#             
+#             #ctrl = self.mb.dict_sb['controls']
+#             
+# #             if 'organon_sidebar' not in ctrl:
+# #                 self.seitenleiste_erzeugen()
+#                 
+#         
+#         if ev.EventName == 'OnPrepareViewClosing':
+#             if self.mb.debug: log(inspect.stack)
+#             # Um das Dokument ohne Speicherabfrage zu schliessen
+#             self.mb.doc.setModified(False)
+            
+    def disposing(self,ev):
+        return False
+    
   

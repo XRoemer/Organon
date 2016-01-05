@@ -315,7 +315,7 @@ class Bereiche():
     
                 newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
                 newSection.setPropertyValues(("LinkRegion",'FileLink'),(bereichsname,SFLink))
-    
+                                    
                 newDoc.Text.insertTextContent(cur, newSection, True)
                 newDoc.Text.removeTextContent(newSection)
                 newDoc.storeToURL(zu_speicherndes_doc_path,())
@@ -325,7 +325,11 @@ class Bereiche():
                 self.mb.loesche_undo_Aktionen()
             except:
                 log(inspect.stack,tb())
-
+                self.mb.nachricht(LANG.DATEI_NICHT_GESPEICHERT,'warningbox')
+                try:
+                    newDoc.close(False)
+                except:
+                    pass
 
     def verlinkte_Bilder_einbetten(self,doc):
         if self.mb.debug: log(inspect.stack)

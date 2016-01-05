@@ -25,140 +25,279 @@ class Projekt():
         self.mb.settings_proj['use_template'] = (False,None)
         self.mb.settings_proj['use_template_organon'] = (False,None)           
         self.first_time = True
-        
-        
-    def erzeuge_neues_Projekt(self):
+
+
+    def dialog_neues_projekt_anlegen_elemente(self,listener):
         if self.mb.debug: log(inspect.stack)
         
         try:
+            self.mb.settings_proj['use_template'] = 0,''
             
-            if self.pruefe_auf_geladenes_organon_projekt():
-                return
+            if self.mb.speicherort_last_proj != None:
+                # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
+                # -> gespeicherten Pfad ueberpruefen!
+                try:
+                    speicherort = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
+                except:
+                    #modelU.Label = '-' 
+                    speicherort = self.mb.speicherort_last_proj
+            else:
+                speicherort = '-' 
             
-            geglueckt,self.mb.projekt_name = self.dialog_neues_projekt_anlegen()  
             
-            if geglueckt:
+            if self.mb.writer_vorlagen == {}:
+                writer_vorlagen = (LANG.NO_TEMPLATES,)
+                writer_enable = False
+            else:
+                writer_vorlagen = tuple(self.mb.writer_vorlagen)
+                writer_enable = True
                 
-                self.setze_pfade()
-                is_template, templ_pfad, templ_art = self.pruefe_auf_template()
-                
-                if is_template and templ_art == 'organon':
-                    if templ_pfad == self.mb.pfade['projekt']:
-                        self.mb.nachricht(LANG.GLEICHER_PFAD,'warningbox') 
-                        return
+            
+            templs = self.mb.settings_orga['templates_organon']
+            organon_enable = len(templs['templates']) > 0
+            templs_Org = tuple(templs['templates'])
+            
+            
+            controls = (
+            20,
+            ('control',"FixedText",1,        
+                                'tab0',0,250,20,  
+                                ('Label','FontWeight'),
+                                (LANG.ENTER_PROJ_NAME ,150),          
+                                {} 
+                                ),
+            30,
+            ('prj_name',"Edit",0,            
+                                'tab0x-tab0-E',0,200,20,   
+                                (),
+                                (),                                                       
+                                {} 
+                                ) ,
+            30,
+            ('controlT3',"FixedLine",0,      
+                                'tab0x-max',0,360,40,   
+                                (),
+                                (),                                                       
+                                {} 
+                                ), 
+            43,
 
-                if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
+            ('controlP',"FixedText",1,       
+                                'tab0',0,20,20,  
+                                ('Label','FontWeight'),
+                                (LANG.SPEICHERORT,150),               
+                                {} 
+                                ),  
+            0,
+            ('controlW',"Button",1,          
+                                'tab2',0,80,20,   
+                                ('Label',),
+                                (LANG.AUSWAHL,),                                  
+                                {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listener)}
+                                ),              
+            30,
+            ('speicherort',"FixedText",0,        
+                                'tab0x-max',0,300,50,   
+                                ('Label','MultiLine'),
+                                (speicherort,True),           
+                                {} 
+                                ), 
+            30,
+            ('controlT',"FixedLine",0,       
+                                'tab0x-max',0,360,40,   
+                                (),
+                                (),                                                       
+                                {} 
+                                ), 
+            40,
+            
+            ('controlFormO',"FixedText",1,    
+                                 'tab0',0,80,20,   
+                                 ('Label','FontWeight','Enabled','HelpText'),
+                                 (LANG.TEMPLATES_ORGANON,150,organon_enable,LANG.ORG_TEMPLATES_SETZEN),              
+                                 {} 
+                                 ),
+            0,  
+            ('organon_cb',"CheckBox",1,    
+                                 'tab2',0,200,20,   
+                                 ('Label','Enabled'),
+                                 (LANG.NUTZEN,organon_enable),                                  
+                                 {'setActionCommand':'organon','addActionListener':(listener)} 
+                                 ) ,
+            22,
+            ('organon_lb',"ListBox",1,       
+                                 'tab2',0,100,20,    
+                                 ('Dropdown','Enabled','HelpText'),
+                                 (True,organon_enable,LANG.ORG_TEMPLATES_SETZEN),                                       
+                                 {'addItems':(templs_Org,0),'SelectedItems':(0,)}
+                                 ),
+            20,
+            ('controlTO4',"FixedLine",0,      
+                                 'tab0x-max',0,360,40,   
+                                 (),
+                                 (),                                                       
+                                 {} 
+                                 ), 
+            40,
+            
+            ('controlForm',"FixedText",1,     
+                                 'tab0',0,80,20,   
+                                 ('Label','FontWeight','HelpText','Enabled'),
+                                 (LANG.TEMPLATES_WRITER,150,LANG.WRITER_TEMPLATES_SETZEN,writer_enable),              
+                                 {} 
+                                 ),
+            0,  
+            ('writer_cb',"CheckBox",1,    
+                                 'tab2',0,200,20,   
+                                 ('Label','Enabled'),
+                                 (LANG.NUTZEN,writer_enable),                                   
+                                 {'setActionCommand':'writer','addActionListener':(listener)} 
+                                 ) ,
+            22,
+            ('writer_lb',"ListBox",1,   
+                                 'tab2',0,100,20,    
+                                 ('Dropdown','HelpText','Enabled'),
+                                 (True,LANG.WRITER_TEMPLATES_SETZEN,writer_enable),                                       
+                                 {'addItems':(writer_vorlagen,0),'SelectedItems':(0,)}
+                                 ),
+            20,
+            ('controlT4',"FixedLine",0,      
+                                 'tab0x-max',0,360,40,   
+                                 (),
+                                 (),                                                       
+                                 {} 
+                                 ), 
+            40,
+            
+            ('ok',"Button",1,          
+                                 'tab2-tab2-E',0,80,30,    
+                                 ('Label',),
+                                 (LANG.OK,),                                       
+                                 {'setActionCommand':LANG.OK,'addActionListener':(listener)} 
+                                 ), 
+            0,
+            )
+        
+            # feste Breite, Mindestabstand
+            tabs = {
+                     0 : (None, 50),
+                     1 : (None, 0),
+                     2 : (None, 0),
+                     }
+            
+            abstand_links = 10
+            
+            controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
                     
-                    self.mb.nachricht(LANG.DOUBLE_PROJ_NAME,"warningbox")
-                    return
-                
-                # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
-                # funktioniert das unter Linux?? ############
-                elif os.path.exists(self.mb.pfade['projekt']):
-                    # 16777216 Flag fuer YES_NO
-                    entscheidung = self.mb.nachricht(LANG.PROJ_EXISTS,"warningbox",16777216)
-                    # 3 = Nein oder Cancel, 2 = Ja
-                    if entscheidung == 3:
-                        return
-                    elif entscheidung == 2:
-                        try:
-                            import shutil
-                            # entfernt das vorhandene Projekt
-                            shutil.rmtree(self.mb.pfade['projekt'])
-                        except:
-                            # scheint trotz Fehlermeldung zu funktionieren win7 OO/LO
-                            pass #log(inspect.stack,tb())
-                  
-            if geglueckt:
-
-                if is_template and templ_art == 'organon':
-                    
-                    try:
-                        self.mb.class_Funktionen.projekt_umbenannt_speichern(templ_pfad,self.mb.pfade['projekt'],self.mb.projekt_name)
-                        new_path = os.path.join(self.mb.pfade['projekt'],self.mb.projekt_name + '.organon')
-                        self.lade_Projekt(filepicker = False, filepath = new_path)
-                        return
-                    except Exception as e:
-                        self.mb.nachricht(LANG.TEMPLATE_NICHT_GELADEN.format(str(e)),'warningbox') 
-                        log(inspect.stack,tb())   
-                        return
-                    
-                ok = self.erzeuge_Ordner_Struktur() 
-                if not ok:
-                    return
-                
-                self.erzeuge_import_Settings()
-                self.erzeuge_export_Settings()  
-                self.erzeuge_proj_Settings()
-                          
-                self.mb.class_Bereiche.leere_Dokument()        
-                self.mb.class_Baumansicht.start()             
-                Eintraege = self.beispieleintraege2()
-                
-                self.erzeuge_Projekt_xml_tree() 
-                self.mb.class_Bereiche.erzeuge_leere_datei()               
-                self.erzeuge_Eintraege_und_Bereiche(Eintraege)
-                
-                Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
-                self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path1)
-                
-                if is_template:
-                    self.template_kopieren(templ_pfad)
-                    
-                self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
-                
-                self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
-                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
-                
-                self.mb.class_Tags.lege_tags_an()
-                self.mb.class_Tags.speicher_tags()
-
-                self.mb.class_Baumansicht.korrigiere_scrollbar()
-                
-                self.mb.use_UM_Listener = True
-                
-                filepath = os.path.join(self.mb.pfade['projekt'],"%s.organon" % self.mb.projekt_name)
-                dateiname = "%s.organon" % self.mb.projekt_name
-                self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
-                
-                if is_template:
-                    self.mb.class_Projekt.mit_template_oeffnen(templ_pfad)
-                    return
-                
-        except Exception as e:
-            self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
+            return controls2,max_breite
+        except:
             log(inspect.stack,tb())
             
-    def pruefe_auf_template(self):
+    
+    def dialog_neues_projekt_anlegen(self):
         if self.mb.debug: log(inspect.stack)
         
-        t_writ = self.mb.settings_proj['use_template']
-        t_orga = self.mb.settings_proj['use_template_organon']
+        try:
+            # prueft, ob eine Organon Datei geladen ist
+            if len(self.mb.props[T.AB].dict_bereiche) != 0:
+                self.mb.nachricht(LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
+                return 
+            
+            self.get_writer_vorlagen()
+            
+            # LISTENER
+            #listenerS = Speicherordner_Button_Listener(self.mb)
+            listener = neues_Projekt_Dialog_Listener(self.mb) 
+            
+            controls,max_breite = self.dialog_neues_projekt_anlegen_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)
+            
+            # Hauptfenster erzeugen
+            posSize = None, None, max_breite, max_hoehe + 20
+            fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            #fenster_cont.Model.Text = LANG.EXPORT
+
+            # Controls in Hauptfenster eintragen
+            for name,c in ctrls.items():
+                fenster_cont.addControl(name,c)
+
+            listener.ctrls = ctrls
+            listener.fenster = fenster
+        except:
+            log(inspect.stack,tb())
+                    
         
+    def erzeuge_neues_Projekt(self,is_template, templ_art, templ_pfad):
+        if self.mb.debug: log(inspect.stack)
         
-        if not t_writ[0] and not t_orga[0]:
-            return False,None,None
-        
-        elif t_writ[0]:
-            if t_writ[1] == '':
-                return False,None,None
-            else:
-                if os.path.exists(t_writ[1]):
-                    return True,t_writ[1],'writer'
-                else:
-                    return False,None,None
+        try:
+            ok = self.erzeuge_Ordner_Struktur() 
+            if not ok:
+                return
+            
+            self.erzeuge_import_Settings()
+            self.erzeuge_export_Settings()  
+            self.erzeuge_proj_Settings()
+                      
+            self.mb.class_Bereiche.leere_Dokument()        
+            self.mb.class_Baumansicht.start()             
+            Eintraege = self.beispieleintraege2()
+            
+            self.erzeuge_Projekt_xml_tree() 
+            self.mb.class_Bereiche.erzeuge_leere_datei()               
+            self.erzeuge_Eintraege_und_Bereiche(Eintraege)
+            
+            Path1 = os.path.join(self.mb.pfade['settings'],'ElementTree.xml')
+            self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path1)
+            
+            if is_template and templ_art == 'writer':
+                self.template_kopieren(templ_pfad)
                 
-        else:
-            if t_orga[1] == '':
-                return False,None,None
-            else:
-                if os.path.exists(t_orga[1]):
-                    return True,t_orga[1],'organon'
-                else:
-                    return False,None,None
+            self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
+            
+            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
+            
+            self.mb.class_Tags.lege_tags_an()
+            self.mb.class_Tags.speicher_tags()
+
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
+            
+            self.mb.use_UM_Listener = True
+            
+            filepath = os.path.join(self.mb.pfade['projekt'],"%s.organon" % self.mb.projekt_name)
+            dateiname = "%s.organon" % self.mb.projekt_name
+            self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
+            
+            if is_template:
+                self.mb.class_Projekt.mit_template_oeffnen(templ_pfad)
+                return
+                
+        except Exception as e:
+            log(inspect.stack,tb())
+            self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
+            
+            
+    def beispieleintraege2(self):
+        if self.mb.debug: log(inspect.stack)
         
+        Eintraege = [
+                ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
+                ('nr1','nr0',LANG.TITEL,1,'pg','-','ja','leer','leer','leer'),
+                ('nr2','nr0',LANG.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
+                ('nr3','nr2',LANG.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
+                ('nr4','nr2',LANG.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
+                ('nr5','root',LANG.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
+        
+        return Eintraege        
+
     
     def besitzt_template(self):
+        '''
+        Die Vorlage haette auch aus settings_proj ausgelesen werden koennen.
+        Die Methode "besitzt_template" hat jedoch den Vorteil, dass Vorlagen
+        auch im Nachhinein eingefuegt, geaendert oder entfernt werden koennen.
+        '''
         if self.mb.debug: log(inspect.stack)
         
         args = self.mb.doc.Args
@@ -172,29 +311,19 @@ class Projekt():
         if pruef_pfad != '':
             return False,''
         
-        
         odt_pfad = self.mb.pfade['odts']
         
         files = []
         for (dirpath, dirnames, filenames) in os.walk(odt_pfad):
             files.extend(filenames)
             break
-
-        for f in files:
-            try:
-                if f == 'template.ott':
-                    templ_pfad = os.path.join(dirpath,f)
-                    
-                    if os.path.exists(templ_pfad):
-                        self.mb.settings_proj['use_template'] = [1,templ_pfad]
-                        return True,templ_pfad
-                    else:
-                        self.mb.settings_proj['use_template'] = [0,'']
-                        return False,''
-            except:
-                pass
         
-        self.mb.settings_proj['use_template'] = [0,'']    
+        if 'template.ott' in filenames:
+            templ_pfad = os.path.join(dirpath,'template.ott')
+            self.mb.settings_proj['use_template'] = [1,templ_pfad]
+            return True,templ_pfad
+         
+        self.mb.settings_proj['use_template'] = [0,'']
         return False,''
             
     
@@ -223,7 +352,7 @@ class Projekt():
         pFiles =    os.path.join(pProjekt , 'Files')
         pOdts =     os.path.join(pFiles , 'odt')
         pImages =   os.path.join(pFiles , 'Images')
-        pIcons =   os.path.join(pFiles , 'Icons')
+        pIcons =    os.path.join(pFiles , 'Icons')
         pSettings = os.path.join(pProjekt , 'Settings')
         pTabs =     os.path.join(pSettings , 'Tabs')
         
@@ -237,9 +366,6 @@ class Projekt():
         self.mb.pfade.update({'images':pImages}) 
         self.mb.pfade.update({'tabs':pTabs}) 
         self.mb.pfade.update({'icons':pIcons}) 
-        
-        # Pfad fuer Fehler Debugging des Projektes setzen
-        self.mb.class_Log.path_to_project_settings = pSettings
 
     
     def lade_settings(self):
@@ -326,282 +452,8 @@ class Projekt():
         
         return True
         
-    def dialog_neues_projekt_anlegen(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            self.mb.settings_proj['use_template'] = 0,''
-            
-            if self.mb.speicherort_last_proj != None:
-                # try/except fuer Ubuntu: U meldet Fehler: couldn't convert fileUrlTo ...
-                # -> gespeicherten Pfad ueberpruefen!
-                try:
-                    modelU_Label = uno.fileUrlToSystemPath(self.mb.speicherort_last_proj)
-                except:
-                    #modelU.Label = '-' 
-                    modelU_Label = self.mb.speicherort_last_proj
-            else:
-                modelU_Label = '-' 
-            
 
-            modelForm1_Label = LANG.TEMPLATES_WRITER
-            if not self.mb.settings_proj:
-                state = 0#False
-                not_state = 1
-            else:
-                if self.mb.settings_proj['use_template'][0]:
-                    state = 1
-                    not_state = 0
-                else:
-                    state = 0
-                    not_state = 1
-                    
-            modelForm1_State = not_state
-            modelForm2_State = state
-            
-            self.mb.user_styles,pfade = self.get_user_styles()
-
-            if self.mb.user_styles == ():
-                user_styles = (LANG.NO_TEMPLATES,)
-                controlLBF2_Enable = 0
-                controlForm2_Enable = 0
-            else:
-                user_styles = self.mb.user_styles
-                controlLBF2_Enable = 1
-
-            # LISTENER
-            #listenerS = Speicherordner_Button_Listener(self.mb)
-            listener = neues_Projekt_Dialog_Listener(self.mb) 
-            listenerCB = Neues_Projekt_CheckBox_Listener(self.mb)
-
-            y = 0
-            
-            tab0 = tab0x = 25
-            tab1 = tab1x = 115
-            tab2 = tab2x = 0
-            tab3 = tab3x = 80
-            tab4 = tab4x = 130
-            
-            tabs = [tab0,tab1,tab2,tab3,tab4]
-            
-            design = self.mb.class_Design
-            design.set_default(tabs)
-            
-            
-            templs = self.mb.settings_orga['templates_organon']
-            templ_ex = len(templs['templates']) > 0
-            templs_Org = tuple(templs['templates'])
-             
-            controls = (
-            20,
-            ('control',"FixedText",         
-                                'tab0x',y,250,20,  
-                                ('Label','FontWeight'),
-                                (LANG.ENTER_PROJ_NAME ,150),          
-                                {'addKeyListener':(listener)} 
-                                ),
-            30,
-            ('control1',"Edit",             
-                                'tab0',y,200,20,   
-                                (),
-                                (),                                                       
-                                {} 
-                                ) ,
-            30,
-            ('controlT3',"FixedLine",       
-                                'tab0',y,360,40,   
-                                (),
-                                (),                                                       
-                                {} 
-                                ), 
-            43,
-
-            ('controlP',"FixedText",        
-                                'tab0x',y,120,20,  
-                                ('Label','FontWeight'),
-                                (LANG.SPEICHERORT,150),               
-                                {} 
-                                ),  
-            0,
-            ('controlW',"Button",           
-                                'tab2x',y,80,20,   
-                                ('Label',),
-                                (LANG.AUSWAHL,),                                  
-                                {'setActionCommand':LANG.WAEHLEN,'addActionListener':(listener,)}
-                                ),              
-            30,
-            ('controlU',"FixedText",        
-                                'tab0',y,300,20,   
-                                ('Label','State'),
-                                (modelU_Label,modelForm1_State),           
-                                {} 
-                                ), 
-            30,
-            ('controlT',"FixedLine",        
-                                'tab0',y,360,40,   
-                                (),
-                                (),                                                       
-                                {} 
-                                ), 
-            40,
-            
-            ('controlFormO',"FixedText",     
-                                 'tab0x',y,80,20,   
-                                 ('Label','FontWeight','Enabled','HelpText'),
-                                 (LANG.TEMPLATES_ORGANON,150,templ_ex,LANG.ORG_TEMPLATES_SETZEN),              
-                                 {} 
-                                 ),
-            0,  
-            ('controlFormO2',"CheckBox",     
-                                 'tab2',y,200,20,   
-                                 ('Label','Enabled'),
-                                 (LANG.NUTZEN,templ_ex),                                  
-                                 {'setActionCommand':'organon','addActionListener':(listenerCB,)} 
-                                 ) ,
-            22,
-            ('controlLBFO2',"ListBox",       
-                                 'tab2',y,100,20,    
-                                 ('Dropdown','Enabled','HelpText'),
-                                 (True,templ_ex,LANG.ORG_TEMPLATES_SETZEN),                                       
-                                 {'addItems':templs_Org,'SelectedItems':0,'addItemListener':(listenerCB)}
-                                 ),
-            20,
-            ('controlTO4',"FixedLine",       
-                                 'tab0',y,360,40,   
-                                 (),
-                                 (),                                                       
-                                 {} 
-                                 ), 
-            40,
-            
-            ('controlForm',"FixedText",     
-                                 'tab0x',y,80,20,   
-                                 ('Label','FontWeight','HelpText'),
-                                 (LANG.TEMPLATES_WRITER,150,LANG.WRITER_TEMPLATES_SETZEN),              
-                                 {} 
-                                 ),
-            0,  
-            ('controlForm2',"CheckBox",     
-                                 'tab2',y,200,20,   
-                                 ('Label',),
-                                 (LANG.NUTZEN,),                                   
-                                 {'setActionCommand':'writer','addActionListener':(listenerCB,)} 
-                                 ) ,
-            22,
-            ('controlLBF2',"ListBox",       
-                                 'tab2',y,100,20,    
-                                 ('Dropdown','HelpText'),
-                                 (True,LANG.WRITER_TEMPLATES_SETZEN),                                       
-                                 {'addItems':user_styles,'SelectedItems':0,'addItemListener':(listenerCB)}
-                                 ),
-            20,
-            ('controlT4',"FixedLine",       
-                                 'tab0',y,360,40,   
-                                 (),
-                                 (),                                                       
-                                 {} 
-                                 ), 
-            40,
-            
-            ('control2',"Button",           
-                                 'tab3',y,80,30,    
-                                 ('Label',),
-                                 (LANG.OK,),                                       
-                                 {'setActionCommand':LANG.OK,'addActionListener':(listener,)} 
-                                 ), 
-            0,
-            )
-            
-            
-            # HAUPTFENSTER    
-            # create the dialog model and set the properties
-            dialogModel = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", self.ctx)
-            dialogModel.Width = 215 
-            dialogModel.Height = 320
-            dialogModel.Title = LANG.CREATE_NEW_PROJECT
-                      
-            # create the dialog control and set the model
-            controlContainer = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", self.ctx);
-            controlContainer.setModel(dialogModel);
-                     
-            # create a peer
-            toolkit = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.ExtToolkit", self.ctx);       
-            controlContainer.setVisible(False);       
-            controlContainer.createPeer(toolkit, None);
-            # ENDE HAUPTFENSTER
-            
-            
-            pos_y = 0
-            
-            for ctrl in controls:
-                if isinstance(ctrl,int):
-                    pos_y += ctrl
-                else:
-                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
-                    pos_x = locals()[X]
-                    
-                    locals()[name],locals()[name.replace('control','model')] = self.mb.createControl(self.ctx,unoCtrl,pos_x,pos_y,width,height,prop_names,prop_values)
-                            
-                    if 'x' in X:
-                        w,h = self.mb.kalkuliere_und_setze_Control(locals()[name],'w')
-                        design.setze_tab(X,w)
-                    
-                    if 'setActionCommand' in extras:
-                        locals()[name].setActionCommand(extras['setActionCommand'])
-                    if 'addItems' in extras:
-                        locals()[name].addItems(extras['addItems'],0)
-                    if 'Enable' in extras:
-                        locals()[name].Enable = extras['Enable']
-                    if 'addActionListener' in extras:
-                        for l in extras['addActionListener']:
-                            locals()[name].addActionListener(l)
-                    if 'addKeyListener' in extras:
-                        locals()[name].addKeyListener(extras['addKeyListener'])
-                    if 'addItemListener' in extras:
-                        locals()[name].addItemListener(extras['addItemListener'])
-
-                    controlContainer.addControl(name,locals()[name])
-            
-            # Tabs x-Position neu berechnen
-            design.kalkuliere_tabs()
-
-            for i in range(len(tabs)):
-                locals()['tab%sx'%i] = design.new_tabs['tab%sx'%(i)]                
-            
-            for ctrl in controls:
-                if isinstance(ctrl,int):
-                    pass
-                else:
-                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl                    
-                    pos_x = design.new_tabs[X]
-                    
-                    # Sonderregeln
-                    if X == 'tab1':
-                        pos_x -= 15
-                    
-                    locals()[name].setPosSize(pos_x,0,0,0,1)
-            
-            controlContainer.setPosSize(0,0,400,pos_y + 50,12)
-
-            # UEBERGABE AN LISTENER
-            listener.control_sel = locals()['controlU']
-            listener.model_proj_name = locals()['model1']
-            
-            listenerCB.ctrls = {
-                                'writer' : locals()['controlForm2'],
-                                'organon' : locals()['controlFormO2']
-                                }
-
-            geglueckt = controlContainer.execute()       
-            controlContainer.dispose() 
-
-            return geglueckt,locals()['model1'].Text
-        
-        except:
-            log(inspect.stack,tb())
-
- 
-    def get_user_styles(self):
+    def get_writer_vorlagen(self):
         if self.mb.debug: log(inspect.stack)
         
         try:
@@ -622,8 +474,8 @@ class Projekt():
                         
                 template = temp    
     
-            benutzervorlagen = []
-            pfade = []
+            writer_vorlagen = {}
+            
             for path in template:
                 if 'Roaming' in path:
                     self.mb.user_template_path = path
@@ -637,12 +489,10 @@ class Projekt():
                         if erweiterung == '.ott':
                             dateiname = os.path.split(pfad)[1]
                             dateiname1 = dateiname.split(erweiterung)[0]
-                        
-                            benutzervorlagen.append(dateiname1)
-                            pfade.append(pfad)
-                        
-            self.mb.user_styles_pfade = tuple(pfade)
-            return tuple(benutzervorlagen),tuple(pfade)  
+                            
+                            writer_vorlagen.update({ dateiname1 : pfad })
+                            
+            self.mb.writer_vorlagen = writer_vorlagen
         except:
             log(inspect.stack,tb())
 
@@ -671,10 +521,6 @@ class Projekt():
             self.mb.class_Bereiche.leere_Dokument() 
             self.lade_settings()  
             
-            # Vorlagen nicht als Vorlagen laden
-            # um beim Laden keine Schleife zu erzeugen
-            #if os.path.splitext(filepath)[1] != '.ott':
-                
             has_template,templ_pfad = self.besitzt_template()
             
             if has_template:
@@ -814,9 +660,6 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
         
         # prueft, ob eine Organon Datei geladen ist
-        UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
-        has_prop = UD_properties.PropertySetInfo.hasPropertyByName('ProjektName')
-
         if len(self.mb.props[T.AB].dict_bereiche) == 0:
             return False
         else:
@@ -1035,7 +878,7 @@ class Projekt():
             helfer.append(elem.tag)
             # hier wird self.mb.props[T.AB].dict_ordner geschrieben
             odict[tag] = helfer
-            if elem.attrib['Zustand'] == 'auf':# or elem.attrib['Art'] == 'waste':
+            if elem.attrib['Zustand'] == 'auf':
                 for child in list(elem):
                     get_tree_info(child, odict,tag,helfer)
 
@@ -1097,7 +940,7 @@ class Projekt():
             'tag2' : 0,
             'tag3' : 0,
             'use_template' : self.mb.settings_proj['use_template'],
-            'user_styles' : (),
+            'use_template_organon' : self.mb.settings_proj['use_template_organon'],
             'formatierung' : 'Standard',
             'datum_trenner' : '.',
             'datum_format' : datum_format,
@@ -1121,7 +964,6 @@ class Projekt():
             'einz_dat' : 0,
             'ordner_strukt' : 0,
             'typ' : 'writer8',
-            # .encode("utf-8") <- wird das in der folgenden Zeile gebraucht?
             'speicherort' : uno.systemPathToFileUrl(self.mb.pfade['projekt']),
             'neues_proj' : 0,
             
@@ -1185,49 +1027,7 @@ class Projekt():
         self.mb.speicher_settings("import_settings.txt", Settings)
         self.mb.settings_imp = Settings
       
-    
-    
-       
-    def beispieleintraege(self):
-        
-        Eintraege = [('nr0','root','Vorbemerkung',0,'pg','auf','ja','leer','leer','leer'),
-                ('nr1','root','ORGANON',0,'prj','auf','ja','leer','leer','leer'),
-                ('nr2','nr1','Titelseite',1,'pg','-','ja','leer','leer','leer'),
-                ('nr3','nr1','Kapitel1',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr4','nr3','Szene1',2,'pg','-','ja','leer','leer','leer'),
-                ('nr5','nr3','Szene2',2,'pg','-','ja','leer','leer','leer'),
-                ('nr6','nr1','Kapitel2',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr7','nr6','Szene1b',2,'pg','-','ja','leer','leer','leer'),
-                ('nr8','nr6','Szene2b',2,'pg','-','ja','leer','leer','leer'),
-                ('nr9','nr1','Interlude',1,'pg','-','ja','leer','leer','leer'),
-                ('nr10','nr1','Kapitel3',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr11','nr1','Kapitel4',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr12','nr11','UnterKapitel',2,'dir','auf','ja','leer','leer','leer'),
-                ('nr13','nr12','Szene3a',3,'pg','-','ja','leer','leer','leer'),
-                ('nr14','nr12','Szene3b',3,'pg','-','ja','leer','leer','leer'),
-                ('nr15','nr11','Szene3c',2,'pg','-','ja','leer','leer','leer'),
-                ('nr16','nr11','Szene3d',2,'pg','-','ja','leer','leer','leer'),
-                ('nr17','nr11','Kapitel4a',2,'dir','auf','ja','leer','leer','leer'),
-                ('nr18','nr1','Kapitel4b',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr19','nr18','Szene4',2,'pg','-','ja','leer','leer','leer'),
-                ('nr20','root','Papierkorb',0,'waste','auf','ja','leer','leer','leer')]
-        
-        return Eintraege
-
-    def beispieleintraege2(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        Eintraege = [
-                ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer'),
-                ('nr1','nr0',LANG.TITEL,1,'pg','-','ja','leer','leer','leer'),
-                ('nr2','nr0',LANG.KAPITEL+' 1',1,'dir','auf','ja','leer','leer','leer'),
-                ('nr3','nr2',LANG.SZENE + ' 1',2,'pg','-','ja','leer','leer','leer'),
-                ('nr4','nr2',LANG.SZENE + ' 2',2,'pg','-','ja','leer','leer','leer'),
-                ('nr5','root',LANG.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')]
-        
-        return Eintraege
-        
-        
+      
     def get_flags(self,x):
         if self.mb.debug: log(inspect.stack)
               
@@ -1269,9 +1069,9 @@ class Projekt():
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop3.Name = 'DocumentTitle'
             prop3.Value = 'opened by Organon;'+Path2.replace('wird_geloescht','')
+                        
+            doc = self.mb.desktop.ActiveFrame.loadComponentFromURL(url,'_top','',(prop2,prop3))
             
-            doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(url,'_blank',0,(prop2,prop3))
-
             self.mb.doc.close(False)
             os.remove(Path1)
 
@@ -1332,294 +1132,192 @@ class Projekt():
             
             pass
 
-            
 
-            
-            
-            ## PILLOW ##
-            
-#             pass
-#             pyPath = 'C:/Program Files (x86)/OpenOffice 4/program/python-core-2.7.6/lib/site-packages/Pillow-2.7.0-py2.7-win32.egg'
-#             
-#             if pyPath not in sys.path:
-#                 sys.path.append(pyPath)
-#             import PIL
-#             from PIL import Image,ImageDraw,ImageFont
-            
-#             ft_size = 56
-#             
-#             image = Image.new("RGBA", (800,200), (255,255,255))
-# 
-#             usr_font = ImageFont.truetype('C:\\Program Files\\Scribus 1.4.5\\share\\fonts\\Lato2\\Lato-Light.ttf', ft_size) 
-#             msg = u'Beispieltext für Schrifttype:'
-#             msg2 = 'Lato-Light.ttf' + ' {}pt'.format(ft_size)
-#             draw = ImageDraw.Draw(image)
-#      
-#             draw.text( (5,0) , msg, (0,0,0), font=usr_font)
-#             w, h = draw.textsize(msg,font=usr_font)
-#              
-#             draw.text( (5,h) , msg2, (0,0,0), font=usr_font)
-#             w2, h2 = draw.textsize(msg2,font=usr_font)
-#              
-#             wmax = max(w,w2)
-#             hmax = h+h2+5
-#      
-#             image.size = (wmax+10,hmax)
-#             print(wmax+10,hmax)
-#             pfad = os.path.join(self.mb.pfade['projekt'],'mein bild.png')
-#             image.save(pfad)
-#             
-#             
-#             faktor = ((wmax+10)/hmax)/2
-#             print(faktor)
-#             maxsize = (wmax*faktor, hmax*faktor)
-#             #maxsize = (100,100)
-#             #image.thumbnail(maxsize, PIL.Image.ANTIALIAS)
-#             #im = image.resize((image.size[0] / 3, image.size[1] / 2))
-#             
-#             #print(image.size,wmax/2+5, hmax/2)
-#             pfad = os.path.join(self.mb.pfade['projekt'],'mein bild2.png')
-#             #im.save(pfad)
-#             
-#              
-#             basewidth = 300
-#             wpercent = (basewidth/float(image.size[0]))
-#             hsize = int((float(image.size[1])*float(wpercent)))
-#             im = image.resize((basewidth,hsize), PIL.Image.ANTIALIAS)
-#             im.save(pfad)
-            
-            
-            
-            
-            
-            
-            
-            
-#             # StringIO
-#             output = StringIO.StringIO()
-#             image.save(output, format="GIF")
-#             contents = output.getvalue()
-#             output.close()
-             
-#             photo = PhotoImage(data=contents)
-#             self.beispieltext = Label(self, image=photo,width =W)
-#             self.beispieltext.grid(column=6, row=30)
-#             self.beispieltext.image = photo
-            
-#             pass
-#             pyPath = self.mb.pfade['projekt']
-#              
-#             if pyPath not in sys.path:
-#                 sys.path.append(pyPath)
-# #                 
-# #                 
-#             pyPath = os.path.join(self.mb.pfade['projekt'],'PythonMagick')
-#             if pyPath not in sys.path:
-#                 sys.path.append(pyPath)
-#                 
-#             cur_version = sys.version_info
-#             #print(cur_version)    
-#             
-#             #import cairo
-#             #import pango
-#             
-#             import PythonMagick
-#             
-# #             path = self.mb.pfade['projekt']
-# #             draw(path)
-#             print('klar')
-
-
-
-############################     Text als Bild einfuegen
-
-
-
-
-#             cont1,model1 = self.mb.createControl(self.mb.ctx,'ImageControl',10,10,191,14,('ImageURL',),(os.path.join(self.mb.pfade['projekt'],'kopp.jpg'),))
-#             path = uno.systemPathToFileUrl('C:\\Python276\\testbild.png')
-#             model1.ImageURL = path
-#             model1.Border = 0
-#             #model1.setPropertyValue('ImageURL',os.path.join(self.mb.pfade['projekt'],'kopp.jpg'))
-#             
-#             
-#             
-#             #model1.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png'
-#             
-#             cont2,model2 = self.mb.createControl(self.mb.ctx, "FixedText", 10, 30, 300,30, (), ())
-#             cont2.Text = 'hier ist ein Quantum AV Beispieltext!'
-# 
-#             
-#             cont3,model3 = self.mb.createControl(self.mb.ctx,'ImageControl',10,50,215,18,('ImageURL',),(os.path.join(self.mb.pfade['projekt'],'kopp.jpg'),))
-#             path = uno.systemPathToFileUrl('C:\\Python276\\testbild2.png')
-#             model3.ImageURL = path
-#             #model3.Border = 0
-#             
-#             cont4,model4 = self.mb.createControl(self.mb.ctx,'ImageControl',10,70,192,12,('ImageURL',),(os.path.join(self.mb.pfade['projekt'],'kopp.jpg'),))
-#             path = uno.systemPathToFileUrl('C:\\Python276\\testbild3.png')
-#             model4.ImageURL = path
-#             model4.Border = 0
-#             
-#             
-# 
-#             posSize = 200,200,600,300
-# 
-#             win,cont = self.mb.erzeuge_Dialog_Container(posSize)
-#             
-#            
-#             
-#             
-#             
-#             cont.addControl('',cont1)
-#             cont.addControl('',cont2)
-#             #cont.addControl('',cont3)
-#             cont.addControl('',cont4)
-            
-#############################################################################################
-            
-#             loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
-#                     
-#             x = self.mb.win.Size.Width + 20
-#             y = self.mb.prj_tab.AccessibleContext.LocationOnScreen.Y - loc_cont.Y #+ 20
-#             cur_cont = self.mb.current_Contr
-#             
-#             
-#             pos = x,y
-#             print(x,y)
-#             
-#             tab_name = T.AB
-#             
-#             (y,fenster,
-#              fenster_cont,
-#              control_innen,
-#              ctrls) = self.mb.class_Funktionen.erzeuge_treeview_mit_checkbox(tab_name=tab_name,
-#                                                                             pos=pos,
-#                                                                             auswaehlen=True)
-            
-            
-
-            
-
-            cl_tags = self.mb.class_Tags
             tags = self.mb.tags
             
             props = self.mb.props[T.AB]
             
-           
+
+            vc = self.mb.viewcursor
             
-#             self.mb.settings_proj['datum_format'][0] = 'dd'
-#             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
-            
-            
-            
+
 #             
-#             spr = self.mb.settings_proj
-#             einst = self.mb.class_Einstellungen
-#             
-#             dat_panels = [i for i,v in tags['nr_name'].items() if v[1] == 'date']
-#              
-#             for o,v in tags['ordinale'].items():
-#                 for panel_nr in dat_panels:
-#                     if v[panel_nr] == None:
-#                         pass
-#                     else:
-#                         dd,mm,yyyy = v[panel_nr].split('.')
-#                         v[panel_nr] = {
-#                                        'dd':dd,
-#                                        'mm':mm,
-#                                        'yyyy':yyyy
-#                                        }
             
 
+            
+            
+            def get_attribs(obj,max_lvl,lvl=0):
+                results = {}
+                for key in dir(obj):
+            
+                    try:
+                        value = getattr(obj, key)
+                        if 'callable' in str(type(value)):
+                            continue
+                    except :
+                        #print(key)
+                        continue
+            
+                    if key not in results:
+                        if type(value) in (
+                                           type(None),
+                                           type(True),
+                                           type(1),
+                                           type(.1),
+                                           type('string'),
+                                           type(()),
+                                           type([]),
+                                           type(b''),
+                                           type(r''),
+                                           type(u'')
+                                           ):
+                            results.update({key: value})
+            
+                        elif lvl < max_lvl:
+                            try:
+                                results.update({key: get_attribs(value,max_lvl,lvl+1)})
+                            except:
+                                pass
+            
+                return results
+            
+            
+            
+            
+            def find_diff(dic1,dic2):
+                
+                diff = []     
+                            
+                def findDiff2(d1, d2, path = []):
+                    for k in d1:
+                        try:
+                            if k not in d2:
+                                continue
+        #                         print (path, ":")
+        #                         print (k + " as key not in d2", "\n")
+                            else:
+                                if type(d1[k]) is dict and type(d2[k]) is dict:
+                                    #print(k,path)
+                                    if path == "":
+                                        #path = k
+                                        findDiff2(d1[k],d2[k],[k])
+                                    else:
+                                        #path = path + "->" + k
+                                        #print( path + "->" + k)
+                                        findDiff2(d1[k],d2[k], path + [k])
+                                        
+                                    
+                                else:
+                                    if d1[k] != d2[k]:
+                                        if path == '':
+                                            path = [k]
+                                        #print('path:'+path+'#')
+                                        diff.append((path,k,d1[k],d2[k]))
+                                        #path = []
+                        except:
+                            print(tb())
+                            pd()
+                            wer = wer1
+                                    
+                findDiff2(dic1, dic2)
+                return diff
+            
+            
+            
+            
+            
+            
+            def update_odict(odict, v, d):
+                
+                try:
+                    if v[0] not in odict:
+                        odict[v[0]] = {}
                     
-            #self.mb.class_Funktionen.zeitmesser(do2)    
-            
-            
-            
-            
-                  
-            
-            hf = self.mb.props[T.AB].Hauptfeld
-            tabsX = self.mb.tabsX
-            
-            org = self.mb.settings_orga['organon_farben']
-            sett = self.mb.settings_orga
-            
-            datum_items = self.mb.class_Einstellungen.datum_items
-            form = self.mb.settings_proj['datum_format']
-            #self.mb.settings_proj['datum_format'][0] = 'dd'
-            
-#             print(datum_items)
-#             print(form)
-
-            pro = self.mb.props
-            
-            
-            
-            
-            LANG.NICHT_ALLE_DESIGNS_LOESCHEN = u'''Sie können nicht alle Designs löschen'''
-            LANG.NOCH_IN_TAB_GEOEFFNET = u'''{0} ist noch in {1} geöffnet'''
-            
-            ctrl = props.Hauptfeld.getControl('nr0')
-            
-            #print(ctrl.isVisible())
-            
-            
-            
-           
-            
-            co = props.Hauptfeld.PosSize.Y
-            tv = self.mb.win.PosSize.Height
-            tableiste = self.mb.tabsX.tableiste.Size
-
-            untergrenze = -co - 20
-            obergrenze = -co + tv - tableiste.Height - 20
-
-            Ys = props.dict_zeilen_posY
-
-            def do():
-            
-                #sichtbare = {}
-                #unsichtbare = {}
-                    
-                for y,v in Ys.items():
-                    if untergrenze < y < obergrenze:
-                        #target = sichtbare
-                        ctrl = props.Hauptfeld.getControl(v[0])
-                        ctrl.setVisible(True)
-                    else:
-                        #target = unsichtbare
-                        ctrl = props.Hauptfeld.getControl(v[0])
-                        ctrl.setVisible(False)
+                    if len(v) > 1:
+                        update_odict(odict[v[0]], v[1:], d)
                         
-                    #target[y] = v
-                    
-                    
+                    elif len(v) == 1:
+                        odict[ v[0] ][ d[1] ] = [ d[2], d[3] ]
+                
+                except:
+                    print(tb())
+                    pd()
+                    wer = wer
+            
+            
+            def als_dict(diff):
+            
+                untersch = {}
+                
+                for d in diff:
+                    if len(d[0]) == 0:
+                        untersch[d[1]] = [d[2], d[3]]
+                    else:
+                        update_odict(untersch, d[0], d )
+                        #odict
+                return untersch
+            
+            
+            
+            sections = self.mb.doc.TextSections
+             
+#             duene = sections.getByName('OrgInnerSec26')
+#             nr21 = sections.getByName('OrgInnerSec32')
+             
+#             #nr21.Anchor.setPropertyValue('ParRsid',None)
+#             nr21.Anchor.setPropertyValue('Rsid',234854)
+#             #nr21.ParentSection.Anchor.setPropertyValue('ParRsid',None)
+#             nr21.ParentSection.Anchor.setPropertyValue('Rsid',234854)
+#              
+#             nr21.ParentSection.Anchor.Start.setPropertyValue('Rsid',1911732)
+#             nr21.ParentSection.Anchor.End.setPropertyValue('Rsid',1391676)
+
+
+#             a = duene.Anchor.createEnumeration()
+#             
+#             liste1 = []
+#             while a.hasMoreElements():
+#                 liste1.append(a.nextElement())
+#                 
+#             a2= nr21.Anchor.createEnumeration()
+#             
+#             liste2 = []
+#             while a2.hasMoreElements():
+#                 liste2.append(a2.nextElement())
+ 
+#             res1 = get_attribs(liste1[1],3)
+#             res2 = get_attribs(liste2[1],3)
+            #diff = find_diff(res1, res2)   
+#              
+#             u1 = self.u1 = als_dict(diff)
+            #self.u2 = als_dict(diff)
+            
+            
+            #diff = find_diff(res1, res2) 
+            
+            #print(self.u1 == self.u2)
+            
+            #nr21 = sections.getByName('OrgInnerSec22')
+#             self.mb.dispatch(self.mb.desktop.ActiveFrame,cmd='SelectAll')
+#             sec = vc.TextSection
+            
+            
                 
                 
-                    
-                    
-                #return sichtbare, unsichtbare
-                
-#                 for s in sorted(sichtbare):
-#                     print(sichtbare[s][2])
+#             diff = find_diff(res1,res2 ) 
+#             odic = als_dict(diff)
+#             
             
-            self.mb.class_Funktionen.zeitmesser(do)
             
-            def do2():
-                for u,v in unsicht.items():
-                    ctrl = props.Hauptfeld.getControl(v[0])
-                    ctrl.setVisible(True)
-                    
-                for u,v in sicht.items():
-                    ctrl = props.Hauptfeld.getControl(v[0])
-                    ctrl.setVisible(True)
+#             for l in liste:
+#                 
+#                 
+#                 l.setPropertyToDefault('Rsid')
+#             
+#             vc.gotoRange(sec.Anchor.Start,False)
             
-            #self.mb.class_Funktionen.zeitmesser(do2)
+
             
-            print('#################')
-            
-            #print(self.mb.scrollbar_listener.called_from_hf)
             
         except:
             log(inspect.stack,tb())
@@ -1631,100 +1329,9 @@ class Projekt():
         
         
         
- 
-
-from com.sun.star.awt import XWindowListener
-from com.sun.star.lang import XEventListener
-class Sidebar_Window_Listener(unohelper.Base,XWindowListener,XEventListener):
-    
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        
-        self.mb = mb
-        #self.wins = wins
-        self.listener = None
-    
-    def windowResized(self,ev):
-        print('windowResized')
-    def windowMoved(self,ev):
-        print('windowMoved')
-    def windowShown(self,ev):
-        print('windowShown')
-    def windowHidden(self,ev):
-        print('windowHidden')
-    def disposing(self,arg):
-        print('disposing')
-        
-    def listener_entfernen(self):
-        if self.mb.debug: log(inspect.stack)
-        for w in self.wins:
-            w.removeWindowListener(self.listener)
-            self.listener.dispose()
-            
-    def get_seitenleiste(self):
-        
-        desk = self.mb.desktop
-        contr = desk.CurrentComponent.CurrentController
-        wins = contr.ComponentWindow.Windows
-        
-        childs = []
-
-        for w in wins:
-            ps = w.PosSize
-            x,y,X,Y = ps.X,ps.Y,ps.Width,ps.Height
-            #print(x,y,X,Y)
-
-            if w.AccessibleContext.AccessibleChildCount == 0:
-                continue
-            else:
-                child = w.AccessibleContext.getAccessibleChild(0)
-                if 'Organon: dockable window' == child.AccessibleContext.AccessibleName:
-                    continue
-                else:
-                    childs.append(child)
-        
-        orga_sb = None
-        ch = None
-        try:
-            for c in childs:
-                for w in c.Windows:
-                    try:
-                        for w2 in w.Windows:
-                            if w2.AccessibleContext.AccessibleDescription == 'Organon':
-                                orga_sb = w2
-                                ch = c
-                    except:
-                        pass
-        except:
-            log(inspect.stack,tb())
-        
-        if not orga_sb:
-            self.listener = Sidebar_Window_Listener(self.mb,wins)
-            self.listener.listener = self.listener
-            for w in wins:
-                w.addWindowListener(self.listener)
-        
-        return orga_sb,ch      
-
 
     
-    
-def createControl2(x,y,width,height,names,values):
-    try:
-        ctx = uno.getComponentContext()
-        smgr = ctx.getServiceManager()
-        ctrl = smgr.createInstanceWithContext("com.sun.star.awt.tab.UnoControlTabPageContainerModel",ctx)
-        ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoMultiPageModel",ctx)
-        ctrl_model.setPropertyValues(names,values)
-
-        return (ctrl, ctrl_model)
-    except Exception as e:
-        
-        print(tb())
-        return ctrl,ctrl_model    
-    
-    
-    
+   
 
 
 
@@ -1788,275 +1395,162 @@ def draw(path):
             
 
 
-from com.sun.star.awt import XActionListener,XKeyListener,XItemListener
-
-
-from com.sun.star.awt.Key import RETURN
-class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener,XKeyListener): 
+from com.sun.star.awt import XActionListener
+class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener): 
+    
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
+        
         self.mb = mb
-        self.model_proj_name = None
-        self.model_neue_vorl = None
-        self.control_CB = None
-        self.control_LB = None
-        self.control_sel = None
+        self.ctrls = None
+        self.fenster = None
         
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         
-        try:
-            namen_pruefen = self.mb.class_Funktionen.verbotene_buchstaben_austauschen
-            
-            parent = ev.Source.AccessibleContext.AccessibleParent 
+        try:            
             cmd = ev.ActionCommand  
-
-            if cmd == 'vorlage_erstellen':
-                self.vorlage_auswaehlen()
+            
+            if cmd == 'organon':
+                self.toggle_checkbox(cmd)
                 
+            elif cmd == 'writer':
+                self.toggle_checkbox(cmd)
+
             elif cmd == LANG.WAEHLEN:
                 self.file_aussuchen()
-                
-            elif cmd == LANG.CANCEL:
-                parent.endDialog(0)
-                
-            elif self.model_proj_name.Text == '':
-                self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
-                
-            elif self.mb.speicherort_last_proj == None:
-                self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
-                
-            elif self.model_proj_name.Text != namen_pruefen(self.model_proj_name.Text):
-                self.mb.nachricht(LANG.UNGUELTIGE_ZEICHEN,"warningbox")
-                
+
             elif cmd == LANG.OK:
-                self.get_path()
-                parent.endDialog(1)
+                self.dialog_neues_projekt_auswerten()
                 
         except:
             log(inspect.stack,tb())
+            
     
+    def toggle_checkbox(self,cmd):
+        if self.mb.debug: log(inspect.stack)
+        
+        if cmd == 'writer':
+            self.ctrls['organon_cb'].setState(False)
+        else:
+            self.ctrls['writer_cb'].setState(False)
+            
     
     def file_aussuchen(self):
         if self.mb.debug: log(inspect.stack)
         
         try:
             filepath = None
-            pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
+            pfad = os.path.join(self.mb.path_to_extension, "pfade.txt")
             
             if os.path.exists(pfad):            
                 with codecs_open( pfad, "r","utf-8") as file:
                     filepath = file.read() 
     
-            Filepicker = self.mb.createUnoService("com.sun.star.ui.dialogs.FolderPicker")
-            if filepath != None:
-                Filepicker.setDisplayDirectory(filepath)
-            Filepicker.execute()
+            filepath = self.mb.class_Funktionen.folderpicker(filepath=filepath, sys=True)
             
-            if Filepicker.Directory == '':
-                return
-            
-            filepath = Filepicker.getDirectory()
-            
-            with codecs_open( pfad, "w","utf-8") as file:
-                file.write(uno.fileUrlToSystemPath(filepath))
-            
-            self.mb.speicherort_last_proj = filepath
-            self.control_sel.Model.Label = uno.fileUrlToSystemPath(filepath)
-            self.mb.kalkuliere_und_setze_Control(self.control_sel)
-            
-            if self.mb.debug: log(inspect.stack,None,filepath)
-            
-        except:
-            if 'filepath' in locals():
-                if self.mb.debug: log(inspect.stack,tb(),filepath)
-            else:
-                log(inspect.stack,tb())
-                
+            if filepath:
+                with codecs_open( pfad, "w","utf-8") as file:
+                    file.write(filepath)
                     
+                self.mb.speicherort_last_proj = filepath
+                self.ctrls['speicherort'].Model.Label = filepath
             
-    def keyPressed(self,ev):
-        if ev.KeyCode == RETURN:
-            parent = ev.Source.AccessibleContext.AccessibleParent 
-            if self.model.Text == '':
-                parent.endDialog(0)
-            else:
-                self.get_path()
-                parent.endDialog(1)
-
-    def get_path(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            filepath = None
-            pfad = os.path.join(self.mb.path_to_extension,"pfade.txt")
-            
-            if os.path.exists(pfad):            
-                with codecs_open( pfad, "r","utf-8") as file:
-                    filepath = file.read() 
-                self.mb.projekt_path = filepath
         except:
             log(inspect.stack,tb())
             
             
-    def vorlage_auswaehlen(self):        
+    def dialog_neues_projekt_auswerten(self):
         if self.mb.debug: log(inspect.stack)
         
-        if self.model_neue_vorl.Text == '':
-            self.mb.nachricht(LANG.WARNUNG_NAME_TEMPLATE,"warningbox")
+        namen_pruefen = self.mb.class_Funktionen.verbotene_buchstaben_austauschen
+        
+        prj_name = self.ctrls['prj_name'].Model.Text
+        speicherort = self.ctrls['speicherort'].Model.Label
+        
+        # Projektname und Speicherort ueberpruefen
+        if prj_name == '':
+            self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
             return
         
-        else:
-            name = self.model_neue_vorl.Text
+        elif prj_name != namen_pruefen(prj_name):
+            self.mb.nachricht(LANG.UNGUELTIGE_ZEICHEN,"warningbox")
+            return
+             
+        elif speicherort == None:
+            self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
+            return
+        
+        self.mb.projekt_path = speicherort
+        
+        # Templates 
+        is_template, templ_pfad, templ_art = False, None, None
+        
+        is_template = self.ctrls['organon_cb'].State or self.ctrls['writer_cb'].State
+        
+        if is_template:
+            templ_art = 'organon' if self.ctrls['organon_cb'].State else 'writer'
             
-            if name in self.mb.user_styles:
-                self.mb.nachricht(LANG.WARNUNG_TEMPLATE_EXISTS   ,"warningbox")
-                return
+            listbox = self.ctrls['{}_lb'.format(templ_art)]
+            sel = listbox.SelectedItem
             
+            if templ_art == 'writer':
+                templ_pfad = self.mb.writer_vorlagen[sel]
             else:
-                if self.mb.settings_proj['use_template'][0] == False:
-                    URL = "private:factory/swriter"
-                else:
-                    URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
-                    
-                self.vorlage_erstellen(name,URL)
-                self.control_LB.Enable = True
-                self.control_CB.Enable = True
+                dir_pfad = self.mb.settings_orga['templates_organon']['pfad']
+                templ_pfad = os.path.join(dir_pfad,sel + '.organon')
                 
-                if self.control_LB.Items[0] == LANG.NO_TEMPLATES:
-                    
-                    self.control_LB.Model.removeAllItems()
-                    self.control_LB.addItems((name,),0)
-                    self.control_LB.Model.SelectedItems = 0,
-                    
-                    self.mb.user_styles = (name,)
-                    
-                else:
-                    self.control_LB.addItem(name,0)
-                    self.control_LB.Model.SelectedItems = 0,
-                    
-                    st = []
-                    for style in self.mb.user_styles:
-                        st.append(style)
-                    st.append(name)         
-                    
-                    self.mb.user_styles = tuple(st)       
-
-
+        # Pfade setzen       
+        self.mb.projekt_name = prj_name
+        self.mb.class_Projekt.setze_pfade()
         
-    def vorlage_erstellen(self,name,URL):
-        if self.mb.debug: log(inspect.stack)
+        # Wahrscheinlich ueberfluessig und nur zur Sicherheit:
+        # Pruefen ob neues Projekt mit gleichem Namen im Vorlagenordner
+        # erstellt werden soll
+        if is_template and templ_art == 'organon':
+            if templ_pfad == self.mb.pfade['projekt']:
+                self.mb.nachricht(LANG.GLEICHER_PFAD,'warningbox') 
+                return
         
-        try:
-            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop.Name = 'Hidden'
-            prop.Value = True                            
-            
-            prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop2.Name = 'FilterName'
-            prop2.Value = 'writer8_template'
-            
-            #URL2 = "private:factory/swriter"
-            newDoc = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
-            #newDoc.DocumentProperties.TemplateURL = URL
-            newDoc.DocumentProperties.Title = name
-            
-            p1 = uno.fileUrlToSystemPath(self.mb.user_template_path)  
-            p2 = os.path.join(p1,name+'.ott')          
-            Path2 = uno.systemPathToFileUrl(p2)
-            newDoc.storeToURL(Path2,(prop2,))
-            
-        except:
-            log(inspect.stack,tb())
-        newDoc.close(False)
-        self.mb.nachricht(LANG.NEUES_TEMPLATE + '\n%s   ' % p1,"infobox")
+        # Pruefen ob aktuelles Dokument den gleichen Namen wie das neue besitzt
+        if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
+            self.mb.nachricht(LANG.DOUBLE_PROJ_NAME,"warningbox")
+            return
         
-        # var DefaultTemplate = ((XDocumentPropertiesSupplier)oDoc).getDocumentProperties().TemplateURL;
-    
-    
-    def keyReleased(self,ev):
-        return False
+        # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
+        elif os.path.exists(self.mb.pfade['projekt']):
+            # 16777216 Flag fuer YES_NO
+            entscheidung = self.mb.nachricht(LANG.PROJ_EXISTS,"warningbox",16777216)
+            # 3 = Nein oder Cancel, 2 = Ja
+            if entscheidung == 3:
+                return
+            elif entscheidung == 2:
+                try:
+                    import shutil
+                    # entfernt das vorhandene Projekt
+                    shutil.rmtree(self.mb.pfade['projekt'])
+                except:
+                    pass
+                
+        if is_template and templ_art == 'organon':
+                    
+            try:
+                self.fenster.dispose()
+                self.mb.class_Funktionen.projekt_umbenannt_speichern(templ_pfad,self.mb.pfade['projekt'],self.mb.projekt_name)
+                new_path = os.path.join(self.mb.pfade['projekt'],self.mb.projekt_name + '.organon')
+                self.mb.class_Projekt.lade_Projekt(filepicker = False, filepath = new_path)
+                return
+            except Exception as e:
+                log(inspect.stack,tb())  
+                self.mb.nachricht(LANG.TEMPLATE_NICHT_GELADEN.format(str(e)),'warningbox') 
+                return
+        
+        self.fenster.dispose()
+        self.mb.class_Projekt.erzeuge_neues_Projekt(is_template, templ_art, templ_pfad)
+  
     def disposing(self,ev):
         return False
  
-        
-class Neues_Projekt_CheckBox_Listener(unohelper.Base, XActionListener,XItemListener):
-    def __init__(self,mb):
-        if mb.debug: log(inspect.stack)
-        self.mb = mb
-        self.modelUser = None
-        self.modelListBox = None
-        
-        self.ctrls = None
-        
-        
-    def actionPerformed(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            sett = self.mb.settings_proj
-            pfad_w = sett['use_template'][1]
-            pfad_o = sett['use_template_organon'][1]
-            
-            if ev.ActionCommand == 'writer':
-                state = ev.Source.State
-                sett['use_template'] = (state,pfad_w)
-                if state:
-                    sett['use_template_organon'] = (0,pfad_o)
-                    self.ctrls['organon'].setState(False)
-            else:
-                state = ev.Source.State
-                sett['use_template_organon'] = (state,pfad_o)
-                if state:
-                    sett['use_template'] = (0,pfad_w)
-                    self.ctrls['writer'].setState(False)
-        except:
-            log(inspect.stack,tb())
-    
-    def get_template_pfad(self,ctrl):
-        if self.mb.debug: log(inspect.stack)
-        try:
-            pfade = self.mb.user_styles_pfade
-            if len(pfade) == 0:
-                return ''
-            gewaehlt = ctrl.SelectedItemPos
-            pfad = pfade[gewaehlt]
-        except:
-            log(inspect.stack,tb())
-
-        return pfad
-    
-    def get_template_pfad_orga(self,ctrl):
-        if self.mb.debug: log(inspect.stack)
-        
-        try:
-            gewaehlt = ctrl.SelectedItem
-            templ = self.mb.settings_orga['templates_organon']
-            pfad = os.path.join(templ['pfad'],gewaehlt + '.organon')
-            return pfad
-        except:
-            log(inspect.stack,tb())
-            return None
-
-    def itemStateChanged(self, ev):  
-        if self.mb.debug: log(inspect.stack)
-        try:
-            acc_name = ev.Source.AccessibleContext.AccessibleName
-
-            if acc_name == LANG.TEMPLATES_WRITER:
-                use,pfad = self.mb.settings_proj['use_template']
-                self.mb.settings_proj['use_template'] = (use,self.get_template_pfad(ev.Source))
-            else:
-                use,pfad = self.mb.settings_proj['use_template_organon']
-                self.mb.settings_proj['use_template_organon'] = (use,self.get_template_pfad_orga(ev.Source))
-        except:
-            log(inspect.stack,tb())
-            
-    def disposing(self,ev):
-        return False
-
-
-
 
         
    

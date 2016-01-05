@@ -17,13 +17,6 @@ FARBE_TRENNER_HINTERGRUND   = 0 # Wird im modul factory ueberschrieben
 FARBE_TRENNER_SCHRIFT       = 0 # Wird im modul factory ueberschrieben
 
 
-Breite_Menu_DropDown_Eintraege = 150
-BREITE_DROPDOWN_OPTIONEN = 220
-Hoehe_Menu_DropDown_Eintraege = 180
-Abstand = 10
-Breite_Menu_DropDown_Container = Breite_Menu_DropDown_Eintraege + Abstand
-Hoehe_Menu_DropDown_Container = Hoehe_Menu_DropDown_Eintraege + Abstand
-
 IMG_ORDNER_NEU_24 =   'vnd.sun.star.extension://xaver.roemers.organon/img/OrdnerNeu_24.png'
 IMG_DATEI_NEU_24 =    'vnd.sun.star.extension://xaver.roemers.organon/img/neueDatei_24.png'
 
@@ -40,6 +33,8 @@ IMG_ORDNER_VOLL_16 =    'vnd.sun.star.extension://xaver.roemers.organon/img/Ordn
 IMG_DATEI_16 =          'vnd.sun.star.extension://xaver.roemers.organon/img/Datei_16.png'
 IMG_DATEI_NEU_24 =      'vnd.sun.star.extension://xaver.roemers.organon/img/neueDatei_24.png'
 
+IMG_PLUS = 'vnd.sun.star.extension://xaver.roemers.organon/img/slidezoomin_10.png'
+IMG_MINUS = 'vnd.sun.star.extension://xaver.roemers.organon/img/slidezoomout_10.png'
 
 
 
