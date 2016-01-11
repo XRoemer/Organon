@@ -14,7 +14,6 @@ import konstanten as KONST
 import copy
 import inspect
 from pprint import pformat
-import webbrowser
 import json
 
 from tabs import TabsX
@@ -103,7 +102,8 @@ class Menu_Bar():
             
             # Properties
             self.props = {}
-            self.props.update({T.AB :Props()})
+            self.props.update({ T.AB : Props() })
+            self.sichtbare_bereiche = []
             self.dict_sb = dict_sb              # drei Unterdicts: sichtbare, eintraege, controls
             self.tags = None
             self.registrierte_maus_listener = []
@@ -140,7 +140,6 @@ class Menu_Bar():
                        'T':T,
                        'log':log,
                        'inspect':inspect,
-                       'webbrowser':webbrowser,
                        'LANG':LANG}
             
             
@@ -187,7 +186,6 @@ class Menu_Bar():
                 self.class_RawInputReader = self.lade_modul('rawinputdata','RawInputReader')
             
             self.class_Log = class_LogX
-            self.class_Design = Design()
             self.class_Gliederung = Gliederung()
             
             #self.class_Greek =      self.lade_modul('greek2latex','.Greek(self,pd)')
@@ -286,8 +284,6 @@ class Menu_Bar():
                     (LANG.FILE,'a'),
                     (LANG.BEARBEITEN_M,'a'),
                     (LANG.ANSICHT,'a'),            
-                    ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
-                     LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
                     ]
             else:
                 
@@ -297,8 +293,6 @@ class Menu_Bar():
                     (LANG.ANSICHT,'a'),            
                     ('Ordner','b',KONST.IMG_ORDNER_NEU_24,LANG.INSERT_DIR),
                     ('Datei','b',KONST.IMG_DATEI_NEU_24,LANG.INSERT_DOC),
-                    ('Speichern','b','vnd.sun.star.extension://xaver.roemers.organon/img/lc_save.png',
-                     LANG.FORMATIERUNG_SPEICHERN.format(LANG.KEINE))
                     ]
             
             x = 0
@@ -588,16 +582,13 @@ class Menu_Bar():
         
         lang = __import__('lang_en')
         
-        # Wenn die Uebersetzung nicht existiert und logging eingeschaltet ist,
-        # wird der versuchte Import als Fehler geloggt.
-        # aendern
-        
         try:
             loc = locale[0:2]
             self.language = loc
             try:
                 lang2 = __import__('lang_{}'.format(loc))
                 attributes = [a for a in dir(lang2) if '__' not in a]
+                
                 for l in attributes:
                     try:
                         try:
@@ -610,7 +601,7 @@ class Menu_Bar():
                         if self.debug:log(inspect.stack,tb())
                         
             except:
-                if self.debug:log(inspect.stack,tb())
+                pass
 
         except:
             if self.debug:log(inspect.stack,tb())
@@ -714,8 +705,8 @@ class Menu_Bar():
         
         tree = self.props[T.AB].xml_tree
         root = tree.getroot()
-        all = root.findall('.//')
-        pars = [a.attrib['Parent'] for a in all]
+        alle = root.findall('.//')
+        pars = [a.attrib['Parent'] for a in alle]
         if 'Projekt' in pars:
             print('Fehler')
     
@@ -727,8 +718,8 @@ class Menu_Bar():
         tree.write(pfad)
     
     def prettyprint(self,pfad,oObject,w=600):
+        if self.debug: log(inspect.stack) 
         
-        from pprint import pformat
         imp = pformat(oObject,width=w)
         with codecs_open(pfad , "w",'utf-8') as file:
             file.write(imp)
@@ -868,8 +859,6 @@ class Menu_Bar():
                     LANG.SCHLIESSE_TAB,
                     LANG.IMPORTIERE_IN_TAB,
                     'SEP',
-                    #LANG.TEXTVERGLEICH,
-                    #LANG.WOERTERLISTE,
                     LANG.TEXTTOOLS,
                     'SEP',
                     LANG.UNFOLD_PROJ_DIR,
@@ -903,8 +892,6 @@ class Menu_Bar():
                      )
           
         return items
-        
-
        
 
 class Props():
@@ -917,19 +904,18 @@ class Props():
         self.dict_bereiche = {}             # drei Unterdicts: Bereichsname,ordinal,Bereichsname-ordinal
         
         self.Hauptfeld = None               # alle Zeilen, Controls
-        self.sichtbare_bereiche = []        # Bereichsname ('OrganonSec'+ nr)
         self.kommender_Eintrag = 0
         self.selektierte_zeile = None       # ordinal des Zeilencontainers
         self.selektierte_zeile_alt = None   # control 'textfeld' der Zeile
         self.Papierkorb = None              # ordinal des Papierkorbs - wird anfangs einmal gesetzt und bleibt konstant    
         self.Projektordner = None           # ordinal des Projektordners - wird anfangs einmal gesetzt und bleibt konstant 
         self.Papierkorb_geleert = False
-        self.tastatureingabe = False
         self.zuletzt_gedrueckte_taste = None
 
         self.xml_tree = None
         
         self.tab_auswahl = Tab_Auswahl()
+        
         
 class Listener():
     ''' Verwaltet alle Listener, die sich auf das Projekt und 
@@ -1128,66 +1114,6 @@ class Tab ():
 
     
 
-class Design():
-    '''
-    Alte Klasse um die Tabs in Organon Fenster zu berechnen.
-    Ueberfluessig, sobald alle Organon Fenster auf das fenster.py Modul umgestellt sind.
-    '''
-    def __init__(self):
-        if debug: log(inspect.stack)
-        
-        self.default_tab = {}
-        self.custom_tab = {}
-        self.tabs = {}
-        self.new_tabs = {}
-        
-    
-    def set_default(self,tabs):
-        if debug: log(inspect.stack)
-        
-        summe = 0
-        i = 0
-        for tab in tabs:
-            self.default_tab.update({'tab%sx'%(i):tab})
-            self.custom_tab.update({'tab%sx'%(i):0})
-            
-            summe = 0
-            for j in range(i+1):
-                summe += self.default_tab['tab%sx'%(j)]
-                
-            self.tabs.update({'tab%sx'%(i):summe})
-
-            i += 1
-    
-            
-    def setze_tab(self,tab_name,value):  
-        
-        for x in tab_name:
-            if x.isdigit():
-                break
-            
-        x = int(x)
-        
-        if self.custom_tab['tab%sx'%(x+1)] < value:
-            if value > self.default_tab['tab%sx'%(x+1)]:
-                self.custom_tab['tab%sx'%(x+1)] = value
-          
-            
-    def kalkuliere_tabs(self):
-        if debug: log(inspect.stack)
-        
-        self.new_tabs = {}
-        
-        for i in range(len(self.custom_tab)):
-            summe = 0
-            for j in range(i+1):
-                if self.custom_tab['tab%sx'%(j)] != 0:
-                    summe += self.custom_tab['tab%sx'%(j)]
-                else:
-                    summe += self.default_tab['tab%sx'%(j)]
-            self.new_tabs.update( {'tab%sx'%(i) : summe} )
-            self.new_tabs.update( {'tab%s'%(i) : summe} )
-
 class Gliederung():
     def rechne(self,tree):  
         if debug: log(inspect.stack)
@@ -1313,37 +1239,22 @@ class Menu_Leiste_Listener2 (unohelper.Base, XMouseListener):
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack)
         
-        if ev.Buttons == 1:
-            if self.mb.debug: log(inspect.stack)
-            
-            if self.mb.projekt_name != None:
+        try:
+            if ev.Buttons == 1:
+                if self.mb.debug: log(inspect.stack)
                 
-                if ev.Source.Model.HelpText == LANG.INSERT_DOC:            
-                    self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
+                if self.mb.projekt_name != None:
                     
-                if ev.Source.Model.HelpText == LANG.INSERT_DIR:            
-                    self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
-                    
-                if ev.Source.Model.HelpText[:10] == LANG.FORMATIERUNG_SPEICHERN[:10]:
-
-                    props = self.mb.props[T.AB]
-                    zuletzt = props.selektierte_zeile_alt
-                    bereichsname = props.dict_bereiche['ordinal'][zuletzt]
-                    path = props.dict_bereiche['Bereichsname'][bereichsname]
-                    self.mb.props[T.AB].tastatureingabe = True
-
-                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(uno.systemPathToFileUrl(path),bereichsname)
-                    
-                    # Bestaetigung ausgeben
-                    tree = self.mb.props[T.AB].xml_tree
-                    root = tree.getroot()        
-                    source = root.find('.//'+zuletzt)  
-                    name = source.attrib['Name']
-                    
-                    self.mb.nachricht_si(LANG.FORMATIERUNG_SPEICHERN.format(name),1)
-
-                self.mb.loesche_undo_Aktionen()
-                return False
+                    if ev.Source.Model.HelpText == LANG.INSERT_DOC:            
+                        self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
+                        
+                    if ev.Source.Model.HelpText == LANG.INSERT_DIR:            
+                        self.mb.class_Baumansicht.erzeuge_neue_Zeile('Ordner')
+    
+                    self.mb.loesche_undo_Aktionen()
+                    return False
+        except:
+            log(inspect.stack,tb())
         
     def mouseExited(self,ev):
         return False
@@ -1417,9 +1328,11 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool  
                  
             elif sel == LANG.HOMEPAGE:
+                import webbrowser
                 webbrowser.open('https://github.com/XRoemer/Organon')
                 
             elif sel == LANG.FEEDBACK:
+                import webbrowser
                 webbrowser.open('http://organon4office.wordpress.com/')
                 
             elif sel == LANG.BACKUP:
@@ -1638,12 +1551,13 @@ class Mitteilungen():
         self.ctx = ctx
         self.mb = mb     
     
-    def nachricht(self, MsgText, MsgType="errorbox", MsgButtons=OK):  
+    def nachricht(self, MsgText, MsgType="errorbox", MsgButtons=OK, doc=None):  
         if self.mb.debug: log(inspect.stack)           
-
+        
         smgr = self.ctx.ServiceManager
         desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
-        doc = desktop.getCurrentComponent()                
+        if doc == None:
+            doc = desktop.getCurrentComponent()                
         ParentWin = doc.CurrentController.Frame.ContainerWindow
 
         MsgType = MsgType.lower()
@@ -1836,7 +1750,6 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
         
         path = self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname]
         path = uno.systemPathToFileUrl(path)
-        self.mb.props[T.AB].tastatureingabe = True
         self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
         
 
@@ -1866,7 +1779,6 @@ class Key_Handler(unohelper.Base, XKeyHandler):
             self.mb.class_Shortcuts.shortcut_ausfuehren(code,mods)
         
         else:
-            self.mb.props[T.AB].tastatureingabe = True
             self.mb.props[T.AB].zuletzt_gedrueckte_taste = ev
             return False
         
@@ -1967,10 +1879,9 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 
             self.so_name =  None   
 
-            if props.selektierte_zeile_alt != None:
-                ts_old_bereichsname = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
-                self.ts_old = self.mb.doc.TextSections.getByName(ts_old_bereichsname)            
-                self.so_name = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
+            ts_old_bereichsname = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
+            self.ts_old = self.mb.doc.TextSections.getByName(ts_old_bereichsname)            
+            self.so_name = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
             
             if self.ts_old == 'nicht vorhanden':
                 #print('selek gewechs, old nicht vorhanden')
@@ -1993,7 +1904,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 else:
                     #print('selek gewechs',self.so_name , s_name)                    
                     self.farbe_der_selektion_aendern(selected_ts.Name)
-                    if props.tastatureingabe:
+                    if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
                         self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.ts_old.FileLink.FileURL,self.so_name)
                         
                     self.ts_old = selected_ts  
@@ -2023,10 +1934,9 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
         textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
         
-        if props.selektierte_zeile_alt != None: 
-            ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld') 
-            ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-            self.mb.class_Sidebar.erzeuge_sb_layout()
+        ctrl = props.Hauptfeld.getControl(props.selektierte_zeile_alt).getControl('textfeld') 
+        ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
+        self.mb.class_Sidebar.erzeuge_sb_layout()
             
         props.selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
      
@@ -2042,17 +1952,12 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
         self.mb = mb
     
     def windowResized(self,ev):
-        #print('windowResized')
         self.mb.tabsX.layout_tab_zeilen(ev.Width)
         self.mb.class_Baumansicht.korrigiere_scrollbar()
 
-    def windowMoved(self,ev):pass
-        #print('windowMoved')
-    def windowShown(self,ev):
-        pass
-        #self.mb.class_Baumansicht.korrigiere_scrollbar()
-        #print('windowShown')
-    def windowHidden(self,ev):pass
+    def windowMoved(self,ev): pass
+    def windowShown(self,ev): pass
+    def windowHidden(self,ev): pass
    
     def disposing(self,arg):
         if self.mb.debug: log(inspect.stack)
@@ -2060,7 +1965,7 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
         try:                
             # speichern, wenn Organon beendet wird.
             # aenderungen nach tabwechsel werden in Tab_Listener.activated() gespeichert
-            if self.mb.props[T.AB].tastatureingabe:
+            if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
                 ordinal = self.mb.props[T.AB].selektierte_zeile
                 bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
                 path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])

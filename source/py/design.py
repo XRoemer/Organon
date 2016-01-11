@@ -119,26 +119,7 @@ class Organon_Design():
 
     def dialog_organon_farben_elemente(self,listener):
         if self.mb.debug: log(inspect.stack)
-        
-        
-        
-        
-        controls2 = []
-        
-        listener_ctrls = [
-                            'menu_hintergrund',
-                            'menu_schrift',
-                            'hf_hintergrund',
-                            'schrift_ordner',
-                            'schrift_datei',
-                            'ausgewaehlte_zeile',
-                            'editierte_zeile',
-                            'gezogene_zeile',
-                            'gliederung',
-                            'textfeld',
-                            'trenner_farbe_hintergrund',
-                            'trenner_farbe_schrift',
-                            ]
+
         
         ctrls = [
                  ('Titel',LANG.MENULEISTE),
@@ -640,14 +621,7 @@ class Organon_Design():
                 
             listener.ctrl_container = self.container
             listener.theme_ansicht_erneuern()
-            
-            
-            
-            ct = ctrls['control_theme_untertit']
-            
-            #ct.Model.ImageURL = KONST.URL_IMGS+'punkt_rot.png' 
-            #ct.Model.PaintTransparent = True
-            #ctrls['control_theme_untertit'].Model.Border = 0
+
         except:
             log(inspect.stack,tb())
             
@@ -687,19 +661,17 @@ class Organon_Design():
         try:
             ctx = uno.getComponentContext()
             smgr = ctx.ServiceManager
-            toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
             desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
             frame = desktop.Frames.getByIndex(0)
-            comp = frame.ComponentWindow
             
             rot = 16275544
     
             hf = KONST.FARBE_HF_HINTERGRUND
-            menu = KONST.FARBE_MENU_HINTERGRUND
+            #menu = KONST.FARBE_MENU_HINTERGRUND
             schrift = KONST.FARBE_SCHRIFT_DATEI
-            menu_schrift = KONST.FARBE_MENU_SCHRIFT
-            selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
-            ordner = KONST.FARBE_SCHRIFT_ORDNER
+            #menu_schrift = KONST.FARBE_MENU_SCHRIFT
+            #selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
+            #ordner = KONST.FARBE_SCHRIFT_ORDNER
             linien = KONST.FARBE_LINIEN
             deaktiviert = KONST.FARBE_DEAKTIVIERT
             
@@ -714,8 +686,8 @@ class Organon_Design():
             # Kann button_schrift evt. herausgenommen werden?
             button_schrift = get_farbe(sett['button_schrift'])
             
-            statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
-            statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
+            #statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
+            #statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
             
             felder_hintergrund = get_farbe(sett['felder_hintergrund'])
             felder_schrift = get_farbe(sett['felder_schrift'])
@@ -726,8 +698,8 @@ class Organon_Design():
             sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
             sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
             
-            trenner_licht = get_farbe(sett['trenner_licht'])
-            trenner_schatten = get_farbe(sett['trenner_schatten'])
+            #trenner_licht = get_farbe(sett['trenner_licht'])
+            #trenner_schatten = get_farbe(sett['trenner_schatten'])
             
             # Lineal
             OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
@@ -735,10 +707,10 @@ class Organon_Design():
             OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
             
             LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
-            LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
-            LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
-            LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
-            LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
+            #LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
+            #LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
+            #LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
+            #LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
             
             
             LO = ('LibreOffice' in frame.Title)
@@ -988,10 +960,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            self.mb.class_Design.setze_listboxen = True
-            
-            breite = 930
-            hoehe = 400
+            self.mb.class_Organon_Design.setze_listboxen = True
 
             sett = self.mb.settings_orga
             
@@ -1028,7 +997,6 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             
             if self.mb.programm == 'LibreOffice':
                 # Persona auswaehlen
-                aktiv = sett['organon_farben']['aktiv']
                 persona_url = sett['organon_farben']['office']['persona_url']
                 persona = persona_url.split('/')[0]
     
@@ -1036,7 +1004,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                 if persona in ctrl_persona.Items:
                     ctrl_persona.selectItem(persona,True)
             
-            self.mb.class_Design.setze_listboxen = False
+            self.mb.class_Organon_Design.setze_listboxen = False
             
         except:
             log(inspect.stack,tb()) 
@@ -1157,9 +1125,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
                         )
         
         self.lb_dict = {lb_items_syn[i] : lb_items[i] for i in range(len(lb_items))}
-        lb_dict2 = {lb_items[i] : lb_items_syn[i]  for i in range(len(lb_items))}
-        self.mb.class_Design.lb_dict = self.lb_dict
-        self.mb.class_Design.lb_dict2 = lb_dict2
+        self.lb_dict2 = {lb_items[i] : lb_items_syn[i]  for i in range(len(lb_items))}
         
         
         def erzeuge_conts(cts,tabs,abstand_nach_sep=0):
@@ -1799,7 +1765,7 @@ class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XAction
     def itemStateChanged(self, ev): 
         # Wenn die LBs nicht vom user gesetzt werden, sondern
         # von Organon, keine Aktion ausfuehren 
-        if self.mb.class_Design.setze_listboxen == True: return
+        if self.mb.class_Organon_Design.setze_listboxen == True: return
         if self.mb.debug: log(inspect.stack)
         
         sett = self.mb.settings_orga['organon_farben']['office']
@@ -1816,7 +1782,7 @@ class Listener_Writer_Design(unohelper.Base,XItemListener,XMouseListener,XAction
                 selektiert = ev.Source.SelectedItem
                 prop = c.replace('LB','')
                 farbfeld = self.ctrls[prop]
-                farb_prop = self.mb.class_Design.lb_dict2[selektiert]
+                farb_prop = self.mb.class_Organon_Design.lb_dict2[selektiert]
                 farbe = self.mb.settings_orga['organon_farben'][farb_prop]
                 farbfeld.Model.BackgroundColor = farbe
                 
@@ -1949,10 +1915,6 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             auswahl = self.personas_list[ev.Selected]
             url = uno.systemPathToFileUrl(self.personas_dict[auswahl])
             
-            tab0_0 = 1
-            tab_theme = self.ctrl_container.Size.Width/2 - 30
-            tab_theme2 = self.ctrl_container.Size.Width/2 - 100
-            
             self.theme_ansicht_erneuern(url)
 
             self.ctrls['control_solid'].State = 0
@@ -1994,11 +1956,8 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
         
          
         for c in self.ctrls['control_theme_tit'],self.ctrls['control_theme_untertit']:
-            x,y = c.PosSize.X,c.PosSize.Y
             c.Model.TextColor = self.ctrls['control_farbe_schrift'].Model.BackgroundColor
-            
-        
-        
+
             
     def disposing(self,ev):
         

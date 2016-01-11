@@ -83,7 +83,7 @@ def get_paths():
     # PackageInformationProvider doesn't work at this stage
     # of initialising the extension.
     # So this is a workaround
-    path_to_current = inspect.stack()[0][1]
+
     pfad = inspect.stack()[0][1]
     
     def get_parent(path):

@@ -82,6 +82,10 @@ class Organizer():
             # in den hintergrund         
             self.schuetze_document()
             
+            if self.mb.programm == 'LibreOffice':
+                for br in self.bilder_reihe:
+                    self.update_bilder_pos(br)
+            
             handler = Enhanced_MC_Handler(self.mb,self)
             self.sheet_controller.addEnhancedMouseClickHandler(handler)
             
@@ -110,7 +114,7 @@ class Organizer():
         self.time_panels = [t for t in self.spalten if self.tags_org['nr_name'][t][1] == 'time']
         # self.pos bestimmt den Ort der Tabelle
         # Wenn eine Spalte/Zeile mehr benoetigt werden sollte,
-        # können die ersten beiden Werte geaendert werden
+        # koennen die ersten beiden Werte geaendert werden
         self.pos = [ 3, 3, 3 + len(self.spalten2), 3 ]
         
         
@@ -133,8 +137,8 @@ class Organizer():
     def schuetze_document(self):
         if self.mb.debug: log(inspect.stack)
         
-        # Schützen, Aufheben des Schutzes, Schützen wird ausgeführt,
-        # damit die Icons auf die richtige Höhe gesetzt werden.
+        # Schuetzen, Aufheben des Schutzes, Schuetzen wird ausgefuehrt,
+        # damit die Icons auf die richtige Hoehe gesetzt werden.
         # Eventuell fehlt hier der richtige Befehl (self.calc.render?)
         self.sheet.protect('')
         
@@ -487,9 +491,7 @@ class Organizer():
     def erzeuge_bilder_reihen(self):
         if self.mb.debug: log(inspect.stack)
         
-        tags = self.mb.tags
         draw_page = self.sheet.DrawPage
-        
 
         for row in self.bilder_reihe:
             btns,h_max = self.erzeuge_bilder_reihe_btns(row)
@@ -508,7 +510,8 @@ class Organizer():
                 draw_page.add(shape)
                 self.bilder_reihe[row][panel_nr]['shape'] = shape
                 self.bilder_reihe[row][panel_nr]['hoehe'] = hoehe
-        
+                
+            
            
     def erzeuge_img_button(self,pos,btn_name,url):
         if self.mb.debug: log(inspect.stack)
@@ -611,8 +614,8 @@ class Organizer():
             RESOURCE_URL = "private:resource/dockingwindow/9809"
             self.calc_frame.LayoutManager.hideElement(RESOURCE_URL)
             
-            listener2 = Organizer_Close_Listener(self.mb,self,self.calc)
-            self.calc.addDocumentEventListener(listener2)
+            self.close_listener = Organizer_Close_Listener(self.mb,self,self.calc)
+            self.calc.addDocumentEventListener(self.close_listener)
         except:
             log(inspect.stack,tb())
             
@@ -846,7 +849,7 @@ class Organizer():
                             
                     elif isinstance(text, list):
                         if text != []:
-                            text = u',\n'.join(text)
+                            text = u',\r\n'.join(text)
                         else:
                             text = u''
                     elif text == None:
@@ -967,18 +970,22 @@ class Organizer():
                 pfad2 = self.mb.class_Sidebar.bild_einfuegen( panel_nr, ordinal=ordi, filepath=pfad, erzeuge_layout=False)
                 tags_org['ordinale'][ordi][panel_nr] = pfad2
                 
+                if [pfad2,panel_nr] in self.close_listener.zu_loeschende_bilder:
+                    self.close_listener.zu_loeschende_bilder.remove([pfad2,panel_nr])
+                
             for g in geloeschte:
                 ordi, panel_nr = g
-                self.mb.class_Sidebar.bild_loeschen_a( panel_nr, ordinal=ordi, erzeuge_layout=False)
+                old_image_path = self.mb.tags['ordinale'][ordi][panel_nr]
+                self.close_listener.zu_loeschende_bilder.append([old_image_path,panel_nr])
                 tags_org['ordinale'][ordi][panel_nr] = ''
 
-
+            
             self.mb.tags = tags_org
             self.mb.class_Sidebar.erzeuge_sb_layout()
             
-            for ord in self.modify_listener.aenderung_dateinamen:
-                text = self.modify_listener.aenderung_dateinamen[ord]
-                self.mb.class_Zeilen_Listener.aendere_datei_namen(ord,text)
+            for ordi in self.modify_listener.aenderung_dateinamen:
+                text = self.modify_listener.aenderung_dateinamen[ordi]
+                self.mb.class_Zeilen_Listener.aendere_datei_namen(ordi,text)
             
 
             self.mb.popup(LANG.UEBERNOMMEN,1) 
@@ -988,8 +995,8 @@ class Organizer():
             self.mb.class_Tags.speicher_tags()           
         except:
             log(inspect.stack,tb())
-    
-    
+            
+        
     def setze_zelle_und_tag(self,c,r,cell,inhalt,ordinal,panel_nr):    
         if self.mb.debug: log(inspect.stack)
         try:
@@ -1397,6 +1404,12 @@ class Enhanced_MC_Handler(unohelper.Base, XEnhancedMouseClickHandler):
                 return True
 
             org.bild_einfuegen(col, row, panel_nr)
+            
+            if self.mb.programm == 'LibreOffice':
+                for br in org.bilder_reihe:
+                    org.update_bilder_pos(br)
+            else:
+                org.update_bilder_pos(row) 
                     
         except:
             log(inspect.stack,tb())
@@ -1521,7 +1534,6 @@ class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
         cmd = ev.ActionCommand
         
         org = self.mb.class_Organizer
-        tags = org.tags_org
         draw_page = org.sheet.DrawPage
         eintrag = [e for e in org.Eintraege if e[0] == self.ordinal][0]
         
@@ -1542,14 +1554,18 @@ class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
                 
                 if url:
                     shape = org.bilder_reihe[row][self.panel_nr]['shape']
-                    reihe = org.bilder_reihe[row][self.panel_nr]
-                    name = shape.Name
                     
                     draw_page.remove(shape)
                     shape.dispose()
 
                     org.bild_einfuegen(col,row,self.panel_nr,url=url)
-                    org.update_bilder_pos(row) 
+                    
+                    if self.mb.programm == 'LibreOffice':
+                        for br in org.bilder_reihe:
+                            org.update_bilder_pos(br)
+                    else:
+                        org.update_bilder_pos(row) 
+                        
                     org.update_icon_pos(col,row)
                          
             elif cmd == 'loeschen':
@@ -1562,7 +1578,12 @@ class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
                 del org.bilder_reihe[row][self.panel_nr]
                 org.setze_zelle_und_tag(c+1,r,cell,'',self.ordinal,self.panel_nr)
 
-                org.update_bilder_pos(row) 
+                if self.mb.programm == 'LibreOffice':
+                    for br in org.bilder_reihe:
+                        org.update_bilder_pos(br)
+                else:
+                    org.update_bilder_pos(row) 
+                
                 org.update_icon_pos(col,row)  
                 org.tags_org['ordinale'][self.ordinal][self.panel_nr] = ''
                  
@@ -1587,15 +1608,17 @@ class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
         self.mb = mb
         self.Org = Org
         self.calc = calc
+        
+        self.zu_loeschende_bilder = []
 
     def documentEventOccured(self,ev):
         try:
-            #print(ev.EventName)
+            
             if ev.EventName == 'OnPrepareViewClosing':
                 if self.mb.debug: log(inspect.stack)
                 
-                if self.calc.isModified(): 
-                    entscheidung = self.mb.nachricht(LANG.AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN,"warningbox",16777216)
+                if self.calc.isModified():
+                    entscheidung = self.mb.nachricht(LANG.AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN,"warningbox",16777216,self.mb.doc)
                     # 3 = Nein oder Cancel, 2 = Ja
                     if entscheidung == 3:
                         pass
@@ -1604,12 +1627,31 @@ class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
                             self.Org.tags_uebernehmen()
                         except:
                             log(inspect.stack,tb())
+                            
+                        if self.zu_loeschende_bilder != []: 
+                            # Bilder können nicht geloescht werden,
+                            # solange der Organizer geoeffnet ist.
+                            # Daher wird loeschen 3 Sekunden nach
+                            # Schliessen des Organizers aufgerufen
+                            from threading import Thread
+                            
+                            def sleeper(zu_loeschende_bilder,mb):  
+                                import time
+                                time.sleep(3) 
+                                for b in self.zu_loeschende_bilder:
+                                    old_image_path, panel_nr = b
+                                    mb.class_Sidebar.bild_loeschen( old_image_path, panel_nr)
+                
+                            t = Thread(target=sleeper,args=(self.zu_loeschende_bilder,self.mb))
+                            t.start()
                 
                 self.calc.setModified(False)
+
         except:
             log(inspect.stack,tb())
             
-          
+    
+
 
 
 #         

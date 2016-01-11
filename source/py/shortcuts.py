@@ -102,8 +102,9 @@ class Shortcuts():
         
     def in_Papierkorb_einfuegen(self):
         if self.mb.debug: log(inspect.stack)
-
-        self.mb.class_Baumansicht.in_Papierkorb_einfuegen()
+        
+        ordinal = self.mb.props[T.AB].selektierte_zeile
+        self.mb.class_Baumansicht.in_Papierkorb_einfuegen(ordinal)
                 
     def leere_Papierkorb(self):
         if self.mb.debug: log(inspect.stack)
@@ -116,7 +117,6 @@ class Shortcuts():
         zuletzt = props.selektierte_zeile_alt
         bereichsname = props.dict_bereiche['ordinal'][zuletzt]
         path = props.dict_bereiche['Bereichsname'][bereichsname]
-        self.mb.props[T.AB].tastatureingabe = True
         
         self.mb.class_Bereiche.datei_nach_aenderung_speichern(uno.systemPathToFileUrl(path),bereichsname)
         

@@ -13,13 +13,10 @@ class WListe():
         self.ctx = self.mb.ctx
         
         self.p = {}
-        self.p['text1'] = LANG.DATEI_AUSSUCHEN
+
         self.p['text1_intern'] = 0
         self.p['text1_extern'] = 1
-
-        self.p['ordner'] = LANG.ORDNER_AUSSUCHEN
         self.p['chronologisch'] = 1
-        
         
         self.ord = {}
         self.ord['text1'] = None
@@ -31,140 +28,147 @@ class WListe():
         
     def start(self):
         if self.mb.debug: log(inspect.stack)
-                
-        X = self.mb.dialog.Size.Width
-        Y = 30
-        posSize = (X,Y,0,0)
-        
-        oWindow,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
-        self.erzeuge_Menu(cont,oWindow)
+
+        self.erzeuge_wortliste()
 
         
-    def erzeuge_Menu(self,cont,oWindow):
+    def erzeuge_wortliste_elemente(self,listener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            
-            self.win = cont
-            
-            y = 20
-            
-            tab0 = tab0x = 10
-            tab1 = tab1x = 150
-            tab2 = tab2x = 120
-            tab3 = tab3x = 120
-            tabs = [tab0,tab1,tab2,tab3]
-            
-            listener = Speicherordner_Button_Listener(self.mb,self,oWindow)
-                        
-            design = self.mb.class_Design
-            design.set_default(tabs)
+            y = 0
 
             controls = (
             10,
-            ('titel',"FixedText",               'tab0',y,250,20,  ('Label','FontWeight'),(LANG.WOERTERLISTE ,150),                 {} ),
+            ('titel',"FixedText",1,               
+                                'tab0',y,250,20,  
+                                ('Label','FontWeight'),
+                                (LANG.WOERTERLISTE ,150),                 
+                                {} 
+                                ),
             30,
             
-            ('control0',"Button",               'tab0',y,80,22,  ('Label',),('Text 1',),                                            {'setActionCommand':'text1','addActionListener':(listener)} ),
+            ('control0',"Button",1,               
+                                'tab0',y,80,22,  
+                                ('Label',),
+                                ('Text 1',),                                            
+                                {'setActionCommand':'text1','addActionListener':(listener)} 
+                                ),
             0,
-            ('rb1_txt1',"RadioButton",          'tab1x',y,80,22,  ('Label','State'),(LANG.INTERN,self.p['text1_intern']),           {'setActionCommand':'text1 intern','addActionListener':(listener)} ),
-            0,
-            ('rb2_txt1',"RadioButton",          'tab2x',y,80,22,  ('Label','State'),(LANG.EXTERN,self.p['text1_extern']),           {'setActionCommand':'text1 extern','addActionListener':(listener)} ),
-            30,
-            ('text1',"FixedText",               'tab0',y,250,20,  ('Label',),(self.p['text1'],),                                    {} ),
-            30,
-            
-            ('control4',"Button",               'tab0',y,100,22,  ('Label',),(LANG.SPEICHERORT,),                                   {'setActionCommand':'speicherordner','addActionListener':(listener)} ),
-            30,
-            ('ordner',"FixedText",              'tab0',y,250,20,  ('Label',),(self.p['ordner'],),                                   {} ),
-            30,
-            
-            ('control5',"FixedLine",              'tab0',y,250,20,  (),(),                                                          {} ),
-            30,
-            
-            ('text3',"FixedText",               'tab0',y,250,20,  ('Label',),(LANG.SORTIERUNG,),                                    {} ),
-            0,
-            ('rb_sort1',"RadioButton",          'tab1x',y,80,22,  ('Label','State'),(LANG.CHRONOLOGISCH,self.p['chronologisch']),   {'setActionCommand':'chronologisch','addActionListener':(listener)} ),
+            ('rb1_txt1',"RadioButton",1,          
+                                'tab1',y,80,22,  
+                                ('Label','State'),
+                                (LANG.INTERN,self.p['text1_intern']),           
+                                {'setActionCommand':'text1 intern','addActionListener':(listener)} 
+                                ),
             20,
-            ('rb_sort2',"RadioButton",          'tab1x',y,80,22,  ('Label',),(LANG.ALPHABETISCH,),                                  {} ),
+            ('rb2_txt1',"RadioButton",1,          
+                                'tab1',y,80,22,  
+                                ('Label','State'),
+                                (LANG.EXTERN,self.p['text1_extern']),           
+                                {'setActionCommand':'text1 extern','addActionListener':(listener)} 
+                                ),
+            30,
+            ('text1',"FixedText",1,               
+                                'tab0-max',y,250,45,  
+                                ('Label','MultiLine'),
+                                (LANG.DATEI_AUSSUCHEN,True),                                    
+                                {} 
+                                ),
+            45,
+            
+            ('control4',"Button",1,               
+                                'tab0',y,100,22,  
+                                ('Label',),
+                                (LANG.SPEICHERORT,),                                   
+                                {'setActionCommand':'speicherordner','addActionListener':(listener)} 
+                                ),
+            30,
+            ('ordner',"FixedText",1,              
+                                'tab0x-max',y,250,45,  
+                                ('Label','MultiLine'),
+                                (LANG.ORDNER_AUSSUCHEN,True),                                   
+                                {} 
+                                ),
+            45,
+            
+            ('control5',"FixedLine",0,              
+                                'tab0x-max',y,250,20,  
+                                (),
+                                (),                                                          
+                                {} 
+                                ),
+            30,
+            
+            ('text3',"FixedText",1,               
+                                'tab0',y,250,20,  
+                                ('Label',),
+                                (LANG.SORTIERUNG,),                                    
+                                {} 
+                                ),
+            0,
+            ('xrb_sort1',"RadioButton",1,          
+                                'tab1',y,80,22,  
+                                ('Label','State'),
+                                (LANG.CHRONOLOGISCH,self.p['chronologisch']),   
+                                {'setActionCommand':'chronologisch','addActionListener':(listener)} 
+                                ),
+            20,
+            ('xrb_sort2',"RadioButton",1,          
+                                'tab1',y,80,22,  
+                                ('Label',),
+                                (LANG.ALPHABETISCH,),                                  
+                                {} 
+                                ),
             40,
             
-            ('control18',"Button",              'tab2x',y,140,30,  ('Label',),(LANG.START,),                                        {'setActionCommand':'search','addActionListener':(listener)} ),
-            30,)
+            ('control18',"Button",1,              
+                                'tab1-max',y,140,25,  
+                                ('Label',),
+                                (LANG.START,),                                        
+                                {'setActionCommand':'search','addActionListener':(listener)} 
+                                ),
+            20,
+            )
             
-            ctrls = {}
-            pos_y = 0
+            # feste Breite, Mindestabstand
+            tabs = {
+                     0 : (None, 15),
+                     1 : (None, 1),
+                     2 : (None, 5),
+                     3 : (None, 5),
+                     4 : (None, 5),
+                     }
             
-            for ctrl in controls:
-                
-                if isinstance(ctrl,int):
-                    pos_y += ctrl
+            abstand_links = 10
+            controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
                     
-                else:
-
-                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl
-                    pos_x = locals()[X]
-                    
-                    locals()[name],locals()[name+'_model'] = self.mb.createControl(self.ctx,unoCtrl,pos_x,pos_y,width,height,prop_names,prop_values)
-                    
-                    try:
-                        w,h = self.mb.kalkuliere_und_setze_Control(locals()[name],'w')
-                    except:
-                        pass
-                    
-                    if 'x' in X:
-                        design.setze_tab(X,w)        
-                     
-                    if 'setActionCommand' in extras:
-                        locals()[name].setActionCommand(extras['setActionCommand'])
-                        
-                    if 'addActionListener' in extras:
-                        #for l in extras['addActionListener']:
-                        locals()[name].addActionListener(extras['addActionListener'])
-
-                    self.win.addControl(name,locals()[name])
-                    ctrls[name] = locals()[name]
-
-                    
-                    
-            # Tabs x-Position neu berechnen
-            design.kalkuliere_tabs()
-
-            for i in range(len(tabs)):
-                locals()['tab%sx'%i] = design.new_tabs['tab%sx'%(i)]                
+            return controls2,max_breite
+    
+        except:
+            log(inspect.stack,tb())
             
-            breite = 0
             
-            for ctrl in controls:
-                if isinstance(ctrl,int):
-                    pass
-                else:
-                    name,unoCtrl,X,Y,width,height,prop_names,prop_values,extras = ctrl                    
-                    pos_x = design.new_tabs[X]
-                    
-                    # Sonderregeln
-                    if X == 'tab2x':
-                        pos_x -= 50
-                    
-                    locals()[name].setPosSize(pos_x,0,0,0,1)
-                    
-                    if pos_x > breite:
-                        breite = pos_x
-                        
-            breite += 60
+    def erzeuge_wortliste(self):
+        
+        try:
+            listener = Speicherordner_Button_Listener(self.mb,self)
             
+            controls,max_breite = self.erzeuge_wortliste_elemente(listener)
+            ctrls,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(controls) 
+            
+            
+            # Hauptfenster erzeugen
+            posSize = None,None,max_breite,max_hoehe
+            fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            #fenster_cont.Model.Text = LANG.EXPORT
+            
+            # Controls in Hauptfenster eintragen
+            for name,c in sorted(ctrls.items()):
+                fenster_cont.addControl(name,c)
+            
+            listener.oWindow = fenster
             listener.controls = ctrls
-            
-            locals()['text1'].setPosSize(0,0,breite-20,0,4)
-            locals()['ordner'].setPosSize(0,0,breite-20,0,4)
-            
-            locals()['control5'].setPosSize(0,0,breite-20,0,4)
-            
-            locals()['control18'].setPosSize(breite - locals()['control18'].PosSize.Width-10,0,0,0,1)
-
-            self.win.setPosSize(0,0,breite,pos_y + 10,12)
-            oWindow.setPosSize(0,0,breite,pos_y + 10,12)
-
         except:
             log(inspect.stack,tb())
             
@@ -173,14 +177,13 @@ class WListe():
 from com.sun.star.awt import XActionListener
 class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     
-    def __init__(self,mb,class_Zitate,oWindow):
+    def __init__(self,mb,class_Zitate):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
         self.controls = None
-        self.nachricht = mb.nachricht
         self.class_Zitate = class_Zitate
-        self.oWindow = oWindow
+        self.oWindow = None
         
         
     def actionPerformed(self,ev):
@@ -189,7 +192,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         try:
             if ev.ActionCommand == 'text1':
                 if self.class_Zitate.p['text1_extern'] == 1:
-                    self.filepicker('text1')
+                    self.filepicker()
                 else:
                     self.get_interne_auswahl('text1')
                     
@@ -206,7 +209,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 chronologisch) = args
                 
                 if not os.path.exists(speicherordner):
-                    self.nachricht(LANG.KEIN_SPEICHERORT)
+                    self.mb.nachricht(LANG.KEIN_SPEICHERORT)
                     return
                                                 
                 SI = self.mb.desktop.getCurrentFrame().createStatusIndicator()
@@ -344,7 +347,6 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         #Inneres Fenster
         controlContainer, modelContainer = self.mb.createControl(self.mb.ctx,"Container",22,y ,400,2000,(),() )  
-        modelContainer.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         listener = Text_Intern_Listener(self.mb,self.controls[text],text)
         
@@ -414,7 +416,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                 log(inspect.stack,tb())
             
 
-    def filepicker(self,ctrl):
+    def filepicker(self):
         if self.mb.debug: log(inspect.stack)
         
         ofilter = ('Find Quotations','*.txt')
@@ -423,7 +425,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         if not ok:
             return
         
-        self.controls[ctrl].Model.Label = filepath
+        self.controls['text1'].Model.Label = filepath
         
         
     def folderpicker(self):
@@ -446,14 +448,14 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
     def suchbefehle_erstellen(self):
         if self.mb.debug: log(inspect.stack)
 
-        pfad1 =         self.class_Zitate.p['text1'] =   self.controls['text1'].Model.Label
+        pfad1 = self.controls['text1'].Model.Label
         text1_intern =  self.class_Zitate.ord['text1']  
         
         benutze_txt1_intern = self.class_Zitate.p['text1_intern']
         
-        speicherordner = self.class_Zitate.p['ordner'] = self.controls['ordner'].Model.Label
+        speicherordner = self.controls['ordner'].Model.Label
         
-        if int(self.controls['rb_sort1'].State) == 1:
+        if int(self.controls['xrb_sort1'].State) == 1:
             
             chronologisch =  self.class_Zitate.p['chronologisch'] =  1
         else:
@@ -527,10 +529,7 @@ class Liste_Erstellen():
          self.titel_txt1,
          self.speicherordner,
          self.chronologisch
-         ) = args
-                 
-        self.nachricht = mb.nachricht
-        
+         ) = args      
         
     
     def run(self):
@@ -547,7 +546,7 @@ class Liste_Erstellen():
                 woerter = sorted(set(WoerterListe1))
 
             if len(woerter) == 0:
-                self.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
+                self.mb.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
                 return
             
             self.oeffne_calc()
@@ -563,7 +562,7 @@ class Liste_Erstellen():
             self.calc.storeToURL(uno.systemPathToFileUrl(path),())    
             self.calc.close(False)
             
-            self.nachricht(LANG.LISTE_GESPEICHERT.format(path),'infobox')
+            self.mb.nachricht(LANG.LISTE_GESPEICHERT.format(path),'infobox')
                                                 
         except:
             log(inspect.stack,tb())
@@ -609,8 +608,13 @@ class Liste_Erstellen():
                     woerter2 = l.split()
                     
                     if len(woerter) == 0:
-                        w = posDict_O[zaehler-1][0]+'\n'
-                        posDict_O.update({zaehler-1:(w,zaehlung)})
+                        try:
+                            # try/except statt if fuer schnellere Performance, 
+                            # da eine leere erste Zeile uebersprungen werden muss.
+                            w = posDict_O[zaehler-1][0]+'\n'
+                            posDict_O.update({zaehler-1:(w,zaehlung)})
+                        except:
+                            pass
                         continue
                                         
                     woerter2[-1] = woerter2[-1]+'\n'

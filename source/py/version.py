@@ -38,6 +38,7 @@ class Version():
         '0.9.9.8.6':None,
         '0.9.9.8.7':None,
         '0.9.9.8.8':None,
+        '0.9.9.9.0':None,
         
         } 
         
@@ -52,12 +53,14 @@ class Version():
             v = v.replace('b','')
             
             loslegen = False
-            ver = sorted(self.vers_dict)
+
             if self.version != self.mb.programm_version:
-                ver = sorted(self.vers_dict)
+
                 for vers in sorted(self.vers_dict):
+                    
                     if v == vers:
                         loslegen = True
+                        
                     if loslegen:
                         if self.vers_dict[vers] != None:
                             self.vers_dict[vers]()
@@ -238,9 +241,9 @@ A backup of your project with the old settings will be created in the backup fol
             name_index = { k : sb_panels_tup.index(k) for k in alte_kats if k in sb_panels_tup }
             index_name = { sb_panels_tup.index(k) : k for k in alte_kats if k in sb_panels_tup }
             
-            tags['ordinale'] = { ord: {name_index[k] : i2
+            tags['ordinale'] = { ordin: {name_index[k] : i2
                     for k,i2 in i.items()}
-                   for ord,i in dict_sb_content['ordinal'].items() if isinstance(i, dict)}
+                   for ordin,i in dict_sb_content['ordinal'].items() if isinstance(i, dict)}
                   
             tags['sichtbare'] = [name_index[k] for k in dict_sb_content['sichtbare'] ]
             tags['sammlung'] = {name_index[k]:i for k,i in dict_sb_content['tags'].items() }

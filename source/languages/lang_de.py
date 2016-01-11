@@ -97,6 +97,7 @@ NOCH_IN_TAB_GEOEFFNET = u'''{0} ist noch in {1} geöffnet'''
 # TREEVIEW
 ORDNER_AUSKLAPPEN = u'''Ordner ausklappen'''
 IN_PAPIERKORB_VERSCHIEBEN = u'''In Papierkorb verschieben'''
+PAPIERKORB_LEEREN = u'''Papierkorb leeren'''
 SHOW_TAG1 = u'''Farbige Icons'''
 SHOW_TAG2 = u'''Benutzerdefinierte Icons'''
 GLIEDERUNG = u'''Gliederung'''

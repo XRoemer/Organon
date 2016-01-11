@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import unohelper
 from com.sun.star.style.BreakType import NONE as BREAKTYPE_NONE
 
 class Bereiche():
@@ -8,11 +7,9 @@ class Bereiche():
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
 
-        # Konstanten
         self.mb = mb
         self.doc = mb.doc       
         
-        # Klassen
         self.oOO = None
     
     
@@ -136,40 +133,26 @@ class Bereiche():
         text = dokument.Text
         cur = text.createTextCursor()
         cur.gotoStart(False)
-        #cur.setPropertyValue('BreakType',6)
-        leer = ' ' * 60 * 30 * 400
-        leer = 'hallo'
-        #text.setString(leer)
         
         from com.sun.star.text.ControlCharacter import PARAGRAPH_BREAK
         for i in range(100):
             text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
             text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
-        
-#         enum = text.createEnumeration()
-#         paras = []
-#         while enum.hasMoreElements():
-#             paras.append(enum.nextElement())
-            
-#         for par in paras:
-#             cur.gotoRange(par.Start,False)
-#             cur.setPropertyValue('BreakType',4)
-        
+
         url = os.path.join(self.mb.pfade['odts'], 'empty_file.odt')
         dokument.storeToURL(uno.systemPathToFileUrl(url),())
         dokument.close(False)
         
+        
     def leere_Dokument(self):
         if self.mb.debug: log(inspect.stack)
         
-        text = self.doc.Text        
         try:
             all_sections_Namen = self.doc.TextSections.ElementNames
             if self.doc.TextSections.Count != 0:
                 for name in all_sections_Namen:
                     sec = self.doc.TextSections.getByName(name)
                     sec.dispose()
-    
             
             cursor = self.mb.viewcursor
             cursor.gotoStart(False)
@@ -188,7 +171,6 @@ class Bereiche():
         sections = self.mb.doc.TextSections  
         
         newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-        
         
         SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
         SFLink.FileURL = path
@@ -245,7 +227,6 @@ class Bereiche():
         anzahl_hotzenploetze = len(alle_hotzenploetze)
 
         bereichsname_Papierkorb = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].Papierkorb]
-        path_to_Papierkorb = self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname_Papierkorb]
         
         path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
         path = uno.systemPathToFileUrl(path)
@@ -279,7 +260,6 @@ class Bereiche():
         if self.mb.debug: log(inspect.stack)
         
         text = self.doc.Text
-        sections = self.doc.TextSections
         cur = text.createTextCursor()
         
         cur.gotoEnd(False)
@@ -289,7 +269,7 @@ class Bereiche():
         
     def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
 
-        if self.mb.props[T.AB].tastatureingabe == True and bereichsname != None:
+        if len(self.mb.undo_mgr.AllUndoActionTitles) > 0 and bereichsname != None:
             # Nur loggen, falls tatsaechlich gespeichert wurde
             if self.mb.debug: log(inspect.stack)
 
@@ -321,7 +301,6 @@ class Bereiche():
                 newDoc.storeToURL(zu_speicherndes_doc_path,())
                 newDoc.close(False)
     
-                self.mb.props[T.AB].tastatureingabe = False
                 self.mb.loesche_undo_Aktionen()
             except:
                 log(inspect.stack,tb())
@@ -330,6 +309,7 @@ class Bereiche():
                     newDoc.close(False)
                 except:
                     pass
+
 
     def verlinkte_Bilder_einbetten(self,doc):
         if self.mb.debug: log(inspect.stack)

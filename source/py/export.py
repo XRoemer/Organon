@@ -32,9 +32,7 @@ class Export():
     def dialog_exportfenster_elemente(self): 
         if self.mb.debug: log(inspect.stack)
         try:
-            breite = 400
-            
-            
+
             sett = self.mb.settings_exp
             
             
@@ -307,7 +305,7 @@ class Export():
         try:
             
             # zunaechst den zuletzt bearbeiteten Bereich speichern
-            if self.mb.props[T.AB].tastatureingabe:
+            if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
                 ordinal = self.mb.props[T.AB].selektierte_zeile
                 bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
                 # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
@@ -636,7 +634,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         # selektiert nur die sichtbaren Bereiche
         if sett['sichtbar']:
             sections = []
-            for sec_name in self.mb.props['ORGANON'].sichtbare_bereiche:
+            for sec_name in self.mb.sichtbare_bereiche:
                 sections.append(sec_name)
         
         else:
@@ -942,15 +940,11 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             zaehler = 0
             
             
-            ungespeichert = []
-            
             while zaehler < anz_sections:
                  
                 self.mb.class_Bereiche.starte_oOO()
                 oOO = self.mb.class_Bereiche.oOO
-                cur = oOO.Text.createTextCursor()
-                text = oOO.Text
-                
+                cur = oOO.Text.createTextCursor()                
                     
                 # Speichern     
                 for i in range(3):
@@ -1526,161 +1520,7 @@ class A_Trenner_Button_Listener(unohelper.Base, XActionListener):
                 fenster_cont.addControl(name,c)
         except:
             log(inspect.stack,tb())
-            
-        
-        
-    def oeffne_Trenner_fenster(self,ev):
-        if self.mb.debug: log(inspect.stack)
-        
-        
-        
-        sett = self.mb.settings_exp
-        cb_listener = A_Trenner_CheckBox_Listener(self.mb)      
-          
-        posSize = berechne_pos(self.mb,self.cl_exp,self.exp_fenster,'Trenner')
-        posSize = posSize[0],posSize[1],320,360
-        fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
-        fenster_cont.Model.Text = LANG.TRENNER_TIT
-        
-        listenerF = AB_Fenster_Dispose_Listener(self.mb,self.cl_exp)
-        fenster_cont.addEventListener(listenerF)
-        
-        self.cl_exp.trenner_fenster = fenster
-
-        y = 10
-        
-        # Titel
-        controlE, modelE = self.mb.createControl(self.mb.ctx,"FixedText",20,y ,80,20,(),() )  
-        controlE.Text = LANG.TRENNER_TIT
-        modelE.FontWeight = 200.0
-        fenster_cont.addControl('Titel', controlE)
-        
-        y += 40
-        
-        # Ordner
-        controlO, modelO = self.mb.createControl(self.mb.ctx,"CheckBox",20 ,y,80,22,(),() )  
-        modelO.Label = LANG.ORDNERTITEL
-        modelO.State = sett['ordnertitel']
-        controlO.ActionCommand = 'ordnertitel'
-        controlO.addActionListener(cb_listener)
-        fenster_cont.addControl('Ordnertitel', controlO)
-        
-        controlF, modelF = self.mb.createControl(self.mb.ctx,"CheckBox",20 + 100 ,y,160,22,(),() )  
-        modelF.Label = LANG.FORMAT
-        modelF.State = sett['format_ord']
-        controlF.ActionCommand = 'format_ord'
-        controlF.addActionListener(cb_listener)
-        fenster_cont.addControl('Format', controlF)
-        
-            # Liste der Formate
-        controlL, modelL = self.mb.createControl(self.mb.ctx,"ListBox",20 + 180,y -3 ,100,20,(),() )  
-        #controlL.setMultipleMode(False)
-        pStyles = self.mb.doc.StyleFamilies.ParagraphStyles
-        style_names = pStyles.ElementNames
-        controlL.addItems(style_names,0)
-        modelL.Dropdown = True
-        index = style_names.index(sett['style_ord'])
-        modelL.SelectedItems = index,
-        fenster_cont.addControl('Liste_Ord', controlL)
-        
-        y += 30
-        
-        # Datei
-        controlD, modelD = self.mb.createControl(self.mb.ctx,"CheckBox",20 ,y,80,22,(),() )  
-        modelD.Label = LANG.DATEITITEL
-        modelD.State = sett['dateititel']
-        controlD.ActionCommand = 'dateititel'
-        controlD.addActionListener(cb_listener)
-        fenster_cont.addControl('Dateititel', controlD)
-        
-        controlF2, modelF2 = self.mb.createControl(self.mb.ctx,"CheckBox",20 + 100 ,y,160,22,(),() )  
-        modelF2.Label = LANG.FORMAT
-        modelF2.State = sett['format_dat']
-        controlF2.ActionCommand = 'format_dat'
-        controlF2.addActionListener(cb_listener)
-        fenster_cont.addControl('Format2', controlF2)
-        
-        # Liste der Formate
-        controlL2, modelL2 = self.mb.createControl(self.mb.ctx,"ListBox",20 + 180,y -3 ,100,20,(),() )  
-        controlL2.addItems(style_names,0)
-        modelL2.Dropdown = True
-        index = style_names.index(sett['style_dat'])
-        modelL2.SelectedItems = index,
-        fenster_cont.addControl('Liste_Dat', controlL2)
-        
-        # Listener fuer beide Stylelisten
-        listenerLB = A_ParaStyle_Item_Listener(self.mb,controlL,controlL2)
-        controlL.addItemListener(listenerLB)
-        controlL2.addItemListener(listenerLB)
-        
-        y += 50
-        
-        # DOKUMENT
-        controlD, modelD = self.mb.createControl(self.mb.ctx,"FixedText",100,y ,200,20,(),() )  
-        controlD.Text = LANG.ORT_DES_DOKUMENTS
-        modelD.FontWeight = 200.0
-        fenster_cont.addControl('Titel2', controlD)
-        
-        y += 50
-        
-        controlL2, modelL2 = self.mb.createControl(self.mb.ctx,"CheckBox",20 ,y,160,22,(),() )  
-        modelL2.Label = LANG.LEERZEILEN
-        modelL2.State = sett['leerzeilen_drunter']
-        controlL2.ActionCommand = 'leerzeilen_drunter'
-        controlL2.addActionListener(cb_listener)
-        fenster_cont.addControl('Leerzeilen2', controlL2)     
-        
-        controlA2, modelA2 = self.mb.createControl(self.mb.ctx,"Edit",120 ,y,20,30,(),() )  
-        modelA2.HelpText = LANG.ANZAHL_LEERZEILEN
-        modelA2.Text = sett['anz_drunter']
-        listenerLZ = A_Anz_Leerzeilen_Focus_Listener(self.mb)
-        controlA2.addFocusListener(listenerLZ)
-        fenster_cont.addControl('Anzahl', controlA2) 
-        
-        y += 50
-        
-        controlDo, modelDo = self.mb.createControl(self.mb.ctx,"CheckBox",20 ,y,160,22,(),() )  
-        modelDo.Label = LANG.DOK_EINFUEGEN
-        modelDo.State = sett['dok_einfuegen']
-        controlDo.ActionCommand = 'dok_einfuegen'
-        controlDo.addActionListener(cb_listener)
-        fenster_cont.addControl('Dokument', controlDo)
-        
-        # Button
-        controlD, modelD = self.mb.createControl(self.mb.ctx,"Button",200,y-3,100,22,(),() )  
-        controlD.Label = LANG.WAEHLEN
-        fenster_cont.addControl('Dok', controlD)
-        
-        y += 20
-        
-        controlF, modelF = self.mb.createControl(self.mb.ctx,"FixedText",40 ,y,500,22,(),() )  
-        modelF.HelpText = 'URL'
-
-        if self.mb.settings_exp['url'] != '':
-            modelF.Label = uno.fileUrlToSystemPath(decode_utf(sett['url']))
-        fenster_cont.addControl('Anzahl', controlF) 
-        
-        listener = A_TrennDatei_Button_Listener(self.mb,modelF)
-        controlD.addActionListener(listener)
-        
-        y += 40
-        
-        controlSB, modelSB = self.mb.createControl(self.mb.ctx,"CheckBox",20 ,y,200,22,(),() )  
-        modelSB.Label = LANG.SEITENUMBRUCH_ORD
-        modelSB.State = sett['seitenumbruch_ord']
-        controlSB.ActionCommand = 'seitenumbruch_ord'
-        controlSB.addActionListener(cb_listener)
-        fenster_cont.addControl('seitenumbruch_ord', controlSB) 
-        
-        y += 20
-        
-        controlSb2, modelSb2 = self.mb.createControl(self.mb.ctx,"CheckBox",20 ,y,200,22,(),() )  
-        modelSb2.Label = LANG.SEITENUMBRUCH_DAT
-        modelSb2.State = sett['seitenumbruch_dat']
-        controlSb2.ActionCommand = 'seitenumbruch_dat'
-        controlSb2.addActionListener(cb_listener)
-        fenster_cont.addControl('seitenumbruch_dat', controlSb2) 
-        
+                  
 
 class A_Trenner_CheckBox_Listener(unohelper.Base, XActionListener):
     def __init__(self,mb):
@@ -1772,11 +1612,7 @@ class A_ParaStyle_Item_Listener(unohelper.Base, XItemListener):
         if ev.Source == self.cont_ord:
             self.mb.settings_exp['style_ord'] = ev.Source.Items[ev.Selected] 
         elif ev.Source == self.cont_dat:
-            self.mb.settings_exp['style_dat'] = ev.Source.Items[ev.Selected]     
-    
-    def disposing(self,ev):
-        return False
-      
+            self.mb.settings_exp['style_dat'] = ev.Source.Items[ev.Selected]           
        
     
 class A_Anz_Leerzeilen_Focus_Listener(unohelper.Base, XFocusListener):
@@ -1871,7 +1707,7 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
                                                                     tab_name=T.AB,
                                                                     pos=pos,
                                                                     auswaehlen=True)
-            
+            fenster_cont.Model.Text = LANG.AUSWAHL
             # Listener um Position zu bestimmen
             listenerF = AB_Fenster_Dispose_Listener(self.mb,self.cl_exp)
             

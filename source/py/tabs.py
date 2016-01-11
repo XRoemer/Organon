@@ -695,7 +695,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     if ok:
                         self.win.dispose()
                         
-                        if self.mb.props[T.AB].tastatureingabe:
+                        if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
                             ordinal = self.mb.props[T.AB].selektierte_zeile
                             bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
                             # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
@@ -1465,24 +1465,21 @@ class TabsX():
                 if wurde_geloescht:
                     pass
                 
-                elif self.mb.props[T.AB].tastatureingabe:
+                elif len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
                     
                     ordinal = self.mb.props[T.AB].selektierte_zeile
                     bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
 
                     path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
 
-                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)  
-                    self.mb.props[T.AB].tastatureingabe = False
-    
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)      
 
                 T.AB = tab_name
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
                 self.mb.class_Baumansicht.korrigiere_scrollbar()
                 
                 if not wurde_geloescht:
-                    if self.mb.props[T.AB].selektierte_zeile_alt != None:
-                        self.mb.class_Sidebar.erzeuge_sb_layout()
+                    self.mb.class_Sidebar.erzeuge_sb_layout()
                 
         except:
             log(inspect.stack,tb())
@@ -1711,39 +1708,41 @@ class TabsX():
     def erzeuge_tab_XML_Eintrag(self,eintrag,tab_name,parent_neu = None,lvl_neu = None):
         if self.mb.debug: log(inspect.stack)
         
-        tree = self.mb.props[tab_name].xml_tree
-        root = tree.getroot()
-        et = self.mb.ET             
-        ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
-        
-        if parent_neu != None:
-            par = root.find('.//'+parent_neu)
-            lvl = lvl_neu
-            sicht = 'ja'
-            zustand = 'auf'
-        elif parent == 'root':
-            par = root
-        elif parent == 'Tabs':
-            par = root
-        else:
-            par = root.find('.//'+parent)
-        
-
-        el = et.SubElement(par,ordinal)
-        el.attrib['Parent'] = parent
-        el.attrib['Name'] = name
-        el.attrib['Art'] = art
-        
-        el.attrib['Lvl'] = str(lvl)
-        el.attrib['Zustand'] = zustand
-        el.attrib['Sicht'] = sicht
-        el.attrib['Tag1'] = tag1
-        el.attrib['Tag2'] = tag2
-        el.attrib['Tag3'] = tag3
-                    
-        self.mb.props[tab_name].kommender_Eintrag = int(self.mb.props[tab_name].kommender_Eintrag) + 1
-        root.attrib['kommender_Eintrag'] = str(self.mb.props[tab_name].kommender_Eintrag)   
-
+        try:
+            tree = self.mb.props[tab_name].xml_tree
+            root = tree.getroot()
+            et = self.mb.ET             
+            ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
+            
+            if parent_neu != None:
+                par = root.find('.//'+parent_neu)
+                lvl = lvl_neu
+                sicht = 'ja'
+                zustand = 'auf'
+            elif parent == 'root':
+                par = root
+            elif parent == 'Tabs':
+                par = root
+            else:
+                par = root.find('.//'+parent)
+            
+    
+            el = et.SubElement(par,ordinal)
+            el.attrib['Parent'] = parent
+            el.attrib['Name'] = name
+            el.attrib['Art'] = art
+            
+            el.attrib['Lvl'] = str(lvl)
+            el.attrib['Zustand'] = zustand
+            el.attrib['Sicht'] = sicht
+            el.attrib['Tag1'] = tag1
+            el.attrib['Tag2'] = tag2
+            el.attrib['Tag3'] = tag3
+                        
+            self.mb.props[tab_name].kommender_Eintrag = int(self.mb.props[tab_name].kommender_Eintrag) + 1
+            root.attrib['kommender_Eintrag'] = str(self.mb.props[tab_name].kommender_Eintrag)   
+        except:
+            log(inspect.stack,tb())
  
     
     def erzeuge_Hauptfeld(self,win,tab_name,Eintraege):
@@ -1786,7 +1785,7 @@ class TabsX():
                 # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                 pos_Y = (index-1) * KONST.ZEILENHOEHE
                 props.dict_zeilen_posY.update({ pos_Y : eintrag })
-                props.sichtbare_bereiche.append( 'OrganonSec' + str(index2) )
+                self.mb.sichtbare_bereiche.append( 'OrganonSec' + str(index2) )
                 props.dict_posY_ctrl.update({ pos_Y : ctrl })
                 
             # Bereiche   

@@ -33,6 +33,9 @@ IMG_ORDNER_VOLL_16 =    'vnd.sun.star.extension://xaver.roemers.organon/img/Ordn
 IMG_DATEI_16 =          'vnd.sun.star.extension://xaver.roemers.organon/img/Datei_16.png'
 IMG_DATEI_NEU_24 =      'vnd.sun.star.extension://xaver.roemers.organon/img/neueDatei_24.png'
 
+IMG_PAPIERKORB_GEOEFFNET = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_offen.png'
+IMG_PAPIERKORB_LEER = 'vnd.sun.star.extension://xaver.roemers.organon/img/papierkorb_leer.png'
+
 IMG_PLUS = 'vnd.sun.star.extension://xaver.roemers.organon/img/slidezoomin_10.png'
 IMG_MINUS = 'vnd.sun.star.extension://xaver.roemers.organon/img/slidezoomout_10.png'
 

@@ -552,7 +552,7 @@ class Fenster():
         Height = self.mb.win.Size.Height - MBHoehe - tableiste_hoehe
         PosSize = 0,MBHoehe,0,Height
         
-        control = self.erzeuge_Scrollbar(win,PosSize,control_innen,called_from_hf=True)
+        self.erzeuge_Scrollbar(win,PosSize,control_innen,called_from_hf=True)
               
     
 from com.sun.star.lang import XEventListener
@@ -627,7 +627,6 @@ class Auswahl_CheckBox_Listener(unohelper.Base, XActionListener):
                             if ordn in self.ctrls:
                                 control = self.ctrls[ordn][2]
                                 control.Model.State = state
-                                titel = self.ctrls[ordn][1]
                                 sett['ausgewaehlte'].update({ordn:state}) 
 
             except:

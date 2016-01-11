@@ -96,6 +96,7 @@ NOCH_IN_TAB_GEOEFFNET = u'''*******'''
 # TREEVIEW
 ORDNER_AUSKLAPPEN = u'''Apri Cartella'''
 IN_PAPIERKORB_VERSCHIEBEN = u'''Sposta nel Cestino'''
+PAPIERKORB_LEEREN = u'''*******'''
 SHOW_TAG1 = u'''Colore Icone'''
 SHOW_TAG2 = u'''Icone Definite da Utente'''
 GLIEDERUNG = u'''Struttura'''

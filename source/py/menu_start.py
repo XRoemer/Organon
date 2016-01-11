@@ -3,12 +3,8 @@ import uno
 import unohelper
 from traceback import format_exc as tb
 import sys
-from os import walk,path,remove
-from codecs import open as codecs_open
-from inspect import stack as inspect_stack
-from shutil import copyfile
-import json
-
+import os
+import inspect
 
 platform = sys.platform
 
@@ -37,7 +33,7 @@ class Menu_Start():
         class_Log = class_LogX
         KONST = konst
         
-        if debug: log(inspect_stack)      
+        if debug: log(inspect.stack)      
         
         self.win = win
         self.pd = pdk
@@ -81,17 +77,14 @@ class Menu_Start():
                         orga_sb.setState(True)
 
             except:
-                log(inspect_stack,tb())
-                
-            
-            
+                log(inspect.stack,tb())
+                            
         except Exception as e:
-            log(inspect_stack,tb())
-        
+            log(inspect.stack,tb())
     
     
     def wurde_als_template_geoeffnet(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         try:
             enum = self.desktop.Components.createEnumeration()
             comps = []
@@ -125,31 +118,31 @@ class Menu_Start():
             doc.storeAsURL(projekt_pfad,(prop2,)) 
             
             sys_pfad = uno.fileUrlToSystemPath(projekt_pfad)
-            orga_name = path.basename(sys_pfad).split('.')[0] + '.organon'
+            orga_name = os.path.basename(sys_pfad).split('.')[0] + '.organon'
             sys_pfad1 = sys_pfad.split(orga_name)[0]
-            pfad = path.join(sys_pfad1,orga_name,orga_name)
+            pfad = os.path.join(sys_pfad1,orga_name,orga_name)
 
             self.Menu_Bar.class_Projekt.lade_Projekt(False,pfad)
           
         except:
-            log(inspect_stack,tb())
+            log(inspect.stack,tb())
+
 
     def get_office_name(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
+        
         frame = self.desktop.Frames.getByIndex(0)
 
-        if 'LibreOffice' in frame.Title:
-            programm = 'LibreOffice'
-        elif 'OpenOffice' in frame.Title:
+        if 'OpenOffice' in frame.Title:
             programm = 'OpenOffice'
         else:
-            # Fuer Linux / OSX fehlt
             programm = 'LibreOffice'
-        
+
         return programm
        
+       
     def erzeuge_Startmenu(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
             
         # Hauptfeld_Aussen
         Attr = (0,0,1000,1800,'Hauptfeld_aussen1', 0)    
@@ -160,8 +153,7 @@ class Menu_Start():
 
         self.dialog.addControl('Hauptfeld_aussen1',self.cont)  
 
-
-        Attr = (160,60,120,153,'Hauptfeld_aussen1', 0)    
+        Attr = (160,60,120,153,'icon', 0)    
         PosX,PosY,Width,Height,Name,Color = Attr
         
         control0, model = self.createControl(self.ctx,"ImageControl",PosX,PosY,Width,Height,(),() )  
@@ -169,12 +161,9 @@ class Menu_Start():
         model.ImageURL = 'vnd.sun.star.extension://xaver.roemers.organon/img/organon icon_120.png' 
         model.Border = False   
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
-        self.cont.addControl('Hauptfeld_aussen1',control0)  
-        
+        self.cont.addControl('icon',control0)  
        
         self.listener = Menu_Listener(self)
-        
-        
         
         PosX = 25
         PosY = 50
@@ -198,7 +187,6 @@ class Menu_Start():
                 
         self.cont.addControl('projekt_laden',control2) 
         
-        
         PosY += 70
         
         control3, model = self.createControl(self.ctx,"Button",PosX,PosY,Width,Height,(),() )  
@@ -209,6 +197,7 @@ class Menu_Start():
         
         self.cont.addControl('anleitung_laden',control3) 
         
+        PosY += 70
         
         breiten = []
         for c in (control1,control2,control3):
@@ -227,22 +216,23 @@ class Menu_Start():
 
         for proj in self.zuletzt_geladene_Projekte:
             
-            
             name,pfad = proj
             
             control, model = self.createControl(self.ctx,"FixedText",PosX,PosY,200,20,(),() )  
             control.addMouseListener(self.listener)
+            
             model.Label = name
             model.TextColor = KONST.FARBE_SCHRIFT_DATEI
             model.HelpText = pfad
-            self.cont.addControl('Hauptfeld_aussen1',control) 
+            
+            self.cont.addControl(name,control) 
             PosY += 25
 
-        ist_template = self.wurde_als_template_geoeffnet()
+        self.wurde_als_template_geoeffnet()
         
         
     def erzeuge_Menu(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
           
         try:   
             import menu_bar
@@ -267,13 +257,30 @@ class Menu_Start():
             self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu(self.Menu_Bar.prj_tab)
             
+            info = '''  Welcome to Organon v0.9.9.9.0b
+
+  Organon is close to a stable version 1.0
+
+  If you find any issues or bugs which are
+  not on the bugtracker and if you like to
+  help to develop Organon, please post them 
+  on github or send a mail to:
+
+  organon_err@web.de
+
+  github bugtracker:
+  https://github.com/XRoemer/Organon/issues
+'''
+            
+            self.Menu_Bar.nachricht(info,'infobox')
+            
         except:
             log(inspect.stack,tb())    
     
      
               
     def lade_Modul_Language(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         try:  
             enum = self.desktop.Components.createEnumeration()
             comps = []
@@ -294,7 +301,7 @@ class Menu_Start():
                 exec('import lang_' + language)
             except Exception as e:
                 pass
-                #log(inspect_stack,tb())    
+                #log(inspect.stack,tb())    
     
             if 'lang_' + language in vars():
                 lang = vars()['lang_' + language]
@@ -303,11 +310,11 @@ class Menu_Start():
             
             return lang
         except Exception as e:
-            log(inspect_stack,tb())    
+            log(inspect.stack,tb())    
     
     
     def get_zuletzt_geladene_Projekte(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         
         try:
             projekte = self.settings_orga['zuletzt_geladene_Projekte']
@@ -318,7 +325,7 @@ class Menu_Start():
                 projekte = [[p,projekte[p]] for p in list_proj]
                 
             
-            inexistent = [p for p in projekte if not path.exists(p[1])]
+            inexistent = [p for p in projekte if not os.path.exists(p[1])]
             
             for i in inexistent:
                 index = projekte.index(i)
@@ -330,13 +337,13 @@ class Menu_Start():
         except Exception as e:
             print(e)
             try:
-                if debug: log(inspect_stack,tb())
+                if debug: log(inspect.stack,tb())
             except:
                 pass
         return []
     
     def get_doc(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         
         enum = self.desktop.Components.createEnumeration()
         comps = []
@@ -356,7 +363,7 @@ class Menu_Start():
         return doc
     
     def get_seitenleiste(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
               
         desk = self.desktop
         contr = desk.CurrentComponent.CurrentController
@@ -440,7 +447,6 @@ class Menu_Start():
             # folgende muessen bereits in factory.py gesetzt werden
             # selected_schrift, eigene_fenster_hintergrund, schrift, selected_hintergrund
             
-            
             # Tabbar  
             theme.setPropertyValue('Paint_TabBarBackground', leiste_hintergrund)
             theme.setPropertyValue('Paint_TabItemBackgroundNormal', leiste_hintergrund)
@@ -506,7 +512,7 @@ class Menu_Start():
         
         
    
-    # Handy function provided by hanya (from the OOo forums) to create a control, model.
+    # Handy function provided by hanya (from the OOo forum) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
         smgr = ctx.getServiceManager()
         ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
@@ -530,7 +536,7 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
         self.menu = menu
 
     def actionPerformed(self, ev):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         
         try:
             if ev.ActionCommand == 'neues_projekt':
@@ -553,26 +559,26 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
             log(inspect.stack,tb())
             
     def get_Org_description_path(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         
-        path_HB = path.join(self.menu.path_to_extension,'description','Handbuecher')
+        path_HB = os.path.join(self.menu.path_to_extension,'description','Handbuecher')
 
         ordner = []
-        for (dirpath, dirnames, filenames) in walk(path_HB):
+        for (dirpath, dirnames, filenames) in os.walk(path_HB):
             ordner.extend(dirnames)
             break
         
         if self.menu.language in ordner:
-            path_HB = path.join(path_HB,self.menu.language)
+            path_HB = os.path.join(path_HB,self.menu.language)
         else:
-            path_HB = path.join(path_HB,'en')
+            path_HB = os.path.join(path_HB,'en')
             
         projekt_name = []
-        for (dirpath, dirnames, filenames) in walk(path_HB):
+        for (dirpath, dirnames, filenames) in os.walk(path_HB):
             projekt_name.extend(dirnames)
             break
         
-        desc_path = path.join(path_HB,projekt_name[0],projekt_name[0])
+        desc_path = os.path.join(path_HB,projekt_name[0],projekt_name[0])
         return desc_path
     
     def mouseReleased(self, ev):  
@@ -583,7 +589,7 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
         return False
     
     def mousePressed(self, ev):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         
         try:
             projekt_pfad = ev.Source.Model.HelpText
@@ -608,7 +614,7 @@ from com.sun.star.document import XDocumentEventListener
 class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEventListener):
 
     def __init__(self,ms):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         self.ms = ms
 
     def documentEventOccured(self,ev):        
@@ -618,7 +624,7 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
             ctrl = self.ms.dict_sb['controls']
             
             if 'organon_sidebar' not in ctrl:
-                if debug: log(inspect_stack)
+                if debug: log(inspect.stack)
                 
                 self.seitenleiste_erzeugen()
                 
@@ -628,7 +634,7 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
         return False
     
     def seitenleiste_erzeugen(self):
-        if debug: log(inspect_stack)
+        if debug: log(inspect.stack)
         
         try:       
             def get_seitenleiste():
@@ -673,22 +679,7 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
                 
                 return orga_sb,seitenleiste
             
-                        
-#             def dispatch2(cmd,oprop=('',None)):
-#                     
-#                     if debug: log(inspect_stack,extras='dispatch erzeugt')
-#                     sm = uno.getComponentContext().ServiceManager
-#                     dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
-#                     
-#                     prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-#                        
-#                     prop.Name = oprop[0]
-#                     prop.Value = oprop[1]
-#                     
-#                     res = dispatcher.executeDispatch(self.ms.desktop.ActiveFrame, ".uno:{}".format(cmd), "", 0, (prop,))
-            
-            
-            
+
             def sl_erzeugen():
 
                 def sleeper(fkt,fkt2,dict_sb,orga_sb): 
@@ -733,171 +724,13 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
                         dict_sb['orga_sb'] = orga_sb
 
                 except:
-                    log(inspect_stack,tb())
+                    log(inspect.stack,tb())
             
             sl_erzeugen()
 
         except:
-            log(inspect_stack,tb())
-            
-
-   
-    def set_seitenleiste_stiel_OO(self,seitenleiste):
-        if debug: log(inspect_stack)
-        try:
-            
-            ctx = uno.getComponentContext()
-            smgr = ctx.ServiceManager
-            toolkit = smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-            frame = desktop.Frames.getByIndex(0)
-            comp = frame.ComponentWindow
-            
-            rot = 16275544
-    
-            hf = KONST.FARBE_HF_HINTERGRUND
-            menu = KONST.FARBE_MENU_HINTERGRUND
-            schrift = KONST.FARBE_SCHRIFT_DATEI
-            menu_schrift = KONST.FARBE_MENU_SCHRIFT
-            selected = KONST.FARBE_AUSGEWAEHLTE_ZEILE
-            ordner = KONST.FARBE_SCHRIFT_ORDNER
-            
-            sett = self.ms.settings_orga['organon_farben']['office']
-            
-            def get_farbe(value):
-                if isinstance(value, int):
-                    return value
-                else:
-                    return self.ms.settings_orga['organon_farben'][value]
-            
-            # Kann button_schrift evt. herausgenommen werden?
-            button_schrift = get_farbe(sett['button_schrift'])
-            
-            statusleiste_schrift = get_farbe(sett['statusleiste_schrift'])
-            statusleiste_hintergrund = get_farbe(sett['statusleiste_hintergrund'])
-            
-            felder_hintergrund = get_farbe(sett['felder_hintergrund'])
-            felder_schrift = get_farbe(sett['felder_schrift'])
-            
-            # Sidebar
-            sidebar_eigene_fenster_hintergrund = get_farbe(sett['sidebar']['eigene_fenster_hintergrund'])
-            sidebar_selected_hintergrund = get_farbe(sett['sidebar']['selected_hintergrund'])
-            sidebar_selected_schrift = get_farbe(sett['sidebar']['selected_schrift'])
-            sidebar_schrift = get_farbe(sett['sidebar']['schrift'])
-            
-            trenner_licht = get_farbe(sett['trenner_licht'])
-            trenner_schatten = get_farbe(sett['trenner_schatten'])
-            
-            # Lineal
-            OO_anfasser_trenner = get_farbe(sett['OO_anfasser_trenner'])
-            OO_lineal_tab_zwischenraum = get_farbe(sett['OO_lineal_tab_zwischenraum'])
-            OO_schrift_lineal_sb_liste = get_farbe(sett['OO_schrift_lineal_sb_liste'])
-            
-            LO_anfasser_text = get_farbe(sett['LO_anfasser_text'])
-            LO_tabsumrandung = get_farbe(sett['LO_tabsumrandung'])
-            LO_lineal_bg_innen = get_farbe(sett['LO_lineal_bg_innen'])
-            LO_tab_fuellung = get_farbe(sett['LO_tab_fuellung'])
-            LO_tab_trenner = get_farbe(sett['LO_tab_trenner'])
-            
-            
-            LO = ('LibreOffice' in frame.Title)
-            
-            STYLES = {  
-                      # Allgemein
-                        'ButtonRolloverTextColor' : button_schrift, # button rollover
-                        
-                        'FieldColor' : felder_hintergrund, # Hintergrund Eingabefelder
-                        'FieldTextColor' : felder_schrift,# Schrift Eingabefelder
-                        
-                        # Trenner
-                        'LightColor' : trenner_licht, # Fenster Trenner
-                        'ShadowColor' : trenner_schatten, # Fenster Trenner
-                        
-                        # OO Lineal + Trenner
-                         
-                        'DarkShadowColor' : (LO_anfasser_text if LO    # LO Anfasser + Lineal Text
-                                            else OO_anfasser_trenner), # OO Anfasser +  Document Fenster Trenner 
-                        'WindowTextColor' : (schrift if LO      # Felder (Navi) Schriftfarbe Sidebar 
-                                             else OO_schrift_lineal_sb_liste),     # Felder (Navi) Schriftfarbe Sidebar + OO Lineal Schriftfarbe   
-                            
-                        # Sidebar
-                        'LabelTextColor' : sidebar_schrift, # Schriftfarbe Sidebar + allg Dialog
-                        'DialogColor' : sidebar_eigene_fenster_hintergrund, # Hintergrund Sidebar Dialog
-                        'FaceColor' : (hf if LO        # LO Formatvorlagen Treeview Verbinder
-                                        else hf),           # OO Hintergrund Organon + Lineal + Dropdowns  
-                        'WindowColor' : (hf if LO                           # LO Dialog Hintergrund
-                                        else OO_lineal_tab_zwischenraum),   # OO Lineal Tabzwischenraum
-                        'HighlightColor' : sidebar_selected_hintergrund, # Sidebar selected Hintergrund
-                        'HighlightTextColor' : sidebar_selected_schrift, # Sidebar selected Schrift
-                        
-                        
-#                         'ActiveBorderColor' : rot,#k.A.
-#                         'ActiveColor' : rot,#k.A.
-#                         'ActiveTabColor' : rot,#k.A.
-#                         'ActiveTextColor' : rot,#k.A.
-#                         'ButtonTextColor' : rot,# button Textfarbe / LO Statuszeile Textfarbe
-#                         'CheckedColor' : rot,#k.A.
-#                         'DeactiveBorderColor' : rot,#k.A.
-#                         'DeactiveColor' : rot,#k.A.
-#                         'DeactiveTextColor' : rot,#k.A.
-#                         'DialogTextColor' : rot,#k.A.
-#                         'DisableColor' : rot,
-#                         'FieldRolloverTextColor' : rot,#k.A.
-#                         'GroupTextColor' : rot,#k.A.
-#                         'HelpColor' : rot,#k.A.
-#                         'HelpTextColor' : rot,#k.A.
-#                         'InactiveTabColor' : rot,#k.A.
-#                         'InfoTextColor' : rot,#k.A.
-#                         'MenuBarColor' : rot,#k.A.
-#                         'MenuBarTextColor' : rot,#k.A.
-#                         'MenuBorderColor' : rot,#k.A.
-#                         'MenuColor' : rot,#k.A.
-#                         'MenuHighlightColor' : rot,#k.A.
-#                         'MenuHighlightTextColor' : rot,#k.A.
-#                         'MenuTextColor' : rot,#k.A.
-#                         'MonoColor' : rot, #k.A.
-#                         'RadioCheckTextColor' : rot,#k.A.
-#                         'WorkspaceColor' : rot, #k.A.
-#                         erzeugen Fehler:
-#                         'FaceGradientColor' : 502,
-#                         'SeparatorColor' : 502,                    
-                        }
+            log(inspect.stack,tb())
             
      
-            def stilaenderung(win,ignore=[]):
-    
-                for s in STYLES:
-                    if s in ignore: 
-                        pass
-                    else:
-                        try:
-                            val = STYLES[s]
-                            setattr(win.StyleSettings, s, val)
-                        except Exception as e:
-                            pass
-                        
-                    win.setBackground(statusleiste_hintergrund) # Hintergrund Statuszeile
-                    win.setForeground(statusleiste_schrift)     # Schrift Statuszeile
-            
-            
-            
-            
-            stilaenderung(seitenleiste)
-            
-            
-            
-            
-            
-            return
-        
-            
-            
-        except Exception as e:
-            log(inspect_stack,tb())
-            
-
-            
-
-            
             
             

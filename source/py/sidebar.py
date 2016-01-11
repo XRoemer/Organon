@@ -397,7 +397,7 @@ class Sidebar():
             
         except:
             log(inspect.stack,tb())  
-                        
+
         
     def berechne_bildgroesse(self,model,hoehe):
         if self.mb.debug: log(inspect.stack)
@@ -481,9 +481,11 @@ class Sidebar():
 
             if not vorhanden:
                 os.remove(uno.fileUrlToSystemPath(old_image_path))
-        except:
+                
+            
+        except Exception as e:
             log(inspect.stack,tb())            
-        
+
     
     def get_seitenleiste(self):
         if self.mb.debug: log(inspect.stack)

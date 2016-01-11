@@ -69,8 +69,8 @@ class ExportToHtml():
             if not os.path.exists(os.path.dirname(pfad)):
                 os.makedirs(os.path.dirname(pfad))            
                 
-            with codecs_open( pfad, mode,"utf-8") as file:
-                file.write(inhalt)
+            with codecs_open( pfad, mode,"utf-8") as f:
+                f.write(inhalt)
         except:
             log(inspect.stack,tb())
 

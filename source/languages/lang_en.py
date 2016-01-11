@@ -96,6 +96,7 @@ NOCH_IN_TAB_GEOEFFNET = u'''{0} is opened in {1}'''
 # TREEVIEW
 ORDNER_AUSKLAPPEN = u'''Unfold folder'''
 IN_PAPIERKORB_VERSCHIEBEN = u'''Move to Waste Bin'''
+PAPIERKORB_LEEREN = u'''Empty Waste Bin'''
 SHOW_TAG1 = u'''Color Icons'''
 SHOW_TAG2 = u'''User-defined Icons'''
 GLIEDERUNG = u'''Outline'''
@@ -488,7 +489,7 @@ KEINE_GUELTIGE_ZAHL = u'''"{0}" is not a valid number'''
 KATEGORIE_EXISTIERT = u'''The category "{0}" already exists'''
 KATEGORIE_UNGUELTIG = u'''The category {0} has no valid name.'''
 KATEGORIE_NAMEN_EINGEBEN = u'''Enter a name for the new category.'''
-AENDERN = u'''Apply'''
+AENDERN = u'''Change'''
 KATEGORIE_UEBERNEHMEN = u'''Following categories will be deleted:
         
 {0}

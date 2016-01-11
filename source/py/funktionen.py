@@ -50,10 +50,8 @@ class Funktionen():
         else:
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
         self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
-        
-        
 
-       
+   
     def erzeuge_Tag1_Container(self,ord_source,X,Y,window_parent=None):
         if self.mb.debug: log(inspect.stack)
 
@@ -62,9 +60,8 @@ class Funktionen():
         
         posSize = X,Y,Width,Height 
         flags = 1+16+32+128
-        #flags=1+32+64+128
 
-        fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,flags,window_parent)
+        fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,Flags=flags,parent=window_parent)
 
         # create Listener
         listener = Tag_Container_Listener()
@@ -80,7 +77,7 @@ class Funktionen():
                                        KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
         model.Border = 0
-        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
+        model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
         items = ('leer',
                 'blau',
@@ -150,7 +147,6 @@ class Funktionen():
             
             y += 25
             
-            
             control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10,y,200, 20, (), ())  
             model.Label = 'Im Projekt verwendete Icons:'
             model.FontWeight = 150
@@ -175,8 +171,8 @@ class Funktionen():
                 
                 x += 25
                 
-                if x> anzahl*25:
-                    y+=25
+                if x > anzahl * 25:
+                    y += 25
                     x = 0
             
             y += 25
@@ -205,14 +201,14 @@ class Funktionen():
                 
                 x += 25
                 
-                if x> anzahl2*25:
-                    y+=25
+                if x > anzahl2 * 25:
+                    y += 25
                     x = 0
 
-            breite = sorted((prefW,prefW1,int(anzahl)*25,int(anzahl2)*25))[-1]
+            breite = sorted( (prefW, prefW1, int(anzahl) * 25, int(anzahl2) *25 ) )[-1]
 
-            posSize = X,Y,breite + 20,y +25 
-            flags = 1+16+32+128
+            posSize = X, Y, breite + 20, y +25 
+            flags = 1 + 16 + 32 + 128
 
             fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,flags,parent=window_parent)
             fenster_cont.addMouseListener(listener) 
@@ -235,7 +231,6 @@ class Funktionen():
             icons_gallery = []
             icons_prj_folder = []
             icons_prj_folder_names = []
-            
                 
             icons_folder = self.mb.pfade['icons']
                         
@@ -263,6 +258,7 @@ class Funktionen():
 
         except:
             log(inspect.stack,tb())
+        
         
     def find_parent_section(self,sec):
         if self.mb.debug: log(inspect.stack)
@@ -323,7 +319,6 @@ class Funktionen():
             
             # alte Datei in Helferdatei speichern
             orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
-            self.mb.props[T.AB].tastatureingabe = True
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(helfer_url,orga_sec_name_alt)
              
             # erzeuge neue Zeile
@@ -375,7 +370,6 @@ class Funktionen():
             
             # alte Datei speichern
             orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
-            self.mb.props[T.AB].tastatureingabe = True
             self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
             
             # File Link setzen, um Anzeige zu erneuern
@@ -410,6 +404,7 @@ class Funktionen():
         except Exception as e:
             log(inspect.stack,tb())
             self.mb.nachricht('teile_text ' + str(e),"warningbox")
+            
             
     def teile_text_batch(self):
         if self.mb.debug: log(inspect.stack)
@@ -518,7 +513,6 @@ class Funktionen():
             par_sec.setPropertyValue('FileLink',SFLink)
                 
             papierkorb = self.mb.props[T.AB].Papierkorb
-            ordinal = self.mb.props[T.AB].selektierte_zeile
             self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(nachfolger,papierkorb,'inPapierkorbEinfuegen')
             self.mb.class_Baumansicht.selektiere_zeile(selektiert)
 
@@ -526,12 +520,12 @@ class Funktionen():
             log(inspect.stack,tb())
     
     
-    def get_pfad(self,ord):
+    def get_pfad(self,ordi):
         if self.mb.debug: log(inspect.stack)
         
         props = self.mb.props['ORGANON']
         
-        sec_name = props.dict_bereiche['ordinal'][ord]
+        sec_name = props.dict_bereiche['ordinal'][ordi]
         pfad = props.dict_bereiche['Bereichsname'][sec_name]    
         
         url = uno.systemPathToFileUrl(pfad)
@@ -608,9 +602,7 @@ class Funktionen():
     def waehle_farbe(self,initial_value=0):
         if self.mb.debug: log(inspect.stack)
         
-        cp = self.mb.createUnoService("com.sun.star.ui.dialogs.ColorPicker")
-        #cp = self.mb.createUnoService("com.sun.star.cui.ColorPicker")
-        
+        cp = self.mb.createUnoService("com.sun.star.ui.dialogs.ColorPicker")        
         values = cp.getPropertyValues()
         
         values[0].Value = initial_value
@@ -889,7 +881,7 @@ class Funktionen():
         
         mod1 = []
         mod2 = []
-        shift = []
+        #shift = []
         
         mod1_mod2 = []
         shift_mod1 = []
@@ -931,78 +923,111 @@ class Funktionen():
         return used
         
         
-    #def find_differences(self,obj):
-#         ctx = uno.getComponentContext()
-#         smgr = ctx.ServiceManager
-#         desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-#         doc = desktop.getCurrentComponent() 
-#         current_Contr = doc.CurrentController
-#         viewcursor = current_Contr.ViewCursor
-#         
-#         object = obj
-#         max_lvl = 3
         
-    def get_attribs(self,obj,max_lvl):
-        
+    def get_attribs(self,obj,max_lvl,lvl=0):
         results = {}
-        def get_attr(obj,lvl):
-            
-            for key in dir(obj):
-                
-                try:
-                    value = getattr(obj, key)
-                    if 'callable' in str(type(value)):
-                        continue
-                except :
-                    #print(key)
+        for key in dir(obj):
+    
+            try:
+                value = getattr(obj, key)
+                if 'callable' in str(type(value)):
                     continue
-        
-                if key not in results:
-                    if type(value) in (
-                                       type(None),
-                                       type(True),
-                                       type(1),
-                                       type(.1),
-                                       type('string'),
-                                       type(()),
-                                       type([]),
-                                       type(b''),
-                                       type(r''),
-                                       type(u'')
-                                       ):
-                        results.update({key: value})
-                        
-                    elif lvl < max_lvl:
-                        try:
-                            results.update({key: get_attr(value,lvl+1)})
-                        except:
-                            pass
-        
-        
-        get_attr(obj, 0)
+            except :
+                #print(key)
+                continue
+    
+            if key not in results:
+                if type(value) in (
+                                   type(None),
+                                   type(True),
+                                   type(1),
+                                   type(.1),
+                                   type('string'),
+                                   type(()),
+                                   type([]),
+                                   type(b''),
+                                   type(r''),
+                                   type(u'')
+                                   ):
+                    results.update({key: value})
+    
+                elif lvl < max_lvl:
+                    try:
+                        results.update({key: get_attribs(value,max_lvl,lvl+1)})
+                    except:
+                        pass
+    
         return results
+    
         
     def find_differences(self,dict1,dict2):
-        diff = []
-        
-        def findDiff(d1, d2, path=""):
-            for k in d1.keys():
-                if not k in d2:
-                    print (path, ":")
-                    print (k + " as key not in d2", "\n")
-                else:
-                    if type(d1[k]) is dict:
-                        if path == "":
-                            path = k
-                        else:
-                            path = path + "->" + k
-                        findDiff(d1[k],d2[k], path)
+        diff = []     
+                            
+        def findDiff2(d1, d2, path = []):
+            for k in d1:
+                try:
+                    if k not in d2:
+                        continue
+#                         print (path, ":")
+#                         print (k + " as key not in d2", "\n")
                     else:
-                        if d1[k] != d2[k]:
-                            diff.append((path,k,d1[k],d2[k]))
-                            path = ''
-        findDiff(dict1,dict2)
+                        if type(d1[k]) is dict and type(d2[k]) is dict:
+                            #print(k,path)
+                            if path == "":
+                                #path = k
+                                findDiff2(d1[k],d2[k],[k])
+                            else:
+                                #path = path + "->" + k
+                                #print( path + "->" + k)
+                                findDiff2(d1[k],d2[k], path + [k])
+                            
+                        else:
+                            if d1[k] != d2[k]:
+                                if path == '':
+                                    path = [k]
+                                #print('path:'+path+'#')
+                                diff.append((path,k,d1[k],d2[k]))
+                                #path = []
+                except:
+                    print(tb())
+                    wer = wer1
+                            
+        findDiff2(dic1, dic2)
         return diff
+    
+    
+    def diffenrences_als_dict(self,odiff):
+        
+        def update_odict(odict, v, d):
+                
+            try:
+                if v[0] not in odict:
+                    odict[v[0]] = {}
+                
+                if len(v) > 1:
+                    update_odict(odict[v[0]], v[1:], d)
+                    
+                elif len(v) == 1:
+                    odict[ v[0] ][ d[1] ] = [ d[2], d[3] ]
+            
+            except:
+                print(tb())
+                wer = wer
+        
+        
+        def als_dict(diff):
+        
+            untersch = {}
+            
+            for d in diff:
+                if len(d[0]) == 0:
+                    untersch[d[1]] = [d[2], d[3]]
+                else:
+                    update_odict(untersch, d[0], d )
+                    #odict
+            return untersch
+        
+        return als_dict(odiff)
     
     
     def leere_hf(self):
@@ -1036,6 +1061,7 @@ class Funktionen():
                     
         templ['templates'] = templates
         
+        
     def vorlage_speichern(self,pfad,name):
         if self.mb.debug: log(inspect.stack)
 
@@ -1053,6 +1079,7 @@ class Funktionen():
         self.mb.class_Export.kopiere_projekt(name,pfad_zu_neuem_ordner,ordinale,tree,self.mb.tags,True)  
         os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')
     
+    
     def kopiere_ordner(self,src, dst):
         if self.mb.debug: log(inspect.stack)
         
@@ -1064,6 +1091,7 @@ class Funktionen():
                 shutil.copy(src, dst)
             else: 
                 log(inspect.stack,tb())
+                
                 
     def projekt_umbenannt_speichern(self,alter_pfad,neuer_pfad,name):
         if self.mb.debug: log(inspect.stack)
@@ -1087,6 +1115,7 @@ class Funktionen():
          
         xml_tree.write(pfad_el_tree)
         
+        
     def zeitmesser(self,fkt):
         z = time.clock()
         result = fkt()
@@ -1101,7 +1130,6 @@ class Teile_Text_Batch():
         
     def erzeuge_fenster(self):
         if self.mb.debug: log(inspect.stack)
-        
      
         try:
             self.dialog_batch_devide()
@@ -1128,13 +1156,10 @@ class Teile_Text_Batch():
                                     (),
                                     (),                  
                                     {}
-                                    ), 
-                    
-                    
+                                    ),                     
             40, ]
         
         elemente = 'GANZES_WORT','REGEX','UEBERSCHRIFTEN','LEERZEILEN'
-                
                 
         for el in elemente:
             controls.extend([
@@ -1156,7 +1181,6 @@ class Teile_Text_Batch():
                                     ),  
             0])
         
-           
         return controls
 
  
@@ -1250,7 +1274,6 @@ class Teile_Text_Batch():
             if anz < 2:
                 self.mb.nachricht(LANG.KEINE_TRENNUNG,'infobox')
                 return
-  
             
             speicherordner = self.mb.pfade['odts']
             pfad_helfer_system = os.path.join(speicherordner,'batchhelfer.odt')
@@ -1277,7 +1300,6 @@ class Teile_Text_Batch():
                 doc.close(False)
             except:
                 pass
-            
             
         
     def get_pfad(self):
@@ -1327,7 +1349,6 @@ class Teile_Text_Batch():
         except:
             log(inspect.stack,tb())
             
-    
      
     def get_ueberschriften(self,doc):
         if self.mb.debug: log(inspect.stack)
@@ -1382,8 +1403,6 @@ class Teile_Text_Batch():
             
             regex_leerzeile = '^$'
             
-            ergebnisse = []
-
             sd.SearchRegularExpression = True
             sd.SearchString = regex_leerzeile
 
@@ -1392,7 +1411,6 @@ class Teile_Text_Batch():
             sd.SearchString = '^\s*$'
             ergebnisse2 = doc.findAll(sd)
             
-            ordnung = []
             zeilen = []
             x = 0
             
@@ -1468,7 +1486,6 @@ class Teile_Text_Batch():
         if self.mb.debug: log(inspect.stack)
         
         cur = doc.Text.createTextCursor()
-        cur2 = doc.Text.createTextCursor()
         
         x = self.mb.props['ORGANON'].kommender_Eintrag
         ausgesonderte = []
@@ -1504,11 +1521,6 @@ class Teile_Text_Batch():
                 if cur.String.strip() == '':
                     ausgesonderte.append(ordnung[o])
                     continue
-                
-#                 cur2.gotoRange(cur,False)
-#                 cur2.collapseToEnd()
-#                 cur2.setString('ENDE'+str(o))
-#                 cur2.CharBackColor = 12765426
                 
                 try:
                     newSection = doc.createInstance("com.sun.star.text.TextSection")
@@ -1618,8 +1630,8 @@ class Teile_Text_Batch():
             log(inspect.stack,tb())
             tree = None
             
-        all = root.findall('.//')
-        for a in all:
+        alle = root.findall('.//')
+        for a in alle:
             del a.attrib['NameH']
         
         return tree
@@ -1740,8 +1752,8 @@ class Teile_Text_Batch():
         
     def lege_dict_sbs_an(self,tree):
         root = tree.getroot()
-        all = root.findall('.//')
-        for a in all:
+        alle = root.findall('.//')
+        for a in alle:
             self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(a.tag)
             
 
@@ -1805,11 +1817,13 @@ class Tag_Container_Listener (unohelper.Base, XMouseListener):
   
             
 class Tag2_Images_Listener (unohelper.Base, XMouseListener):
+    
     def __init__(self,mb):
         self.mb = mb
         self.ordinal = None
         self.icons_dict = None
         self.window_parent = None
+       
        
     def mousePressed(self, ev):
         if self.mb.debug: log(inspect.stack) 
@@ -1831,6 +1845,7 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
             self.icon_in_calc_anpassen(self.ordinal,url)
         
         self.win.dispose()
+
 
     def tag2_in_allen_tabs_xml_anpassen(self,ord_source,url):
         if self.mb.debug: log(inspect.stack) 
@@ -1938,10 +1953,10 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
             
    
     def mouseExited(self, ev): 
-        ev.value.Source.Model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
+        ev.value.Source.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         return False
-    def mouseEntered(self, ev):    
-        ev.value.Source.Model.BackgroundColor = 102
+    def mouseEntered(self, ev):   
+        ev.value.Source.Model.BackgroundColor = KONST.FARBE_GEZOGENE_ZEILE
         return False
     def mouseReleased(self,ev):
         return False
@@ -2039,5 +2054,3 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         except:
             log(inspect.stack,tb())
             
-
-     

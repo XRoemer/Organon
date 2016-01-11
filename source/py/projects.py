@@ -374,19 +374,19 @@ class Projekt():
         try:
             
             pfad = os.path.join(self.mb.pfade['settings'],'export_settings.txt')            
-            with codecs_open(pfad , "r","utf-8") as file:
-                txt = file.read()
+            with codecs_open(pfad , "r","utf-8") as f:
+                txt = f.read()
             self.mb.settings_exp = eval(txt)
             self.mb.settings_exp['ausgewaehlte'] = {}
 
             pfad = os.path.join(self.mb.pfade['settings'],'import_settings.txt')
-            with codecs_open(pfad , "r","utf-8") as file:
-                txt = file.read()
+            with codecs_open(pfad , "r","utf-8") as f:
+                txt = f.read()
             self.mb.settings_imp = eval(txt)
         
             pfad = os.path.join(self.mb.pfade['settings'],'project_settings.txt')
-            with codecs_open(pfad , "r","utf-8") as file:
-                txt = file.read()
+            with codecs_open(pfad , "r","utf-8") as f:
+                txt = f.read()
             self.mb.settings_proj = eval(txt)
         
         except:
@@ -426,8 +426,8 @@ class Projekt():
     
             # Datei anlegen, die bei lade_Projekt angesprochen werden soll
             path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
-            with open(path, "w") as file:
-                file.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
+            with open(path, "w") as f:
+                f.write('Dies ist eine Organon Datei. Goennen Sie ihr ihre Existenz.') 
                  
             # Setzen einer UserDefinedProperty um Projekt identifizieren zu koennen
             UD_properties = self.mb.doc.DocumentProperties.UserDefinedProperties
@@ -635,9 +635,7 @@ class Projekt():
             # Handbuecher ausschliessen
             if name in ['Organon Handbuch','Organon Manual']:
                 return
-                        
-            namen = [n[0] for n in zuletzt]
-            
+                                    
             neu = [name,filepath]
             
             if neu not in zuletzt:
@@ -702,7 +700,6 @@ class Projekt():
             
             if self.mb.settings_proj['tag3']:
                 tree = props.xml_tree
-                root = tree.getroot()
                 gliederung = self.mb.class_Gliederung.rechne(tree)
             else:
                 gliederung = None
@@ -719,7 +716,7 @@ class Projekt():
                     # index wird in erzeuge_Zeile_in_der_Baumansicht bereits erhoeht, daher hier 1 abziehen
                     pos_Y = (index-1)*KONST.ZEILENHOEHE
                     props.dict_zeilen_posY.update({ pos_Y : eintrag })
-                    self.mb.props['ORGANON'].sichtbare_bereiche.append('OrganonSec' + str(index2) )
+                    self.mb.sichtbare_bereiche.append('OrganonSec' + str(index2) )
                     props.dict_posY_ctrl.update({ pos_Y : ctrl })
                     
                 # Bereiche   
@@ -758,10 +755,6 @@ class Projekt():
             newSection.setName('Organon_Sec_Helfer')
             self.mb.sec_helfer = newSection
             
-            newSection2 = self.mb.doc.createInstance("com.sun.star.text.TextSection")       
-            newSection2.setName('Organon_Sec_Helfer2')
-            self.mb.sec_helfer2 = newSection2  
-            
             text = self.mb.doc.Text
             textSectionCursor = text.createTextCursor()
             
@@ -769,16 +762,7 @@ class Projekt():
             textSectionCursor.gotoEnd(False)
             text.insertTextContent(textSectionCursor, newSection, False)
             newSection.IsVisible = False
-            
-            # Helfer Section 2
-            textSectionCursor.gotoStart(False)
-            text.insertTextContent(textSectionCursor, newSection2, False)
-            newSection2.IsVisible = False
-            
-            SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-            SFLink.FileURL = os.path.join(self.mb.pfade['odts'],'empty_file.odt')
-            newSection2.setPropertyValue('FileLink',SFLink)
-            
+
         except:
             log(inspect.stack,tb())
 
@@ -801,7 +785,6 @@ class Projekt():
         
         if self.mb.settings_proj['tag3']:
             tree = props.xml_tree
-            root = tree.getroot()
             gliederung = self.mb.class_Gliederung.rechne(tree)
         else:
             gliederung = None
@@ -817,7 +800,7 @@ class Projekt():
                 pos_Y = (index-1) * KONST.ZEILENHOEHE
                 props.dict_zeilen_posY.update({ pos_Y : eintrag})
                 props.dict_posY_ctrl.update({ pos_Y : ctrl })
-                self.mb.props['ORGANON'].sichtbare_bereiche.append( 'OrganonSec' + str(index2) )
+                self.mb.sichtbare_bereiche.append( 'OrganonSec' + str(index2) )
                 
             # Bereiche   
             path = os.path.join(self.mb.pfade['odts'] , '%s.odt' % ordinal)
@@ -1090,41 +1073,6 @@ class Projekt():
         except:
             return None
     
-    
-    def ein_test(self):
-        if self.mb.debug: log(inspect.stack)
-        print('hier der test')
-    
-    
-    def myDialog(self):
-        psm = uno.getComponentContext().ServiceManager
-        dp = psm.createInstance("com.sun.star.awt.DialogProvider")
-    
-        dlg = dp.createDialog("vnd.sun.star.extension://xaver.roemers.organon//factory/Dialog1.xdl")     
-        dlg.Title = "Mitteilung"
-        
-        control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 400, 40, (), ())           
-        model.Label = 'Mitteilung'
-        model.MultiLine = True
-        
-        
-        
-        dlg.addControl('mitteilung',control)
-        
-        pref_size = control.PreferredSize
-        
-        
-        
-        #dlg.getControl("TextField1").Text = " Here you can read your message "
-        dlg.execute()
-        
-#         control.setVisible(True)
-#         dlg.setVisible(True)
-#         time.sleep(3) ## 5 sec
-        dlg.dispose()      
-    
-    
-  
        
     def test(self):
 
@@ -1134,265 +1082,32 @@ class Projekt():
 
 
             tags = self.mb.tags
-            
             props = self.mb.props[T.AB]
             
-
-            vc = self.mb.viewcursor
+            #sys.path.append(r'H:/Programmierung/Eclipse_Workspace/Organon/source/py/nltk-3.1')
             
-
+            raw = u'''
+Create a file called document.txt using a text editor, and type in a few lines of text, 
+and save it as plain text. If you are using IDLE, select the New Window command in the File menu, 
+typing the required text into this window, and then saving the file as document.txt inside 
+the directory that IDLE offers in the pop-up dialogue box. Next, in the Python interpreter, 
+open the file using f = open('document.txt'), then inspect its contents using print(f.read()).
+            '''
+#             import nltk
+#             from nltk import word_tokenize
 #             
-            
+#             #tok = word_tokenize(raw)
+#             nltk.download()
 
-            
-            
-            def get_attribs(obj,max_lvl,lvl=0):
-                results = {}
-                for key in dir(obj):
-            
-                    try:
-                        value = getattr(obj, key)
-                        if 'callable' in str(type(value)):
-                            continue
-                    except :
-                        #print(key)
-                        continue
-            
-                    if key not in results:
-                        if type(value) in (
-                                           type(None),
-                                           type(True),
-                                           type(1),
-                                           type(.1),
-                                           type('string'),
-                                           type(()),
-                                           type([]),
-                                           type(b''),
-                                           type(r''),
-                                           type(u'')
-                                           ):
-                            results.update({key: value})
-            
-                        elif lvl < max_lvl:
-                            try:
-                                results.update({key: get_attribs(value,max_lvl,lvl+1)})
-                            except:
-                                pass
-            
-                return results
-            
-            
-            
-            
-            def find_diff(dic1,dic2):
-                
-                diff = []     
-                            
-                def findDiff2(d1, d2, path = []):
-                    for k in d1:
-                        try:
-                            if k not in d2:
-                                continue
-        #                         print (path, ":")
-        #                         print (k + " as key not in d2", "\n")
-                            else:
-                                if type(d1[k]) is dict and type(d2[k]) is dict:
-                                    #print(k,path)
-                                    if path == "":
-                                        #path = k
-                                        findDiff2(d1[k],d2[k],[k])
-                                    else:
-                                        #path = path + "->" + k
-                                        #print( path + "->" + k)
-                                        findDiff2(d1[k],d2[k], path + [k])
-                                        
-                                    
-                                else:
-                                    if d1[k] != d2[k]:
-                                        if path == '':
-                                            path = [k]
-                                        #print('path:'+path+'#')
-                                        diff.append((path,k,d1[k],d2[k]))
-                                        #path = []
-                        except:
-                            print(tb())
-                            pd()
-                            wer = wer1
-                                    
-                findDiff2(dic1, dic2)
-                return diff
-            
-            
-            
-            
-            
-            
-            def update_odict(odict, v, d):
-                
-                try:
-                    if v[0] not in odict:
-                        odict[v[0]] = {}
-                    
-                    if len(v) > 1:
-                        update_odict(odict[v[0]], v[1:], d)
-                        
-                    elif len(v) == 1:
-                        odict[ v[0] ][ d[1] ] = [ d[2], d[3] ]
-                
-                except:
-                    print(tb())
-                    pd()
-                    wer = wer
-            
-            
-            def als_dict(diff):
-            
-                untersch = {}
-                
-                for d in diff:
-                    if len(d[0]) == 0:
-                        untersch[d[1]] = [d[2], d[3]]
-                    else:
-                        update_odict(untersch, d[0], d )
-                        #odict
-                return untersch
-            
-            
-            
-            sections = self.mb.doc.TextSections
-             
-#             duene = sections.getByName('OrgInnerSec26')
-#             nr21 = sections.getByName('OrgInnerSec32')
-             
-#             #nr21.Anchor.setPropertyValue('ParRsid',None)
-#             nr21.Anchor.setPropertyValue('Rsid',234854)
-#             #nr21.ParentSection.Anchor.setPropertyValue('ParRsid',None)
-#             nr21.ParentSection.Anchor.setPropertyValue('Rsid',234854)
-#              
-#             nr21.ParentSection.Anchor.Start.setPropertyValue('Rsid',1911732)
-#             nr21.ParentSection.Anchor.End.setPropertyValue('Rsid',1391676)
+            sichtbar = self.mb.sichtbare_bereiche
 
-
-#             a = duene.Anchor.createEnumeration()
-#             
-#             liste1 = []
-#             while a.hasMoreElements():
-#                 liste1.append(a.nextElement())
-#                 
-#             a2= nr21.Anchor.createEnumeration()
-#             
-#             liste2 = []
-#             while a2.hasMoreElements():
-#                 liste2.append(a2.nextElement())
- 
-#             res1 = get_attribs(liste1[1],3)
-#             res2 = get_attribs(liste2[1],3)
-            #diff = find_diff(res1, res2)   
-#              
-#             u1 = self.u1 = als_dict(diff)
-            #self.u2 = als_dict(diff)
-            
-            
-            #diff = find_diff(res1, res2) 
-            
-            #print(self.u1 == self.u2)
-            
-            #nr21 = sections.getByName('OrgInnerSec22')
-#             self.mb.dispatch(self.mb.desktop.ActiveFrame,cmd='SelectAll')
-#             sec = vc.TextSection
-            
-            
-                
-                
-#             diff = find_diff(res1,res2 ) 
-#             odic = als_dict(diff)
-#             
-            
-            
-#             for l in liste:
-#                 
-#                 
-#                 l.setPropertyToDefault('Rsid')
-#             
-#             vc.gotoRange(sec.Anchor.Start,False)
-            
-
-            
             
         except:
             log(inspect.stack,tb())
-            pd()
+            #pd()
         pd() 
         
-        
-        
-        
-        
-        
-
-    
-   
-
-
-
-def spiral(x, y):
-    theta0 = -math.pi * 3 / 4
-    theta = x / Width * math.pi * 2 + theta0
-    radius = y + 200 - x/7
-    xnew = radius*math.cos(theta)
-    ynew = radius*math.sin(-theta)
-    return xnew + Width/2, ynew + Height/2
-
-def curl(x, y):
-    xn = x - Textwidth/2
-    #yn = y - Textheight/2
-    xnew = xn
-    ynew = y + xn ** 3 / ((Textwidth/2)**3) * 70
-    return xnew + Width/2, ynew + Height*2/5
-
-def draw(path):
-    import cairo
-    import math
-    
-    global Width, Height, Textwidth
-    Width, Height = 512, 512
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, Width, Height)
-    ctx = cairo.Context(surface)
-    solidpattern = ctx.get_source()
-    
-    # background
-    pat = cairo.LinearGradient (1, 1, 1, Height)
-    #pat.add_color_stop_rgba (1, 0, 0, 0, 1)
-    #pat.add_color_stop_rgba (0, 1, 1, 1, 1)
-    
-    ctx.rectangle (0,0,Width,Height)
-    ctx.set_source (pat)
-    ctx.fill ()
-    
-    # foreground
-    ctx.set_source (solidpattern)
-    ctx.set_source_rgb (1,1,1)
-    
-    ctx.select_font_face("Sans")
-    ctx.set_font_size(12)
-    
-    dir_ctx = dir(ctx)
-    
-    # curly text
-    ctx.new_path()
-    ctx.move_to(20, 80)
-    ctx.set_source_rgb(0, 0, 0)
-    text = u"für vérenö\nNiemand hört auf mich!\Aber daß das so ist\wird sich ändern!"
-    ctx.text_path(text)
-    Textwidth, Textheight = ctx.text_extents(text)[2:4]
-    #warpPath(ctx, curl)
-    ctx.fill()
-    import os
-    os.chdir(path)
-    
-    surface.write_to_png('cairo_test.png')
-    
-            
+                   
 
 
 from com.sun.star.awt import XActionListener
@@ -1444,14 +1159,14 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener):
             pfad = os.path.join(self.mb.path_to_extension, "pfade.txt")
             
             if os.path.exists(pfad):            
-                with codecs_open( pfad, "r","utf-8") as file:
-                    filepath = file.read() 
+                with codecs_open( pfad, "r","utf-8") as f:
+                    filepath = f.read() 
     
             filepath = self.mb.class_Funktionen.folderpicker(filepath=filepath, sys=True)
             
             if filepath:
-                with codecs_open( pfad, "w","utf-8") as file:
-                    file.write(filepath)
+                with codecs_open( pfad, "w","utf-8") as f:
+                    f.write(filepath)
                     
                 self.mb.speicherort_last_proj = filepath
                 self.ctrls['speicherort'].Model.Label = filepath
@@ -1484,8 +1199,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener):
         self.mb.projekt_path = speicherort
         
         # Templates 
-        is_template, templ_pfad, templ_art = False, None, None
-        
+        templ_pfad, templ_art = None, None
         is_template = self.ctrls['organon_cb'].State or self.ctrls['writer_cb'].State
         
         if is_template:

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import unohelper
-from uno import fileUrlToSystemPath
-import json
 import copy
 
 class Einstellungen():
@@ -12,10 +10,7 @@ class Einstellungen():
         
         self.mb = mb
         self.container = None
-        
-        # prop, um den Listener fuer die Writer Design LBs
-        # beim anfaenglichen Setzen nicht anzusprechen
-        self.setze_listboxen = False
+
         # enthaelt die LB Eintraege und entsprechende Organon props
         self.lb_dict = None
         # vice versa
@@ -227,8 +222,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         try:
             ctx = self.mb.ctx
             mb = self.mb
-            breite = 650
-            hoehe = 190
             
             tab = 20
             tab1 = 40
@@ -562,12 +555,8 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
     def dialog_shortcuts_elemente(self,listener):#,trenner_dict,listener_CB,listener_URL):
         if self.mb.debug: log(inspect.stack)
         
-        sett_trenner = self.mb.settings_orga['trenner']
-
         controls = [10,]
-        
-        
-        
+                
         from collections import OrderedDict
         
         shorts = [
@@ -623,9 +612,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                         
             return 0,0,0,'-'   
                         
-                        
-        
-        
+                                
         for s in shortcuts:
             
             shift,ctrl,alt,key = get_settings(s)
@@ -708,6 +695,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         listener.tabs = tabs3
         
         return controls2,max_breite
+            
             
     def dialog_shortcuts(self):
         if self.mb.debug: log(inspect.stack)
@@ -838,6 +826,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                 
         return controls2,max_breite
             
+            
     def dialog_templates(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -926,9 +915,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                                     ),
             25, 
             ]
-        
-        
-        
+                
         
         tags = self.mb.tags
         
@@ -974,7 +961,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
             
             y += 30
         
-
 
         controls.extend([
        'Y=10',
@@ -1140,8 +1126,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
         
         return controls2,max_breite
     
-    
-            
+                
             
     def dialog_tags(self):
         if self.mb.debug: log(inspect.stack)
@@ -1220,7 +1205,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
 
     
 
-from com.sun.star.awt.Key import RETURN
 from com.sun.star.awt import XActionListener,XKeyListener,XFocusListener
 class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener):
     def __init__(self,mb,container,auswahl_item_listener):
@@ -1240,18 +1224,10 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
              LANG.ZEIT : 'time'
              }
         
-        items = (
-                 LANG.TEXT,
-                 LANG.TAG,
-                 LANG.BILD,
-                 LANG.DATUM,
-                 LANG.ZEIT
-                 )
                 
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         
-        tags = self.mb.tags
         cmd = ev.ActionCommand
         
         try:
@@ -1309,6 +1285,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         self.rows[str(sel_row)] = b
         self.rows[str(sel_row + richtung)] = a
         
+        
     def breite_validieren(self,breite):    
         if self.mb.debug: log(inspect.stack)
         
@@ -1343,8 +1320,8 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             self.mb.nachricht(LANG.KATEGORIE_EXISTIERT.format(name),'warningbox')
             return
         if name == '':
-             self.mb.nachricht(LANG.KATEGORIE_NAMEN_EINGEBEN,'warningbox')
-             return
+            self.mb.nachricht(LANG.KATEGORIE_NAMEN_EINGEBEN,'warningbox')
+            return
         
         self.ctrls_neue_kategorie(sel_row,name,typ,breite)
         self.rows[str(sel_row)]['radio'].setState(True)  
@@ -1354,7 +1331,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         
         listener = self
         
-        type = {
+        otype = {
              'txt':'TEXT',
              'img':'BILD',
              'tag':'TAG',
@@ -1382,7 +1359,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
                  ('control_typ{}'.format(row),"FixedText",1,      
                                         'tab2',0,30,20,  
                                         ('Label',),
-                                        (getattr(LANG, type[typ]) ,),                                             
+                                        (getattr(LANG, otype[typ]) ,),                                             
                                         {} 
                                         ),
                  0,
@@ -1415,7 +1392,6 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         if self.mb.debug: log(inspect.stack)
         
         try:
-            tags = self.mb.tags
             number = str(len(self.rows)) 
             
             controls = self.neue_kategorie_elemente(name,typ,breite,int(number))
@@ -1424,9 +1400,9 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             y = self.rows[ str( len(self.rows)-1 ) ]['y'] + 22
             
             # Controls in Hauptfenster eintragen
-            for c,i in ctrls.items():
-                ctrls[c].setPosSize(0,y,0,0,2)
-                self.container.addControl(c,ctrls[c])
+            for c,ct in ctrls.items():
+                ct.setPosSize(0,y,0,0,2)
+                self.container.addControl(c,ct)
                 
             
             self.rows[number] = {}           
@@ -1436,8 +1412,6 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             self.rows[number]['radio'] = ctrls['control_radio{}'.format(number)]
             self.rows[number]['typ'] = ctrls['control_typ{}'.format(number)]
             self.rows[number]['name'] = ctrls['control_name{}'.format(number)]
-            
-            ctrl = self.container.getControl('control_radio{}'.format(number)) 
             
             
             # Radiobuttons muessen entfernt und neu erzeugt werden, damit
@@ -1471,10 +1445,10 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls) 
             
             # Controls in Hauptfenster eintragen
-            for c,i in ctrls.items():
-                self.container.addControl(c,ctrls[c])
+            for c,ct in ctrls.items():
+                self.container.addControl(c,ct)
                 number = re.findall(r'\d+', c)[-1]
-                self.rows[str(number)]['radio'] = ctrls[c]
+                self.rows[str(number)]['radio'] = ct
             
         except:
             log(inspect.stack,tb())
@@ -1523,7 +1497,6 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         elif '0' in self.rows:
             self.rows['0']['radio'].setState(True)  
     
-        
           
     def kategorien_uebernehmen(self,sel_row):
         if self.mb.debug: log(inspect.stack)
@@ -1581,7 +1554,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             art = self.types[ reihen[str(nr)]['typ'] ]
             
             if art == 'tag':
-                tags2['sammlung'][nr] == []
+                tags2['sammlung'][nr] = []
                         
             if art == 'txt':
                 eintrag = ''
@@ -1640,14 +1613,13 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         self.mb.tags = tags2
         self.mb.class_Tags.speicher_tags()
         
-         # neue Kategorien auf sichtbar setzen
+        # neue Kategorien auf sichtbar setzen
         for n in neu:
             if n not in self.mb.tags['sichtbare']:
                 self.mb.tags['sichtbare'].append(n)
         
         # Neues Datumsformat speichern
         datum_format = self.container.getControl('control_datum_format').SelectedItem
-        dat_items = self.mb.class_Einstellungen.datum_items2
         dat_format_neu = self.mb.class_Einstellungen.datum_items2[datum_format]
         if dat_format_neu != tuple(self.mb.settings_proj['datum_format']):
             self.mb.settings_proj['datum_format'] = list(dat_format_neu)
@@ -1708,7 +1680,7 @@ class Listener_Logging_Einstellungen(unohelper.Base, XActionListener):
                 
                 if Folderpicker.Directory == '':
                     return
-                filepath = fileUrlToSystemPath(Folderpicker.getDirectory())
+                filepath = uno.fileUrlToSystemPath(Folderpicker.getDirectory())
                 
                 self.mb.class_Log.location_debug_file = filepath
                 self.control_filepath.Model.Label = filepath
@@ -1868,7 +1840,6 @@ class Listener_Shortcuts(unohelper.Base,XItemListener,XActionListener):
             uebrige = self.mb.class_Shortcuts.get_moegliche_shortcuts(mods)
             
             listbox = self.ctrls['_List'+cmd]
-            item = listbox.getSelectedItem()
             
             listbox.removeItems(0,listbox.ItemCount)
             listbox.addItems(uebrige,0)
@@ -1905,10 +1876,8 @@ class Uebersetzungen():
             try:
                 
                 t = txt.strip()
-                tz = txt.strip()
                 
                 if "'''" in t:
-                    count = t.count("'''")
                     if  t.count("'''") == 1:
                         if "u'''" in t:
                             t = t + "'''"  
@@ -1932,8 +1901,8 @@ class Uebersetzungen():
         
         
         pfad_imp = os.path.join(self.mb.path_to_extension,'languages','lang_en.py')
-        with codecs_open(pfad_imp , "r",'utf-8') as file:
-            lines = file.readlines()
+        with codecs_open(pfad_imp , "r",'utf-8') as f:
+            lines = f.readlines()
         
         lines = [ l.strip() for l in lines[1:] ]                
         kinder = {'aufpasser':0,'ist_kind' : False}
@@ -2016,18 +1985,15 @@ class Uebersetzungen():
     def dialog_uebersetzung_elemente(self,button_listener,organon_lang_files):
         if self.mb.debug: log(inspect.stack)            
         
-        os_path = datei_pfad = os.path.join(self.mb.path_to_extension,'languages')
+        os_path = os.path.join(self.mb.path_to_extension,'languages')
         path_orga_lang = LANG.ORGANON_LANG_PATH + '\r\n\r\n' + os_path
         
-        fensterhoehe = 600
         fensterbreite = 800
         
         items = 'lang_en','lang_de'
         sel = 0
         
-        tab1 = 140
         tab2 = 180
-        
         breite = 160
         
         
@@ -2159,10 +2125,7 @@ class Uebersetzungen():
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         cont.addControl('Container_innen',container)
         
-        
         return cont,container,win
-    
-
     
     
     def erstelle_Uebersetzungsfenster(self,odic):
@@ -2311,8 +2274,8 @@ class Uebersetzungen():
             code = compile(code, "new_lang", "exec")
             exec(code, global_env1, helfer)
             
-            with codecs_open(pfad , "r",'utf-8') as file:
-                f = file.readlines()
+            with codecs_open(pfad , "r",'utf-8') as fi:
+                f = fi.readlines()
                 f = ''.join(f[1:])
             
             global_env2 = {}
@@ -2584,8 +2547,8 @@ class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener
         
         text = ''.join(txt_list)
         
-        with codecs_open(pfad , "w",'utf-8') as file:
-            file.write(text)  
+        with codecs_open(pfad , "w",'utf-8') as f:
+            f.write(text)  
               
     def disposing(self,ev):
         self.fenster_cont.dispose()
