@@ -1,0 +1,22 @@
+Logic
+The way the results are combined can be controlled by the logic signs to the right.
+
+˅ = OR
+˄ = AND
+(Default is OR)
+
+˅: The results of  each selection will be added.
+	Example: 	The results of 'tags sidebar' are: Scene 1, Scene 2
+			The results of 'tags treeview' are: Scene 2, Scene 3
+			The total result will be: Scene 1, Scene 2, Scene 3
+
+˄: Only results which appear in both selections will be added.
+	Example: 	The results of 'tags sidebar' are: Scene 1, Scene 2, Scene 3
+			The results of 'tags treeview' are: Scene 3, Scene 4, Scene 5
+			The total result will be: Scene 3
+
+'tags sidebar' does have the same logic sign. So you can also choose between: 
+	select all files which hold one of the selected tags (OR)
+	select all files which hold all of the selected tags (AND)
+
+For instance: This logic might be useful to find either all scenes where at least one of two characters appear, or only the scenes where both characters appear.

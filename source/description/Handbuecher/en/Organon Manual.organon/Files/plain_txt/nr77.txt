@@ -1,0 +1,13 @@
+Combine Files
+
+Files and Folders can be combined. The selected will be combined with the entry below him.
+
+In following cases files and folders can't be combined:
+The selected is inside the waste bin.
+The selected is the project folder.
+The to be combined file / folder is a folder and has entries.
+The to be combined file / folder is at a higher level of the hierarchie.
+
+The combined file will be moved to the waste bin.
+
+A shortcut is available for this function.

@@ -1,0 +1,25 @@
+Formatierung mit Writer und Organon
+Wichtig: Änderungen in der Formatierung ( fett / kursiv / rechtsbündig etc.) werden nur gespeichert, wenn auch der Text geändert wurde. Deshalb muss wenigstens ein Zeichen in der bearbeiteten Datei geändert werden, sollen auch die Formatierungen gespeichert werden. (z.B Leerzeichen einfügen und wieder löschen.)
+Über Organons Arbeitsweise:
+Organon unterteilt Ihr Hauptdokument in Unterdokumente. Für jeden Ordner- bzw. Dokumenteneintrag in der Baumansicht wird ein neues Unterdokument angelegt. (Die Unterdokumente befinden sich in Ihrem Projektordner unter Files/odt) Diese Unterdokumente werden mittels Textbereichen in das Hauptdokument verlinkt. Das hat Konsequenzen für die Formatierung: 
+Dokumentweite Formatierungen können nur über Formatvorlagen geändert werden.
+Abgesehen davon, dass es ohnehin eine gute Idee ist, Formatierungen über Formatvorlagen zu handhaben, ist man unter Organon sogar dazu gezwungen, will man nicht jedes Detail des Textes einzeln und per Hand editieren. ('Alles Auswählen' wählt nur den Text des momentanen Textbereiches aus, in dem man sich befindet. Der gesamte Text des ganzen Dokuments kann nicht ausgewählt werden.) 
+
+Eine Formatierung auswählen:
+a) Sie können die Standard-Formatierung von OO/LO nutzen. Formatierungen werden geändert mit Format/Formatvorlagen (F11). Dort wählen Sie mit einem Rechtsklick die Standard Formatvorlage aus und wählen 'ändern'.  
+Oder Sie klicken auf das Icon links neben den Absatzvorlagen.
+
+
+b) Sie können auch eine eigene Vorlage benutzen. Wichtig: Organon importiert nicht alle von Ihnen angelegte Absatzvorlagen aus der Dokumentenvorlage. Nur die Absatzvorlage, in der der Textcursor sich befindet, wird importiert und genutzt.
+
+Formatvorlage aus Auswahl erstellen
+Hier kann eine neue Vorlage aus der Auswahl erstellt werden.
+(Z.Z. ist diese Option noch mehr oder weniger nutzlos.)
+
+Links 
+Weitere Infos zur Arbeitsweise mit Dokumentenvorlagen finden Sie unter:
+Writer-Handbuch/Mit_Formatvorlagen_arbeiten
+
+PDFs:
+06-einfuehrung-in-formatvorlagen
+07-mit-formatvorlagen-arbeiten 

@@ -1,0 +1,3 @@
+Tags Sidebar:
+By clicking on 'Selection' a new window will be opened. All tag categories are shown in the top row, all tags below them. By clicking on a tag button the tag will be selected and will show up in the column 'selected'. To unselect, click on it.
+Tags will be shown in the dialog window as well.

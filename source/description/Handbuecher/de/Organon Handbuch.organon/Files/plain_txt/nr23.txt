@@ -1,0 +1,2 @@
+Undo:
+Es können Aktionen rückgängig gemacht werden, solange nur innerhalb eines Textbereiches bearbeitet wurde. Mit Wechsel in einen anderen Bereich oder einer anderen Nutzung von Organon, wird der geänderte Text gespeichert und der UndoManager zurückgesetzt, so dass keine Aktion mehr rückgängig gemacht werden kann.

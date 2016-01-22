@@ -1,0 +1,10 @@
+Sort By Time Tag
+If chosen, the results will be sorted by time and/or date.
+Files, which don't hold a tag for your selection (time, date, time and date), will be left out unless you select 'use untagged files'. These files will be added after the sorted.
+
+Time is sorted from 00:00 to 23:59
+Date can be entered from 0.0.0 to 31.12.9999 (DDMMYYYY)
+(sorted by YYYYMMDD)
+Using date and time the files will be sorted by date and for each date by time.
+
+Entering the date format MMDDYYYY or YYYYMMDD will be added to future versions of Organon.

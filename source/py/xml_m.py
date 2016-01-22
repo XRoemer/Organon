@@ -264,7 +264,18 @@ class XML_Methoden():
         
         
         
+    def get_papierkorb_inhalt(self):
+        if self.mb.debug: log(inspect.stack)
         
+        props = self.mb.props[T.AB]
+        tree = props.xml_tree
+        root = tree.getroot()
+        
+        papierkorb = root.find('.//' + props.Papierkorb)
+        papierkorb_inhalt = [p.tag for p in papierkorb.findall('.//')]
+        papierkorb_inhalt.append(props.Papierkorb)
+        
+        return papierkorb_inhalt
         
         
         

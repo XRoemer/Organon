@@ -1,0 +1,25 @@
+Writer Design
+
+Bitte beachten Sie bei der Verwendung von Writer Designs Folgendes:
+Nach dem Umschalten eines Designs werden die Änderungen erst nach einem Neustart zur Gänze sichtbar.
+Je nach Betriebssystem und systemspezifischen Einstellungen fällt die Darstellung unterschiedlich aus. (Die beste Darstellung liefert m.E. LO unter Windows mit sifr Icons.)
+Weitere gleichzeitig geöffneten Anwendungen (Calc,Draw etc.) einer Sitzung werden
+ebenfalls eingefärbt. Bei Neustart mit deaktiviertem Design werden wieder die Standardfarben genutzt.
+Z.Z. kann bei aktivem Writer Design kein .odt Document via Rechtsklick und "Öffnen mit" durch Writer geöffnet werden, da die Oberfläche von Writer durch Organon nach dem Öffnen geschlossen und erneut gestartet wird. Dabei wird das geladenen Dokument ebenfalls wieder geschlossen.
+Die Seitenleiste wird erst bei geöffnetem Organon Projekt und mit dem ersten Klick auf das Organon Symbol vollständig eingefärbt.
+Änderungen der Dokumentfarben und des Persona (LO) bleiben auch bei geschlossenem Organon bestehen.
+Sie können auf zwei Arten wieder zurückgesetzt werden:
+via Writer-Menüleiste: Extras/Optionen/Darstellung: Dokumenthintergrund und Hintergrund der Anwendung wieder auf "Automatisch" setzen.
+(LO) Persona über Extras/Optionen/Personalisierung zurücksetzen.
+via Organon: Writer Design aktivieren und die Häkchen bei "nutze Persona" und "färbe Dokument" entfernen. Writer Design deaktivieren.
+
+Funktionsweise:
+Wie auch beim Organon Design können die Farben für den jeweiligen Eintrag angepaßt werden. Änderungen sind nicht permanent und gehen mit der Auswahl eines anderen Designs verloren.
+Um die Bearbeitung zu speichern, muß ein neues Design angelegt werden.
+
+Für eine schnelle Bearbeitung und eine höhere Integrität der Farben kann im jeweiligen Dropdown-Bereich eine Farbe aus dem Organon Design gewählt werden. Wird diese bearbeitet oder von vornherein eine andere gesetzt, so ist in dem Dropdown-Bereich kein Eintrag zu sehen.
+
+Mit dem Design wird auch gespeichert, ob ein Persona (nur LO) benutzt oder ob das Schreibdokument und sein Hintergrund ebenfalls eingefärbt werden sollen. Wird auf ein Design umgeschaltet, das Dokumentenfarbe oder Persona nicht aktiviert, wird jeweils auf die Office-Standardeinstellung zurückgesetzt.
+
+Beim Export der Designs werden nur die Namen der Personas, nicht aber die .png Dateien der Persona exportiert. Will man ein solches Design importieren und wieder vollständig nutzen, so müssen neue Persona mit entsprechenden Namen erstellt werden.
+

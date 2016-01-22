@@ -60,14 +60,16 @@ class Bereiche():
         
         text.insertString( cursor, inhalt, True )
                 
-        Path1 = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr )
-        Path2 = uno.systemPathToFileUrl(Path1)        
+        Path1 = os.path.join(self.mb.pfade['odts'] , 'nr{}.odt'.format(nr) )
+        Path2 = uno.systemPathToFileUrl(Path1)      
+          
         self.oOO.storeToURL(Path2,())
+        self.plain_txt_speichern(inhalt, 'nr{}'.format(nr))
         
         newSection.dispose()
         
-        
         return Path1
+    
     
     def erzeuge_neue_Datei2(self,i,inhalt):
         if self.mb.debug: log(inspect.stack)
@@ -86,10 +88,8 @@ class Bereiche():
             nr = str(i) 
             
             text = self.oOO.Text
-            #inhalt = 'nr. ' + nr + '\t' + inhalt
             
             cursor = text.createTextCursor()
-            #cursor = self.oOO.CurrentController.ViewCursor
             cursor.gotoStart(False)
             cursor.gotoEnd(True)
 
@@ -100,10 +100,10 @@ class Bereiche():
             cursor.goLeft(2,True)
             cursor.collapseToStart()
             
-            if self.mb.debug:
-                text.insertString( cursor, inhalt, True )
-            else:
-                text.insertString( cursor, ' ', True )
+            if not self.mb.debug:
+                inhalt = ' '
+                
+            text.insertString( cursor, inhalt, True )
             
             cursor.collapseToEnd()
             cursor.goRight(2,True)
@@ -113,6 +113,8 @@ class Bereiche():
             Path2 = uno.systemPathToFileUrl(Path1)    
     
             self.oOO.storeToURL(Path2,())
+            self.plain_txt_speichern(inhalt, 'nr{}'.format(nr))
+            
             self.oOO.close(False)
 
         except:
@@ -225,8 +227,6 @@ class Bereiche():
             if 'OrganonSec' in sec_name:
                 alle_hotzenploetze.append(sec_name)
         anzahl_hotzenploetze = len(alle_hotzenploetze)
-
-        bereichsname_Papierkorb = self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].Papierkorb]
         
         path = os.path.join(self.mb.pfade['odts'] , 'nr%s.odt' %nr) 
         path = uno.systemPathToFileUrl(path)
@@ -267,9 +267,9 @@ class Bereiche():
         cur.setString('')
        
         
-    def datei_nach_aenderung_speichern(self,zu_speicherndes_doc_path,bereichsname = None):
+    def datei_nach_aenderung_speichern(self, zu_speicherndes_doc_path, bereichsname = None, speichern = False):
 
-        if len(self.mb.undo_mgr.AllUndoActionTitles) > 0 and bereichsname != None:
+        if (len(self.mb.undo_mgr.AllUndoActionTitles) > 0 and bereichsname != None) or speichern:
             # Nur loggen, falls tatsaechlich gespeichert wurde
             if self.mb.debug: log(inspect.stack)
 
@@ -299,6 +299,18 @@ class Bereiche():
                 newDoc.Text.insertTextContent(cur, newSection, True)
                 newDoc.Text.removeTextContent(newSection)
                 newDoc.storeToURL(zu_speicherndes_doc_path,())
+                
+                if '.odthelfer' not in zu_speicherndes_doc_path:
+                    # plain_txt speichern
+                    plain_txt = newDoc.Text.String
+                    dict_bereiche = self.mb.props[T.AB].dict_bereiche
+                    
+                    os_path = uno.fileUrlToSystemPath(zu_speicherndes_doc_path)
+                    bereich = [ n for n,p in dict_bereiche['Bereichsname'].items() if p == os_path ][0]
+                    ordinal = dict_bereiche['Bereichsname-ordinal'][bereich]
+                    
+                    self.plain_txt_speichern(plain_txt, ordinal)
+
                 newDoc.close(False)
     
                 self.mb.loesche_undo_Aktionen()
@@ -309,35 +321,59 @@ class Bereiche():
                     newDoc.close(False)
                 except:
                     pass
-
+        
+    
+    def plain_txt_speichern(self,plain_txt,ordinal):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            pfad_plain_txt = os.path.join(self.mb.pfade['plain_txt'], ordinal + '.txt')
+    
+            with codecs_open(pfad_plain_txt , "w","utf-8") as f:
+                f.write(plain_txt)
+        except:
+            log(inspect.stack,tb())
+            
+    
+    def plain_txt_loeschen(self,ordinal):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            pfad_plain_txt = os.path.join(self.mb.pfade['plain_txt'], ordinal + '.txt')
+            os.remove(pfad_plain_txt)
+        except:
+            log(inspect.stack,tb())
+        
 
     def verlinkte_Bilder_einbetten(self,doc):
         if self.mb.debug: log(inspect.stack)
         
         self.mb.selbstruf = True
         
-        bilder = self.mb.doc.GraphicObjects
-        bitmap = self.mb.doc.createInstance( "com.sun.star.drawing.BitmapTable" )
-        
-        for i in range(bilder.Count):
-            bild = bilder.getByIndex(i)
-            if 'vnd.sun.star.GraphicObject' not in bild.GraphicURL:
-                # Wenn die Grafik nicht gespeichert werden kann,
-                # (weil noch nicht geladen oder User hat zu frueh weitergeklickt)
-                # muesste sie eigentlich bei der naechsten Aenderung
-                # im Bereich gespeichert werden
-                try:
-                    bitmap.insertByName( "TempI"+str(i), bild.GraphicURL )
-                    #if self.mb.debug: print(bild.GraphicURL)
+        try:
+            bilder = self.mb.doc.GraphicObjects
+            bitmap = self.mb.doc.createInstance( "com.sun.star.drawing.BitmapTable" )
+            
+            for i in range(bilder.Count):
+                bild = bilder.getByIndex(i)
+                if 'vnd.sun.star.GraphicObject' not in bild.GraphicURL:
+                    # Wenn die Grafik nicht gespeichert werden kann,
+                    # (weil noch nicht geladen oder User hat zu frueh weitergeklickt)
+                    # muesste sie eigentlich bei der naechsten Aenderung
+                    # im Bereich gespeichert werden
                     try:
-                        internalUrl = bitmap.getByName( "TempI"+str(i) ) 
-                        bild.GraphicURL = internalUrl 
+                        bitmap.insertByName( "TempI"+str(i), bild.GraphicURL )
+                        #if self.mb.debug: print(bild.GraphicURL)
+                        try:
+                            internalUrl = bitmap.getByName( "TempI"+str(i) ) 
+                            bild.GraphicURL = internalUrl 
+                        except:
+                            pass
+                        bitmap.removeByName( "TempI"+str(i) ) 
                     except:
-                        pass
-                    bitmap.removeByName( "TempI"+str(i) ) 
-                except:
-                    log(inspect.stack,tb())
-                
+                        log(inspect.stack,tb())
+        except:
+            log(inspect.stack,tb())
         self.mb.selbstruf = False   
         
         

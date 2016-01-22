@@ -1,0 +1,30 @@
+ Neuer Tab
+
+Neue Tabs können durch Auswahl erstellt werden. Auswahlmöglichkeiten sind:
+Eigene Auswahl. Erzeugt neues Auswahlfenster, in dem alle zur Verfügung stehenden Files aufgelistet sind.
+Tags Seitenleiste. Neues Auswahlfenster. Aus allen benutzten Tags der Seitenleise können die gewählt werden, die der neue Tab beinhalten soll. Klick auf ausgewählten Eintrag entfernt die Auswahl wieder.
+Tags Baumansicht. Entsprechend der Tags Seitenleiste.
+Suche. Noch nicht implementiert
+
+zeitlich anordnen: Die gefundenen Dateien und Ordner können entsprechend dem Tag „Zeit“ in der Seitenleiste geordnet werden. Geordnet wird nach Zeit oder Datum oder Zeit und Datum.
+„nicht ausgezeichnete Dateien einbeziehen“ meint, dass die durch Auswahl gefundenen Dateien, die aber keinen Zeit-Tag besitzen, am Ende angehängt werden. Ist dies nicht ausgewählt, werden Dateien ohne Zeit-Tag im neuen Tab nicht erscheinen.
+
+Tabname: frei wählbar. Keine doppelten Einträge in Tabs möglich
+
+Logische Operatoren (∨  und ∧) 
+∨: Logisches Oder
+∧: Logisches Und
+Die logischen Operatoren können zur Auswahl einbezogen werden. Standardmäßig stehen sie auf ∨ (Oder).
+Oder bewirkt, dass alle Auswahlkriterien zutreffen. 
+Und bewirkt, dass nur sich überschneidende Kriterien zutreffen.
+
+Beispiel 1: 
+In „Eigene Auswahl“ werden die Dateien 1,2,3,4 ausgewählt.
+In 'Tags Seitenleiste“ werden Tags ausgewählt, die auf die Dateien 2, 3 und 5 zutreffen.
+Bei ∨: Dateien 1,2,3,4,5 werden ausgewählt
+Bei ∧: Dateien 2 und 3 werden ausgewählt
+
+Beispiel 2:
+Logischer Operator auf der linken Seite unter „Tags Seitenleiste“:
+Bei ∨: Es werden alle Dateien ausgewählt, die einem oder mehreren der ausgewählten Tags ausgezeichnet sind.
+Bei ∧: Es werden nur die Dateien ausgewählt, die mit allen ausgewählten Tags ausgezeichnet wurden.

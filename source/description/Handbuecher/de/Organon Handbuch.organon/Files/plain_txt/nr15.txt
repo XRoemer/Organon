@@ -1,0 +1,38 @@
+Projektname:
+Bennen Sie ihr Projekt.
+
+Hinweis: Das Projekt kann nicht mehr umbenannt werden. Um das Projekt mit einem neuen Namen zu versehen, muss es als Projekt exportiert werden. (Datei/Export/exportieren als/neues Projekt)
+
+Speicherort: 
+Suchen Sie einen Speicherort aus. Organon legt ein Verzeichnis unter dem Namen:
+„<Projektname>.organon“ an. 
+
+(Linux) Stellen Sie sicher, dass Sie die Schreibrechte für den Ort besitzen.
+
+Formatierung:
+Siehe nächsten Eintrag: Formatierung
+
+Vorlagen:
+Es können entweder Writer Vorlagen oder Organon Vorlagen benutzt werden, wobei Organon Vorlagen mit Writer Vorlagen erstellt sein können.
+
+Writer Vorlagen
+Auswahl einer Vorlage aus den Benutzervorlagen für ein neues Projekt. Sowohl das Häkchen bei „eigener Formatvorlage“ muss gesetzt sein, als auch eine Benutzervorlage in der Dropdown-Box ausgesucht worden sein.
+
+Zur Erstellung einer eigenen Vorlage siehe:
+OO:
+https://wiki.openoffice.org/wiki/DE/Dokumentation/OOo_2.x/Handb%C3%BCcher/Writer-Handbuch/Eine_Dokumentvorlage_erstellen
+LO (sehr spärliche Beschreibung):
+https://help.libreoffice.org/Writer/Creating_a_Document_Template/de
+
+Nur Benutzervorlagen werden von Organon angezeigt.
+
+Die Vorlage wird zu einem Teil des Projektes und mit diesem gespeichert. Möchte man also die Vorlage nach der Hand noch ändern, muss folgende Datei gesucht werden:
+<Projekt Ordner>/files/odt/template.ott
+Diese kann geändert und nach der Änderung mit gleichem Namen an der selben Stelle wieder gespeichert werden. Beim nächsten Projektstart wird die geänderte Vorlage geladen.
+
+Organon Vorlagen
+Vorlagen bestehen aus gewöhnlichen Organon Projekten, die mit neuem Namen und neuem Pfad gespeichert werden und als neues Projekt zur Verfügung stehen. Diese Vorlagen können z.B. genutzt werden, um eine gewünschte Ordnerstruktur zu erzeugen oder bereits vorgefertigte Ordner oder Dateien ins neue Projekt einzufügen (Titelseiten u.ä.)
+
+Um eine Organon Vorlage zu nutzen, muss ein Vorlagenordner angegeben worden sein.
+Eine genauere Beschreibung findet sich im Handbuch unter: 
+Organon Menü/Datei/Einstellungen/Vorlagen

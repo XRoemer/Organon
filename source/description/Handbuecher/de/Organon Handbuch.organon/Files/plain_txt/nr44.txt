@@ -1,0 +1,4 @@
+ Teile Text
+Bei Klick wird der aktuelle Text an der aktuellen Cursorposition getrennt und in zwei neue Texte aufgeteilt. 
+Achtung: Diese Funktion kann nicht rückgängig gemacht werden.
+Wollen Sie zwei Texte wieder verbinden, müssen sie per Copy und Paste ineinander eingefügt werden. (Eine entsprechende Funktion ist geplant.)

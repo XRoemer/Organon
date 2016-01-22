@@ -1,0 +1,3 @@
+Close Tab:
+The current tab will be closed. 
+The project tab can't be closed.

@@ -1,0 +1,7 @@
+open/close
+To open or close the sidebar in OO/LO:
+View > Sidebar
+To enable the sidebar in LO:
+Tools > Options > Advanced > Enable Experimental Features/Sidebar
+
+By closing Organon the sidebar will be closed, too. Otherwise the sidebar would keep references to Organon and might cause unwanted effects.  

@@ -1,0 +1,8 @@
+ Erzeuge Index
+Ein sehr spezialisiertes Werkzeug, um einen Index für eine Übersetzung mit Zählung anzulegen. Texte mit Zählungen sind etwa die antiken Texte oder Texte in kritischen Ausgaben. Die Zählung muss die Form „Eckige öffnende Klammer / Zahl / Komma / Zahl / eckige schließende Klammer“ haben ( [102,15] )
+(Geplant für eine zukünftige Implementierung ist ein regulärer Ausdruck, mit der die Form der Zählung vom Benutzer bestimmt werden kann.)
+
+Das Textwerkzeug erzeugt ein Browser-Dokument mit drei Spalten: 
+In der ersten Spalte befindet sich die Navigation, die alle im Quelltext vorkommenden Wörter alphabetisch oder chronologisch auflistet. Mit Hilfe der Navigation kann zu den entsprechenden Stellen in der Zählung gesprungen werden. (Das Werkzeug funktioniert auch ohne Zählungen in Quelltext und Übersetzung, macht aber aus diesem Grund wenig Sinn.)
+In der zweiten Spalte ist der Quelltext.
+In der dritten Spalte ist die Übersetzung.

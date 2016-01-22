@@ -1,0 +1,32 @@
+Organizer
+Der Organizer dient der Übersicht und schnellen Editierung aller Tags.
+Es werden nur die sichtbar geschalteten Kategorien angezeigt (Organon Menu / Ansicht).
+
+Um den Organizer zu nutzen, MUSS OO/LO Calc installiert sein.
+
+Mögliche Tag-Kategorien sind:
+- Klassische Tags
+- Fließtext
+- Bilder
+- Datum
+- Uhrzeit
+
+Die Kategorien können in den Einstellungen bearbeitet werden.
+
+Im Fließtext werden Zeilenumbrüche mit Ctrl + Enter erzeugt.
+Klassische Tags werden durch Kommata abgetrennt.
+Bilder werden durch Klick auf die Zelle eingefügt und geändert.
+Die Uhrzeit hat ein 24 Stunden Format (00:00 bis 23.59)
+Das Datumsformat kann in den Einstellungen angepaßt werden.
+Ordner und Dateien können im Organizer umbenannt werden.
+
+Änderungen werden durch neue Einträge in den jeweiligen Feldern vorgenommen. Die Änderungen werden durch einen Klick auf den Button "Übernehmen" für das Projekt übernommen. Bei geänderten Tags wird aber auch beim Schließen des Organizers gefragt, ob Änderungen übernommen werden sollen.
+
+Änderungen der linksseitigen Icons werden sofort und ohne Rückmeldung übernommen.
+
+Das Menü von Calc wird durch einen Klick auf "Menu" geöffnet, wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)
+Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das Dokument sonstwie vom Menü her verändert werden, wenn es für Organon weiterhin zur Verfügung stehen soll. Derartige Änderungen können zu fehlerhaften Tags führen, gegebenenfalls wird das gesamte Organon Projekt beschädigt.
+
+Sollen Änderungen nicht übernommen werden, kann der Organizer einfach geschlossen und die anschließende Abfrage verneint werden.
+
+Das Öffnen des Organizers wird durch Bilder in Bild-Kategorien und die linksseitigen Icons-Kategorien verlangsamt. Zur Beschleunigung des Öffnens setzen Sie diese Kategorien auf unsichtbar. (Je größer Bilder in Bild-Kategorien sind, desto stärker wird der Organizer ausgebremst. Eine Umrechnung von Bildern in Thumbnails fehlt derzeit noch.)

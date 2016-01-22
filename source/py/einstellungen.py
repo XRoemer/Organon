@@ -218,6 +218,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
   
         
     def dialog_logging(self):
+        if self.mb.debug: log(inspect.stack)
 
         try:
             ctx = self.mb.ctx
@@ -563,6 +564,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                  ['INSERT_DOC' , LANG.INSERT_DOC],
                  ['INSERT_DIR' , LANG.INSERT_DIR],
                  ['TRENNE_TEXT' , LANG.TRENNE_TEXT],
+                 ['SUCHE' , LANG.SUCHE],
                  ['DATEIEN_VEREINEN' , LANG.DATEIEN_VEREINEN],
                  ['BENENNE_DATEI_UM' , LANG.BENENNE_DATEI_UM],
                  ['IN_PAPIERKORB_VERSCHIEBEN' , LANG.IN_PAPIERKORB_VERSCHIEBEN],
@@ -577,7 +579,7 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                  ['GLIEDERUNG' , LANG.SICHTBARKEIT + ' ' + LANG.GLIEDERUNG],
                  ['BAUMANSICHT_HOCH' , LANG.BAUMANSICHT_HOCH],
                  ['BAUMANSICHT_RUNTER' , LANG.BAUMANSICHT_RUNTER],
-                 ['KONSOLENAUSGABE' , LANG.KONSOLENAUSGABE]
+                 ['KONSOLENAUSGABE' , LANG.KONSOLENAUSGABE],
                  ]
         
         shortcuts = OrderedDict()

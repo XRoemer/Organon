@@ -130,23 +130,24 @@ class Sidebar():
                   
                 return dict_container,dict_felder
                 
-             
-        
+                
+            ordinal = self.mb.props[T.AB].selektierte_zeile
+            if ordinal == self.mb.props[T.AB].Papierkorb:
+                return
+            
             self.dict_container,self.dict_felder = container_erzeugen(panelWin)
                
                     
             ######################################
             #                TAGS                #
             ######################################            
-            
-            ordinal = self.mb.props[T.AB].selektierte_zeile
-            ctrls = self.mb.dict_sb['controls']
+
             tags = self.mb.tags
             
             height = 0 
             
-            for panel_nr in self.mb.tags['abfolge']:
-                panel_name,panel_typ = self.mb.tags['nr_name'][panel_nr]
+            for panel_nr in tags['abfolge']:
+                panel_name,panel_typ = tags['nr_name'][panel_nr]
 
                 if panel_nr not in self.mb.tags['sichtbare']:
                     continue
@@ -184,8 +185,8 @@ class Sidebar():
                             height = 18
                             
                             # Tageintrag
-                            prop_names = ('Label','Align')
-                            prop_values = (tag_eintrag,2)
+                            prop_names = ('Label','Align','MultiLine')
+                            prop_values = (tag_eintrag,2,True)
                             control, model = self.mb.createControl(ctx, "FixedText", 170, y_all_tags ,100, height, prop_names, prop_values)
                             tag_control.addControl(tag_eintrag, control) 
                              
@@ -206,8 +207,8 @@ class Sidebar():
                          
                         height = 18
                         # Tageintrag
-                        prop_names = ('Label',)
-                        prop_values = (tag_eintrag,)
+                        prop_names = ('Label','MultiLine')
+                        prop_values = (tag_eintrag,True)
                         control, model = self.mb.createControl(ctx, "FixedText", 10, y,100, height, prop_names, prop_values)
                         tag_control.addControl(tag_eintrag, control) 
                     

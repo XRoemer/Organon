@@ -1,0 +1,4 @@
+Load Project
+Load project → Choose project folder. The project folder contains a file with the ending “.organon” : 
+<project name>.organon. 
+Choose it and the project will be loaded.

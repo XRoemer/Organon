@@ -1,0 +1,19 @@
+ Tags
+
+Tags Categories are freely configurable.
+Name and width (in the Organizer view in cm) existing categories will be changed by changing the entry and then clicking on "Apply".
+For a new category, enter the name and width and choose a category type. There are five types:
+Text (body text)
+Tag (Classical tag, collection of single words or short phrases)
+Image (only one image per category)
+Date
+Time
+To change the order of categories, select a category and use the arrow keys.
+The selected category is deleted by "Delete Category".
+The representation of the date can be changed by selecting the Date Format. A date must always be entered according to the date format.
+
+By clicking "Apply" the changes take effect.
+
+Each type of category can be created several times.
+
+Picture Categories slow down Organon and the Organizer, particularly if large images are used. At the moment no thumbnails for images are created, which would speed up the display. 

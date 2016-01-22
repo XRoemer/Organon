@@ -1,0 +1,21 @@
+Design
+
+Die Design-Einstellungen besitzen drei Spalten:
+Farbauswahl
+Auswahl des Designs
+Verwalten der Designs
+
+Zusätzlich kann in der obersten Zeile das Writer Design aktiviert und bearbeitet werden. 
+(Siehe Writer Design)
+
+In der Spalte mit der Farbauswahl können die Farben für den jeweiligen Eintrag angepaßt werden. Die Änderung ist auch nach einem Neustart noch vorhanden, ist trotzdem aber nicht permanent und geht mit der Auswahl eines anderen Designs verloren.
+Um die Bearbeitung zu speichern, muß ein neues Design angelegt werden. Dazu gibt man einen noch nicht vorhanden Namen in das Textfeld ein und wählt „Neues Design“.
+
+In der mittleren Spalte werden die Designs umgeschaltet. Änderungen werden sofort sichtbar.
+
+In der rechten Spalte werden die Designs verwaltet:
+
+Neues Design legt ein neues Design mit den aktuellen Farben an. Um ein neues Design zu erstellen, kann ein beliebiges anderes gewählt und verändert werden (die Änderungen werden für das gewählte Design nicht gespeichert). Erst mit dem Erstellen eines neuen Designs werden die Änderungen permanent.
+Löschen: Löscht das ausgewählte Design
+Export: Exportiert eine .json Datei mit beliebigem Namen an einen beliebigen Ort. Die Datei kann als Backup oder zum Austausch mit anderen Office Installationen genutzt werden, also etwa, um die Designs zwischen Laptop und Desktop Rechner auszutauschen. Die Datei ist zwischen LO und OO kompatibel.
+Import: Importiert eine .json Design Datei. Designs gleichen Namens werden auf ihre Übereinstimmung überprüft. Bei vollständiger Gleichheit wird das Design nicht importiert, anders wird die Datei mit dem Namenszusatz „_old“ versehen.

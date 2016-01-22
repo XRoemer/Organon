@@ -1,0 +1,19 @@
+Design
+The design setting has three columns:
+Color Selection
+Selection of the design
+Managing designs
+
+
+In the column with the color picker, the colors can be customized for each entry. The change is not permanent and is lost with the selection of a design or closing of Office.
+To save the edit, a new design has to be created. Therefor add a name in the textbox which does not exist and choose "New Design".
+
+In the middle column, the designs are switched. Changes are immediately visible.
+
+In the right column, the designs are managed:
+
+
+New design creates a new design from the current colors. To create a new design, any other can be selected and changed. (The changes are not saved to the selected design). Only with the creation of a new design the changes get permanent.
+Delete: Deletes the selected design.
+Export: Exports a .json file with any name to any location. The file can be used as a backup or for sharing with other Office installations, for example to exchange designs between the laptop and desktop computer. Files can be exchanged between LO and OO.
+Import: Imports a .json design file. Designs with the same name are checked for their compliance. With complete equality the design is not imported, a file with the suffix "_old" is otherwise provided. 

@@ -1,0 +1,25 @@
+Organizer
+
+The Organizer offers a fast and simple way to show and edit all tags of the current tab. 
+
+Changes are made by new entries in the Fields. Changes are adopted 
+by a click on the button "Apply". By a click on “Menu” the calc-menu will be shown. One shouldn't edit the Organon tags from the menu (it might break the document), but the Organizer might be used for further actions (like print and export).
+
+To be able to make use of the Organizer, OO/LO Calc has to be installed.
+
+Changes of the icons on the left side are immediatly adopted without a feedback.
+
+If you don't want to apply any changes, Calc might simply be closed.
+
+The tags "Synopsis" and "Notes" may contain body text.
+Line breaks are created with Ctrl + Enter.
+Entries in the tags "Character", "Locations", etc. are separated by commas.
+
+To set the tags of the tree view (icons on the left) one has to click NEXT to them and not on them. Unfortunately, this is a technical restriction, which can not so easily be eliminated.
+Also new icons can be inserted. This requires likewise to click next to the location, where in case of an existing tag this would be located.
+
+Files might be renamed in the Organizer, but this change is not applied to the document yet.
+
+The Organizer does not offer all functions yet. 
+(For example, time, date, different views) 
+Comming soon.

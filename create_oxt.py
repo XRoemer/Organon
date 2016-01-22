@@ -7,10 +7,10 @@ from os import walk
 
 office = 'libre'
 
-if office == 'libre':
-    path_to_office = "C:\\Program Files (x86)\\LibreOffice 4\\program"
-else:
-    path_to_office = "C:\\Program Files (x86)\\OpenOffice 4\\program"
+#if office == 'libre':
+ #   path_to_office = "C:\\Program Files (x86)\\LibreOffice 4\\program"
+#else:
+ #   path_to_office = "C:\\Program Files (x86)\\OpenOffice 4\\program"
 
 path_to_source = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source'
 
@@ -57,6 +57,7 @@ files = [
     'py/shortcuts.py',
     'py/tags.py',
     'py/fenster.py',
+    'py/suche.py',
 
     'py/schalter.py',
 
@@ -116,15 +117,15 @@ for file in files:
 
 zip.close()
 
-filename = os.path.join(path_to_office,'organon.oxt')
+#filename = os.path.join(path_to_office,'organon.oxt')
 
 # .oxt in den Programmordner von LibreOffice kopieren
 # evt. muessen erst die Schreibrechte gesetzt werden
 # -> win7 Ordner 'program', Rechtsklick, Eigenschaften, erweitert
-shutil.copy("organon.oxt", filename)
+#shutil.copy("organon.oxt", filename)
 
 # in den programmordner von libreoffice wechseln und unopkg starten
-os.chdir(path_to_office)
+#os.chdir(path_to_office)
 #os.system(r"unopkg add -f --shared organon.oxt")
 # swriter nach Installation erneut starten
 #os.system('swriter.exe')

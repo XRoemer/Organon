@@ -30,6 +30,15 @@ class ImportX():
                 if self.fenster_filter != None:
                     self.fenster_filter.toFront()
             else:
+                # ausgewaehlte zeile ueberpruefen
+                props = self.mb.props[T.AB]
+                selektiert = props.selektierte_zeile
+                papierkorb_inhalt = self.mb.class_XML.get_papierkorb_inhalt()
+                
+                if selektiert in papierkorb_inhalt:
+                    self.mb.nachricht(LANG.NICHT_IM_PAPIERKORB_ERSTELLEN,'infobox')
+                    return
+            
                 self.dialog_importfenster()
                 
         except Exception as e:
@@ -164,7 +173,7 @@ class ImportX():
         ('controlE2',"FixedText",0,
                             'tab0x-max',y ,100,70,
                             ('Label','MultiLine'),
-                            ('-' if imp_set['url_dat'] in (None,'') else uno.fileUrlToSystemPath(decode_utf(imp_set['url_dat'])),True ),
+                            ('-' if imp_set['url_dat'] in (None,'') else decode_utf(imp_set['url_dat']),True ),
                             {}
                             ),  
         70,   
@@ -490,61 +499,72 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     def datei_importieren(self,typ,url_dat):
         if self.mb.debug: log(inspect.stack)
         
-        zeile_nr,zeile_pfad = self.erzeuge_neue_Zeile()
+        try:                   
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+            
+            url_dat2 = uno.systemPathToFileUrl(url_dat)
+            self.oOO = self.mb.desktop.loadComponentFromURL(url_dat2,'_blank',8+32,(prop,))
+            
+            # moeglicherweise vorhandene Links entfernen
+            ok = self.entferne_links(self.oOO)
+            if not ok:
+                self.mb.nachricht(LANG.IMPORT_GESCHEITERT.format('Is it a text file?'),'warningbox')
+                return
+            
+            zeile_nr,zeile_pfad = self.erzeuge_neue_Zeile()
+            
+            ordinal_neuer_Eintrag = 'nr'+str(zeile_nr)
+            bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal_neuer_Eintrag]
+            sections = self.mb.doc.TextSections
+            neuer_Bereich = sections.getByName(bereichsname) 
+            
+            
+            self.kapsel_in_Bereich(self.oOO,str(zeile_nr))
+            self.entferne_seitenumbrueche_am_anfang(self.oOO)
+                    
+            prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop3.Name = 'FilterName'
+            prop3.Value = 'writer8'
+    
+            Path2 = uno.systemPathToFileUrl(zeile_pfad)
+            self.oOO.storeToURL(Path2,(prop3,))
+            self.mb.class_Bereiche.plain_txt_speichern(self.oOO.Text.String,ordinal_neuer_Eintrag)
+            self.oOO.close(False)
+            
+            SFLink = neuer_Bereich.FileLink
+            neuer_Bereich.setPropertyValue('FileLink',SFLink)
+            
+            # zeilenname der neuen Datei setzen
+            zeile_hf = self.mb.props[T.AB].Hauptfeld.getControl('nr'+str(zeile_nr))
+            zeile_textfeld = zeile_hf.getControl('textfeld')
+    
+            endung = os.path.splitext(url_dat)[1]
+            name1 = os.path.basename(url_dat)
+            name2 = name1.split(endung)[0]
+    
+            zeile_textfeld.Model.Text = name2
+            
+            tree = self.mb.props[T.AB].xml_tree
+            root = tree.getroot() 
+            
+            xml_elem = root.find('.//'+ ordinal_neuer_Eintrag)
+            xml_elem.attrib['Name'] = name2
+    
+            Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
+            self.mb.tree_write(tree,Path)
+            
+            self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordinal_neuer_Eintrag)
+            
+            return ordinal_neuer_Eintrag,bereichsname
         
-        ordinal_neuer_Eintrag = 'nr'+str(zeile_nr)
-        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal_neuer_Eintrag]
-        sections = self.mb.doc.TextSections
-        neuer_Bereich = sections.getByName(bereichsname) 
-                            
-        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop.Name = 'Hidden'
-        prop.Value = True
-        
-        url_dat2 = uno.systemPathToFileUrl(url_dat)
-        self.oOO = self.mb.desktop.loadComponentFromURL(url_dat2,'_blank',8+32,(prop,))
-        
-        # moeglicherweise vorhandene Links entfernen
-        self.entferne_links(self.oOO)
-        self.kapsel_in_Bereich(self.oOO,str(zeile_nr))
-        self.entferne_seitenumbrueche_am_anfang(self.oOO)
-                
-        prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop3.Name = 'FilterName'
-        prop3.Value = 'writer8'
-
-        Path2 = uno.systemPathToFileUrl(zeile_pfad)
-        self.oOO.storeToURL(Path2,(prop3,))
-        self.oOO.close(False)
-        
-        #SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
-        SFLink = neuer_Bereich.FileLink
-         
-        neuer_Bereich.setPropertyValue('FileLink',SFLink)
-        
-        # zeilenname der neuen Datei setzen
-        zeile_hf = self.mb.props[T.AB].Hauptfeld.getControl('nr'+str(zeile_nr))
-        zeile_textfeld = zeile_hf.getControl('textfeld')
-
-        link_quelle1 = uno.fileUrlToSystemPath(url_dat)
-        endung = os.path.splitext(link_quelle1)[1]
-        name1 = os.path.basename(link_quelle1)
-        name2 = name1.split(endung)[0]
-
-        zeile_textfeld.Model.Text = name2
-        
-        tree = self.mb.props[T.AB].xml_tree
-        root = tree.getroot() 
-        
-        xml_elem = root.find('.//'+ ordinal_neuer_Eintrag)
-        xml_elem.attrib['Name'] = name2
-
-        Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
-        self.mb.tree_write(tree,Path)
-        
-        self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordinal_neuer_Eintrag)
-        
-        return ordinal_neuer_Eintrag,bereichsname
+        except Exception as e:
+            self.mb.nachricht(LANG.IMPORT_GESCHEITERT.format(e),'warningbox')
+            try:
+                self.oOO.close(False)
+            except:
+                pass 
      
     
     def entferne_seitenumbrueche_am_anfang(self,oOO):
@@ -583,9 +603,11 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                             link.IsVisible = True
                             if 'OrganonSec' in link.Name:
                                 link.Name = 'OldOrgSec'+link.Name.split('OrganonSec')[1]
-    
+            
+            return True
         except:
             log(inspect.stack,tb())
+            return False
     
     def kapsel_in_Bereich(self,oOO,ordn):
         if self.mb.debug: log(inspect.stack)
@@ -769,7 +791,6 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             else:
                 props = prop,
               
-
             self.oOO = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
 
             self.entferne_links(self.oOO)
@@ -784,6 +805,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             pfad2 = uno.systemPathToFileUrl(pfad)
             
             self.oOO.storeToURL(pfad2,(prop3,))
+            self.mb.class_Bereiche.plain_txt_speichern(self.oOO.Text.String,ordn)
             self.oOO.close(False)
             
             self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordn)
@@ -1384,17 +1406,19 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener):
         imp_set = self.mb.settings_imp 
 
         if ev.ActionCommand == 'Datei':
-        
-            filepath,ok = self.mb.class_Funktionen.filepicker2()
             
-            if not ok:
-                return
-            
-            self.model1.Label = uno.fileUrlToSystemPath(filepath)
-            imp_set['url_dat'] = filepath
-            
-            self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp)  
+            try:
+                filepath,ok = self.mb.class_Funktionen.filepicker2()
+                
+                if not ok:
+                    return
 
+                self.model1.Label = filepath
+                imp_set['url_dat'] = filepath
+
+                self.mb.speicher_settings("import_settings.txt", self.mb.settings_imp)  
+            except:
+                log(inspect.stack,tb())
         
         elif ev.ActionCommand == 'Ordner':
         

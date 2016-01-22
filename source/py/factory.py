@@ -45,7 +45,7 @@ platform = sys.platform
 if load_reload:
     pyPath = 'H:\\Programmierung\\Eclipse_Workspace\\Organon\\source\\py'
     if platform == 'linux':
-        pyPath = '/media/windows/Organon/source/py'
+        pyPath = '/media/sf_gemeinsamerOrdnerFedora/source/py'
     sys.path.append(pyPath)
 
 def pydevBrk():  

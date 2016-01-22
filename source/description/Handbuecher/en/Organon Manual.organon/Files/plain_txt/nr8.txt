@@ -1,0 +1,5 @@
+New Document / New Folder
+New files or folders will be created by clicking on the corresponding symbols in the menu bar of Organon. They will be created beneath the selected node on the same level as the node. Therefore upon selected folders with entries, the new node will appear beneath the folder entries.  
+
+For newly created files, the tags from the tree view will be taken from the activated file.
+

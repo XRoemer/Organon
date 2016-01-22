@@ -1,0 +1,4 @@
+Navigation:
+To use drag and drop, click on the text of the node, hold the mouse button and drag. An arrow will be shown. A folder can't be dragged on himself (indicated by a red point). 
+
+To open and close a folder, double click on its icon.

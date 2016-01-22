@@ -1,0 +1,4 @@
+Neues Dokument / Neuer Ordner
+Neue Dateien oder Ordner werden mit den Datei/Ordner-Symbolen in der ORGANON-Menüleiste oder unter dem Reiter Datei erzeugt. Die neuen Einträge entstehen unter der ausgewählten Zeile und auf dem gleichen Einrücklevel. Bei ausgewählten Ordnern, die Inhalte besitzen, wird der neue Eintrag daher erst nach dem Inhalt der Ordner eingefügt.  
+
+Für neu erzeugte Dateien werden die Tags aus der Baumansicht aus der aktivierten Datei übernommen.

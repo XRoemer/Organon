@@ -20,6 +20,15 @@ class Tabs():
         if self.mb.debug: log(inspect.stack)
 
         try:
+            # ausgewaehlte zeile ueberpruefen
+            props = self.mb.props[T.AB]
+            selektiert = props.selektierte_zeile
+            papierkorb_inhalt = self.mb.class_XML.get_papierkorb_inhalt()
+            
+            if selektiert in papierkorb_inhalt:
+                self.mb.nachricht(LANG.NICHT_IM_PAPIERKORB_ERSTELLEN,'infobox')
+                return
+            
             self.berechne_ordinale_in_baum_und_tab(in_tab_einfuegen)
             self.dialog_tabs(in_tab_einfuegen)   
         except:
@@ -60,54 +69,39 @@ class Tabs():
         
         tab_auswahl = self.mb.props[T.AB].tab_auswahl
         
-        ordinale = []
+        ordinale = set()
+        ordinale_auswahl = []
         ordinale_seitenleiste = []
         ordinale_baumansicht = []
-        ordinale_auswahl = []
         
-
-       
         if tab_auswahl.eigene_auswahl_use == 1:
             ordinale_auswahl = self.get_ordinale_eigene_auswahl()
         if tab_auswahl.seitenleiste_use == 1:
             ordinale_seitenleiste = self.get_ordinale_seitenleiste(in_tab_einfuegen)
         if tab_auswahl.baumansicht_use == 1:
             ordinale_baumansicht = self.get_ordinale_baumansicht(in_tab_einfuegen)
-        if tab_auswahl.suche_use == 1:
-            pass
         
         
         ############# LOGIK ###############
         # Alle Ordinale in list eintragen
+        ordinale |= set(ordinale_auswahl)
+        ordinale |= set(ordinale_seitenleiste)
+        ordinale |= set(ordinale_baumansicht)
         
-        for ordi in ordinale_auswahl:
-            if ordi not in ordinale:
-                ordinale.append(ordi)
-        for ordi in ordinale_seitenleiste:
-            if ordi not in ordinale:
-                ordinale.append(ordi)
-        for ordi in ordinale_baumansicht:
-            if ordi not in ordinale:
-                ordinale.append(ordi)
-        
-        helfer = ordinale[:]
+        helfer = ordinale
         
         # Wenn Logik auf UND steht, alle im entsprechenden Tag 
-        # nicht vorhandeneOrdinale wieder loeschen  
-        if tab_auswahl.seitenleiste_log != 'V':
-            for ordin in ordinale:
-                if ordin not in ordinale_seitenleiste:
-                    helfer.remove(ordin)
-        if tab_auswahl.baumansicht_log != 'V':
-            for ordi in ordinale:
-                if ordi not in ordinale_baumansicht:
-                    helfer.remove(ordi)
-        
-        ordinale = helfer
-                         
+        # nicht vorhandene Ordinale wieder loeschen  
+        if tab_auswahl.seitenleiste_use and tab_auswahl.seitenleiste_log != 'V':
+            ordinale = ordinale.intersection(set(ordinale_seitenleiste))
+        if tab_auswahl.baumansicht_use and tab_auswahl.baumansicht_log != 'V':
+            ordinale = ordinale.intersection(set(ordinale_baumansicht))
+        if tab_auswahl.eigene_auswahl_use and tab_auswahl.eigene_auswahl_log != 'V':
+            ordinale = ordinale.intersection(set(ordinale_auswahl))
+          
         if len(ordinale) == 0:
             return []
-         
+        
         # Ordinale sortieren 
         ordinale = self.sortiere_ordinale(ordinale)
         if tab_auswahl.zeitlich_anordnen == 1:
@@ -140,14 +134,6 @@ class Tabs():
                               for j in tags['ordinale']} 
 
 
-            if tab_auswahl.seitenleiste_log_tags == 'V':
-                # Alle Eintraege
-                UND = False
-            else:
-                # Nur Eintraege, in denen alle Tags vorkommen
-                UND = True
-            
-            
             ordinale = []
                        
             for ordi in alle_ordinale:
@@ -166,7 +152,7 @@ class Tabs():
                     else:
                         s_tag_ist_drin.append(False)
                         
-                    if UND == True:
+                    if tab_auswahl.seitenleiste_log_tags != 'V':
                         if False in s_tag_ist_drin:
                             tag_ist_drin = False
                     else:    
@@ -201,8 +187,12 @@ class Tabs():
             if in_tab_einfuegen:
                 if eintrag.tag in self.im_tab_vorhandene:
                     continue
-            if eintrag.attrib['Tag1'] in ausgew_icons or eintrag.attrib['Tag2'] in ausgew_icons:
-                ordinale.append(eintrag.tag)
+            if tab_auswahl.baumansicht_log_tags == 'V':
+                if eintrag.attrib['Tag1'] in ausgew_icons or eintrag.attrib['Tag2'] in ausgew_icons:
+                    ordinale.append(eintrag.tag)
+            else:
+                if eintrag.attrib['Tag1'] in ausgew_icons and eintrag.attrib['Tag2'] in ausgew_icons:
+                    ordinale.append(eintrag.tag)
 
         return ordinale
     
@@ -220,16 +210,10 @@ class Tabs():
     
     def dialog_tabs_elemente(self,button_listener,in_tab_einfuegen = False):
         if self.mb.debug: log(inspect.stack)
-        
-        
 
-        
         width = 20
         width2 = 20
-        
-        y = 20
-        
-        
+                
         if in_tab_einfuegen:
             Ueberschrift = LANG.IMPORTIERE_IN_TAB
         else:
@@ -250,10 +234,9 @@ class Tabs():
               
         enable_zd = enable_datum or enable_zeit
 
-        
-        
+        tab_auswahl = self.mb.props[T.AB].tab_auswahl
+
         abst1 = 15
-        abst2 = abst1 + 20
         
         controls = [
         
@@ -286,6 +269,12 @@ class Tabs():
                         (LANG.AUSWAHL,),
                         {'setActionCommand':'Eigene Auswahl','addActionListener':(button_listener)} 
                         ),
+        ('but1_eigene_auswahl',"Button",0, 
+                        'tab2', 0, 16, 16, 
+                        ('Label','HelpText'),
+                        (tab_auswahl.eigene_auswahl_log,LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V auswahl','addActionListener':(button_listener)} 
+                        ),
         30,
         ('Line1',"FixedLine",0, 
                         'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
@@ -298,8 +287,8 @@ class Tabs():
         ('but1_Seitenleiste',"Button",0, 
                         'tab2', 0, 16, 16, 
                         ('Label','HelpText'),
-                        (u'V',LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED),
-                        {'setActionCommand':'V','addActionListener':(button_listener)} 
+                        (tab_auswahl.seitenleiste_log,LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V sl','addActionListener':(button_listener)} 
                         ),
         0,
         ('CB_Seitenleiste',"CheckBox",1, 
@@ -319,8 +308,8 @@ class Tabs():
         ('but3_Seitenleiste',"Button",0, 
                         'tab0x+{}'.format(abst1), 0, 16, 16,  
                         ('Label','HelpText'),
-                        (u'V',LANG.TAB_HELP_TEXT),
-                        {'setActionCommand':'V','addActionListener':(button_listener)} 
+                        (tab_auswahl.seitenleiste_log_tags,LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V sl tags','addActionListener':(button_listener)} 
                         ),
         0,
         ('txt_Seitenleiste',"FixedText",0, 
@@ -341,8 +330,8 @@ class Tabs():
         ('but1_Baumansicht',"Button",0, 
                         'tab2', 0, 16, 16,  
                         ('Label','HelpText'),
-                        (u'V',LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED),
-                        {'setActionCommand':'V','addActionListener':(button_listener)}
+                        (tab_auswahl.baumansicht_log,LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V baum','addActionListener':(button_listener)}
                         ), 
         0,
         ('CB_Baumansicht',"CheckBox",1, 
@@ -361,8 +350,8 @@ class Tabs():
         ('but3_Baumansicht',"Button",0, 
                         'tab0x+{}'.format(abst1), 0, 16, 16,  
                         ('Label','HelpText'),
-                        (u'V',LANG.TAB_HELP_TEXT),
-                        {'setActionCommand':'V','addActionListener':(button_listener)} 
+                        (tab_auswahl.baumansicht_log_tags,LANG.TAB_HELP_TEXT),
+                        {'setActionCommand':'V baum tags','addActionListener':(button_listener)} 
                         ),  
         0,      
         ('icons_Baumansicht',"Container",0, 
@@ -378,42 +367,42 @@ class Tabs():
                         (),
                         {}
                         ),
-        #################### SUCHE ########################
-        30,
-        ('but1_Suche',"Button",0, 
-                        'tab2', 0, 16, 16,  
-                        ('Label','HelpText'),
-                        (u'V',LANG.TAB_HELP_TEXT_NOT_IMPLEMENTED),
-                        {'setActionCommand':'V','addActionListener':(button_listener),'Enable':False}
-                        ),
-        0,
-        ('CB_Suche',"CheckBox",1, 
-                        'tab0', 0, width, 20,  
-                        ('Label',),
-                        (LANG.SUCHE,),
-                        {'Enable':False} 
-                        ),
-        0,
-        ('edit_Suche',"Edit",0, 
-                        'tab1-tab1-E', 0, width2, 20, 
-                        ('Label',),
-                        (LANG.AUSWAHL,),
-                        {'addTextListener':(button_listener),'Enable':False }
-                        ),
-        20,
-        ('txt_Suche',"FixedText",1, 
-                        'tab0x+{}'.format(abst1), 0, 200, 20,  
-                        ('Label',),
-                        ('',),
-                        {'Enable':False} 
-                        ),
-        20,
-        ('Line4',"FixedLine",0, 
-                        'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
-                        (), 
-                        (),
-                        {}
-                        ),  
+#         #################### SUCHE ########################
+#         30,
+#         ('but1_Suche',"Button",0, 
+#                         'tab2', 0, 16, 16,  
+#                         ('Label','HelpText'),
+#                         (u'V',LANG.TAB_HELP_TEXT),
+#                         {'setActionCommand':'V','addActionListener':(button_listener),'Enable':False}
+#                         ),
+#         0,
+#         ('CB_Suche',"CheckBox",1, 
+#                         'tab0', 0, width, 20,  
+#                         ('Label',),
+#                         (LANG.SUCHE,),
+#                         {'Enable':False} 
+#                         ),
+#         0,
+#         ('edit_Suche',"Edit",0, 
+#                         'tab1-tab1-E', 0, width2, 20, 
+#                         ('Label',),
+#                         (LANG.AUSWAHL,),
+#                         {'addTextListener':(button_listener),'Enable':False }
+#                         ),
+#         20,
+#         ('txt_Suche',"FixedText",1, 
+#                         'tab0x+{}'.format(abst1), 0, 200, 20,  
+#                         ('Label',),
+#                         ('',),
+#                         {'Enable':False} 
+#                         ),
+#         20,
+#         ('Line4',"FixedLine",0, 
+#                         'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
+#                         (), 
+#                         (),
+#                         {}
+#                         ),  
         ####################################################################
         50,
         ('Zeit',"CheckBox",1, 
@@ -553,7 +542,6 @@ class Tabs():
             
         except:
             log(inspect.stack,tb())
-            
     
  
     def sortiere_ordinale(self,ordinale):
@@ -563,15 +551,9 @@ class Tabs():
         root = props.xml_tree.getroot()
         all_ordinals = [elem.tag for elem in root.iter()]
 
-        sorted_ordinals = []
-        
-        for ordn in all_ordinals:
-            if ordn in ordinale:
-                sorted_ordinals.append(ordn)
+        return [o for o in all_ordinals if o in ordinale]
 
-        return sorted_ordinals
-    
-    
+
     def sortiere_ordinale_zeitlich(self,ordinale,tab_auswahl):
         if self.mb.debug: log(inspect.stack)
         try:
@@ -672,23 +654,24 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
     def actionPerformed(self,ev):
         if self.mb.debug: log(inspect.stack)
         try:
-
-            if ev.ActionCommand == 'Tags Seitenleiste':
+            cmd = ev.ActionCommand
+            
+            if cmd == 'Tags Seitenleiste':
                 if not self.mb.class_Tabs.win_seitenleiste:
                     self.erzeuge_tag_auswahl_seitenleiste(ev)
                     self.mb.class_Tabs.win_seitenleiste = True
                 
-            elif ev.ActionCommand == 'Tags Baumansicht':
+            elif cmd == 'Tags Baumansicht':
                 if not self.mb.class_Tabs.win_baumansicht:
                     self.erzeuge_tag_auswahl_baumansicht(ev)
                     self.mb.class_Tabs.win_baumansicht = True
                 
-            elif ev.ActionCommand == 'Eigene Auswahl':
+            elif cmd == 'Eigene Auswahl':
                 if not self.mb.class_Tabs.win_eigene_auswahl:
                     self.erzeuge_Fenster_fuer_eigene_Auswahl(ev)
                     self.mb.class_Tabs.win_eigene_auswahl = True
                     
-            elif ev.ActionCommand == 'ok':
+            elif cmd == 'ok':
                 try:
                     self.erstelle_auswahl_dict(ev)
                     ok = self.pruefe_tab_namen()
@@ -711,7 +694,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 except:
                     log(inspect.stack,tb())
                     
-            elif ev.ActionCommand == 'ok_tab':
+            elif cmd == 'ok_tab':
                 try:
                     self.erstelle_auswahl_dict(ev)
                     self.win.dispose()
@@ -726,18 +709,31 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                 except:
                     log(inspect.stack,tb())
                     
-            elif ev.ActionCommand == 'V':
+            elif cmd[0] == 'V':
+                
+                tab_auswahl = self.mb.props[T.AB].tab_auswahl
+
                 if ev.Source.Model.Label == 'V':
-                    ev.Source.Model.Label = u'\u039B'
+                    logic = u'\u039B'
                 else:
-                    ev.Source.Model.Label = 'V'
+                    logic = 'V'
+                    
+                ev.Source.Model.Label = logic
+                    
+                if cmd == 'V sl':
+                    tab_auswahl.seitenleiste_log = logic
+                elif cmd == 'V sl tags':
+                    tab_auswahl.seitenleiste_log_tags = logic
+                elif cmd == 'V baum':
+                    tab_auswahl.baumansicht_log = logic
+                elif cmd == 'V baum tags':
+                    tab_auswahl.baumansicht_log_tags = logic 
+                elif cmd == 'V auswahl':
+                    tab_auswahl.eigene_auswahl_log = logic 
+
         except:
             log(inspect.stack,tb())
     
-    
-    def textChanged(self,ev):
-        main_win = ev.Source.Context
-        main_win.getControl('txt_Suche').Model.Label = ev.Source.Text
         
     def get_fenster_position(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -749,9 +745,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-        
-            
-            
             # BENUTZTE TAGS
             url_nutzer_tags = []
             nutzer_tags = []
@@ -759,9 +752,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             
             tree = self.mb.props['ORGANON'].xml_tree
             root = tree.getroot()
-            alle_elem = root.findall('.//')
-            
-            
+            alle_elem = root.findall('.//')            
             
             for el in alle_elem:
                 farbe = el.attrib['Tag1']
@@ -776,15 +767,12 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     nutzer_tags.append((name,el.attrib['Tag2']))
             
             
-            
             # TITEL
             prop_names = ('Label',)
             prop_values = (LANG.AUSGEWAEHLTE,)
             control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
             model.FontWeight = 150 
-            
-            
-            
+                        
             prop_names = ('Label',)
             prop_values = (LANG.BENUTZTE,)
             controlT2, modelT2 = self.mb.createControl(self.mb.ctx, "FixedText", 120, 10, 300, 20, prop_names, prop_values) 
@@ -794,10 +782,11 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
             controlTrenner, modelTrenner = self.mb.createControl(self.mb.ctx, "FixedLine", 100, 40, 10, 340, (), ()) 
             modelTrenner.Orientation = 1
             
+            farb_icons,ausgew_icons,user_icons,breite = self.erzeuge_ListBox_Tag1(tuple(farb_tags),nutzer_tags) 
             
-            farb_icons,ausgew_icons,user_icons,breite = self.erzeuge_ListBox_Tag1(tuple(farb_tags),nutzer_tags)
-            
-            
+            breite1 = controlT2.PreferredSize.Width + controlT2.PosSize.X
+            if breite1 > breite:
+                breite = breite1           
             
             tag_item_listener = Tag1_Listener(self.mb,self.fenster_cont,farb_icons,ausgew_icons,user_icons)
             farb_icons.addItemListener(tag_item_listener)
@@ -832,7 +821,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         # FARB_TAGS
         control, model = self.mb.createControl(self.mb.ctx, "ListBox", 120, 40, 80 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control.setMultipleMode(False)
-        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         model.Border = 0          
         
         for item in farb_tags:
@@ -842,7 +830,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         # NUTZER_TAGS
         control2, model2 = self.mb.createControl(self.mb.ctx, "ListBox", 220, 40, 280 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control2.setMultipleMode(False)
-        model2.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         model2.Border = 0
 
         for (item,url) in nutzer_tags:
@@ -854,7 +841,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         control_ausgewaehlte, model = self.mb.createControl(self.mb.ctx, "ListBox", 10, 40, KONST.BREITE_TAG1_CONTAINER -8 , KONST.HOEHE_TAG1_CONTAINER -8 , (), ())   
         control_ausgewaehlte.setMultipleMode(False)
         model.Border = 0
-        model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER
         
         return control,control_ausgewaehlte,control2, breite
     
@@ -863,52 +849,69 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            x,y = self.get_fenster_position(ev)
-            posSize = (x,y,970,400)
-            
-            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
 
             sammlung = self.mb.tags['sammlung']
-            tag_panels = [[i,v[0]] for i,v in self.mb.tags['nr_name'].items() if v[1] == 'tag']
-            
-            prop_names = ('Label',)
-            prop_values = (LANG.AUSGEWAEHLTE,)
-            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
-            model.FontWeight = 200.0 
-            cont.addControl('ausgewaehlte_XXX', control)
+            tag_panels = [[i,v[0]] for i,v in self.mb.tags['nr_name'].items() if v[1] == 'tag']            
             
             self.controls = []
-            auswahl_listener = Auswahl_Tags_Listener(self.mb,win,cont,self.controls,ev.Source)
+            auswahl_listener = Auswahl_Tags_Listener(self.mb,self.controls,ev.Source)
 
             x = 150
             width = 100
-
+            ctrls = {}
+            y_max = 0
+            
             for nr,name in tag_panels:
 
                 prop_names = ('Label','Align')
                 prop_values = (name,1)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", x, 10, width, 20, prop_names, prop_values)  
-                cont.addControl(name, control)
+                
+                ctrls.update({name:control})
                 
                 y = 0
                 for t in sammlung[nr]:
                     prop_names = ('Label',)
                     prop_values = (t,)
                     control, model = self.mb.createControl(self.mb.ctx, "Button", x + 10, y + 30, width - 20, 20, prop_names, prop_values)  
-                    cont.addControl(t, control)
                     control.setActionCommand(t)
                     control.addActionListener(auswahl_listener)
-
+                    ctrls.update({t+'###':control})
+                    
                     y += 25
+                    
+                    if y > y_max:
+                        y_max = y
                 
                 x += (width + 10)
+            
+            
+            x1,y1 = self.get_fenster_position(ev)
+            posSize = (x1,y1,x,y_max + 250)
+
+            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            
+            auswahl_listener.win = win
+            auswahl_listener.cont = cont
+            
+            for c,control in ctrls.items():
+                cont.addControl(c, control)
                 
+                
+            prop_names = ('Label',)
+            prop_values = (LANG.AUSGEWAEHLTE,)
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 10, 100, 20, prop_names, prop_values) 
+            model.FontWeight = 200.0 
+            cont.addControl('ausgewaehlte_XXX', control)
+            
+               
             dispose_listener = Listener_for_Win_dispose(self.mb,'seitenleiste')
             win.addEventListener(dispose_listener)
             
         except:
             log(inspect.stack,tb())
-        
+            
+            
     def erstelle_auswahl_dict(self,ev):
         if self.mb.debug: log(inspect.stack)
         
@@ -927,10 +930,6 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         tab_auswahl.baumansicht_use = main_win.getControl('CB_Baumansicht').State
         tab_auswahl.baumansicht_log = main_win.getControl('but1_Baumansicht').Model.Label
         tab_auswahl.baumansicht_tags = self.get_baumansicht_icons()
-        
-        tab_auswahl.suche_use = main_win.getControl('CB_Suche').State
-        tab_auswahl.suche_log = main_win.getControl('but1_Suche').Model.Label
-        tab_auswahl.suche_term = main_win.getControl('txt_Suche').Model.Label
 
         tab_auswahl.zeitlich_anordnen = main_win.getControl('Zeit').State
         tab_auswahl.kein_tag_einbeziehen = main_win.getControl('Zeit2').State
@@ -1118,11 +1117,11 @@ class Tag1_Listener(unohelper.Base, XItemListener):
 
         
 class Auswahl_Tags_Listener(unohelper.Base, XActionListener):
-    def __init__(self,mb,win,cont,controls,source):
+    def __init__(self,mb,controls,source):
         if mb.debug: log(inspect.stack)
         self.mb = mb
-        self.win = win
-        self.cont = cont
+        self.win = None
+        self.cont = None
         self.controls = controls
         self.source = source
         
@@ -1266,14 +1265,13 @@ class TabsX():
             log(inspect.stack,tb())
 
         
-    def erzeuge_neuen_tab2(self,ordinale):
+    def erzeuge_neuen_tab2(self,ordinale, tab_name=None):
         if self.mb.debug: log(inspect.stack)
 
-        tab_auswahl = self.mb.props[T.AB].tab_auswahl
-        
         try:
-            
-            tab_name = tab_auswahl.tab_name
+            if not tab_name:
+                tab_auswahl = self.mb.props[T.AB].tab_auswahl
+                tab_name = tab_auswahl.tab_name
             
             # zur Sicherung, damit der projekt xml nicht ueberschrieben wrd
             if tab_name == 'ORGANON':
@@ -1285,7 +1283,7 @@ class TabsX():
 
             win = self.erzeuge_neuen_tab(tab_name)
  
-            self.mb.erzeuge_Menu(win)
+            self.mb.erzeuge_Menu(win,tab=True)
  
             self.erzeuge_Hauptfeld(win,tab_name,Eintraege)
             erste_datei =   self.get_erste_datei(tab_name)          
@@ -1296,7 +1294,6 @@ class TabsX():
             Path = os.path.join(self.mb.pfade['tabs'] , tab_name +'.xml' )
             self.mb.tree_write(tree,Path)
             
-            #self.mb.class_Projekt.erzeuge_dict_ordner(tab_name=tab_name)
             self.tab_umschalten(tab_name)
             
         except:
@@ -1333,28 +1330,30 @@ class TabsX():
     def erzeuge_tabeintrag_und_fenster(self,tab_name):
         if self.mb.debug: log(inspect.stack)
         
-        
-        # Eintrag in Tableiste
-        ctrl,model = self.mb.createControl(self.mb.ctx,'FixedText',0,0,0,self.h_tabs,
-                    ('Label','Border','BackgroundColor',
-                     'TextColor',
-                     'Align','VerticalAlign'),
-                    (tab_name,0,KONST.FARBE_TABS_HINTERGRUND,
-                     KONST.FARBE_TABS_SCHRIFT,
-                     1,1))
-        
-        ctrl.addMouseListener(self.tab_listener)
-        self.tableiste.addControl(tab_name,ctrl)
-        
-        # Groesse zurechtschneiden
-        self.pref_size(tab_name,ctrl)
-        
-        
-        # Tabfenster
-        container_hf,model_hf = self.mb.createControl(self.mb.ctx,'Container',
-                                                      0,0,self.breite_hauptfeld,self.hoehe_hauptfeld,
-                                       ('BackgroundColor',),(KONST.FARBE_HF_HINTERGRUND,))
-        
+        try:
+            # Eintrag in Tableiste
+            ctrl,model = self.mb.createControl(self.mb.ctx,'FixedText',0,0,0,self.h_tabs,
+                        ('Label','Border','BackgroundColor',
+                         'TextColor',
+                         'Align','VerticalAlign'),
+                        (tab_name,0,KONST.FARBE_TABS_HINTERGRUND,
+                         KONST.FARBE_TABS_SCHRIFT,
+                         1,1))
+            
+            ctrl.addMouseListener(self.tab_listener)
+            self.tableiste.addControl(tab_name,ctrl)
+            
+            # Groesse zurechtschneiden
+            self.pref_size(tab_name,ctrl)
+            
+            
+            # Tabfenster
+            container_hf,model_hf = self.mb.createControl(self.mb.ctx,'Container',
+                                                          0,0,self.breite_hauptfeld,self.hoehe_hauptfeld,
+                                           ('BackgroundColor',),(KONST.FARBE_HF_HINTERGRUND,))
+        except:
+            log(inspect.stack,tb())
+            
         return container_hf
     
 
@@ -1525,6 +1524,7 @@ class TabsX():
             self.layout_tab_zeilen()
 
             del self.mb.props[T.AB]
+            del self.mb.tabsX.Hauptfelder[T.AB]
             
             self.tab_umschalten('ORGANON',wurde_geloescht=True)
         except:
@@ -1752,7 +1752,8 @@ class TabsX():
             props = self.mb.props
             self.mb.props[tab_name].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(win)  
             self.mb.class_Fenster.erzeuge_Scrollbar2(win)  
-            self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name)    
+            self.erzeuge_Eintraege_und_Bereiche(Eintraege,tab_name) 
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()   
         except:
             log(inspect.stack,tb())
 

@@ -1,0 +1,17 @@
+Devide Text (Batch)
+
+With the function “Devide Text (Batch)” a file can be divided into multiple files and folders at once.
+
+The searchterm divides the source text before the occurrence of the searchterm.
+The word search is not case sensitive.
+
+Regular expression corresponds in its operation to the Writer search.
+See: https://wiki.openoffice.org/wiki/Documentation/How_Tos/Regular_Expressions_in_Writer
+
+The option Blank Lines divides the text in occurrences of blank lines.
+
+When Headings are selected, the text is divided according to its headers in the default formatting (heading, heading1, heading2 etc.).
+
+While the searchterm and blank lines create files, headings are created as a folder. The headings are mirrored in their hierarchy in the newly created folders. 
+
+The source file will be kept.

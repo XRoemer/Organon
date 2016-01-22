@@ -1,0 +1,16 @@
+Separator formatting
+There are four options for the formatting of the separator :
+Line
+Color with inscription
+User Defined
+No Separator
+
+
+Color: 
+The color of font and background can be selected. The value must be a hexadecimal value. For a color picker, see the Web as under : 
+http://www.colorpicker.com/
+Or in Writer under Extras / Settings / Libre- , OpenOffice / Colors / Edit
+You can choose a color or click the eyedropper and get the hexadecimal color values displayed​​among the Hex #.
+
+Custom:
+You can choose an icon or an image as a separator . An icon appears in the center of the line. A picture should have approximately the dimensions of the separator, wich gets displayed with the selection color, to be not too distorted . Try yourself!

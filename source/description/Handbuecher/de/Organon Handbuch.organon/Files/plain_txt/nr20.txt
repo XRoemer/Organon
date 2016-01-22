@@ -1,0 +1,4 @@
+Speichern:
+Organon speichert Textänderungen von allein. Nach Textänderungen muss also nie gespeichert werden. Nach Wechsel der Ansicht oder beim Schließen wird automatisch gespeichert. Wenn OO oder LO beim Beenden fragen, ob gespeichert werden soll, kann man das getrost wegklicken. Frei nach Duchamp, der ja auch nie ne Schraube anzog, wenn er nicht musste – laut Paul Matisse. Aber naja …
+
+Ausnahme: Eingefügte Bilder/Grafiken/Textbereiche/Formatierungen werden nicht automatisch gespeichert. Um diese zu Speichern, einmal in die Datei klicken und ein Leerzeichen einfügen und wieder löschen.

@@ -1,0 +1,3 @@
+Tags Treeview:
+Select the colors.
+Colors will be shown in the dialog window as well.

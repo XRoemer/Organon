@@ -1,0 +1,6 @@
+Logging 
+Für das Loggen Organons. Nur interessant für Entwickler und bei der Fehlersuche im Programm.
+
+Wird Office über eine Python Konsole gestartet, kann bei Aktivierung der Konsolenausgabe ebendiese aktiviert werden. Zusätzlich können alle Argumente, die beim Aufruf der Methoden und Klassen übergeben werden, angezeigt werden.
+
+Die Konsolenausgabe kann auch in einer Datei gespeichert werden. 

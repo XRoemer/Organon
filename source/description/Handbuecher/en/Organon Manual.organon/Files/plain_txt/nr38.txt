@@ -1,0 +1,8 @@
+Dialog
+A new tab can be created using this dialog. The new tab can only contain files or folders from the project tab. When you edit files in the tab, the changes will be assumed in the project folder.
+When you delete files in a tab, they won't be deleted in the project folder.
+It ain't possible to delete files in the project folder, when they are still opened in a tab – they have to be deleted in the tab first.
+
+In the dialog multiple selections are possible. Each selection from 'own selection', 'tags sidebar', 'tags treeview', 'search' ('search' isn't implemented yet) will create its own results, which will be combined, when you choose more than one entry. 
+
+The tab name can freely be chosen. Double names for tabs are not allowed.

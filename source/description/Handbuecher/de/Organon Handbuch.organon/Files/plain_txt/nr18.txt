@@ -1,0 +1,5 @@
+Dateien/Ordner umbenennen:
+Durch Doppelklick auf ihren Namen können Dateien/Ordner umbenannt werden. Der Text wird mit einer anderen Farbe unterlegt. 
+Der Projektordner und der Papierkorb können weder umbenannt noch verschoben werden.
+
+Es kann ein Shortcut für diese Funktion gesetzt werden.

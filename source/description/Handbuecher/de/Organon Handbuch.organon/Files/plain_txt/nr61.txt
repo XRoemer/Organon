@@ -1,0 +1,10 @@
+Personas (nur LO)
+Unter dem Reiter „Design: Personas“ in den Organon Einstellungen können schnell und einfach Personas erstellt und diese sowie bereits vorhandene gesetzt oder gelöscht werden.
+
+Um ein Persona zu setzen, muss ein Persona in der linken Spalte ausgewählt werden. Die Schriftfarbe richtet sich nach angezeigten Schriftfarbe in der mittleren Spalte. „Persona anwenden“ klicken.
+Um ein Persona zu löschen, Persona aussuchen und den „Persona löschen“ Button klicken.
+Um ein neues Persona zu erstellen, muss in das Textfeld der rechten Spalte ein Name eingegeben werden. Es bestehen folgende Möglichkeiten der Erstellung:
+einfarbig: nur „Hintergrund Farbe“ anwählen
+Verlauf: „Hintergrund Verlauf“ anwählen. Organon erstellt aus Hintergrund Farbe und Hintergrund Verlauf einen einfachen vertikalen Verlauf.
+Nutzer: Organon erstellt aus dem vom Nutzer ausgewählten Bild ein neues Persona. Die Bilddatei muss die Mindestmaße 2500px * 200px haben , da sie ansonsten später nicht mehr gefunden und damit benutzt werden kann.
+

@@ -1,0 +1,10 @@
+Shortcuts
+Shortcuts können in den Einstellungen vom Benutzer selbst festgelegt werden.
+Hat ein Shortcut keinen Eintrag, so ist er nicht aktiv.
+
+Folgende Funktionen können nur im Projekttab ('ORGANON') verwendet werden:
+teile Text
+erzeuge neue Datei
+erzeuge neuen Ordner
+
+Alle anderen Shortcuts können in jedem Tab verwendet werden

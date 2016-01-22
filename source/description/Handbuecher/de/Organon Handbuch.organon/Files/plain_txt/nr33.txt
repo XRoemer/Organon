@@ -1,0 +1,1 @@
+Für Projekt, die von einer älteren Version Organons erzeugt wurden, gibt es eine interne Versionskontrolle, die die Projekte beim Öffnen mit einer neueren Version entsprechend anpasst. Mit einer älteren Version können sie danach wahrscheinlich nicht mehr geöffnet werden.  

@@ -1,0 +1,9 @@
+Create Index
+A very specialized tool to create an index on a translation with counting. Texts with counts are about the ancient texts or texts in critical editions. The census has the form "Square opening bracket / number / comma / number / square closing bracket"  e.g  [102.15] 
+(Planned for a future implementation is a regular expression, where the shape of the count can be determined by the user.)
+
+The text tool creates a browser-document with three columns:
+
+The first column is the navigation that lists all occurring in the source code words alphabetically or chronologically. Using the Navigation You can jump to the corresponding locations in the count. (The tool will work without counting in the source text and translation, but it makes little sense for this reason.)
+The second column is the source code.
+The third column is the translation. 

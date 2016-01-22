@@ -1,0 +1,13 @@
+Import
+Auswahl: Datei oder Ordner importieren
+Ordnerstruktur beibehalten: 
+Wenn ein Ordner mit Unterordnern importiert werden soll, kann das in einer flachen Hierarchie geschehen, indem alle Dateien der Unterordner in den importierten Ordner gesetzt werden. (Ordnerstruktur nicht beibehalten) 
+
+Oder Organon legt die Verzeichnisse entsprechend der Einträge im zu importierenden Ordner an.(Ordnerstruktur beibehalten) 
+
+Filter:
+Nur Dateien, die den ausgewählten Filtern entsprechen, werden importiert. (nur bei Ordnerimport)
+Filter, eigene Auswahl:
+Diese Funktion ist experimentell und einige Filter funktionieren nicht (etwa pdf, da der Filter in ein Draw Dokument importiert). Da OO und (vor allem) LO aber eine ganze Reihe von Filtern anbieten, kann hier versucht werden, sie bei Bedarf zu nutzen.
+Writer kann beim Gebrauch der Funktion abstürzen oder das Projekt zerstören.
+Empfehlenswert ist der Import in ein neues Projekt, dann Export als .odt Datei, um diese dann in das eigentliche Zielprojekt zu importieren.

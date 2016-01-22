@@ -1,0 +1,19 @@
+Tags
+Tags-Kategorien sind frei konfigurierbar.
+
+Name und Breite (Ansicht im Organizer in cm) vorhandener Kategorien werden durch Änderung des Eintrages und anschließenden Klick auf „Übernehmen“ geändert.
+Für eine neue Kategorie tragen Sie Namen und Breite ein und wählen sie einen Kategorietypen aus. Es gibt fünf Typen:
+Text (Fließtext)
+Tag (Klassischer Tag, Sammlung einzelner Begriffe oder kurzer Ausdrücke)
+Bild (pro Kategorie nur ein Bild)
+Datum
+Zeit
+Um die Reihenfolge der Kategorien zu ändern, wählen Sie eine Kategorie aus und benutzen die Pfeiltasten.
+Die selektierte Kategorie wird mit „Kategorie löschen“ gelöscht.
+Die Darstellung des Datums kann mit der Auswahl unter Datumsformat geändert werden. Ein Datum muss immer entsprechend des Datumformats eingegeben werden.
+
+Mit Klick auf „Bestätigung“ werden die Änderungen übernommen.
+
+Es können von jedem Typen eine beliebige Anzahl an Kategorien erstellt werden.
+
+Bildkategorien verlangsamen Organon und den Organizer, insbesondere wenn große Bilder genutzt werden. Z.Z. werden von den Bilder noch keine Thumbnails erstellt, die die Anzeige beschleunigen würden.

@@ -1,0 +1,6 @@
+### ERROR ### 
+Traceback (most recent call last):
+  File "C:\Users\Homer\AppData\Roaming\OpenOffice\4\user\uno_packages\cache\uno_packages\sv85nl1.tmp_\organon.oxt\py\projects.py", line 712, in lade_Projekt
+    self.mb.doc.storeAsURL(Path2,())
+com.sun.star.task.ErrorCodeIOException
+

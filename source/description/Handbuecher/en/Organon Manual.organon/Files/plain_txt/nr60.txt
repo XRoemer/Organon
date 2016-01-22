@@ -1,0 +1,2 @@
+Create Words List
+This text tool creates a simple list of all occurring words in the selected text and stores them in chronological or alphabetical order in a Calc document.

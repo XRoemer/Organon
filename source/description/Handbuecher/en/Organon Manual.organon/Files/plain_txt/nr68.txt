@@ -1,0 +1,25 @@
+Writer Design
+
+Please note when using Writer designs:
+After switching a design the changes are completely visible only after a restart.
+Depending on the operating system and system-specific settings the representations turn out differently. (The best display provides me LO under Windows with sifr icons.)
+Simultaneously running applications (Calc, Draw, etc.) of a session
+also get inked. After a restart with deactivated design the default colors are used again.
+At the moment no .odt Document can be opened via right click and "open with" by Writer with active Writer design since the surface of Writer is closed by Organon after opening and re-started. Here, the loaded document will also be closed again.
+The sidebar is fully colored only while a Organon project is opened and with the first click on the Organon icon.
+Changes in the document colors and the Persona (LO) are permanent and are not set back to default, when the Writer Design is disabled.
+They can be reset in two ways again:
+Set document background and the background of the application back to "Automatic": via Writer menu bar: Tools / Options / Presentation.
+(LO) Persona: set Tools / Options / personalization to usual.
+via Organon: activate Writer Design and uncheck "use Persona" and "Color Document". Disable Writer design.
+
+
+Functionality:
+As with the Organon design the colors can be customized for each entry. Changes are not permanent and are lost with the selection of another design.
+To save the edit, a new design has to be created.
+
+For fast processing and a greater integrity of the colors in each drop-area  a color from the Organon style can be selected. If it is edited or directly set, no entry will be shown in the drop-down area.
+
+With the design will also be saved if a persona (only LO) is used or whether the writing document and its background will also be colored. If it is switched to a design that doesn't use documents color or Persona, writer will be set to default colors.
+
+When exporting the designs, just the names of the personas, but not the .png files are exported. If you want to import such a design and make full use again, a new Persona has to be created with the corresponding name. 

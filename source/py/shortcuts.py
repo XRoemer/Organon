@@ -55,7 +55,8 @@ class Shortcuts():
                          'BAUMANSICHT_RUNTER' : self.tv_down,
                          'BENENNE_DATEI_UM' : self.datei_umbenennen,
                          'DATEIEN_VEREINEN' :  self.mb.class_Funktionen.vereine_dateien,   
-                         'KONSOLENAUSGABE' :  self.toggle_logging,                  
+                         'KONSOLENAUSGABE' :  self.toggle_logging,   
+                         'SUCHE' : self.oeffne_suche,              
                           }
 
 
@@ -234,7 +235,11 @@ class Shortcuts():
         
         listener = Datei_Umbenennen_Listener(self.mb,sel,win)
         ctrl.addKeyListener(listener)
+    
+    def oeffne_suche(self):
+        if self.mb.debug: log(inspect.stack)
         
+        self.mb.class_Suche.dialog_suche()
 
     def get_mods(self,cmd,ctrls):
         if self.mb.debug: log(inspect.stack)

@@ -1,0 +1,15 @@
+Trenner Formatierung
+Es gibt vier Möglichkeiten für die Formatierung des Trenners:
+Linie
+Farbe mit Beschriftung
+Benutzerdefiniert
+kein Trenner
+
+Farbe: 
+Die Farbe von Schrift und Hintergrund können gewählt werden. Der Wert muss ein Hexadezimalwert sein. Einen Farbwähler finden Sie im Web z.B. unter: http://www.colorpicker.com/
+Oder in Writer unter Extras / Einstellungen / Libre-, OpenOffice / Farben / Bearbeiten
+Sie können eine Farbe wählen oder mit der Pipette anklicken und bekommen den Hexadezimalwert unter den Farbwerten mit Hex# angezeigt.
+
+Benutzerdefiniert:
+Sie können ein Icon oder ein Bild als Trenner wählen. Ein Icon wird mittig angezeigt. Ein Bild sollte etwa die Maße des Trenners besitzen, den man mit der Auswahl Farbe angezeigt bekommt, um nicht zu stark verzerrt zu werden. Ausprobieren!
+

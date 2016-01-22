@@ -1,0 +1,6 @@
+Homepage und Feedback:
+
+Die Einträge Homepage und Feedback öffnen die entsprechenden Seiten im Browser.
+Homepage: https://github.com/XRoemer/Organon
+Feedback: http://organon4office.wordpress.com/
+

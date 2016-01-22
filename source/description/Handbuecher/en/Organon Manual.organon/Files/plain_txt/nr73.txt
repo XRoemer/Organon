@@ -1,0 +1,2 @@
+Shortcuts
+Shortcuts can be set by choosing entries from the dropdown list boxes. They offer possible shortcuts which are not in use by Writer.

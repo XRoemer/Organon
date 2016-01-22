@@ -1,0 +1,8 @@
+Show Text Sections:
+For a better user experience the text section boundaries can be toggled.
+
+In LO the function turns off of both text boundaries and area boundaries .
+In OO , the area boundaries need to be switched off separately:
+Tools / Settings / OpenOffice / Appearance / Area Borders
+
+The function is accessible in Writer as View / Text Boundaries also.

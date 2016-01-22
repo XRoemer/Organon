@@ -1,0 +1,26 @@
+Formatting with Writer and Organon
+Important: Changes in the formatting ( bold / italic / right justified , etc. ) will only be saved if the text was changed . Therefore, at least one character in the edited file needs to be changed , and the formatting will be saved. ( Insert e.g space and delete it. )
+About Organon's Method:
+Organon separates your main document into sub documents. For each file or folder in Organon's tree a new sub document will be created. (You can find the sub documents in your project folder under Files/odt) These sub documents are linked into the main document by using text sections. That causes consequences for the formatting:
+Overall formatting can only be done by using templates.
+('Select All' selects all of the text of the current section you are working on. It doesn't work for the whole document.)
+Select a Template:
+a) You can use the writer default template of OO/LO. The format is modified in 
+Format/Styles and Formatting (F11). Select by right-click the default template and select 'modify'.
+Or click on the icon on the left of the templates.
+
+
+b) You can also use your own template. Important: Organon doesn't import all of the paragraph styles of the template. Only the paragraph style the cursor is in when the template is opened will be imported and used.
+
+
+Create Template from Selection
+Creates a new template from the selection.
+(This function is more or less useless at the moment.)
+Links
+More infos on how to work with templates and styles can be found at::
+Templates_and_Styles
+
+PDFs:
+WorkingWithTemplatesInWriter.pdf
+StylesAndTemplates.pdf
+

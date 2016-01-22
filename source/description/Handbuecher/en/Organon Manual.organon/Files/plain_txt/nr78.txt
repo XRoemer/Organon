@@ -1,0 +1,22 @@
+Translations
+
+Enables the user to create his own translation of Organon.
+Left Side:
+The more left sided text is the reference, below is the translation. A colored translation box and “*******” are showing an untranslated entry.
+
+Right Side:
+Reference: 
+Choose the language reference file, you want to translate from (english or german)
+Load Organon Language File:
+You might start with a language file distributed with Organon
+Load User File:
+When a translation has been saved already, load it with this button into the tool.
+Save Translation:
+For saving the translation in any state.
+Path to Organon Language Files:
+This is the path where the language file has to be saved, when it should be loaded automatically. It has to have the form: “lang_<Country Code>.py” Country Codes can be found at:
+https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+(column 639-1)
+
+If you like to share a translation you made, send it to me by Email and I will distribute it with the next release.
+organon_err(at)web(dot)de

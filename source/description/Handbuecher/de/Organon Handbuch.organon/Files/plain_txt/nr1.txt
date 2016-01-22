@@ -1,0 +1,30 @@
+Beschreibung
+Organon erzeugt ein Projekt mit einem Verzeichnisbaum zur komfortablen Navigation zwischen Dateien und Ordnern des Projektes. Frei wählbare Teile des Projektes können in Tabs geöffnet werden. 
+Organon legt einen neuen Eintrag in der Seitenleiste an, in dem verschiedentliche Tags für alle Einträge vergeben werden können. Darüber hinaus bietet Organon eine Sammlung von Textwerkzeugen und umfangreiche Import- und Export-Möglichkeiten (Batchimport und -export).
+
+Features:
+Drag und Drop
+Vergabe von Tags
+Öffnen von Projektteilen in Tabs
+Bei Anzeige der Dateien eines Ordners ist bei Bearbeitung im Dokument immer die jeweilige Stelle im Ordner sichtbar. 
+Verschiedentlich, auch durch den Benutzer konfigurierbarer Trenner. Der Trenner trennt bei der Anzeige eines Ordners die einzelnen Dateien optisch voneinander.
+Import von Einzeldateien. Alle für Writer verfügbare Dateifilter können genutzt werden.
+Import aller Dateien eines Ordners, filterbar (Batchimport)
+Export eines frei wählbaren Teiles des Projektes in Einzeldateien oder ein Gesamtdokument. Alle Writer Filter stehen zur Verfügung (.odt, .doc, .pdf …). (Batchexport)
+(Batch-)Export in Latex Dateien
+(Batch-)Export in Html Dateien. Zusätzlich alternativer Organon Filter für einfacheres Layout der Html-Datei.
+Mit einem Klick Backups des Projektes erzeugen
+Verschiedene Tags in der Baumansicht: 
+Farben
+Benutzerdefinierte Symbole
+Wissenschaftliche Zählung
+Verschiedene Tags in der Seitenleiste:
+Synopsis, Notizen, Bilder, Allgemein, Personen usw.
+Hinzufügen bereits verwendeter Tags mit einem Klick.
+Öffnen neuer Tabs anhand vergebener Tags.
+Öffnen und Ordnen neuer Tabs anhand des Zeit-Tags
+Textwerkzeuge:
+Zitate finden: Textvergleich zweier Texte und Auffinden aller gemeinsamen Stellen. Das Ergebnis wird als Browserdatei gespeichert. Alle Fundstellen sind verlinkt und können über eine Navigation direkt angesprungen werden.
+Wörterliste erstellen: Eine Liste aller verwendeten Wörter als Calc Datei speichern. Chronologisch oder alphabetisch geordnet.
+Index erzeugen: spezialisiertes Werkzeug für die Indexerzeugung bei Texten mit Zählung (z.B. antike Texte oder textkritische Ausgaben). Ergebnis ist ein navigierbares Browserdokument.
+Writer Tools wie Suche, Ansicht Gesamter Bildschirm, Rechtschreibung und Grammatik, Plugins können natürlich weiter genutzt werden.

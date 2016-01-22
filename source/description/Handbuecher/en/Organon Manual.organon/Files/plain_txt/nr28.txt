@@ -1,0 +1,17 @@
+Sepeperator Window:
+Formatting of the seperator, wich will be inserted between each node.
+In the exported file the order corresponds to the seperator window.
+
+
+File or Folder Title
+Document
+Empty Rows
+Inserted User Document
+Pagebreak
+ 
+
+Folder / File Title: If activated, the titles will be inserted into the exported document. They might be formatted. At disposal are standard formattings plus formattings used in the actual document.
+
+Pagebreak before File / Folder:
+A Pagebreak before each File / Folder will be inserted.
+

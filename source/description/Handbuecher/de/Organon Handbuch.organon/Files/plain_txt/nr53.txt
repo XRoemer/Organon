@@ -1,0 +1,15 @@
+ Textvergleich: Zitate finden
+Dieses Textwerkzeug findet gemeinsame Stellen in zwei miteinander verglichenen Texten, erstellt ein Browser Dokument mit Navigationsmöglichkeiten zwischen den Stellen und öffnet das Dokument im Browser. Je nach Absicht des Suchenden findet es Zitate oder Plagiate.
+Es findet nur wörtlich genau gleiche Stellen, erweiterte Interpunktion und Klein- und Großschreibung spielen aber keine Rolle.
+
+Beispiel:
+Ausgangssatz: Ich bin ein Kind mit Hornbrille auf der Nase.
+Gefunden wird: Ich, bin ein Kind. (Mit Hornbrille – auf der Nase).
+Gefunden wird nicht: Ich bin. *ein Kind mit Horn und Brille auf der Nase
+(„auf der Nase“ wird gefunden, wenn die Anzahl der Suchwörter 3 beträgt.)
+
+Es können interne und externe Texte miteinander verglichen werden. Formate für externe Texte sind: .txt, .odt, .doc
+Die Anzahl der Suchwörter kann frei gewählt werden. Mindestanzahl: 3
+Je größer die verglichenen Texte sind und je kleiner dieser Wert gewählt wird, desto länger dauert die Suche.
+Die Navigationsleiste des Browser Dokuments kann entweder alphabetisch oder chronolgisch (nach Auftauchen der Stelle im zweiten Text) geordnet werden.
+

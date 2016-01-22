@@ -1,0 +1,3 @@
+ Importiere in Tab
+Gleicher Dialog wie „Neuer Tab“.
+Es können Dateien / Ordner aus dem Haupttab (ORGANON) importiert werden.

@@ -1,0 +1,14 @@
+Html Export
+Organon's HTML Export is an alternative to the HTML Export of OO / LO . Organon's HTML Export creates a much more reduced and better set outlay.
+The idea was to obtain an output to be inserted quickly and easily by using copy and paste into your own HTML projects.
+
+The following formats can optionally be used for the output:
+bold
+italic
+Alignment (left , right, center , block)
+headings
+footnotes
+colors
+hyperlinks
+
+Other formats (quotes) or images are not (yet) be exported.

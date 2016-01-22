@@ -1,0 +1,6 @@
+Löschen des Papierkorbs:
+Der Papierkorb wird durch einen Klick auf das Symbol in der Menuleiste geleert.
+Oder den Eintrag Bearbeiten / Papierkorb leeren klicken.
+
+Vorsicht: Diese Aktion kann nicht rückgängig gemacht werden. (Aber Vorsicht war ja noch die Mother of Invention) 
+Zum Wiederherstellen von Dateien und Ordnern im Papierkorb, können diese einfach wieder in das Projekt gezogen werden.

@@ -1,0 +1,15 @@
+Templates
+
+Choose Folder
+To make Organon templates available, a template folder has to be selected. The folder can freely be chosen on the users disk. Organon recognizes all folders inside this folder with the name: “<Name>.organon” as Organon templates.
+
+Save current project as template
+Saves the current project under the name, which was entered into the textfield, to the template folder.
+Organon Templates are usual Organon projects. Therefor it's possible, simply to copy Organon projects, the user wishes to use as a template, into this folder. 
+
+Delete Template
+Deletes the selected template. Forever.
+If the template is removed outwards of Organon from the template folder, it isn't available anymore as well.
+
+
+If the Organon Template has been created from a project with a Writer template, the Organon template will contain the Writer template also.

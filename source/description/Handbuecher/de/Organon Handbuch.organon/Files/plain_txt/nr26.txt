@@ -1,0 +1,2 @@
+Copy und Paste von Internetinhalten 
+Es sollte beliebig per Drag 'n' Drop oder Copy 'n' Paste aus anderen Dateien eingefügt werden können. Etwaige Bilder aus dem Internet werden in die Datei übernommen und mit ihr gespeichert. Wenn die Internetverbindung sehr langsam sein sollte, kann OO/LO  für die Dauer des Imports einfrieren oder dabei abstürzen. 

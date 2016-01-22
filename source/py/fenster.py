@@ -358,14 +358,14 @@ class Fenster():
 
 
     def oeffne_dokument_in_neuem_fenster(self,URL):
-        if self.debug: log(inspect.stack)
+        if self.mb.debug: log(inspect.stack)
         
-        self.new_doc = self.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
+        new_doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
             
-        contWin = self.new_doc.CurrentController.Frame.ContainerWindow               
+        contWin = new_doc.CurrentController.Frame.ContainerWindow               
         contWin.setPosSize(0,0,870,900,12)
         
-        lmgr = self.new_doc.CurrentController.Frame.LayoutManager
+        lmgr = new_doc.CurrentController.Frame.LayoutManager
         for elem in lmgr.Elements:
         
             if lmgr.isElementVisible(elem.ResourceURL):
@@ -373,13 +373,15 @@ class Fenster():
                 
         lmgr.HideCurrentUI = True  
         
-        viewSettings = self.new_doc.CurrentController.ViewSettings
-        viewSettings.ZoomType = 3
+        viewSettings = new_doc.CurrentController.ViewSettings
+        #viewSettings.ZoomType = 3
         viewSettings.ZoomValue = 100
         viewSettings.ShowRulers = False
         
+        return new_doc
         
-    def erzeuge_treeview_mit_checkbox(self,tab_name='ORGANON',listener_innen=None,pos=None,auswaehlen=None):
+        
+    def erzeuge_treeview_mit_checkbox(self,tab_name='ORGANON',listener_innen=None,pos=None,auswaehlen=None,parent=None):
         if self.mb.debug: log(inspect.stack)
         
         control_innen, model = self.mb.createControl(self.mb.ctx,"Container",20,0,400,100,(),() )
@@ -409,7 +411,7 @@ class Fenster():
             
         posSize = X,Y,x,y
         
-        fenster,fenster_cont = self.erzeuge_Dialog_Container(posSize)
+        fenster,fenster_cont = self.erzeuge_Dialog_Container(posSize,parent=parent)
 
         fenster_cont.addControl('Container_innen', control_innen)
         

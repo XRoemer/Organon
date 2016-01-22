@@ -1,0 +1,2 @@
+Devide Text:
+Using this function the current file will be divided at cursor position. A new file will be created and will keep the second half of the text. Formattings, pictures, etc. are preserved.

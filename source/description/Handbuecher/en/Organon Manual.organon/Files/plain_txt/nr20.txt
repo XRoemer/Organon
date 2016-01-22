@@ -1,0 +1,5 @@
+Saving:
+Organon saves on his own. You will never have to save by yourself. After you have made changes on your text and click on another text section or on another node in Organon or close the whole document, your changes will be saved before.
+It can be ignored, when writer asks, if the document should be saved.
+
+Exception: Inserted images/graphics/text sections/formattings won't be saved automatically. To save processed sections, one keyboard has to be made.

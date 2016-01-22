@@ -1,0 +1,12 @@
+Dateien vereinen
+Dateien können miteinander vereint werden. Die ausgewählte Datei oder der ausgewählte Ordner wird dabei mit dem Eintrag unter ihm (Datei oder Ordner) kombiniert.
+
+In folgenden Fällen können Dateien nicht vereint werden:
+Der Selektierte befindet sich im Papierkorbs.
+Der Selektierte ist der Projektordner.
+Die zu kombinierende Datei ist ein Ordner und besitzt Einträge.
+Die zu kombinierende Datei ist in der Hierarchie an höherer Stelle
+
+Der zu kombinierende Ordner/Datei wird nach der Vereinigung in den Papierkorb verschoben.
+
+Es kann ein Shortcut für diese Funktion gesetzt werden.

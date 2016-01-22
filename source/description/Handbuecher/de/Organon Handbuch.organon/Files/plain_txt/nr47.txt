@@ -1,0 +1,4 @@
+ Projektordner ausklappen
+Mit Klick auf den Eintrag wird der gesamte Projektordner inklusive aller Unterordner ausgeklappt. 
+Andere Ordner, die nicht im Projektordner enthalten sind, werden nicht ausgeklappt.  
+Einzelne Ordner können auch mit einem Rechtsklick auf ihr Icon ausgeklappt werden. Im aufpoppenden Fenster „Ordner ausklappen“ wählen.

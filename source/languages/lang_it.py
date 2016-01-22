@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 # Menubar
 EINSTELLUNGEN = u'''Preferenze'''
 BEARBEITEN_M = u'''Modifica'''
@@ -8,7 +9,7 @@ FILE = u'''File'''
 TITEL = u'''Titolo'''
 PAPIERKORB = u'''Cestino'''
 FORMATIERUNG_SPEICHERN = u'''Salva formattazione dell'ultimo file editato: {0}'''
-DATEI_NICHT_GESPEICHERT = u'''*******'''
+DATEI_NICHT_GESPEICHERT = u'''Il file non è stato salvato '''
 KEINE = u'''No'''
 KAPITEL = u'''Capitolo'''
 SZENE = u'''Scena'''
@@ -91,12 +92,12 @@ Procedere?'''
 FUNKTIONIERT_NUR_IM_PROJEKT_TAB = u'''Questa funzione può essere utilizzata soltanto dalla scheda del progetto.'''
 KEINE_KOMBINATION_MOEGLICH = u'''Questi file non possono essere combinati.'''
 DATEIEN_VEREINEN = u'''Combina Files'''
-NOCH_IN_TAB_GEOEFFNET = u'''*******'''
+NOCH_IN_TAB_GEOEFFNET = u'''{0} è aperto in {1}'''
 
 # TREEVIEW
 ORDNER_AUSKLAPPEN = u'''Apri Cartella'''
 IN_PAPIERKORB_VERSCHIEBEN = u'''Sposta nel Cestino'''
-PAPIERKORB_LEEREN = u'''*******'''
+PAPIERKORB_LEEREN = u'''Cestino Vuoto'''
 SHOW_TAG1 = u'''Colore Icone'''
 SHOW_TAG2 = u'''Icone Definite da Utente'''
 GLIEDERUNG = u'''Struttura'''
@@ -116,8 +117,8 @@ Organon dovrebbe impostare una voce nella galleria?
 # EXPORT SETTINGS
 EXPORT_2 = u'''Esporta'''
 EXPORT = u'''ESPORTA'''
-EXPORT_ERFOLGREICH = u'''esportato con successo'''
-EXPORT_NICHT_ERFOLGREICH = u'''*******'''
+EXPORT_ERFOLGREICH = u'''Esportato con successo'''
+EXPORT_NICHT_ERFOLGREICH = u'''Esportazione non riuscita!'''
 ALLES = u'''Tutto'''
 SICHTBARE = u'''Visibile'''
 AUSWAHL = u'''Selezione'''
@@ -209,10 +210,6 @@ GROESSE_TEXT_BOX = u'''Dimensioni scatola di testo'''
 HOEHE = u'''Altezza'''
 BREITE = u'''Largezza'''
 
-EINSTELLUNGEN_TAGS_GENERAL = u'''Cancella-Impostazioni Etichette: Generale.'''
-TAGS_IM_GES_DOK_LOESCHEN = u'''L'etichetta sarà cancellata assieme all'intero documento.'''
-TAGS_IN_AKT_DAT_LOESCHEN = u'''L'etichetta sarà cancellata assieme al file/cartella.'''
-TAG_LOESCHEN = u'''Rimuove l'etichetta da questo panello'''
 TAG_HINZUFUEGEN = u'''Cliccare per aggiungere un'etichetta'''
 ENTER_NEW_TAG = u'''Inserire una nuova etichetta e cliccare all'interno della finestra del documento.'''
 ZEIT2 = u'''Ora:'''
@@ -307,18 +304,18 @@ DESIGNS = u'''Design'''
 NEUES_DESIGN = u'''Nuovo Design'''
 LOESCHEN = u'''Cancella'''
 
-DESIGN_ORGANON_FENSTER = u'''*******'''
-DEAKTIVIERTE_BUTTONS = u'''*******'''
-DEAKTIVIERT = u'''*******'''
-HINTERGRUND_ABK = u'''*******'''
-LINIEN = u'''*******'''
+DESIGN_ORGANON_FENSTER = u'''Finestra di Disegno'''
+DEAKTIVIERTE_BUTTONS = u'''Pulsanti Disattivati'''
+DEAKTIVIERT = u'''Disattivato'''
+HINTERGRUND_ABK = u'''Sfondo'''
+LINIEN = u'''Linee'''
 
 KEINE_JSON_DATEI = u'''Questo non è un file .json valido'''
 DESIGNNAMEN_EINGEBEN = u'''Inserire un nome per il nuovo design'''
 DESIGN_EXISTIERT = u'''Questo design già esiste'''
 EXPORTNAMEN_EINGEBEN = u'''Inserire un nome per il file esportato'''
 DATEI_EXISTIERT = u'''Il file già esiste'''
-NICHT_ALLE_DESIGNS_LOESCHEN = u'''*******'''
+NICHT_ALLE_DESIGNS_LOESCHEN = u'''Non puoi cancellare tutti i disegni'''
 
 # PERSONAS
 PERSONA = u'''Personaggio'''
@@ -350,7 +347,7 @@ KEIN_PERSONA_SELEKTIERT = u'''Nessun Personaggio selezionato'''
 LOESCHEN_BESTAETIGEN = u'''Vuoi veramente cancellare "{0}"?'''
 ORDNER_NICHT_ENTFERNT = u'''la directory '{0}' non può essere cancellata.'''
 AENDERUNG_NACH_NEUSTART = u'''I cambiamenti avranno effetto dopo il riavvio di Writer.'''
-KEIN_PERSONA = u'''*******'''
+KEIN_PERSONA = u'''Nessun Personaggio'''
 
 # WRITER DESIGN
 WRITER_DESIGN = u'''Writer Design'''
@@ -429,7 +426,38 @@ EIN_TAG_BEREITS_VORHANDEN = u'''Una delle etichette è già in uso in un'altra c
 UEBERNOMMEN = u'''Le modifiche sono state applicate.'''
 AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'''Ci sono cambiamenti non salvati. Vuoi salvare i cambiamenti?'''
 OO_ORGANIZER_INFO = u'''Se si fa uso dell'organizzatore in OpenOffice, la finestra Organon e la barra laterale saranno chiuse al successivo riavvio. Se necessario, si dovrà aprire nuovamente.'''
-ORGANIZER_INFO = u'''*******'''
+ORGANIZER_INFO = u'''Utilizzo dell'Organizzatore:
+
+L'organizzatore è usato per una panoramica e la modifica veloce di tutti i tag.
+Vengono mostrate solo le categorie impostate come per visibili in Organon Menu/Vista.
+
+Possibili Categorie di Tag sono:
+- Tags classici
+- Testo continuo
+- Immagini
+- Data
+- Orario
+
+Le categorie possono essere modificate nella finestra delle preferenze.
+
+Nel testo continuo le interruzioni di riga sono prodotte da Ctrl + Invio.
+I Tags classici tag sono separati da virgole.
+Le immagini vengono inserite e modificate cliccando sulla cella.
+Il tempo ha un formato di 24 ore (da 00:00 a 23:59)
+Il formato della data può essere regolata nelle impostazioni.
+Le cartelle e i file possono essere rinominati nell'Organizer.
+
+Le modifiche sono fatte da nuove voci nei campi, che vengano adottati da un click sul pulsante "Applica". Inoltre, quando sono state apportate modifiche e l'Organizzatore viene chiuso, verrà richiesto se le modifiche devono essere applicate.
+
+Le modifiche delle icone sul lato sinistro sono adottate senza un riscontro immediato.
+
+Il menu di Calc può essere aperto facendo clic su "Menu", in modo che il file può essere utilizzato in altro modo. (ad esempio la stampa)
+
+Non inserire righe o colonne, né modificare il documento dal menu, se si vuole utilizzarlo ancora con Organon. Tali modifiche potrebbero causare un file con tag corrotto.
+
+Se non si desidera applicare le modifiche, Calc potrebbe semplicemente essere chiuso e la successiva richiesta negata.
+
+L'apertura del Organizzatore viene rallentato da immagini in immagini-categorie e le icone-categorie sul lato sinistro. Se si vuole accelerare il processo, impostare tali categorie come invisibili. (più grandi saranno le dimensioni delle immagini, tanto più l'organizzatore verrà rallentato. In questo momento non è presente un ricalcolatore di miniature.)'''
 
 # SHORTCUTS
 SHORTCUTS = u'''Scorciatoie'''
@@ -441,25 +469,29 @@ BAUMANSICHT_RUNTER = u'''Vista ad albero una voce giù'''
 BENENNE_DATEI_UM = u'''Rinomina File'''
 
 # TAGS CATEGORIES
-AUSWAHL_KEIN_ERGEBNIS = u'''*******'''
+AUSWAHL_KEIN_ERGEBNIS = u'''Nessun risultato per la tua selezione'''
 
-TAGS = u'''*******'''
-TAG = u'''*******'''
-KATEGORIE = u'''*******'''
-NEUE_KATEGORIE = u'''*******'''
-TYP = u'''*******'''
-TEXT = u'''*******'''
-DATUMSFORMAT = u'''*******'''
-KATEGORIE_VERSCHIEBEN = u'''*******'''
-KATEGORIE_LOESCHEN = u'''*******'''
-VORHANDENE_TAGS = u'''*******'''
-AENDERUNGEN_UEBERNOMMEN = u'''*******'''
-KEINE_GUELTIGE_ZAHL = u'''*******'''
-KATEGORIE_EXISTIERT = u'''*******'''
-KATEGORIE_UNGUELTIG = u'''*******'''
-KATEGORIE_NAMEN_EINGEBEN = u'''*******'''
-AENDERN = u'''*******'''
-KATEGORIE_UEBERNEHMEN = u'''*******'''
+TAGS = u'''Etichette'''
+TAG = u'''Etichetta'''
+KATEGORIE = u'''Categoria'''
+NEUE_KATEGORIE = u'''Nuova Categoria'''
+TYP = u'''Tipo'''
+TEXT = u'''Testo'''
+DATUMSFORMAT = u'''Formato Data'''
+KATEGORIE_VERSCHIEBEN = u'''Sposta Categoria'''
+KATEGORIE_LOESCHEN = u'''Cancella Categoria'''
+VORHANDENE_TAGS = u'''Etichette Esistenti'''
+AENDERUNGEN_UEBERNOMMEN = u'''Cambiamenti applicati'''
+KEINE_GUELTIGE_ZAHL = u'''"{0}" non è un numero valido'''
+KATEGORIE_EXISTIERT = u'''La categoria "{0}" esiste già'''
+KATEGORIE_UNGUELTIG = u'''La categoria {0} non ha un nome valido.'''
+KATEGORIE_NAMEN_EINGEBEN = u'''Inseire un nome per la nuova categoria.'''
+AENDERN = u'''Cambia'''
+KATEGORIE_UEBERNEHMEN = u'''Le seguenti categorie saranno cancellate:
+
+{0}
+
+Procedere?'''
 
 # TRANSLATIONS
 UEBERSETZUNGEN = u'''Traduzioni'''

@@ -1,0 +1,2 @@
+Copy and Paste from the Internet
+It should be possible to paste arbitrary content from internet files. Images will be saved to the project. If your internet connection is very slow, Organon/Writer might freeze or even crash, when Organon tries to import images. 

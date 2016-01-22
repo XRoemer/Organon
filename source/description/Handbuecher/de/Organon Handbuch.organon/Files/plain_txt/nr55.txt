@@ -1,0 +1,2 @@
+ Wörterliste erstellen
+Dieses Textwerkzeug erstellt eine einfache Liste aller im ausgewählten Text vorkommender Worte und speichert diese in chronologischer oder alphabetischer Reihenfolge in ein Calc Dokument.

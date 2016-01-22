@@ -1,0 +1,32 @@
+Suche
+ Auswahl der zu durchsuchenden Texte
+“Alles” wählt alle Texte im aktuellen Tab aus.
+“Sichtbare” wählt die sichtbaren aus. 
+Mit der Auswahl und der Auswahlschaltfläche auf der rechten Seite kann eine freie Auswahl aus dem aktuellen Tab getroffen werden.
+Suchbegriffe
+Es können mehrere Suchbegriffe oder -sätze gleichzeitig eingegeben werden. 
+Suchbegriffe oder -sätze werden durch Kommas getrennt. Ein Komma, das mitgesucht werden soll, wird durch einen Rückstrich als Trenner ignoriert. ( \, )
+Die logischen Operatoren ∧  (Und) und ∨ (Oder):
+∧  wählt nur die Dateien aus, in denen alle Suchbegriffe vorkommen.
+∨ wählt alle Dateien aus, in denen einer der Suchbegriffe vorkommt.
+Reguläre Ausdrücke werden wie in Office verwendet. Erklärungen siehe Office Online Hilfe. Eine Besonderheit in Office ist, dass die Groß-/Kleinschreibung über das entsprechende Feld angeschaltet werden kann. Die Suche nach ganzen Wörtern hingegen nicht.
+In neuem Tab öffnen
+Öffnet die Suchergebnisse in einem neuen Tab, dessen Name im Eingabefeld bestimmt werden kann.
+Funde taggen
+Neben dem Organizer und der Seitenleiste ist dies die dritte Möglichkeit, Tags zu erzeugen.
+Mit dem linken Eingabefeld kann man den Suchergebnissen einen einheitlichen Tag zuweisen. Bleibt das Feld leer, wird für jedes Suchwort ein eigener Tag erzeugt.
+Der Suchausdruck „Bad Salzuflen , Rheinstieg, Waterloo“ ergibt also drei Tags. Bei Eingabe von „ich weiß nicht, was soll es bedeuten“ in das linke Eingabefeld, werden alle Dateien, in denen entweder „Bad Salzufflen“ oder „Rheinstieg“ oder „Waterloo“ gefunden wurde, mit „ich weiß nicht, was soll es bedeuten“ getaggt.
+Die neuen Tags werden in der Tagkategorie erstellt, die in dem Listenfeld ausgewählt ist.
+Ist einer der Suchbegriffe schon als Tag im Projekt vorhanden, weist Organon darauf hin. 
+Entweder wählt man dann „Vorhandene Tags erweitern“, dann werden die Dateien, die den Suchbegriff als Tag enthalten, in der Kategorie getaggt, in der der Tag schon vorkommt. Die anderen Suchbegriffe werden trotzdem in der ausgewählten Tagkategorie erstellt.
+Oder man trägt einen Namen in das linke Eingabefeld ein und taggt alle Dateienmit dem gleichen Tag.
+Wenn im Suchfeld „Regulärer Ausdruck“ oder das logische Und (∧) gewählt wurde, MUSS ein Name für den neuen Tag vergeben werden. 
+Sowohl reguläre Ausdrücke als auch Wörterhaufen will wahrscheinlich niemand als Tag haben. Und Organon hätte Probleme, die richtigen Begriffe daraus zu filtern. Aber mit Copy und Paste ist ja bei Bedarf das Eingabefeld schnell gefüllt.
+Auf der rechten Seite kann durch Eingabe eines Namens und Klicken auf den Button eine neue Kategorie erzeugt werden. Diese wird automatisch in dem Listenfeld ausgewählt.
+Bearbeitet oder gelöscht wird die Kategorie in den Einstellungen.
+Markiere Fundstellen
+Markiert alle Fundstellen der Suche im Dokument. Die Farbe ist auf Klick wählbar. 
+Während die Suche sehr schnell ist und auch 1000 Seiten in wenigen Sekunden (oder weniger – je nach eigenem Rechner) durchsucht sind, ist das Markieren eher lahm. Bei mehreren 100 Dateien mit 1000den Seiten und aberhunderten Fundstellen kann man der Fortschrittsanzeige beim Kriechen zuschauen oder sich ein Teilchen beim Bäcker holen. Aber das macht ja auch keiner. 
+Ein gezielter Einsatz ist vollkommen unproblematisch.
+Suche
+Suche sucht.

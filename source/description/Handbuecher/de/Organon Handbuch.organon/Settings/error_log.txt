@@ -1,0 +1,6 @@
+### ERROR ### 
+Traceback (most recent call last):
+  File "C:\Users\Homer\AppData\Roaming\OpenOffice\4\user\uno_packages\cache\uno_packages\sv85nl1.tmp_\organon.oxt\py\sidebar.py", line 238, in lade_Backup
+    with open(pfad_Backup, 'rb') as f:
+IOError: [Errno 2] No such file or directory: u'C:\\Users\\Homer\\Documents\\organon projekte\\Organon Handbuch.organon\\Files\\sidebar_content.pkl.Backup'
+

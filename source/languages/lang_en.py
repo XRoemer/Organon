@@ -18,6 +18,7 @@ LOAD_DESCRIPTION = u'''Load Manual'''
 CLEAR_RECYCLE_BIN = u'''Clear Waste Bin'''
 INSERT_DOC = u'''Insert New Document'''
 INSERT_DIR = u'''Insert New Folder'''
+NICHT_IM_PAPIERKORB_ERSTELLEN = u'''Files can't be created inside the waste bin. Select another row in the treeview.'''
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''An Organon Project is already loaded. Close Organon, before you start or load another project. Menubar: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'''Show Textsections'''
 SICHTBARE_TAGS_BAUMANSICHT = u'''Visible Tags in Treeview'''
@@ -43,6 +44,8 @@ NEUES_TEMPLATE = u'''New Template created in:'''
 
 NEW_DOC = u'''New Document'''
 NEW_DIR = u'''New Folder'''
+TAB = u'''Tab'''
+TABNAMEN_EINGEBEN = u'''You need to enter a name for the new tab.'''
 NEUER_TAB = u'''New Tab'''
 SCHLIESSE_TAB = u'''Close active Tab'''
 TAB_SCHLIESSEN = u'''Do you really want to close the tab "%s" ?'''
@@ -208,10 +211,6 @@ GROESSE_TEXT_BOX = u'''Size Text Box'''
 HOEHE = u'''Height'''
 BREITE = u'''Width'''
 
-EINSTELLUNGEN_TAGS_GENERAL = u'''Delete-Settings Tags: General.'''
-TAGS_IM_GES_DOK_LOESCHEN = u'''Tag will be deleted within the whole document.'''
-TAGS_IN_AKT_DAT_LOESCHEN = u'''Tag will be deleted within the selected file/folder only.'''
-TAG_LOESCHEN = u'''Removes tag from this panel'''
 TAG_HINZUFUEGEN = u'''Click to add tag'''
 ENTER_NEW_TAG = u'''Enter new tag and press return.'''
 ZEIT2 = u'''Time:'''
@@ -223,13 +222,11 @@ ERZEUGE_NEUEN_TAB_AUS = u'''Create new Tab from:'''
 MEHRFACHE_AUSWAHL = u'''(multiple selection is possible)'''
 TAGS_SEITENLEISTE = u'''tags sidebar'''
 TAGS_BAUMANSICHT = u'''tags treeview'''
-SUCHE = u'''search'''
 TABNAME = u'''tab name:'''
-TAB_HELP_TEXT = u'''Λ (AND): Only files, which hold all tags, will be added. 
-V (OR): Files, which keep at least one tag, will be added.'''
-TAB_HELP_TEXT_NOT_IMPLEMENTED = u'''Λ (AND): Only files, which hold all tags, will be added. 
-V (OR): Files, which keep at least one tag, will be added. 
-(not implemented yet)'''
+TAB_HELP_TEXT = u'''V (OR): Files, which keep at least one tag, will be added.
+ 
+Λ (AND): Only files, which hold all tags, will be added. 
+ '''
 AUSGEWAEHLTE = u'''Selected'''
 BENUTZTE = u'''Used Tags in Project'''
 ZEITLICH_ANORDNEN = u'''sort by time tag'''
@@ -270,6 +267,27 @@ INTERN = u'''intern'''
 EXTERN = u'''extern'''
 ALPHABETISCH = u'''alphabetical'''
 CHRONOLOGISCH = u'''chronological'''
+
+# SEARCH
+SUCHE = u'''Search'''
+GROSS_KLEIN = u'''Case sensitiv'''
+IN_NEUEM_TAB = u'''Open in new tab'''
+FUNDE_TAGGEN = u'''Tag results'''
+MARK_FUNDE = u'''color results'''
+SUCHBEGRIFFE = u'''Searchwords'''
+IN_VORHANDENE_TAGS_EINTRAGEN = u'''Expand existing tags'''
+SUCHBEGRIFFE_HELP_TEXT = u'''You might search for several searchterms at once.
+Searchterms are separated by commas.
+If a searchterm contains a comma, it has to be escaped by a backslash: \,
+
+If the logic operator is \u039B or "Regular Expression" has been chosen and the results should be tagged, a tag-name has to be entered.'''
+KEINE_DATEIEN_AUSGEWAEHLT = u'''No files to search in have been chosen.'''
+KEINE_AKTION_GEWAEHLT = u'''No action has been selected.'''
+REGEX_BRAUCHT_TAGNAMEN = u'''If you choose "Regular Expression" and "Tag results", you have to enter a tag-name.'''
+OPT_ALLE_BRAUCHT_TAGNAMEN = u'''If the logic operator is \u039B and "Tag results" has been chosen, you have to enter a tag-name.'''
+TAG_VORHANDEN_WAEHLEN = u'''The tag "{0}" already exists. If you want to tag the results with it as well, select "Expand existing tags".'''
+KEINE_SUCHBEGRIFFE = u'''No searchterms have been entered'''
+SUCHE_KEINE_ERGEBNISSE = u'''Your search has no results.'''
 
 # PREFERENCES
 
@@ -473,7 +491,6 @@ BENENNE_DATEI_UM = u'''Rename File'''
 
 # TAGS CATEGORIES
 AUSWAHL_KEIN_ERGEBNIS = u'''No results for your selection'''
-
 TAGS = u'''Tags'''
 TAG = u'''Tag'''
 KATEGORIE = u'''Category'''
@@ -490,6 +507,8 @@ KATEGORIE_EXISTIERT = u'''The category "{0}" already exists'''
 KATEGORIE_UNGUELTIG = u'''The category {0} has no valid name.'''
 KATEGORIE_NAMEN_EINGEBEN = u'''Enter a name for the new category.'''
 AENDERN = u'''Change'''
+TAGS_GELOESCHT = u'''Tags removed'''
+TAG_LOESCHEN = u'''Delete Tag'''
 KATEGORIE_UEBERNEHMEN = u'''Following categories will be deleted:
         
 {0}

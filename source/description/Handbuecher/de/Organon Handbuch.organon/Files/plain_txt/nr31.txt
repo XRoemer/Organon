@@ -1,0 +1,6 @@
+ öffnen/schließen
+Die Seitenleiste wird mit Menu > Ansicht > Seitenleiste geöffnet.
+Unter LO muss sie eventuell noch aktiviert werden:
+Extras > Optionen > LibreOffice > Erweitert > Experimentelle Funktionen aktivieren
+
+Wenn Organon geschlossen wird, wird auch die Seitenleiste von Organon geschlossen. Andernfalls könnten in der Seitenleiste Funktionen aktiviert bleiben, die die Arbeit an anderen Dokumenten ungewollt beeinflussen.

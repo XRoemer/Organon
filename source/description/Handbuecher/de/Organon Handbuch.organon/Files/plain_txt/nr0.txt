@@ -1,0 +1,35 @@
+Organon Handbuch (pdf-Version)
+
+Ein navigierbares Handbuch kann nach der Installation 
+in Organon geöffnet werden.
+
+
+Extension für LibreOffice (LO) und OpenOffice (OO)
+
+getestet mit: 
+	Win7 (LO 4.3.5.2 und OO 4.1.1) 
+	Ubuntu 14.04 (LO 4.2.8.2), 
+	Kubuntu 14.04 KDE 4.13.3 (LO 4.2.7.2, OO 4.1.1)
+	ungetestet für Mac
+
+
+Hinweis: Dies ist eine Beta Version.
+
+
+Organon ist ein Werkzeug für eine 
+übersichtliche Navigation zwischen 
+Texten in Writer.
+(OpenOffice und LibreOffice)
+ 
+
+
+
+
+
+
+
+ 
+Der Quellcode des Projektes findet sich unter:
+	https://github.com/XRoemer/Organon
+Bekannte Fehler sind hier gelistet:
+	https://github.com/XRoemer/Organon/issues

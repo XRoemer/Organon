@@ -1,0 +1,4 @@
+Projekt laden 
+Datei/Projekt laden → Projektordner aussuchen. Im Projektordner befindet sich eine Projektdatei mit der Endung „.organon“: 
+<projektname>.organon. 
+Diese auswählen und das Projekt wird geladen. 

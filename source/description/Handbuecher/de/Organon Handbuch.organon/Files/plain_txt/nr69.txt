@@ -1,0 +1,14 @@
+Teile Text (Stapel)
+Mit der Stapelverarbeitung der Funktion „Teile Text“ kann ein Text in mehrere Dateien und Ordner zerlegt werden.
+
+Die Wortsuche teilt den Ausgangstext vor der Fundstelle des gesuchten Wortes.
+Die Wortsuche unterscheidet nicht zwischen Groß- und Kleinschreibung.
+
+Regulärer Ausdruck entspricht in seiner Funktionsweise der Writer Suche.
+Siehe: https://wiki.openoffice.org/wiki/Documentation/How_Tos/Regular_Expressions_in_Writer
+
+Die Option Leerzeilen teilt den Text bei Vorkommen von Leerzeilen.
+
+Werden Überschriften ausgewählt, wird der Text anhand seiner Überschriften in der Standardformatierung geteilt (Überschrift, Überschrift1, Überschrift2 etc.). 
+
+Während Wortsuche und Leerzeilen Dateien erzeugen, werden Überschriften als Ordner erstellt. Die Überschriften werden in ihrer Hierarchie in den neu erzeugten Ordnern gespiegelt.

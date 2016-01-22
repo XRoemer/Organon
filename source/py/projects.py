@@ -256,6 +256,7 @@ class Projekt():
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
             
             self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
+            self.mb.props[T.AB].selektierte_zeile_alt = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
             
             self.mb.class_Tags.lege_tags_an()
@@ -355,6 +356,7 @@ class Projekt():
         pIcons =    os.path.join(pFiles , 'Icons')
         pSettings = os.path.join(pProjekt , 'Settings')
         pTabs =     os.path.join(pSettings , 'Tabs')
+        pPlain_Text=os.path.join(pFiles , 'plain_txt')
         
         
         self.mb.pfade.update({'home':pHome}) 
@@ -366,6 +368,7 @@ class Projekt():
         self.mb.pfade.update({'images':pImages}) 
         self.mb.pfade.update({'tabs':pTabs}) 
         self.mb.pfade.update({'icons':pIcons}) 
+        self.mb.pfade.update({'plain_txt':pPlain_Text}) 
 
     
     def lade_settings(self):
@@ -423,6 +426,8 @@ class Projekt():
             # Organon/<Projekt Name>/Settings/Tags
             if not os.path.exists(pfade['icons']):
                 os.makedirs(pfade['icons'])
+            if not os.path.exists(pfade['plain_txt']):
+                os.makedirs(pfade['plain_txt'])
     
             # Datei anlegen, die bei lade_Projekt angesprochen werden soll
             path = os.path.join(pfade['projekt'],"%s.organon" % self.mb.projekt_name)
@@ -519,8 +524,8 @@ class Projekt():
 
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
-            self.lade_settings()  
-            
+            self.lade_settings() 
+                        
             has_template,templ_pfad = self.besitzt_template()
             
             if has_template:
@@ -533,6 +538,7 @@ class Projekt():
 
             self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.prj_tab) 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
             
             # setzt die selektierte Zeile auf die erste Datei
             erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
@@ -575,7 +581,7 @@ class Projekt():
             self.mb.Listener.starte_alle_Listener()
             
             self.mb.class_Sidebar.erzeuge_sb_layout()
-            
+                        
         except Exception as e:
             log(inspect.stack,tb())
             log(inspect.stack,extras='Projekt nicht geladen\r\n' + str(e))
@@ -600,6 +606,7 @@ class Projekt():
                
             Eintraege = self.lese_xml_datei()
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
             
             # setzt die selektierte Zeile auf die erste Zeile
             props.selektierte_zeile = props.Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
@@ -872,7 +879,6 @@ class Projekt():
             get_tree_info(odir,self.mb.props[TAB].dict_ordner,tag,helfer)
         
         
-
     def lese_xml_datei(self):
         if self.mb.debug: log(inspect.stack)
 
@@ -1010,7 +1016,57 @@ class Projekt():
         self.mb.speicher_settings("import_settings.txt", Settings)
         self.mb.settings_imp = Settings
       
-      
+    def erzeuge_plain_txt(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        
+        def auslesen(fkt_schreiben,mb,uno,codecs_open,pd):
+                
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+
+            texte = {}
+            
+            for name,pfad in mb.props['ORGANON'].dict_bereiche['Bereichsname'].items():
+
+                try:
+                    pfad2 = uno.systemPathToFileUrl(pfad)
+                    doc = mb.doc.CurrentController.Frame.loadComponentFromURL(pfad2,'_blank',0,(prop,))
+                    txt = doc.Text.String
+                    texte.update({ name: txt})
+                    doc.close(False)
+                except Exception as e:
+                    doc.close(False)
+            
+            fkt_schreiben(texte,codecs_open)
+                        
+            
+        def schreiben(t,codecs_open):
+            for name,txt in t.items():
+                
+                path = 'C:\\Users\\Homer\\Desktop\\Neuer Ordner\\txt test\\' + name + '.txt'
+                
+                with codecs_open(path , "w","utf-8") as f:
+                    f.write(txt)
+            
+            print('fertig')
+        
+        
+        try:
+            from threading import Thread  
+
+            t = Thread(target=auslesen,args=(schreiben,self.mb,uno,codecs_open,pd))
+            t.start()
+                
+        except Exception as e:
+            log(inspect.stack,tb())
+        
+        
+        
+        
+        
+          
     def get_flags(self,x):
         if self.mb.debug: log(inspect.stack)
               
@@ -1083,25 +1139,7 @@ class Projekt():
 
             tags = self.mb.tags
             props = self.mb.props[T.AB]
-            
-            #sys.path.append(r'H:/Programmierung/Eclipse_Workspace/Organon/source/py/nltk-3.1')
-            
-            raw = u'''
-Create a file called document.txt using a text editor, and type in a few lines of text, 
-and save it as plain text. If you are using IDLE, select the New Window command in the File menu, 
-typing the required text into this window, and then saving the file as document.txt inside 
-the directory that IDLE offers in the pop-up dialogue box. Next, in the Python interpreter, 
-open the file using f = open('document.txt'), then inspect its contents using print(f.read()).
-            '''
-#             import nltk
-#             from nltk import word_tokenize
-#             
-#             #tok = word_tokenize(raw)
-#             nltk.download()
 
-            sichtbar = self.mb.sichtbare_bereiche
-
-            
         except:
             log(inspect.stack,tb())
             #pd()

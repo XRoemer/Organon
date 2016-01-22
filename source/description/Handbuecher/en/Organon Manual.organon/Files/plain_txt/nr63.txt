@@ -1,0 +1,3 @@
+Unfold Project Folder
+By clicking on the entry the entire project folder, including all collapsed  subfolders, is unfolded.
+Individual folders can be expanded also by right-clicking on their icon. Select the window pop up "unfold folder".

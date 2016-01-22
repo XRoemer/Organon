@@ -18,6 +18,7 @@ LOAD_DESCRIPTION = u'''Anleitung laden'''
 CLEAR_RECYCLE_BIN = u'''Papierkorb leeren'''
 INSERT_DOC = u'''Neues Dokument einfügen'''
 INSERT_DIR = u'''Neuen Ordner einfügen'''
+NICHT_IM_PAPIERKORB_ERSTELLEN = u'''Es kann keine Datei im Papierkorb erstellt werden. Wählen Sie eine andere Zeile in der Baumansicht aus.'''
 PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen, bevor Sie ein neues Projekt
 beginnen oder laden. Menüleiste: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'''Zeige Textbereiche'''
@@ -44,6 +45,8 @@ NEUES_TEMPLATE = u'''Neue Vorlage erstellt in:'''
 
 NEW_DOC = u'''Neues Dokument'''
 NEW_DIR = u'''Neuer Ordner'''
+TAB = u'''Tab'''
+TABNAMEN_EINGEBEN = u'''Sie müssen einen Namen für den Tab eingeben.'''
 NEUER_TAB = u'''Neuer Tab'''
 SCHLIESSE_TAB = u'''Schließe aktiven Tab'''
 TAB_SCHLIESSEN = u'''Soll der Tab "%s" wirklich geschlossen werden?'''
@@ -214,10 +217,6 @@ GROESSE_TEXT_BOX = u'''Größe Text Box'''
 HOEHE = u'''Höhe'''
 BREITE = u'''Breite'''
 
-EINSTELLUNGEN_TAGS_GENERAL = u'''Lösch-Einstellungen für Tags: Allgemein.'''
-TAGS_IM_GES_DOK_LOESCHEN = u'''Tag wird im gesamten Dokument gelöscht.'''
-TAGS_IN_AKT_DAT_LOESCHEN = u'''Tag wird nur in der aktuellen Datei gelöscht.'''
-TAG_LOESCHEN = u'''Entfernt Tag'''
 TAG_HINZUFUEGEN = u'''Klicken um Tag hinzuzufügen'''
 ENTER_NEW_TAG = u'''Geben Sie einen neuen Tag ein bestätigen Sie mit Enter.'''
 ZEIT2 = u'''Zeit:'''
@@ -229,13 +228,11 @@ ERZEUGE_NEUEN_TAB_AUS = u'''Erzeuge neuen Tab aus:'''
 MEHRFACHE_AUSWAHL = u'''(Mehrfachauswahl möglich)'''
 TAGS_SEITENLEISTE = u'''Tags Seitenleiste'''
 TAGS_BAUMANSICHT = u'''Tags Baumansicht'''
-SUCHE = u'''Suche'''
 TABNAME = u'''Tabname:'''
-TAB_HELP_TEXT = u'''Λ (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt.
-V (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt.'''
-TAB_HELP_TEXT_NOT_IMPLEMENTED = u'''Λ (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt.
-V (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt. 
-(noch nicht implementiert)'''
+TAB_HELP_TEXT = u'''V (Oder): Dateien, die mindestens einen der Tags enthalten, werden hinzugefügt.
+ 
+Λ (Und): Nur Dateien, die alle Tags enthalten, werden hinzugefügt.
+ '''
 AUSGEWAEHLTE = u'''Ausgewählte'''
 BENUTZTE = u'''Im Projekt genutzte Tags'''
 ZEITLICH_ANORDNEN = u'''zeitlich anordnen'''
@@ -276,6 +273,27 @@ INTERN = u'''intern'''
 EXTERN = u'''extern'''
 ALPHABETISCH = u'''alphabetisch'''
 CHRONOLOGISCH = u'''chronologisch'''
+
+# SEARCH
+SUCHE = u'''Suche'''
+GROSS_KLEIN = u'''Groß-/Kleinschreibung'''
+IN_NEUEM_TAB = u'''In neuem Tab öffnen'''
+FUNDE_TAGGEN = u'''Funde taggen'''
+MARK_FUNDE = u'''Markiere Fundstellen'''
+SUCHBEGRIFFE = u'''Suchbegriffe'''
+IN_VORHANDENE_TAGS_EINTRAGEN = u'''Vorhandene Tags erweitern'''
+SUCHBEGRIFFE_HELP_TEXT = '''Sie können nach mehreren Begriffen gleichzeitig suchen.
+Begriffe werden durch ein Komma abgetrennt.
+Wenn der Suchbegriff ein Komma enthält, muß das Komma mit einem Rückstrich versehen werden: \,
+
+Wenn der logische Operator auf \u039B steht oder "Regulärer Ausdruck" gewählt wurde und die Funde getaggt werden sollen, müssen Sie einen Tagnamen angeben.'''
+KEINE_DATEIEN_AUSGEWAEHLT = u'''Es sind keine Dateien für die Suche ausgewählt.'''
+KEINE_AKTION_GEWAEHLT = u'''Es wurde keine Aktion ausgewählt.'''
+REGEX_BRAUCHT_TAGNAMEN = u'''Wenn die Optionen "Regulärer Ausdruck" und "Funde taggen" gewählt wurden, muß ein Name für den zu vergebenden Tag angegeben werden.'''
+OPT_ALLE_BRAUCHT_TAGNAMEN = u'''Wenn der logische Operator \u039B und "Funde taggen" gewählt wurden, muß ein Name für den zu vergebenden Tag angegeben werden.'''
+TAG_VORHANDEN_WAEHLEN = u'''Der Tag "{0}" existiert bereits. Wenn Sie die Fundstellen ebenfalls mit ihm taggen wollen, wählen Sie "Vorhandene Tags erweitern".'''
+KEINE_SUCHBEGRIFFE = u'''Keine Suchbegriffe eingegeben.'''
+SUCHE_KEINE_ERGEBNISSE = u'''Ihre Suche brachte keine Ergebnisse.'''
 
 # PREFERENCES
 
@@ -480,7 +498,6 @@ BENENNE_DATEI_UM = u'''Datei umbenennen'''
 
 # TAGS CATEGORIES
 AUSWAHL_KEIN_ERGEBNIS = u'''Ihre Auswahl lieferte kein Ergebnis'''
-
 TAGS = u'''Tags'''
 TAG = u'''Tag'''
 KATEGORIE = u'''Kategorie'''
@@ -497,6 +514,8 @@ KATEGORIE_EXISTIERT = u'''Die Kategorie "{0}" existiert schon'''
 KATEGORIE_UNGUELTIG = u'''Die Kategorie {0} hat keinen gültigen Namen.'''
 KATEGORIE_NAMEN_EINGEBEN = u'''Geben Sie einen Namen für die neue Kategorie ein.'''
 AENDERN = u'''ändern'''
+TAGS_GELOESCHT = u'''Tags gelöscht'''
+TAG_LOESCHEN = u'''Tag löschen'''
 KATEGORIE_UEBERNEHMEN = u'''Folgende Kategorien sollen gelöscht werden:
         
 {0}

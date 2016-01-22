@@ -1,0 +1,16 @@
+Trennerfenster:
+Formatierung des Trenners, der zwischen jeder Datei eingefügt werden soll.
+Im exportierten Dokument entspricht die Abfolge der Darstellung im Trennerfenster:
+
+Ordner- oder Dateititel
+Dokument
+Leerzeichen
+eingefügtes Benutzerdokument
+Seitenumbruch
+ 
+
+Ordnertitel/Dateititel: Wenn aktiviert, werden die Namen von Ordnern/Dateien ins exportierte Dokument eingefügt. Sie können formatiert werden. Zur Verfügung stehen die Standardformatierungen und die im Dokument verwendeten Formatierungen.
+
+Seitenumbruch vor Ordner/Datei:
+Vor jedem/r Ordner/Datei wird ein Umbruch eingefügt.
+

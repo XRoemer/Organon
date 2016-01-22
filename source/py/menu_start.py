@@ -272,7 +272,7 @@ class Menu_Start():
   https://github.com/XRoemer/Organon/issues
 '''
             
-            self.Menu_Bar.nachricht(info,'infobox')
+            #self.Menu_Bar.nachricht(info,'infobox')
             
         except:
             log(inspect.stack,tb())    

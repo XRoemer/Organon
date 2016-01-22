@@ -1,0 +1,3 @@
+Import to Tab:
+The dialog works exactly like the one for 'New Tab'.
+The results will be inserted below the selected file/folder.

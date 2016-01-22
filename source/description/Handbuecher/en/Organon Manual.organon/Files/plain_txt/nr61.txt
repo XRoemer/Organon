@@ -1,0 +1,14 @@
+Text Comparison: Find Quotes
+This text tool finds common points in two texts being compared, creats a browser with document navigation options between related references and opens the document in the browser. Depending on the intent of the searcher the tool finds citations or plagiarism.
+It takes only literally exactly the same points, but extended punctuation and upper and lower case does not matter.
+
+Example:
+Output sentence: I am a child with horn-rimmed glasses on my nose.
+Will be found: I am a child. (With horn-rimmed glasses - on my nose).
+Will not be found : I am. * A child with horn and spectacles on my nose
+("On my nose" is found when the number of search words is 3.)
+
+Internal and external texts can be compared. Formats for external texts are: .txt, .odt, .doc 
+The number of keywords can be chosen freely. Minimum number: 3
+The larger the compared texts and the smaller the minimum value is selected, the longer the search will need.
+The navigation bar of the browser document can be ordered either alphabetical or chronological (on emergence of the reference in the second text). 

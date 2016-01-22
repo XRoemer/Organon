@@ -293,6 +293,8 @@ class Funktionen():
             helfer_url = URL_source+'helfer'
              
             vc = self.mb.viewcursor
+            go_left = vc.isAtStartOfLine()
+            go_right = vc.isAtEndOfLine()
             cur_old = self.mb.doc.Text.createTextCursor()
             sec = vc.TextSection
             text = self.mb.doc.Text
@@ -323,9 +325,11 @@ class Funktionen():
              
             # erzeuge neue Zeile
             nr_neue_zeile = self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument',neuer_Name)
+            if nr_neue_zeile == None:
+                return
             ordinal_neue_zeile = 'nr'+ str(nr_neue_zeile)
        
-            # aktuelle datei unsichtbar oeffnen        
+            # neue datei unsichtbar oeffnen        
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
             prop.Value = True
@@ -347,6 +351,8 @@ class Funktionen():
             new_OrgInnerSec = doc_new.TextSections.getByName(new_OrgInnerSec_name)
             
             cur_new.gotoRange(bm2.Anchor,False)
+            if go_right:
+                cur_new.goRight(1,False)
             cur_new.gotoRange(new_OrgInnerSec.Anchor.Start,True)
             cur_new.setString('')
             bm2.dispose()
@@ -360,6 +366,8 @@ class Funktionen():
             
             # Ende in der getrennten Datei loeschen
             cur_old.gotoRange(bm.Anchor,False)
+            if go_left:
+                cur_old.goLeft(1,False)
             cur_old.gotoRange(self.parsection.Anchor.End,True)
             cur_old.setString('')
             
@@ -370,8 +378,8 @@ class Funktionen():
             
             # alte Datei speichern
             orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source,orga_sec_name_alt)
-            
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source, orga_sec_name_alt, speichern = True)
+                        
             # File Link setzen, um Anzeige zu erneuern
             sec = self.mb.doc.TextSections.getByName(new_OrgInnerSec_name)
              
@@ -386,6 +394,9 @@ class Funktionen():
             sec.setPropertyValue('FileLink',SFLink2)
             
             vc.gotoStart(False)
+            
+            self.mb.class_Bereiche.plain_txt_speichern(sec.Anchor.String, ordinal_neue_zeile)
+            self.mb.class_Bereiche.plain_txt_speichern(parsection.Anchor.String, zeilenordinal)
             
             # Einstellungen, tags der alten Datei fuer neue uebernehmen
             self.mb.tags['ordinale'][ordinal_neue_zeile] = copy.deepcopy(self.mb.tags['ordinale'][zeilenordinal])
@@ -404,7 +415,10 @@ class Funktionen():
         except Exception as e:
             log(inspect.stack,tb())
             self.mb.nachricht('teile_text ' + str(e),"warningbox")
-            
+            try:
+                doc_new.close(False)
+            except:
+                pass
             
     def teile_text_batch(self):
         if self.mb.debug: log(inspect.stack)
@@ -431,7 +445,7 @@ class Funktionen():
                             
                 if index > len(sichtbare) -2:
                     self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
-                    return False
+                    return False, None
                 
                 nachfolger = sichtbare[index + 1]
                 
@@ -516,6 +530,9 @@ class Funktionen():
             self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(nachfolger,papierkorb,'inPapierkorbEinfuegen')
             self.mb.class_Baumansicht.selektiere_zeile(selektiert)
 
+            # speicher plain_txt
+            self.mb.class_Bereiche.plain_txt_speichern(par_sec.Anchor.String,selektiert)
+            
         except:
             log(inspect.stack,tb())
     
@@ -531,6 +548,20 @@ class Funktionen():
         url = uno.systemPathToFileUrl(pfad)
         return url   
     
+    
+    def lade_hidden_doc(self,pfad):
+        if self.mb.debug: log(inspect.stack)
+
+        try:
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = 'Hidden'
+            prop.Value = True
+            
+            return self.mb.doc.CurrentController.Frame.loadComponentFromURL(pfad,'_blank',0,(prop,))
+                                                    
+        except:
+            log(inspect.stack,tb())
+            
     
     def lade_doc_kombi(self,url1,url2,sec_name1,sec_name2):
         if self.mb.debug: log(inspect.stack)
@@ -694,8 +725,9 @@ class Funktionen():
         if url_to_sys:
             try:
                 return uno.fileUrlToSystemPath(path),True
-            except:
-                return None,False
+            except Exception as e:
+                print(e)
+                return path,True
         else:
             return path,True
         
@@ -992,7 +1024,7 @@ class Funktionen():
                     print(tb())
                     wer = wer1
                             
-        findDiff2(dic1, dic2)
+        findDiff2(dict1, dict2)
         return diff
     
     
@@ -1116,11 +1148,15 @@ class Funktionen():
         xml_tree.write(pfad_el_tree)
         
         
-    def zeitmesser(self,fkt):
+    def zeitmesser(self,fkt,args=None):
         z = time.clock()
-        result = fkt()
+        
+        if args:
+            result = fkt(*args)
+        else:
+            result = fkt()
         print( round(time.clock()-z,3))
-        return result
+        return result 
         
         
 
@@ -1273,6 +1309,7 @@ class Teile_Text_Batch():
             
             if anz < 2:
                 self.mb.nachricht(LANG.KEINE_TRENNUNG,'infobox')
+                doc.close(False)
                 return
             
             speicherordner = self.mb.pfade['odts']
@@ -1700,6 +1737,7 @@ class Teile_Text_Batch():
                 pfad = os.path.join(speicherordner,o +'.odt')
                 pfad2 = uno.systemPathToFileUrl(pfad)
                 new_doc.storeToURL(pfad2,())
+                self.mb.class_Bereiche.plain_txt_speichern(new_doc.Text.String,o)
                 new_doc.close(False)
                 
                 zaehler += 1
@@ -1920,8 +1958,6 @@ class Tag2_Images_Listener (unohelper.Base, XMouseListener):
                     return
     
             # Wenn die url nicht mehr im Dokument vorhanden ist, wird sie geloescht
-            # aendern
-            # Wenn bild oder icon im dok sichtbar sind, können Sie nicht geloescht werden!!
             os.remove(uno.fileUrlToSystemPath(url))
         except:
             log(inspect.stack,tb())

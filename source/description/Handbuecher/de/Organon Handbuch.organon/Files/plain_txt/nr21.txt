@@ -1,0 +1,9 @@
+Scrollen:
+Wenn Dateien und Ordner den Anzeigenumfang des Organonfensters übersteigen, wird eine Scrollleiste eingeblendet.
+Scrollen mit dem Mausrad:
+Das Scrollen per Mausrad kann in den Einstellungen aktivert werden (nur Windows und Linux).
+Datei / Einstellungen / Mausrad 
+Das Mausrad kann dann in der Baumansicht und den Dialogen, wenn eine Scrollleiste existiert, verwendet werden. Das Rad kann auch während des Drag und Drops verwendet werden, um Teile der Baumansicht zu erreichen, die außerhalb der Anzeige liegen.
+
+In Linux muss die Bibliothek X11 installiert sein. (Unter Ubuntu ist sie standardmäßg installiert.)
+Wenn Sie Probleme haben (Verlangsamte Anzeige, Fehlermeldungen) deaktivieren Sie das Mausrad wieder.

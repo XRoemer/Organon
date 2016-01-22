@@ -1,0 +1,36 @@
+Project name:
+Name the project.
+Please note: The project can not be renamed . In order to provide the project with a new name , it needs to be exported as a project . ( File / Export / Export as / new project )
+
+Save to folder: 
+Choose a folder. Organon will create a folder with the name:
+„<project name>.organon“ 
+
+( Linux ) Make sure that you have write permissions for the folder .
+
+Formatting:
+See next entry: Formatting
+
+Templates:
+You can either use Writer templates or Organon templates. Organon templates might be created with Writer templates.
+
+Writer Templates
+Choose a template for the new project from user templates. Only user templates are shown by Organon. To choose a template, the check box has to be checked AND a template has to be chosen.
+
+On creating a user template see:
+OO:
+https://wiki.openoffice.org/wiki/Documentation/OOo3_User_Guides/Getting_Started/Creating_a_template
+LO:
+https://help.libreoffice.org/Writer/Templates_and_Styles
+
+The template will be saved with the project. To change the template afterwards, search for the following file:
+<project folder>/files/odt/template.ott
+
+This file can be edited and saved again. On the next opening of the project, the edited template will be used.
+
+Organon Templates
+Organon templates are usual Organon projects, which will be saved with a new name and under a new path, and are available as a new project. These templates can be used to create a new project with a structure as required or to contain prefabricated files or folders (a titelpage for example).
+
+To use an Organon Template, a folder containing Organon templates has to be chosen.
+For further information see the manual under:
+Organon Menu/File/Preferences/Templates

@@ -1,0 +1,27 @@
+Übersetzungen
+
+Es können Übersetzungen für Organon erstellt werden. Organon lädt während des Startes eine englische Sprachdatei und überschreibt diese, wenn eine länderspezifische Sprachdatei im Ordner „languages“ vorhanden ist. 
+Der Pfad zu diesem Ordner ist von dem Installationspfad Organons abhängig und kann z.B. so aussehen (win7):
+„C:\Program Files (x86)\OpenOffice4\share\uno_packages\cache\uno_packages\sv1jgyx.tmp_\organon.oxt\languages“
+oder so:
+C:\Users\Homer\AppData\Roaming\LibreOffice\4\user\uno_packages\cache\uno_packages\lu1dloh.tmp_\organon.oxt\languages
+
+In dem Ordner „languages“ befinden sich die Sprachdateien „lang_en.py“ und „lang_de.py“. Für eine Übersetzung kann eine dieser beiden Dateien mit einem Text Editor geöffnet werden (z.B. Notepad++ oder Sublime Text oder auch dem Standard-Editor von Windows / Linux / Mac).
+Die bearbeitete Datei wird als „lang_<Ländercode>.py“ in diesem Ordner gespeichert und wird dann automatisch von Organon geladen.
+Die zweistelligen Ländercodes finden sich in der Spalte 639-1 hier:
+https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+
+Es ist nicht notwendig, alle Einträge auf einmal zu übersetzen. Man kann sie sich auch peu a peu vornehmen.
+Einträge sehen so aus:
+TAB_SCHLIESSEN = u'Do you really want to close the tab "%s" ?'
+TAB_SCHLIESSEN = u'Soll der Tab "%s" wirklich geschlossen werden?'
+
+Folgendes muss beachtet werden:
+Das Zeichen %s muss beibehalten werden und in der Übersetzung genauso häufig vorkommen wie im Ausgangstext.
+Der Text muss folgende Form haben:   BEZEICHNUNG = u" Übersetzung " 
+oder u' Übersetzung ' oder u''' Übersetzung '''.Die Übersetzung wird von Anführungsstrichen umschlossen. Bei doppelten Anführungsstrichen dürfen in der Übersetzung nur einfache vorkommen und vice versa. (z.B. u" dies ist ein 'alter Hut' ")
+Das Zeichen "\" am Ende einer Zeile und nach Anführungsstrichen ist ein Zeilenumbruch.
+Wer möchte, kann mir seine Übersetzung zukommen lassen, und ich füge sie in Organon ein.
+Mail: organon_err(@)web(.)de 	(Klammern weglassen)
+-
+

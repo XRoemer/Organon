@@ -94,7 +94,7 @@ class Tags():
         tags['ordinale'].update({ordinal:eintrag})
         
     
-    def loesche_tag_eintrag(self,ordinal):
+    def loesche_ordinal_aus_tags(self,ordinal):
         if self.mb.debug: log(inspect.stack)
         
         tags = self.mb.tags
@@ -116,6 +116,20 @@ class Tags():
                         os.remove(uno.fileUrlToSystemPath(url))
                     except:
                         log(inspect.stack,tb())
+                        
+    
+    def loesche_tag_in_allen_dateien(self,tag):
+        if self.mb.debug: log(inspect.stack)
+        
+        tags = self.mb.tags
+        panel_nr = [nr for nr in tags['sammlung'] if tag in tags['sammlung'][nr]][0]
+        
+        tags['sammlung'][panel_nr].remove(tag)
+        
+        for panels in tags['ordinale'].values():
+            if tag in panels[panel_nr]:
+                panels[panel_nr].remove(tag)
+    
     
     def speicher_tags(self):
         if self.mb.debug: log(inspect.stack)
@@ -240,7 +254,85 @@ class Tags():
         text = '{0}:{1}'.format(std,minu)
         
         return text
+    
+    
+    def erstelle_tags_loeschfenster(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            listener = Tags_loeschen_Listener(self.mb)
+            
+            sammlung = self.mb.tags['sammlung']
+            tag_panels = [[i,v[0]] for i,v in self.mb.tags['nr_name'].items() if v[1] == 'tag']            
+            
+            x = 150
+            width = 100
+            ctrls = {}
+            y_max = 0
+            
+            for nr,name in tag_panels:
 
+                prop_names = ('Label','Align')
+                prop_values = (name,1)
+                control, model = self.mb.createControl(self.mb.ctx, "FixedText", x, 15, width, 20, prop_names, prop_values)  
+                
+                ctrls.update({name + '###':control})
+                
+                y = 0
+                for t in sammlung[nr]:
+                    prop_names = ('Label','MultiLine')
+                    prop_values = (t,True)
+                    control, model = self.mb.createControl(self.mb.ctx, "Button", x + 10, y + 55, width - 20, 20, prop_names, prop_values)  
+                    control.setActionCommand(t)
+                    control.addActionListener(listener)
+                    ctrls.update({t:control})
+                    
+                    y += 25
+                    
+                    if y > y_max:
+                        y_max = y
+                
+                x += (width + 10)
+            
+            
+            x1,y1 = 100,100
+            posSize = (x1,y1,x,y_max + 60)
+            
+            win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
+            
+            for c,control in ctrls.items():
+                cont.addControl(c, control)
+                
+
+            prop_names = ('Label',)
+            prop_values = (LANG.LOESCHEN,)
+            control, model = self.mb.createControl(self.mb.ctx, "Button", 10, 10, 100, 25, prop_names, prop_values)  
+            control.setActionCommand('organOn_tAg_loEschen')
+            control.addActionListener(listener)
+            cont.addControl('organOn_tAg_loEschen', control)
+            ctrls.update({'organOn_tAg_loEschen':control})
+            
+            prop_names = ('Label',)
+            prop_values = (LANG.AUSGEWAEHLTE,)
+            control, model = self.mb.createControl(self.mb.ctx, "FixedText", 10, 55, 100, 20, prop_names, prop_values) 
+            model.FontWeight = 150.0 
+            cont.addControl('ausgewaehlte_XXX', control)
+            
+            prop_names = ('Orientation',)
+            prop_values = (1,)
+            control, model = self.mb.createControl(self.mb.ctx, "FixedLine", 130, 0, 2, 1000, prop_names, prop_values) 
+            cont.addControl('fixed_line_XXX', control)
+            
+            control, model = self.mb.createControl(self.mb.ctx, "FixedLine", 0, 45, 1300, 2, (), ()) 
+            cont.addControl('fixed_line_XXX', control)
+            
+            listener.ctrls = ctrls
+            listener.hoehe = y_max
+            listener.win = win
+            
+        except:
+            log(inspect.stack,tb())
+    
             
 #         if os.path.exists(pfad+'.Backup'):
 #             backup_exists = True
@@ -331,7 +423,89 @@ class Tags():
     
     
         
+from com.sun.star.awt import XActionListener
+class Tags_loeschen_Listener(unohelper.Base,XActionListener): 
+    
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
         
+        self.mb = mb
+        self.ctrls = None
+        self.ausgewaehlte = {}
+        self.hoehe = 0
+        self.win = None
+        
+    def actionPerformed(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:            
+            cmd = ev.ActionCommand  
+            
+            if cmd == 'organOn_tAg_loEschen':
+                for tag in self.ausgewaehlte:
+                    self.mb.class_Tags.loesche_tag_in_allen_dateien(tag)
+                self.win.dispose()
+                self.mb.class_Sidebar.erzeuge_sb_layout()
+                self.mb.popup(LANG.TAGS_GELOESCHT,1,self.mb.topWindow)
+                
+            else:
+                ctrl = self.ctrls[cmd]
+                
+                # Ausgewaehlte Tags
+                if ctrl.PosSize.X == 10:
+                    self.aus_ausgewaehlten_entfernen(cmd)
+                # Aufgelistete Tags
+                else:
+                    self.zu_ausgewaehlten_hinzufuegen(cmd)
+ 
+        except:
+            log(inspect.stack,tb())
+            
+    
+    def zu_ausgewaehlten_hinzufuegen(self,cmd):    
+        if self.mb.debug: log(inspect.stack)
+        
+        tag_panels = [[i,v[0]] for i,v in self.mb.tags['nr_name'].items() if v[1] == 'tag']
+        ctrl = self.ctrls[cmd]
+        pos = ctrl.PosSize.X, ctrl.PosSize.Y
+        
+        
+        
+        y = 95 + 25 * len(self.ausgewaehlte)
+        
+        ctrl.setPosSize(10,y,0,0,3)
+        
+        self.ausgewaehlte.update({ cmd : [ctrl,pos] })
+        
+        if y > self.hoehe:
+            self.win.setPosSize(0,0,0,y + 40,8)
+            
+        
+    def aus_ausgewaehlten_entfernen(self,cmd): 
+        if self.mb.debug: log(inspect.stack)
+        
+        ctrl = self.ctrls[cmd]
+        
+        x,y = self.ausgewaehlte[cmd][1]
+        
+        ctrl.setPosSize(x,y,0,0,3)
+        
+        del self.ausgewaehlte[cmd]
+        
+        zaehler = 0
+        
+        for [control,pos] in self.ausgewaehlte.values():
+            y = 95 + 25 * zaehler
+            control.setPosSize(0,y,0,0,2)
+            zaehler += 1
+            
+        if y > self.hoehe:
+            self.win.setPosSize(0,0,0,y + 40,8)
+            
+    def disposing(self,ev):
+        return False
+ 
+      
         
         
         

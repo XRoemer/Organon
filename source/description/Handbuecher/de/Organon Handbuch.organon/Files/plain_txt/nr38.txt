@@ -1,0 +1,14 @@
+ Html Export
+Organons Html Export ist eine Alternative zum Html Export von OO / LO. Organons Html Export erzeugt eine wesentlich reduziertere und besser gesetzte Ausgabe.
+Die Idee war, eine Ausgabe zu erhalten, die per Copy und Paste in eigene Html Projekte schnell und einfach einzufügen ist.
+
+Folgende Formatierungen können für die Ausgabe wahlweise ein- bzw. ausgeschaltet werden:
+Fett
+Kursiv
+Ausrichtung (links, rechts, zentriert, block)
+Überschriften
+Fußnoten
+Farben
+Hyperlinks
+
+Andere Formatierungen (Zitate) oder Bilder werden (noch) nicht exportiert.

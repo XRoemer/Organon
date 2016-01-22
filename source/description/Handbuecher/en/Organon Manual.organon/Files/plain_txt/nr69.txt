@@ -1,0 +1,9 @@
+ Personas (only LO)
+Under "Design: Personas" in the Organon settings Personas can quickly and easily be created, as well as existing ones can be set or cleared.
+
+To set a Persona, a persona has to be selected in the left column. The font color is determined by font color displayed in the middle column. Press "use Persona".
+To remove a Persona, select a Persona and choose "Delete Persona".
+To create a new persona, a name must be entered in the text box in the right column. There are the following possibilities of creation:
+Monochrome: select "Background Color" only.
+Gradient: Select "Background Gradient". Organon creates a simple vertical gradient from the background color and the background gradient.
+User: Organon creates a Persona from the image selected by the user. The image file must have the minimum dimensions 2500px * 200px, since it otherwise won't be found and used later on.

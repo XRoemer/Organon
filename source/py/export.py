@@ -1688,13 +1688,8 @@ class B_Auswahl_Button_Listener(unohelper.Base, XActionListener):
             posSize = berechne_pos(self.mb,self.cl_exp,self.exp_fenster,'Auswahl')
             
             # Dict von alten Eintraegen bereinigen
-            eintr = []
-            for ordinal in sett['ausgewaehlte']:
-                if ordinal not in self.mb.props[T.AB].dict_bereiche['ordinal']:
-                    eintr.append(ordinal)
-            for ordn in eintr:
-                del sett['ausgewaehlte'][ordn]
-            
+            sett['ausgewaehlte'] = { ordi:v for ordi,v in sett['ausgewaehlte'].items() 
+                                    if ordi in self.mb.props[T.AB].dict_bereiche['ordinal'] }
             
             
             pos = posSize[0],posSize[1]

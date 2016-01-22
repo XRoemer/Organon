@@ -1,0 +1,15 @@
+Vorlagen
+
+Ordner aussuchen
+Um überhaupt Organon Vorlagen nutzen zu können, muss ein Vorlagenordner ausgesucht werden. Der Ordner kann frei auf der Festplatte des Nutzers bestimmt werden. Organon erkennt alle Ordner mit den Namen: „<Name>.organon“ als Organon Vorlagen.
+
+Aktuelles Projekt als Vorlage speichern
+Speichert das aktuelle Projekt mit dem Namen, der in das Textfeld eingegeben worden ist, in den Vorlagenordner.
+Vorlagen sind gewöhnliche Organon Projekte. Es können daher auch einfach Organon Projekte, die als Vorlage genutzt werden sollen, in den Vorlagenordner kopiert werden.
+
+Vorlage löschen
+Löscht die ausgesuchte Vorlage von der Festplatte. Endgültig.
+Wird die Vorlage nicht über Organon aus dem Ordner entfernt, steht sie ebenfalls nicht mehr zur Verfügung.
+
+
+Wurde die Vorlage aus einem Projekt mit einer Writer Vorlage erstellt, so enthält die Organon Vorlage die Writer vorlage ebenfalls.

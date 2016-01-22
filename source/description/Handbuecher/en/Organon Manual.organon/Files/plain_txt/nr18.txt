@@ -1,0 +1,5 @@
+Renaming Files and Folders
+By double clicking the text entry the background colour of the text will change. Files and Folder can than be renamed.
+The project folder and the waste bin can't neither be renamed nor moved.
+
+A shortcut for this function is available.

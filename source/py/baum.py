@@ -267,28 +267,20 @@ class Baumansicht():
         names = sections.ElementNames
         if 'Bereich1' in names:
             print('Bereich ist drin')
-            pd()
 
     
     def erzeuge_neue_Zeile(self,ordner_oder_datei,neuer_Name=None):
         if self.mb.debug: log(inspect.stack)
         
-        # Papierkorb Inhalt berechnen, um neue Datei nicht im Papierkorb zu erzeugen
-        tree = self.mb.props[T.AB].xml_tree
-        root = tree.getroot()
-
-        papierkorb_xml = root.find(".//" + self.mb.props[T.AB].Papierkorb)
-        papierkorb_inhalt = []
-        self.mb.class_XML.selbstaufruf = False
-        self.mb.class_XML.get_tree_info(papierkorb_xml,papierkorb_inhalt)
-        inhalt = [p[0] for p in papierkorb_inhalt]
-
+        papierkorb_inhalt = self.mb.class_XML.get_papierkorb_inhalt()
+        props = self.mb.props[T.AB]
+        selektierte_zeile = props.selektierte_zeile
         
-        if self.mb.props[T.AB].selektierte_zeile == None:       
+        if selektierte_zeile == None:       
             self.mb.nachricht(LANG.ZEILE_AUSWAEHLEN,'infobox')
             return None
-        elif self.mb.props[T.AB].selektierte_zeile in inhalt:       
-            self.mb.nachricht(LANG.ZEILE_AUSWAEHLEN,'infobox')
+        elif selektierte_zeile in papierkorb_inhalt:       
+            self.mb.nachricht(LANG.NICHT_IM_PAPIERKORB_ERSTELLEN,'infobox')
             return None
         else:
             try:
@@ -297,16 +289,14 @@ class Baumansicht():
                 StatusIndicator.setValue(2)
                 
                 self.mb.doc.lockControllers()
-                
-                ord_sel_zeile = self.mb.props[T.AB].selektierte_zeile
-                
+                                
                 # XML TREE
-                tree = self.mb.props[T.AB].xml_tree
+                tree = props.xml_tree
                 root = tree.getroot()
-                xml_sel_zeile = root.find('.//'+ord_sel_zeile)
+                xml_sel_zeile = root.find('.//' + selektierte_zeile)
                 
                 # Props ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3
-                ordinal = 'nr'+root.attrib['kommender_Eintrag']
+                ordinal = 'nr' + root.attrib['kommender_Eintrag']
                 parent = xml_sel_zeile.attrib['Parent']
                 name = ordinal if neuer_Name == None else neuer_Name
                 lvl = xml_sel_zeile.attrib['Lvl']
@@ -479,6 +469,8 @@ class Baumansicht():
             # loesche Bereich(e) und Datei(en)
             if T.AB == 'ORGANON':
                 self.loesche_Bereiche_und_Dateien(papierkorb_inhalt_ordi,papierkorb_inhalt)
+                
+            self.erneuere_dict_bereiche()
 
         except:
             log(inspect.stack,tb())
@@ -509,7 +501,9 @@ class Baumansicht():
                 sec = sections.getByName(bereichsname) 
                 
                 # loesche Sidebareintrag
-                self.mb.class_Tags.loesche_tag_eintrag(ordinal)
+                self.mb.class_Tags.loesche_ordinal_aus_tags(ordinal)
+                # loesche plain_txt
+                self.mb.class_Bereiche.plain_txt_loeschen(ordinal)
                                     
                 # loesche eventuell vorhandene Kind Bereiche
                 ch_sections = []
@@ -751,7 +745,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 s = self.zielordner.getControl('symbol')
     
                 if s != None:
-                    source = (ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName)#,ev.Source.Context.AccessibleContext.Location.Y)
+                    source = (ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName)
                     target = self.zielordner.AccessibleContext.AccessibleName
                     action = self.einfuegen                          
                     s.dispose()
@@ -1032,7 +1026,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         if self.mb.debug: log(inspect.stack)
 
         if action != 'gescheitert':
-
             
             ok = self.wird_datei_in_papierkorb_verschoben(source,target)
             if not ok:
@@ -1103,7 +1096,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                         
                         root = self.mb.props[tab].xml_tree.getroot()
                         
-                        eintrag = root.find('.//'+ordn)
+                        eintrag = root.find('.//' + ordn)
                         if eintrag == None:
                             continue
                         
@@ -1366,7 +1359,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             return None
         return sec 
         
-    def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal=None,action=None,add_listener=True):
+    def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal=None, action=None, add_listener=True):
         if self.mb.debug: log(inspect.stack)
 
         try:
@@ -1545,7 +1538,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         dict_filelinks = self.get_links()
         if url_in_dict in dict_filelinks:
             print('url immer noch vorhanden') 
-            pd()   
+
         else:
             print('link nicht vorhanden')
             
@@ -1884,7 +1877,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             
             if ordinal == papierkorb:
                 prop_names = ('Label',)
-                prop_values = ('Papierkorb leeren',)
+                prop_values = (LANG.PAPIERKORB_LEEREN,)
                 control, model = self.mb.createControl(self.mb.ctx, "FixedText", 0, 0, 0,0, prop_names, prop_values)
                 control.addMouseListener(maus_listener)
                 controls.append(control)

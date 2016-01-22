@@ -1,0 +1,6 @@
+Logging
+For logging Organon. Only interesting for developers and for troubleshooting in the program .
+
+If Office is launched in a Python console, output can be activated by activation of the console output. In addition, all the arguments that are passed when the methods and classes are displayed, can be shown, too.
+
+The console output can also be saved to a file.

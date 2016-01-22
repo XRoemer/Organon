@@ -172,6 +172,7 @@ class Menu_Bar():
             self.class_Organizer =      self.lade_modul('organizer','Organizer')
             self.class_Shortcuts =      self.lade_modul('shortcuts','Shortcuts')
             self.class_Fenster =        self.lade_modul('fenster','Fenster')
+            self.class_Suche =          self.lade_modul('suche','Suche')
             
             
             # TABS
@@ -349,10 +350,7 @@ class Menu_Bar():
 
         except Exception as e:
                 self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
-                log(inspect.stack,tb())
-                
-        
-        
+                log(inspect.stack,tb())       
         
      
     def erzeuge_Menu_DropDown_Eintraege(self,items):
@@ -690,8 +688,8 @@ class Menu_Bar():
         path = os.path.join(self.pfade['settings'],dateiname)
         imp = pformat(eintraege)
 
-        with codecs_open(path , "w","utf-8") as file:
-            file.write(imp)
+        with codecs_open(path , "w","utf-8") as f:
+            f.write(imp)
 
     def schreibe_settings_orga(self):
         if self.debug: log(inspect.stack)
@@ -841,6 +839,7 @@ class Menu_Bar():
             items = ( 
                 LANG.ORGANIZER,
                 LANG.NEUER_TAB,
+                LANG.SUCHE,
                 'SEP',
                 LANG.TRENNE_TEXT,
                 LANG.TEXT_BATCH_DEVIDE,
@@ -849,11 +848,13 @@ class Menu_Bar():
                 LANG.TEXTTOOLS,
                 'SEP',
                 LANG.UNFOLD_PROJ_DIR,
+                LANG.TAG_LOESCHEN,
                 LANG.CLEAR_RECYCLE_BIN
                 )
             if T.AB != 'ORGANON':
                 items = (  
                     LANG.ORGANIZER,
+                    LANG.SUCHE,
                     'SEP',
                     LANG.NEUER_TAB,
                     LANG.SCHLIESSE_TAB,
@@ -862,6 +863,7 @@ class Menu_Bar():
                     LANG.TEXTTOOLS,
                     'SEP',
                     LANG.UNFOLD_PROJ_DIR,
+                    LANG.TAG_LOESCHEN,
                     LANG.CLEAR_RECYCLE_BIN
                     )  
                  
@@ -1084,24 +1086,20 @@ class Tab_Auswahl():
     def __init__(self):
         if debug: log(inspect.stack)
         
-        self.rb = None
         self.eigene_auswahl = None
-        self.eigene_auswahl_use = None
+        self.eigene_auswahl_use = False
+        self.eigene_auswahl_log = u'V'
         
-        self.seitenleiste_use = None
-        self.seitenleiste_log = None
-        self.seitenleiste_log_tags = None
+        self.seitenleiste_use = False
+        self.seitenleiste_log = u'V'
+        self.seitenleiste_log_tags = u'V'
         self.seitenleiste_tags = None
         
-        self.baumansicht_use = None
-        self.baumansicht_log = None
+        self.baumansicht_use = False
+        self.baumansicht_log = u'V'
+        self.baumansicht_log_tags = u'V'
         self.baumansicht_tags = None
         
-        self.suche_use = None
-        self.suche_log = None
-        self.suche_term = None
-        
-        self.behalte_hierarchie_bei = None
         self.tab_name = None
         
         
@@ -1374,7 +1372,12 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 
             elif sel == LANG.DATEIEN_VEREINEN:
                 self.mb.class_Funktionen.vereine_dateien()
+            
+            elif sel == LANG.SUCHE:
+                self.mb.class_Suche.dialog_suche()
                 
+            elif sel == LANG.TAG_LOESCHEN:
+                self.mb.class_Tags.erstelle_tags_loeschfenster()
     
             self.mb.loesche_undo_Aktionen()
         except:
@@ -1614,23 +1617,33 @@ class Mitteilungen():
         
         posSize = parent.PosSize.Width/2-100, parent.PosSize.Height/2-50, 0, 0
         fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=parent)
-        
-        ctrl, model = self.mb.createControl(self.ctx, "FixedText", 10, 15, 0, 0, (), ())          
+                
+        ctrl, model = self.mb.createControl(self.ctx, "FixedText", 10, 15, 1000, 1000, (), ())          
         model.Label = nachricht
         
         pref_Size = ctrl.getPreferredSize()
         Hoehe = pref_Size.Height + 30
         Breite = pref_Size.Width + 20
-        ctrl.setPosSize(0,0,Breite,Hoehe,12)
+        
+        if Hoehe < 60:
+            Hoehe = 60
+        if Breite < 140:
+            Breite = 140
+        
         fenster.setPosSize(0,0,Breite,Hoehe,12)
+        
+        mitte_x = (Breite - pref_Size.Width) / 2
+        mitte_y = (Hoehe - pref_Size.Height) / 2
+        ctrl.setPosSize(mitte_x, mitte_y, pref_Size.Width, Hoehe, 15)
     
         fenster_cont.addControl('Text', ctrl)
+        fenster.draw(1,1)
         
         if zeit != 'frei':
             fenster.draw(1,1)
             time.sleep(zeit)
             fenster.dispose()
-
+        
         return fenster, model
         
         
@@ -1836,21 +1849,20 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                     inner_sec = anchor.TextSection
                     selected_ts = self.mb.class_Zeilen_Listener.finde_eltern_bereich(inner_sec)
                 except:
-                    log(inspect.stack,tb())
                     return False
 
             s_name = selected_ts.Name
             props = self.mb.props[T.AB]
-
+            
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in s_name:
-
+                
                 if props.zuletzt_gedrueckte_taste == None:
                     try:
-                        self.mb.viewcursor.goDown(1,False)
-                    except:
                         self.mb.viewcursor.goUp(1,False)
+                    except:
+                        self.mb.viewcursor.goDown(1,False)
                     return False
                 # 1024,1027 Pfeil runter,rechts
                 elif props.zuletzt_gedrueckte_taste.KeyCode in (1024,1027):  

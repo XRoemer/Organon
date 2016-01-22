@@ -1,0 +1,3 @@
+Project Backup
+Use the backup function of Organon ( File / Backup ) . A copy of the project is created in the project folder under Backups . The name of the project will be provided with date and time . The backup can be opened from this folder like any other Organon project .
+Another option to create a backup is to copy the project to another location . The project folder must not be renamed !

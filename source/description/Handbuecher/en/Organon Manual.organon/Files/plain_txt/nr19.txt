@@ -1,0 +1,7 @@
+Display of Files and Folders:
+On click on a file only the file will be shown.
+On click on a closed folder only the folder himself will be shown.
+On click on a open folder all files and contained folders will be shown. Closed folders inside will only show themselves
+To show the whole project folder click “Unfold Project Folder” in Organon/Options and click on the project folder.
+
+A doubleclick on the symbol of a folder opens or closes the folder.

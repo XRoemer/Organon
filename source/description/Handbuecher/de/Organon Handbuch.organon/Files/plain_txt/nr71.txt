@@ -1,0 +1,23 @@
+Übersetzungen
+Für die Erstellung eigener Übersetzungen durch den Benutzer.
+
+Linke Seite:
+Der ganz links stehende Text ist die Referenz (deutsch oder englisch), darunter die Box, in die die jeweilige Übersetzung eingetragen werden kann. Farbige Einträge und „*******“ zeigen unübersetzte Einträge.
+Rechte Seite:
+Referenz:
+Wählen sie die Referenz aus der übersetzt werden soll (deutsch oder englisch).
+Organon Sprachdatei laden:
+Lädt eine Sprachdatei, die bereits in Organon vorhanden ist
+Benutzerdatei laden:
+Wenn bereits eine Sprachdatei erstellt und gespeichert wurde, läßt sie sich hier wieder laden.
+Übersetzung speichern:
+Übersetzung speichern. Muss nicht vollständig sein.
+Ordnerpfad Organon Sprachdateien:
+Dies ist der Pfad, unter dem Sprachdateien abgelegt werden müssen, wenn sie automatisch geladen werden sollen. Die Sprachdatei muss folgende Form haben:
+„lang_<Länder Code>.py“
+Den Länder Code findet man unter:
+https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+(Spalte 639-1)
+
+Wenn Sie eine Übersetzung teilen wollen, senden sie mir die Übersetzung per Mail. Ich werde sie in der nächsten Veröffentlichung von Organon einbinden.
+organon_err<at>web(dot)de

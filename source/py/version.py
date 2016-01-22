@@ -8,7 +8,7 @@ class Version():
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb        
-                
+              
         self.vers_dict = {
         
         '0.9.7':self.an_098b_anpassen,
@@ -38,7 +38,9 @@ class Version():
         '0.9.9.8.6':None,
         '0.9.9.8.7':None,
         '0.9.9.8.8':None,
-        '0.9.9.9.0':None,
+        '0.9.9.9.0':self.an_09991b_anpassen,
+        '0.9.9.9.1':None,
+        
         
         } 
         
@@ -66,6 +68,8 @@ class Version():
                             self.vers_dict[vers]()
 
                 self.neue_programmversion_eintragen()
+            
+            
             
         except:
             log(inspect.stack,tb())
@@ -338,7 +342,91 @@ A backup of your project with the old settings will be created in the backup fol
             log(inspect.stack,tb())
             
         
+    def an_09991b_anpassen(self):
+        if self.mb.debug: log(inspect.stack) 
         
-       
+        try:
+            Eintraege = self.mb.class_Projekt.lese_xml_datei()
+            
+            ordinale = [e[0] for e in Eintraege]
+            
+            anzahl = len(ordinale)
+            
+            StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
+            StatusIndicator.start('create plain text (0/{0})'.format(anzahl),anzahl)
+            StatusIndicator.setValue(0)
+            
+            def plain_txt_erstellen():
+                
+                if not os.path.exists(self.mb.pfade['plain_txt']):
+                    os.makedirs(self.mb.pfade['plain_txt'])
+            
+            
+                def auslesen():
+                    
+                    prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                    prop.Name = 'Hidden'
+                    prop.Value = True
+    
+                    texte = {}
+                    #props = self.mb.props[T.AB]
+                    
+                    #bereich_ord = props.dict_bereiche['Bereichsname-ordinal']
+                                        
+                    x = 1
+                    
+                    for ordi in ordinale:                        
+                        StatusIndicator.setValue(x)
+                        StatusIndicator.setText('create plain text ({0}/{1})'.format(x,anzahl))
+                        x += 1
+                        
+                        try:
+                            pfad = os.path.join(self.mb.pfade['odts'], ordi + '.odt')
+                            pfad2 = uno.systemPathToFileUrl(pfad)
+                            
+                            doc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(pfad2,'_blank',0,(prop,))
+                            txt = doc.Text.String
+                            texte.update({ ordi: txt})
+                            doc.close(False)
+                        except:
+                            log(inspect.stack,tb())
+                            StatusIndicator.end()
+                            try:
+                                doc.close(False)
+                            except:
+                                pass
+                        
+                        
+                        
+                    return texte                
+                
+                def schreiben(t):
+                    for ordi,txt in t.items():
+                        
+                        path = os.path.join(self.mb.pfade['plain_txt'], ordi + '.txt')
+                        
+                        with codecs_open(path , "w","utf-8") as f:
+                            f.write(txt)
+                
+                t = auslesen()
+                schreiben(t)
+            
+            
+            
+            
+            
+            plain_txt_erstellen()
+            StatusIndicator.end()
+            
+        except:
+            log(inspect.stack,tb())
+            StatusIndicator.end()
+        
+        
+        
+        
+        
+        
+        
         
         

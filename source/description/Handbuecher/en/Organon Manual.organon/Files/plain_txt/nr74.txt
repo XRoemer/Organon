@@ -1,0 +1,26 @@
+Translations
+Translations might be created for Organon easily. Organon loads during start an English language file and overwrites it when a country-specific language file in the folder "languages" is available.
+The path to this folder is dependent on the installation path and might look for example like this (win7):
+"C: \ Program Files (x86) \ OpenOffice4 \ share \ uno_packages \ cache \ uno_packages \ sv1jgyx.tmp_ \ organon.oxt \ languages"
+or like this:
+C:\Users\Homer\AppData\Roaming\LibreOffice\4\user\uno_packages\cache\uno_packages\lu1dloh.tmp_\organon.oxt\languages
+
+In the folder "languages" are the language files "lang_en.py" and "lang_de.py". For a translation, one of these two files will be opened with a text editor (like Notepad ++ or Sublime Text or the default editor of Windows / Linux / Mac).
+The edited file has to be renamed to "lang_ <country code> .py" and is saved into this folder and will automatically be loaded from Organon.
+The two-letter country codes can be found in the column 639-1 here:
+https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+
+It is not necessary, to translate all entries at once. One can translate also little by little.
+Entries look like this:
+TAB_SCHLIESSEN = u'Do you really want to close the tab "%s" ?'
+TAB_SCHLIESSEN = u'Soll der Tab "%s" wirklich geschlossen werden?'
+
+The following must be observed:
+
+The character "%s" needs to be maintained and as often occur in the translation as in the original text.
+The text must have the following form: NAME = u "translation"
+or u 'translation' or u '' 'translation' '' .The translation is enclosed by quotation marks. With double quotes may only occur easily and vice versa in translation. (for example, u "This is an 'old hat' ")
+The "\" character at the end of a line and after quotes is a newline.
+
+Whoever wants to can send me his translation, and I distribute it with Organon.
+Mail: Organon_err(@)web(.)de 	(omit parentheses)
