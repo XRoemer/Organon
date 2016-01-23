@@ -835,6 +835,14 @@ class Menu_Bar():
                     LANG.BACKUP,
                     LANG.EINSTELLUNGEN)
                 
+            if self.projekt_name == None:
+                items = (
+                    LANG.NEW_PROJECT, 
+                    LANG.OPEN_PROJECT,
+                    'SEP', 
+                    LANG.EINSTELLUNGEN)
+                
+                
         elif menu == LANG.BEARBEITEN_M:
             items = ( 
                 LANG.ORGANIZER,
@@ -866,26 +874,39 @@ class Menu_Bar():
                     LANG.TAG_LOESCHEN,
                     LANG.CLEAR_RECYCLE_BIN
                     )  
+                
+            if self.projekt_name == None:
+                items = (
+                    LANG.NEW_PROJECT, 
+                    LANG.OPEN_PROJECT,
+                         )
                  
         elif menu == LANG.ANSICHT:
             
-            tags = self.tags
-            panels = [(tags['nr_name'][i][0],'Tag_SB') for i in tags['abfolge']]
-            
-            items = [
-                (LANG.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
-                (LANG.SHOW_TAG1,'Tag_TV'),
-                (LANG.SHOW_TAG2,'Tag_TV'),
-                (LANG.GLIEDERUNG,'Tag_TV'),
-                ('SEP',''),
-                (LANG.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift')
-                ] + panels + [
-                ('SEP',''),
-                (LANG.ZEIGE_TEXTBEREICHE,''),
-                ('SEP',''),
+            if self.projekt_name == None:
+                items = [
                 (LANG.HOMEPAGE,''),
                 (LANG.FEEDBACK,''),
                  ]
+                
+            else:
+                tags = self.tags
+                panels = [(tags['nr_name'][i][0],'Tag_SB') for i in tags['abfolge']]
+                
+                items = [
+                    (LANG.SICHTBARE_TAGS_BAUMANSICHT,'Ueberschrift'),
+                    (LANG.SHOW_TAG1,'Tag_TV'),
+                    (LANG.SHOW_TAG2,'Tag_TV'),
+                    (LANG.GLIEDERUNG,'Tag_TV'),
+                    ('SEP',''),
+                    (LANG.SICHTBARE_TAGS_SEITENLEISTE,'Ueberschrift')
+                    ] + panels + [
+                    ('SEP',''),
+                    (LANG.ZEIGE_TEXTBEREICHE,''),
+                    ('SEP',''),
+                    (LANG.HOMEPAGE,''),
+                    (LANG.FEEDBACK,''),
+                     ]
             
         elif menu == LANG.TEXTTOOLS:
             items = (LANG.TEXTVERGLEICH,

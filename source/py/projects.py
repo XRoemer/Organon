@@ -255,9 +255,9 @@ class Projekt():
                 
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
             
-            self.mb.props[T.AB].selektierte_zeile = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
-            self.mb.props[T.AB].selektierte_zeile_alt = self.mb.props[T.AB].Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
+            erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
+            self.mb.props[T.AB].selektierte_zeile = erste_datei
+            self.mb.props[T.AB].selektierte_zeile_alt = erste_datei
             
             self.mb.class_Tags.lege_tags_an()
             self.mb.class_Tags.speicher_tags()
@@ -273,6 +273,17 @@ class Projekt():
             if is_template:
                 self.mb.class_Projekt.mit_template_oeffnen(templ_pfad)
                 return
+            else:
+                erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
+                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei,action='lade_projekt')
+                
+                # ausgewaehlte zeile einfaerben
+                zeile = self.mb.props[T.AB].Hauptfeld.getControl(erste_datei)
+                textfeld = zeile.getControl('textfeld')
+                textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
+            
+                self.mb.Listener.starte_alle_Listener()
+                
                 
         except Exception as e:
             log(inspect.stack,tb())
@@ -538,7 +549,13 @@ class Projekt():
 
             self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.prj_tab) 
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
+            
+            if self.mb.win.PosSize.Height > 20:
+                # Wenn ein Template geoeffnet wurde, ist self.mb.win
+                # an dieser Stelle noch nicht geoeffnet, daher Height == 0
+                # schalte Sichtbarkeit wird daher uebersprungen, da ansonsten
+                # alle Controls ausgeblendet werden
+                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
             
             # setzt die selektierte Zeile auf die erste Datei
             erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
@@ -581,6 +598,7 @@ class Projekt():
             self.mb.Listener.starte_alle_Listener()
             
             self.mb.class_Sidebar.erzeuge_sb_layout()
+            
                         
         except Exception as e:
             log(inspect.stack,tb())
@@ -597,6 +615,8 @@ class Projekt():
         try:
             props = self.mb.props[T.AB]
             
+            selektierte_zeile = props.selektierte_zeile
+            
             self.mb.class_Funktionen.leere_hf()
             self.setze_pfade()
             self.mb.class_Bereiche.leere_Dokument() 
@@ -608,9 +628,7 @@ class Projekt():
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
             
-            # setzt die selektierte Zeile auf die erste Zeile
-            props.selektierte_zeile = props.Hauptfeld.getByIdentifier(0).AccessibleContext.AccessibleName
-            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
+            self.mb.class_Baumansicht.selektiere_zeile(selektierte_zeile, speichern = False)
             
             self.mb.class_Fenster.erzeuge_Scrollbar2()    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
@@ -619,9 +637,7 @@ class Projekt():
             Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
-             
-            self.selektiere_ersten_Bereich()
-                        
+                                     
         except Exception as e:
             self.mb.nachricht('ERROR: could not load project\r\n ' + str(e),"warningbox")
             log(inspect.stack,tb())
@@ -908,14 +924,7 @@ class Projekt():
             
         return Eintraege
    
-    def selektiere_ersten_Bereich(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal']['OrganonSec0']
-        zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
-        textfeld = zeile.getControl('textfeld')
-        self.mb.props[T.AB].selektierte_zeile_alt = textfeld.Context.AccessibleContext.AccessibleName
-        
+           
     def erzeuge_proj_Settings(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -1139,7 +1148,9 @@ class Projekt():
 
             tags = self.mb.tags
             props = self.mb.props[T.AB]
-
+            
+            
+            #print(self.mb.props['ORGANON'].Hauptfeld.isVisible())#(True)
         except:
             log(inspect.stack,tb())
             #pd()

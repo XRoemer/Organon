@@ -1813,7 +1813,7 @@ class TabsX():
             gespeicherte_tabs = self.get_gespeicherte_tabs()
             
             for tab_name in gespeicherte_tabs:
-
+                
                 T.AB = tab_name
                 
                 self.erzeuge_props(tab_name)

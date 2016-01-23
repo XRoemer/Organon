@@ -532,6 +532,7 @@ class Funktionen():
 
             # speicher plain_txt
             self.mb.class_Bereiche.plain_txt_speichern(par_sec.Anchor.String,selektiert)
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
             
         except:
             log(inspect.stack,tb())

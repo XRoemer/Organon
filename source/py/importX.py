@@ -794,7 +794,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.oOO = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
 
             self.entferne_links(self.oOO)
-            self.kapsel_in_Bereich(self.oOO,ordn)
+            self.kapsel_in_Bereich(self.oOO,ordn.replace('nr',''))
             self.entferne_seitenumbrueche_am_anfang(self.oOO)
             
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")

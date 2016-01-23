@@ -595,7 +595,7 @@ class Baumansicht():
             
         return True
     
-    def selektiere_zeile(self,ordinal):
+    def selektiere_zeile(self,ordinal, speichern = True):
         if self.mb.debug: log(inspect.stack)
         
         selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
@@ -610,7 +610,7 @@ class Baumansicht():
             textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
      
             # bei bearbeitetem Bereich: speichern  
-            if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
+            if len(self.mb.undo_mgr.AllUndoActionTitles) > 0 and speichern:
                 bereichsname_zeile_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][selektierte_zeile]
                 bereich_zeile_alt = self.mb.doc.TextSections.getByName(bereichsname_zeile_alt)
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(bereich_zeile_alt.FileLink.FileURL,bereichsname_zeile_alt)
@@ -1265,7 +1265,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                     props.dict_posY_ctrl[y].setVisible(False)
         except:
             log(inspect.stack,tb())
-            
+         
         
     def verlinke_Bereiche(self,sections):
         if self.mb.debug: log(inspect.stack)

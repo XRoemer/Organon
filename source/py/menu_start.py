@@ -121,7 +121,7 @@ class Menu_Start():
             orga_name = os.path.basename(sys_pfad).split('.')[0] + '.organon'
             sys_pfad1 = sys_pfad.split(orga_name)[0]
             pfad = os.path.join(sys_pfad1,orga_name,orga_name)
-
+            
             self.Menu_Bar.class_Projekt.lade_Projekt(False,pfad)
           
         except:
@@ -256,23 +256,6 @@ class Menu_Start():
             
             self.Menu_Bar = menu_bar.Menu_Bar(args)
             self.Menu_Bar.erzeuge_Menu(self.Menu_Bar.prj_tab)
-            
-            info = '''  Welcome to Organon v0.9.9.9.0b
-
-  Organon is close to a stable version 1.0
-
-  If you find any issues or bugs which are
-  not on the bugtracker and if you like to
-  help to develop Organon, please post them 
-  on github or send a mail to:
-
-  organon_err@web.de
-
-  github bugtracker:
-  https://github.com/XRoemer/Organon/issues
-'''
-            
-            #self.Menu_Bar.nachricht(info,'infobox')
             
         except:
             log(inspect.stack,tb())    
