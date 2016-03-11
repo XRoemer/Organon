@@ -606,10 +606,10 @@ class Factory(unohelper.Base, XSingleComponentFactory):
         if self.debug: log(inspect.stack)
         
         try:
-            ctx = uno.getComponentContext()
-            smgr = ctx.ServiceManager
-            desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
-            frame = desktop.Frames.getByIndex(0)
+            #ctx = uno.getComponentContext()
+            #smgr = ctx.ServiceManager
+            #desktop = smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",ctx)
+            #frame = desktop.Frames.getByIndex(0)
             
             path_to_current = __file__.decode("utf-8")
             pyPath = path_to_current.split('factory.py')[0]
@@ -667,7 +667,6 @@ class Factory(unohelper.Base, XSingleComponentFactory):
                     win,
                     dict_sb,
                     debug,
-                    self,
                     log,
                     class_Log,
                     KONST,

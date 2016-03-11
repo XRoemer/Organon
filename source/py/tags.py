@@ -97,26 +97,29 @@ class Tags():
     def loesche_ordinal_aus_tags(self,ordinal):
         if self.mb.debug: log(inspect.stack)
         
-        tags = self.mb.tags
-        urls = [tags['ordinale'][ordinal][i] for i,v in tags['nr_name'].items() if v[1] == 'img']
-        bild_panels = [i for i,v in tags['nr_name'].items() if v[1] == 'img']
-                            
-        del(self.mb.tags['ordinale'][ordinal])
-        
-        # Wenn das Bild im Dok nicht mehr vorkommt: loeschen
-        for url in urls:
-            if url != '':
-                vorkommen = False
-                for ordi in tags['ordinale']:
-                    for panel in bild_panels:
-                        if url in tags['ordinale'][ordi][panel]:
-                            vorkommen = True
-                if not vorkommen:
-                    try:
-                        os.remove(uno.fileUrlToSystemPath(url))
-                    except:
-                        log(inspect.stack,tb())
-                        
+        try:
+            tags = self.mb.tags
+            urls = [tags['ordinale'][ordinal][i] for i,v in tags['nr_name'].items() if v[1] == 'img']
+            bild_panels = [i for i,v in tags['nr_name'].items() if v[1] == 'img']
+                                
+            del(self.mb.tags['ordinale'][ordinal])
+            
+            # Wenn das Bild im Dok nicht mehr vorkommt: loeschen
+            for url in urls:
+                if url != '':
+                    vorkommen = False
+                    for ordi in tags['ordinale']:
+                        for panel in bild_panels:
+                            if url in tags['ordinale'][ordi][panel]:
+                                vorkommen = True
+                    if not vorkommen:
+                        try:
+                            os.remove(uno.fileUrlToSystemPath(url))
+                        except:
+                            log(inspect.stack,tb())
+        except:
+            log(inspect.stack,tb())
+
     
     def loesche_tag_in_allen_dateien(self,tag):
         if self.mb.debug: log(inspect.stack)
@@ -147,27 +150,87 @@ class Tags():
         
         try:
             pfad = os.path.join(self.mb.pfade['settings'],'tags.pkl')
-            
-            dict_exists, backup_exists = False, False
-    
-            if os.path.exists(pfad):
-                dict_exists = True
-                
-            #if dict_exists:
+  
             with open(pfad, 'rb') as f:
                 self.mb.tags =  pickle_load(f)
-                
-    #         else:
-    #             self.uebertrage_sb_content_nach_tags()
-    #             with open(pfad, 'wb') as f:
-    #                 pickle_dump(self.tags, f,2)
                 
             self.mb.class_Sidebar.offen = {nr:1 for nr in self.mb.tags['abfolge']} 
         except:
             log(inspect.stack,tb())
+            p = Popup(self.mb, zeit=3)
+            p.text = LANG.TAGS_NICHT_GEFUNDEN
             self.lege_tags_an()
             self.mb.class_Sidebar.offen = {nr:1 for nr in self.mb.tags['abfolge']} 
+        
+        
+        # Tags ueberpruefen
+        try:
             
+            ordinale = list(self.mb.props['ORGANON'].dict_bereiche['ordinal'])
+            ordinale_tags = list(self.mb.tags['ordinale'])
+            
+            o_nicht_in_tags = [o for o in ordinale if o not in ordinale_tags]
+            ueberfluessige_tags = [o for o in ordinale_tags if o not in ordinale]
+            
+            
+            # 1) fehlende Tags neu anlegen
+            if o_nicht_in_tags:
+                
+                root = self.mb.props['ORGANON'].xml_tree.getroot()
+                namen = [root.find('.//' + o).attrib['Name'] for o in o_nicht_in_tags ]
+                
+                p = Popup(self.mb, zeit=3)
+                p.text = LANG.LEGE_TAGS_FUER_DATEI_AN + '\n'.join(namen)
+        
+                for o in o_nicht_in_tags:
+                    self.erzeuge_tags_ordinal_eintrag(o)
+                    
+                    
+            # 2) ueberfluessige Tags loeschen
+            if ueberfluessige_tags:
+                                
+                pfade = { o : os.path.join(self.mb.pfade['odts'], o + '.odt') for o in ueberfluessige_tags}
+                existierende = { o : pf for o,pf in pfade.items() if os.path.exists(pf)}
+                nicht_existierende = [o for o in ueberfluessige_tags if o not in existierende]
+                
+                # nicht existierende werden ohne Rueckmeldung geloescht
+                for o in nicht_existierende:
+                    del self.mb.tags['ordinale'][o]
+                
+                if existierende:
+
+                    text = []
+                    for i,e in enumerate(existierende):
+                        if i < 20:
+                            text.append(e)
+                        else:
+                            zaehler = i % 20
+                            text[zaehler] = text[zaehler] + '  ' + e
+                        
+                    
+                    nachricht = LANG.DATEIEN_NICHT_IM_PROJEKT_ABER_AUF_FP.format(self.mb.pfade['odts']) + '\n'.join(text)
+                    
+                    entscheidung = self.mb.entscheidung(nachricht,"warningbox",16777216)
+                    # 3 = Nein oder Cancel, 2 = Ja
+                    if entscheidung == 3:
+                        return
+                    elif entscheidung == 2:
+                        for o,pfad in existierende.items():
+                            del self.mb.tags['ordinale'][o]
+                            os.remove(pfad)
+                            self.mb.class_Bereiche.plain_txt_loeschen(o)
+
+        
+        except:
+            log(inspect.stack,tb())
+            
+        
+        
+        
+        
+        
+        
+        
     def formatiere_datum(self,datum):
         if self.mb.debug: log(inspect.stack)
         
@@ -446,7 +509,7 @@ class Tags_loeschen_Listener(unohelper.Base,XActionListener):
                     self.mb.class_Tags.loesche_tag_in_allen_dateien(tag)
                 self.win.dispose()
                 self.mb.class_Sidebar.erzeuge_sb_layout()
-                self.mb.popup(LANG.TAGS_GELOESCHT,1,self.mb.topWindow)
+                Popup(self.mb, zeit=1, parent=self.mb.topWindow).text = LANG.TAGS_GELOESCHT
                 
             else:
                 ctrl = self.ctrls[cmd]

@@ -58,6 +58,8 @@ files = [
     'py/tags.py',
     'py/fenster.py',
     'py/suche.py',
+    'py/tools.py',
+    'py/querverweise.py',
 
     'py/schalter.py',
 

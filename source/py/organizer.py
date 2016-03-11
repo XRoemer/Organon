@@ -58,7 +58,7 @@ class Organizer():
             if self.mb.programm == 'OpenOffice':
                 if self.first_time_info:
                     self.first_time_info = False
-                    self.mb.nachricht(LANG.OO_ORGANIZER_INFO,'infobox')
+                    Popup(self.mb, 'info').text = LANG.OO_ORGANIZER_INFO
                     
             if len(self.mb.props['ORGANON'].dict_zeilen_posY) == 0:
                 # Kein Projekt geladen
@@ -226,7 +226,7 @@ class Organizer():
             ordinal = self.Eintraege[r][0]
             
             if not url:
-                url,ok = self.mb.class_Funktionen.filepicker2()
+                url,ok = self.mb.class_Funktionen.filepicker2(url_to_sys=False)
                 if not ok:
                     return True
             
@@ -237,8 +237,8 @@ class Organizer():
             zell_breite = cell.Size.Width
             
             name = 'panel{0}_{1}'.format(panel_nr,ordinal)
-            url2 = uno.systemPathToFileUrl(url)
-            btn,hoehe = self.erzeuge_bild_button(name,url2,zell_breite)
+            
+            btn,hoehe = self.erzeuge_bild_button(name,url,zell_breite)
 
             shape = self.erzeuge_bild_shape(name, btn, cell,hoehe)
             self.sheet.DrawPage.add(shape)
@@ -257,11 +257,11 @@ class Organizer():
             self.tags_org['ordinale'][ordinal][panel_nr] = url
         except:
             log(inspect.stack,tb())            
-    
+            
         
     def erzeuge_bild_button(self,name,url,zell_breite):    
         if self.mb.debug: log(inspect.stack)
-        
+                
         btn = self.mb.createUnoService("com.sun.star.form.component.ImageButton")
         btn.setPropertyValues(('Name','Border','ScaleImage','ImageURL'),
                               (name,0,True,url))
@@ -283,9 +283,10 @@ class Organizer():
         h_max = 0
         
         for pannel_nr in self.bilder_reihe[row]:
-            ordinal,url,panel_nr,cell = self.bilder_reihe[row][pannel_nr]['values']
+            ordinal,bild_name,panel_nr,cell = self.bilder_reihe[row][pannel_nr]['values']
+            bildpfad = uno.systemPathToFileUrl(os.path.join(self.mb.pfade['images'], bild_name))
             name = 'panel{0}_{1}'.format(panel_nr,ordinal) 
-            btn,hoehe = self.erzeuge_bild_button(name,url,cell.Size.Width)
+            btn,hoehe = self.erzeuge_bild_button(name,bildpfad,cell.Size.Width)
             h_max = hoehe if hoehe > h_max else h_max
             
             btns[panel_nr] = [btn,hoehe,name]
@@ -300,7 +301,7 @@ class Organizer():
         
         form = self.calc.createInstance("com.sun.star.form.component.Form")
         form.setName(name)
-        form.insertByName('btn_'+name,btn)
+        form.insertByName('btn_' + name, btn)
         
         shape = self.calc.createInstance("com.sun.star.drawing.ControlShape")
             
@@ -601,11 +602,16 @@ class Organizer():
                     
             self.calc = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,())
             
+            ctx = uno.getComponentContext()
+            toolkit = ctx.ServiceManager.createInstanceWithContext("com.sun.star.awt.Toolkit", self.mb.ctx)    
+            self.win = toolkit.getActiveTopWindow() 
+            
             frames = self.mb.desktop.Frames
             for i in range(frames.Count):                
                 if frames.getByIndex(i).Controller == self.calc.CurrentController:
                     self.calc_frame = frames.getByIndex(i)
-            
+                    
+            self.win = self.calc_frame.ComponentWindow
             self.sheet_controller = self.calc_frame.Controller
             self.sheet = self.sheet_controller.ActiveSheet
             
@@ -962,21 +968,16 @@ class Organizer():
                         if to_ord[ordi][panel_nr] == '':
                             geloeschte.append([ordi,panel_nr])
                         else:
-                            geaenderte.append( [ ordi, panel_nr, to_ord[ordi][panel_nr] ] )
+                            geaenderte.append( [ ordi, panel_nr, uno.fileUrlToSystemPath(to_ord[ordi][panel_nr]) ] )
             
             
             for g in geaenderte:
                 ordi, panel_nr, pfad = g
-                pfad2 = self.mb.class_Sidebar.bild_einfuegen( panel_nr, ordinal=ordi, filepath=pfad, erzeuge_layout=False)
-                tags_org['ordinale'][ordi][panel_nr] = pfad2
-                
-                if [pfad2,panel_nr] in self.close_listener.zu_loeschende_bilder:
-                    self.close_listener.zu_loeschende_bilder.remove([pfad2,panel_nr])
+                pfad2 = self.mb.class_Sidebar.bild_einfuegen( panel_nr, ordinal=ordi, filepath=pfad, erzeuge_layout=False, loeschen=False)
+                tags_org['ordinale'][ordi][panel_nr] = pfad2                
                 
             for g in geloeschte:
                 ordi, panel_nr = g
-                old_image_path = self.mb.tags['ordinale'][ordi][panel_nr]
-                self.close_listener.zu_loeschende_bilder.append([old_image_path,panel_nr])
                 tags_org['ordinale'][ordi][panel_nr] = ''
 
             
@@ -988,7 +989,7 @@ class Organizer():
                 self.mb.class_Zeilen_Listener.aendere_datei_namen(ordi,text)
             
 
-            self.mb.popup(LANG.UEBERNOMMEN,1) 
+            Popup(self.mb, zeit=1, parent=self.win).text = LANG.UEBERNOMMEN
 
             
             self.calc.setModified(False)  
@@ -1021,7 +1022,7 @@ class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
         
         self.mb = mb
         self.pressed = False
-        self.Org = Org
+        self.org = Org
         
     def propertiesChange(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1032,7 +1033,7 @@ class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
             
             # MENULEISTE EIN/AUSBLENDEN
             if btn.Label == LANG.MENU:
-                lmgr = self.Org.calc_frame.LayoutManager
+                lmgr = self.org.calc_frame.LayoutManager
                 
                 ResourceURL ='private:resource/menubar/menubar'
                 
@@ -1043,18 +1044,17 @@ class Button_Click_Listener(unohelper.Base, XPropertiesChangeListener):
                     
             # INFO ANZEIGEN
             elif btn.Label == LANG.INFO:
-                self.mb.nachricht(LANG.ORGANIZER_INFO.format(
+                Popup(self.mb, 'info', parent=self.org.win).text = LANG.ORGANIZER_INFO.format(
                          LANG.UEBERNEHMEN,
                          LANG.MENU,
                          LANG.SYNOPSIS,
                          LANG.NOTIZEN,
                          LANG.CHARAKTERE,
-                         LANG.ORTE),
-                         "infobox")
-                
+                         LANG.ORTE)
+                  
             # TAGS UEBERNEHMEN
             else:
-                self.Org.tags_uebernehmen()
+                self.org.tags_uebernehmen()
                 
         except:
             log(inspect.stack,tb())
@@ -1302,7 +1302,7 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 # PROJEKTNAME
                 if (col,row) == (self.Org.pos[0],self.Org.pos[1] + 1):
                     self.zuruecksetzen(col,row,kateg)
-                    self.mb.nachricht(LANG.PRJ_NAME_KEINE_AENDERUNG,"infobox")
+                    Popup(self.mb, 'info', parent=self.Org.win).text = LANG.PRJ_NAME_KEINE_AENDERUNG
                     continue
                 # DATEINAME
                 if panel_nr == 'datei':
@@ -1350,7 +1350,7 @@ class Modify_Listener(unohelper.Base, XModifyListener):
                 if keine_aenderung:
                     pass
                 if bereits_in_anderen_tags_vorhanden:
-                    self.mb.nachricht(LANG.EIN_TAG_BEREITS_VORHANDEN,"infobox")
+                    Popup(self.mb, 'info', parent=self.Org.win).text = LANG.EIN_TAG_BEREITS_VORHANDEN
                     self.zuruecksetzen(col,row,panel_nr)                   
                 else:
                     self.setze_aenderung(col,row,panel_nr,ordinal,inhalt,geloeschte,hinzugefuegte)                    
@@ -1448,14 +1448,15 @@ class Icons_Listener(unohelper.Base,XScriptListener):
                 
         # INFO ANZEIGEN
         elif label == LANG.INFO:
-            self.mb.nachricht(LANG.ORGANIZER_INFO.format(
+
+            Popup(self.mb, 'info', parent=self.org.win).text = LANG.ORGANIZER_INFO.format(
                      LANG.UEBERNEHMEN,
                      LANG.MENU,
                      LANG.SYNOPSIS,
                      LANG.NOTIZEN,
                      LANG.CHARAKTERE,
-                     LANG.ORTE),
-                     "infobox")
+                     LANG.ORTE)
+
         # TAGS UEBERNEHMEN
         elif label == LANG.UEBERNEHMEN:
             self.org.tags_uebernehmen()
@@ -1548,7 +1549,7 @@ class Bild_Tag_Button_Listener(unohelper.Base, XActionListener):
         try:
             if cmd == 'aendern':
    
-                url,ok = self.mb.class_Funktionen.filepicker2()
+                url,ok = self.mb.class_Funktionen.filepicker2(url_to_sys=False)
                 if not ok:
                     return True
                 
@@ -1609,8 +1610,6 @@ class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
         self.Org = Org
         self.calc = calc
         
-        self.zu_loeschende_bilder = []
-
     def documentEventOccured(self,ev):
         try:
             
@@ -1618,7 +1617,7 @@ class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
                 if self.mb.debug: log(inspect.stack)
                 
                 if self.calc.isModified():
-                    entscheidung = self.mb.nachricht(LANG.AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN,"warningbox",16777216,self.mb.doc)
+                    entscheidung = self.mb.entscheidung(LANG.AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN,"warningbox",16777216,self.mb.doc)
                     # 3 = Nein oder Cancel, 2 = Ja
                     if entscheidung == 3:
                         pass
@@ -1628,24 +1627,42 @@ class Organizer_Close_Listener(unohelper.Base,XDocumentEventListener):
                         except:
                             log(inspect.stack,tb())
                             
-                        if self.zu_loeschende_bilder != []: 
-                            # Bilder können nicht geloescht werden,
-                            # solange der Organizer geoeffnet ist.
-                            # Daher wird loeschen 3 Sekunden nach
-                            # Schliessen des Organizers aufgerufen
-                            from threading import Thread
-                            
-                            def sleeper(zu_loeschende_bilder,mb):  
-                                import time
-                                time.sleep(3) 
-                                for b in self.zu_loeschende_bilder:
-                                    old_image_path, panel_nr = b
-                                    mb.class_Sidebar.bild_loeschen( old_image_path, panel_nr)
+                        
+                tags = self.mb.tags
+                bild_panels = self.Org.bild_panels
                 
-                            t = Thread(target=sleeper,args=(self.zu_loeschende_bilder,self.mb))
-                            t.start()
+                for root, dirs, files in os.walk(self.mb.pfade['images']):
+                    break
+                
+                genutzte_bilder = []
+                
+                for ordi in tags['ordinale']:
+                    for panel in bild_panels:
+                        if tags['ordinale'][ordi][panel] not in genutzte_bilder:
+                            genutzte_bilder.append(tags['ordinale'][ordi][panel])
+                            
+                ungenutzte_bilder = [b for b in files if b not in genutzte_bilder]
+                                            
+                if ungenutzte_bilder != []: 
+                    # Bilder können nicht geloescht werden,
+                    # solange der Organizer geoeffnet ist.
+                    # Daher wird loeschen 3 Sekunden nach
+                    # Schliessen des Organizers aufgerufen
+                    from threading import Thread
+                     
+                    def sleeper(zu_loeschende_bilder,mb,os):  
+                        import time
+                        time.sleep(3) 
+                        for b in zu_loeschende_bilder:
+                            path = os.path.join(mb.pfade['images'],b)
+                            os.remove(path)
+         
+                    t = Thread(target=sleeper,args=(ungenutzte_bilder,self.mb,os))
+                    t.start()
                 
                 self.calc.setModified(False)
+                
+                
 
         except:
             log(inspect.stack,tb())

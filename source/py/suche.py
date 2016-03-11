@@ -44,7 +44,7 @@ class Suche():
             self.dialog_suche()
                 
         except Exception as e:
-            self.mb.nachricht('Export.export '+ str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'ERROR: '+ str(e)
             log(inspect.stack,tb())
 
 
@@ -353,7 +353,7 @@ class Suche_Dialog_Listener(unohelper.Base, XActionListener, XMouseListener):
             elif cmd == 'neue_kat':
                 name = self.ctrls['kat_neu_name'].Model.Text.strip()
                 if name in self.mb.tags['name_nr']:
-                    self.mb.nachricht(LANG.KATEGORIE_EXISTIERT.format(name), 'infobox')
+                    Popup(self.mb, 'warning').text = LANG.KATEGORIE_EXISTIERT.format(name)
                     return
                 self.neue_tag_kat_anlegen(name)
                 self.ctrls['kat_auswahl'].addItem(name,0)
@@ -439,37 +439,37 @@ class Suche_Dialog_Listener(unohelper.Base, XActionListener, XMouseListener):
             alle_tags = [a for b,v in self.mb.tags['sammlung'].items() for a in v]
             
             if state['rb1_auswahl'] and ausgewaehlte == []:
-                self.mb.nachricht(LANG.KEINE_DATEIEN_AUSGEWAEHLT, 'infobox')
+                Popup(self.mb, 'info').text = LANG.KEINE_DATEIEN_AUSGEWAEHLT
                 return False
             
             self.ordinale = self.get_ordinale_ausgewaehlte(ausgewaehlte)
             
             if not self.ordinale:
-                self.mb.nachricht(LANG.KEINE_DATEIEN_AUSGEWAEHLT, 'infobox')
+                Popup(self.mb, 'info').text = LANG.KEINE_DATEIEN_AUSGEWAEHLT
                 return False
             
             elif not (state['neuer_tab'] or state['funde_taggen'] or state['mark_funde']):
-                self.mb.nachricht(LANG.KEINE_AKTION_GEWAEHLT, 'infobox')
+                Popup(self.mb, 'info').text = LANG.KEINE_AKTION_GEWAEHLT
                 return False
                 
             elif state['regex'] and state['funde_taggen'] and state['tag_name'] == '':
-                self.mb.nachricht(LANG.REGEX_BRAUCHT_TAGNAMEN, 'infobox')
+                Popup(self.mb, 'info').text = LANG.REGEX_BRAUCHT_TAGNAMEN
                 return False
             
             elif state['alle'] and state['funde_taggen'] and state['tag_name'] == '':
-                self.mb.nachricht(LANG.OPT_ALLE_BRAUCHT_TAGNAMEN, 'infobox')
+                Popup(self.mb, 'info').text = LANG.OPT_ALLE_BRAUCHT_TAGNAMEN
                 return False
             
             elif ctrls['suchbegriffe'].Model.Text == '':
-                self.mb.nachricht(LANG.KEINE_SUCHBEGRIFFE.format(state['tag_name']), 'infobox')
+                Popup(self.mb, 'info').text = LANG.KEINE_SUCHBEGRIFFE.format(state['tag_name'])
                 return False
             
             elif state['neuer_tab'] and state['tab_name'] in self.mb.props:
-                self.mb.nachricht(LANG.TAB_EXISTIERT_SCHON, 'infobox')
+                Popup(self.mb, 'info').text = LANG.TAB_EXISTIERT_SCHON
                 return False
             
             elif state['neuer_tab'] and state['tab_name'] == '':
-                self.mb.nachricht(LANG.TABNAMEN_EINGEBEN, 'infobox')
+                Popup(self.mb, 'info').text = LANG.TABNAMEN_EINGEBEN
                 return False
             
 
@@ -492,7 +492,7 @@ class Suche_Dialog_Listener(unohelper.Base, XActionListener, XMouseListener):
                                     break
 
                     if doppelter_tag:
-                        self.mb.nachricht(LANG.TAG_VORHANDEN_WAEHLEN.format(doppelter_tag) )
+                        Popup(self.mb, 'warning').text = LANG.TAG_VORHANDEN_WAEHLEN.format(doppelter_tag)
                         return False
                 
             return True
@@ -590,7 +590,7 @@ class Suche_Dialog_Listener(unohelper.Base, XActionListener, XMouseListener):
             ordis = alle_funde
         
         if not ordis:
-            self.mb.nachricht(LANG.SUCHE_KEINE_ERGEBNISSE, 'infobox')
+            Popup(self.mb, 'info').text = LANG.SUCHE_KEINE_ERGEBNISSE
             return
         
         if state['neuer_tab']:

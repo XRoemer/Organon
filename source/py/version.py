@@ -40,7 +40,7 @@ class Version():
         '0.9.9.8.8':None,
         '0.9.9.9.0':self.an_09991b_anpassen,
         '0.9.9.9.1':None,
-        
+        '0.9.9.9.2':self.an_09993b_anpassen,
         
         } 
         
@@ -183,7 +183,7 @@ A backup of your project with the old settings will be created in the backup fol
 
             '''
             
-            self.mb.nachricht(message,'infobox')
+            Popup(self.mb, 'info').text = message
             self.mb.erzeuge_Backup()
             
             # dict sidebar_content in dict tag ueberfuehren
@@ -369,10 +369,7 @@ A backup of your project with the old settings will be created in the backup fol
                     prop.Value = True
     
                     texte = {}
-                    #props = self.mb.props[T.AB]
-                    
-                    #bereich_ord = props.dict_bereiche['Bereichsname-ordinal']
-                                        
+                   
                     x = 1
                     
                     for ordi in ordinale:                        
@@ -395,9 +392,7 @@ A backup of your project with the old settings will be created in the backup fol
                                 doc.close(False)
                             except:
                                 pass
-                        
-                        
-                        
+                                                
                     return texte                
                 
                 def schreiben(t):
@@ -411,10 +406,7 @@ A backup of your project with the old settings will be created in the backup fol
                 t = auslesen()
                 schreiben(t)
             
-            
-            
-            
-            
+
             plain_txt_erstellen()
             StatusIndicator.end()
             
@@ -422,10 +414,25 @@ A backup of your project with the old settings will be created in the backup fol
             log(inspect.stack,tb())
             StatusIndicator.end()
         
+    
+    def an_09993b_anpassen(self):
+        if self.mb.debug: log(inspect.stack) 
         
-        
-        
-        
+        try:
+            self.mb.class_Tags.lade_tags()
+            
+            tags = self.mb.tags
+            bild_panels = [t for t,v in tags['nr_name'].items() if v[1] == 'img']
+            
+            for ordi in tags['ordinale']:
+                for b in bild_panels:
+                    if tags['ordinale'][ordi][b] != '':
+                        tags['ordinale'][ordi][b] = os.path.basename(tags['ordinale'][ordi][b])  
+
+        except:
+            log(inspect.stack,tb())
+
+     
         
         
         

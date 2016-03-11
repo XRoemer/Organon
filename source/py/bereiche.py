@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from com.sun.star.style.BreakType import NONE as BREAKTYPE_NONE
+from com.sun.star.beans import UnknownPropertyException
 
 class Bereiche():
     
@@ -9,11 +10,16 @@ class Bereiche():
 
         self.mb = mb
         self.doc = mb.doc       
-        
         self.oOO = None
+        
+        self.services = {
+                        'frame' : 'com.sun.star.text.TextFrame',
+                        'table' : 'com.sun.star.text.CellProperties',
+                        'fn'    : 'com.sun.star.text.Footnote',
+                        'en'    : 'com.sun.star.text.Endnote',
+                        }
     
-    
-    def starte_oOO(self,URL=None):
+    def starte_oOO(self, URL=None):
         if self.mb.debug: log(inspect.stack)
          
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
@@ -150,16 +156,19 @@ class Bereiche():
         if self.mb.debug: log(inspect.stack)
         
         try:
+            
             all_sections_Namen = self.doc.TextSections.ElementNames
             if self.doc.TextSections.Count != 0:
                 for name in all_sections_Namen:
                     sec = self.doc.TextSections.getByName(name)
+                    sec.setPropertyValue('IsProtected',False)
                     sec.dispose()
-            
+
             cursor = self.mb.viewcursor
             cursor.gotoStart(False)
             cursor.gotoEnd(True)
             cursor.setString('')
+
         except:
             log(inspect.stack,tb())
             
@@ -202,7 +211,7 @@ class Bereiche():
         
         if sicht == 'nein':
             newSection.IsVisible = False
-            
+
         if sections.Count == 0:
             # bei leerem Projekt
             textSectionCursor = text.createTextCursor()
@@ -265,10 +274,25 @@ class Bereiche():
         cur.gotoEnd(False)
         cur.goLeft(1,True)
         cur.setString('')
-       
+    
+    def datei_speichern(self,ordinal):
+        if self.mb.debug: log(inspect.stack)
         
-    def datei_nach_aenderung_speichern(self, zu_speicherndes_doc_path, bereichsname = None, speichern = False):
-
+        bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
+        self.datei_nach_aenderung_speichern(bereichsname,speichern = True)        
+        
+        
+    def datei_nach_aenderung_speichern(self, bereichsname = None, anderer_pfad = None, speichern = False):
+        
+        if bereichsname == None:
+            ordinal = self.mb.props[T.AB].selektierte_zeile
+            bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
+        
+        props = self.mb.props[T.AB]
+        if props.dict_bereiche['Bereichsname-ordinal'][bereichsname] == props.Papierkorb:
+            # Papierkorb wird nicht gespeichert
+            return
+        
         if (len(self.mb.undo_mgr.AllUndoActionTitles) > 0 and bereichsname != None) or speichern:
             # Nur loggen, falls tatsaechlich gespeichert wurde
             if self.mb.debug: log(inspect.stack)
@@ -277,6 +301,11 @@ class Bereiche():
                 # Damit das Handbuch nicht geaendert wird:
                 if self.mb.anleitung_geladen:
                     return
+                
+                if anderer_pfad:
+                    pfad = anderer_pfad
+                else:
+                    pfad = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
                                 
                 self.verlinkte_Bilder_einbetten(self.mb.doc)
                 projekt_path = self.mb.doc.URL
@@ -298,14 +327,14 @@ class Bereiche():
                                     
                 newDoc.Text.insertTextContent(cur, newSection, True)
                 newDoc.Text.removeTextContent(newSection)
-                newDoc.storeToURL(zu_speicherndes_doc_path,())
+                newDoc.storeToURL(pfad,())
                 
-                if '.odthelfer' not in zu_speicherndes_doc_path:
+                if '.odthelfer' not in pfad:
                     # plain_txt speichern
                     plain_txt = newDoc.Text.String
                     dict_bereiche = self.mb.props[T.AB].dict_bereiche
                     
-                    os_path = uno.fileUrlToSystemPath(zu_speicherndes_doc_path)
+                    os_path = uno.fileUrlToSystemPath(pfad)
                     bereich = [ n for n,p in dict_bereiche['Bereichsname'].items() if p == os_path ][0]
                     ordinal = dict_bereiche['Bereichsname-ordinal'][bereich]
                     
@@ -316,7 +345,7 @@ class Bereiche():
                 self.mb.loesche_undo_Aktionen()
             except:
                 log(inspect.stack,tb())
-                self.mb.nachricht(LANG.DATEI_NICHT_GESPEICHERT,'warningbox')
+                Popup(self.mb, 'warning').text = LANG.DATEI_NICHT_GESPEICHERT
                 try:
                     newDoc.close(False)
                 except:
@@ -348,7 +377,7 @@ class Bereiche():
     def verlinkte_Bilder_einbetten(self,doc):
         if self.mb.debug: log(inspect.stack)
         
-        self.mb.selbstruf = True
+        self.mb.Listener.VC_selection_listener.selbstruf = True
         
         try:
             bilder = self.mb.doc.GraphicObjects
@@ -374,7 +403,7 @@ class Bereiche():
                         log(inspect.stack,tb())
         except:
             log(inspect.stack,tb())
-        self.mb.selbstruf = False   
+        self.mb.Listener.VC_selection_listener.selbstruf = False   
         
         
     def speicher_odt(self,pfad):
@@ -432,3 +461,95 @@ class Bereiche():
         doc.storeToURL(pfad,(prop1,prop3))
         doc.close(False)
 
+    
+    def get_ordinal(self, text_range, is_in_frame=None):
+        #if self.mb.debug: log(inspect.stack)
+        
+        try:
+            if is_in_frame:
+                sec, sec_name, info = self.get_organon_section(text_range, ['frame',])
+            else:
+                sec, sec_name = self.get_organon_section(text_range)
+                
+            ordinal = 'nr{}'.format(sec.Name.split('OrgInnerSec')[1])
+            
+            if is_in_frame:
+                return ordinal, info['frame']
+            else:
+                return ordinal
+        except:
+            log(inspect.stack,tb())
+            return None
+    
+    
+    def get_organon_section(self, text_range, info=[]):
+        #if self.mb.debug: log(inspect.stack)
+                
+        try:
+            info2 = {i:False for i in info}
+            
+            def get_info(txt_inst):
+                for i in info:
+                    if self.services[i] in txt_inst.SupportedServiceNames:
+                        info2[i] = True
+                        return
+
+            def get_parsec(s):
+                try:
+                    while 'OrgInnerSec' not in s.Name:
+                        if s.ParentSection != None:
+                            s = s.ParentSection
+                        else:
+                            s = s.Anchor.Text.Anchor.TextSection
+                    return s
+                except:
+                    log(inspect.stack,tb())
+                    return None, ''
+            
+            par_sec = None  
+              
+            if text_range.TextSection != None:
+                sec = text_range.TextSection
+                
+                if 'trenner' in sec.Name:
+                    return sec, sec.Name
+                else:
+                    par_sec = get_parsec(sec)
+                    if info: get_info(text_range.Text) 
+
+            else:
+                # Fuss- oder Endnote, TextFrame
+                try:
+                    sec = text_range.Text.Anchor.TextSection
+                    par_sec = get_parsec(sec)
+                    if info: get_info(text_range.Text)
+
+                except UnknownPropertyException:
+                    # TextFrame
+                    # Je nach Verschachtelung gibt es mehrere Moeglichkeiten
+                    sec = text_range.TextFrame.Anchor.TextSection
+                    if sec == None:
+                        sec = text_range.TextFrame.Anchor.TextFrame.Anchor.TextSection
+                    if sec != None:
+                        par_sec = get_parsec(sec)
+                        if info: get_info(text_range.TextFrame.Text)
+                    
+            if info:
+                return par_sec, par_sec.Name, info2
+            
+            return par_sec, par_sec.Name
+        except:
+            log(inspect.stack,tb())
+            return None, ''
+        
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+           

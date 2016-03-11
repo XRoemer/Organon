@@ -8,7 +8,6 @@ ANSICHT = u'''Vista'''
 FILE = u'''File'''
 TITEL = u'''Titolo'''
 PAPIERKORB = u'''Cestino'''
-FORMATIERUNG_SPEICHERN = u'''Salva formattazione dell'ultimo file editato: {0}'''
 DATEI_NICHT_GESPEICHERT = u'''Il file non è stato salvato '''
 KEINE = u'''No'''
 KAPITEL = u'''Capitolo'''
@@ -19,7 +18,9 @@ LOAD_DESCRIPTION = u'''Carica il Manuale'''
 CLEAR_RECYCLE_BIN = u'''Svuota Cestino'''
 INSERT_DOC = u'''Inserisci Nuovo Documento'''
 INSERT_DIR = u'''Inserisci Nuova Cartella'''
-PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''Un altro Progetto Organon è già caricato. Chiudere Organon prima di caricare un atro progetto. Menubar: Organon>open/close'''
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''Un altro Progetto Organon è già caricato.
+Chiudere Organon prima di caricare un atro progetto.
+Menubar: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'''Mostra Sezioni testo'''
 SICHTBARE_TAGS_BAUMANSICHT = u'''Etichette Visibili nella vista ad albero'''
 SICHTBARE_TAGS_SEITENLEISTE = u'''Etichette Visibili nella barra laterale'''
@@ -101,14 +102,18 @@ PAPIERKORB_LEEREN = u'''Cestino Vuoto'''
 SHOW_TAG1 = u'''Colore Icone'''
 SHOW_TAG2 = u'''Icone Definite da Utente'''
 GLIEDERUNG = u'''Struttura'''
-BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'''Se vuoi puoi usare le icone auto-definite, Organon inserisce "Organon Icons" nella tua galleria.
+BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'''Se vuoi puoi usare le icone auto-definite, Organon inserisce 
+"Organon Icons" nella tua galleria.
 
 Inoltre, la seguente cartella verrà creata sul tuo filesystem:
 %s
 
-La galleria può essere aperto dal pulsante nella barra degli strumenti standard (toolbar) o dalla barra laterale (sidebar).
+La galleria può essere aperto dal pulsante nella barra degli strumenti standard (toolbar)
+o dalla barra laterale (sidebar).
 
-Organon salva una piccola quantità di icone in questa cartella. È possibile eliminarle e inserire le proprie.Le icone sono selezionate da un clic destro nello spazio vuoto tra l'icona del file/cartella e il titolo.
+Organon salva una piccola quantità di icone in questa cartella. È possibile eliminarle e
+inserire le proprie.Le icone sono selezionate da un clic destro nello spazio vuoto tra 
+l'icona del file/cartella e il titolo.
 
 Organon dovrebbe impostare una voce nella galleria?
 '''
@@ -150,7 +155,8 @@ NEW_PROJECT2 = u'''Nuovo Progetto'''
 PROJEKT_NAMEN_EINGEBEN = u'''Inserire nome per il nuovo Progetto.'''
 UNGESPEICHERTE_PFADE = u'''
 I seguenti file non possono essere esportati.
-I loro percorsi sono troppo lunghi. Si può scegliere un'altra cartella per il salvataggio oppure abbreviare i nomi delle cartelle/file.
+I loro percorsi sono troppo lunghi. Si può scegliere un'altra cartella per il 
+salvataggio oppure abbreviare i nomi delle cartelle/file.
 
 {}'''
 
@@ -188,7 +194,9 @@ IMPORT_FILTER_WARNUNG = u'''ATTENZIONE:
 
 Questa è una feature sperimentale e non tutti i filtri funzionano. (Ad esempio i Pdf)
 
-Potrebbe essere una buona idea provare i filtri su un progetto non importante o nuovo. Esportare i file partendo da files .odt e reimportarli nel progetto di destinazione utilizzando il filtro .odt standard.'''
+Potrebbe essere una buona idea provare i filtri su un progetto non importante o nuovo.
+Esportare i file partendo da files .odt e reimportarli nel progetto di destinazione 
+utilizzando il filtro .odt standard.'''
 ERZEUGE_DATEI = u'''creazione file %s/%s'''
 NO_FILES = u'''Non ci sono files con i filtri selezionati nella cartella selezionata'''
 IMP_FORTFAHREN = u'''%s files saranno importati. Continuare?'''
@@ -211,7 +219,8 @@ HOEHE = u'''Altezza'''
 BREITE = u'''Largezza'''
 
 TAG_HINZUFUEGEN = u'''Cliccare per aggiungere un'etichetta'''
-ENTER_NEW_TAG = u'''Inserire una nuova etichetta e cliccare all'interno della finestra del documento.'''
+ENTER_NEW_TAG = u'''Inserire una nuova etichetta e cliccare all'interno
+della finestra del documento.'''
 ZEIT2 = u'''Ora:'''
 DATUM = u'''Data'''
 
@@ -340,7 +349,8 @@ URL_INFO = u'''Formato: .png 2500px * 200px'''
 PERSONANAMEN_EXISTIERT = u'''Il Personaggio già esiste'''
 ORDNER_NICHT_ERSTELLT = u'''Impossibile creare la directory "{0}".
  Controlla se la directory già esiste e
-se si dispone dei permessi per scrivere all'interno della directory.Creare la cartella da soli o utilizzare un tema:
+se si dispone dei permessi per scrivere all'interno della directory.
+Creare la cartella da soli o utilizzare un tema:
 Extra/Opzioni/Personalizzazione/Proprio Tema
 e riprova ancora.'''
 KEIN_PERSONA_SELEKTIERT = u'''Nessun Personaggio selezionato'''
@@ -425,7 +435,8 @@ PRJ_NAME_KEINE_AENDERUNG = u'''Il progetto non può essere rinominato'''
 EIN_TAG_BEREITS_VORHANDEN = u'''Una delle etichette è già in uso in un'altra categoria.'''
 UEBERNOMMEN = u'''Le modifiche sono state applicate.'''
 AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'''Ci sono cambiamenti non salvati. Vuoi salvare i cambiamenti?'''
-OO_ORGANIZER_INFO = u'''Se si fa uso dell'organizzatore in OpenOffice, la finestra Organon e la barra laterale saranno chiuse al successivo riavvio. Se necessario, si dovrà aprire nuovamente.'''
+OO_ORGANIZER_INFO = u'''Se si fa uso dell'organizzatore in OpenOffice, la finestra Organon
+e la barra laterale saranno chiuse al successivo riavvio. Se necessario, si dovrà aprire nuovamente.'''
 ORGANIZER_INFO = u'''Utilizzo dell'Organizzatore:
 
 L'organizzatore è usato per una panoramica e la modifica veloce di tutti i tag.
@@ -447,17 +458,27 @@ Il tempo ha un formato di 24 ore (da 00:00 a 23:59)
 Il formato della data può essere regolata nelle impostazioni.
 Le cartelle e i file possono essere rinominati nell'Organizer.
 
-Le modifiche sono fatte da nuove voci nei campi, che vengano adottati da un click sul pulsante "Applica". Inoltre, quando sono state apportate modifiche e l'Organizzatore viene chiuso, verrà richiesto se le modifiche devono essere applicate.
+Le modifiche sono fatte da nuove voci nei campi, che vengano adottati da un click sul
+pulsante "Applica". Inoltre, quando sono state apportate modifiche e l'Organizzatore
+viene chiuso, verrà richiesto se le modifiche devono essere applicate.
 
 Le modifiche delle icone sul lato sinistro sono adottate senza un riscontro immediato.
 
-Il menu di Calc può essere aperto facendo clic su "Menu", in modo che il file può essere utilizzato in altro modo. (ad esempio la stampa)
+Il menu di Calc può essere aperto facendo clic su "Menu", in modo che il file può
+essere utilizzato in altro modo. (ad esempio la stampa)
 
-Non inserire righe o colonne, né modificare il documento dal menu, se si vuole utilizzarlo ancora con Organon. Tali modifiche potrebbero causare un file con tag corrotto.
+Non inserire righe o colonne, né modificare il documento dal menu, se si vuole
+utilizzarlo ancora con Organon. Tali modifiche potrebbero causare un file con
+tag corrotto.
 
-Se non si desidera applicare le modifiche, Calc potrebbe semplicemente essere chiuso e la successiva richiesta negata.
+Se non si desidera applicare le modifiche, Calc potrebbe semplicemente essere chiuso
+e la successiva richiesta negata.
 
-L'apertura del Organizzatore viene rallentato da immagini in immagini-categorie e le icone-categorie sul lato sinistro. Se si vuole accelerare il processo, impostare tali categorie come invisibili. (più grandi saranno le dimensioni delle immagini, tanto più l'organizzatore verrà rallentato. In questo momento non è presente un ricalcolatore di miniature.)'''
+L'apertura del Organizzatore viene rallentato da immagini in immagini-categorie e le
+icone-categorie sul lato sinistro. Se si vuole accelerare il processo, impostare tali
+categorie come invisibili. (più grandi saranno le dimensioni delle immagini, tanto più
+l'organizzatore verrà rallentato. In questo momento non è presente un ricalcolatore
+di miniature.)'''
 
 # SHORTCUTS
 SHORTCUTS = u'''Scorciatoie'''
@@ -530,8 +551,10 @@ TEMPLATE_NICHT_GELADEN = u'''ERRORE: il progetto non può essere creato dal mode
 
 {}'''
 GLEICHER_PFAD = u'''Il modello e il nuovo progetto hanno lo stesso nome e percorso'''
-ORG_TEMPLATES_SETZEN = u'''I modelli di Organon possono essere impostati da Organon Menu/File/Preferenze/Modelli'''
-WRITER_TEMPLATES_SETZEN = u'''Sono visualizzati i modelli utente di Writer. Vedere il manuale per ulteriori informazioni.'''
+ORG_TEMPLATES_SETZEN = u'''I modelli di Organon possono essere impostati
+da Organon Menu/File/Preferenze/Modelli'''
+WRITER_TEMPLATES_SETZEN = u'''Sono visualizzati i modelli utente di Writer.
+Vedere il manuale per ulteriori informazioni.'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''La cartella del Progetto e il Cestino non possono essere spostati'''
@@ -545,7 +568,8 @@ Non utilizzare questo documento, anche se sembra essere ok.'''
 ERROR_PROJECT_LOCKED = u'''ERRORE: il Progetto è bloccato.
 Non utilizzare questo documento, anche se sembra essere ok.
 Potrebbe essere in uso da un'altra istanza di OO/LO,
-Oppure potrebbe essere bloccato a causa di un crash. Conotrollare il percorso ed eliminare il file che causa il blocco.
+Oppure potrebbe essere bloccato a causa di un crash.
+Conotrollare il percorso ed eliminare il file che causa il blocco.
 {}'''
 
 # END

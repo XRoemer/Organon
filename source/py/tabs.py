@@ -26,7 +26,7 @@ class Tabs():
             papierkorb_inhalt = self.mb.class_XML.get_papierkorb_inhalt()
             
             if selektiert in papierkorb_inhalt:
-                self.mb.nachricht(LANG.NICHT_IM_PAPIERKORB_ERSTELLEN,'infobox')
+                Popup(self.mb, 'info').text = LANG.NICHT_IM_PAPIERKORB_ERSTELLEN
                 return
             
             self.berechne_ordinale_in_baum_und_tab(in_tab_einfuegen)
@@ -677,17 +677,11 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     ok = self.pruefe_tab_namen()
                     if ok:
                         self.win.dispose()
-                        
-                        if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
-                            ordinal = self.mb.props[T.AB].selektierte_zeile
-                            bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-                            # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
-                            path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-                            self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
+                        self.mb.class_Bereiche.datei_nach_aenderung_speichern()
                         
                         ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(False)
                         if ordinale == []:
-                            self.mb.popup(LANG.AUSWAHL_KEIN_ERGEBNIS,2)
+                            Popup(self.mb, zeit=2).text = LANG.AUSWAHL_KEIN_ERGEBNIS
                             return
                         self.mb.tabsX.erzeuge_neuen_tab2(ordinale)
 
@@ -702,7 +696,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
                     ordinale = self.mb.class_Tabs.berechne_ordinal_nach_auswahl(True)
     
                     if ordinale == []:
-                        self.mb.popup(LANG.AUSWAHL_KEIN_ERGEBNIS,2)
+                        Popup(self.mb, zeit=2).text = LANG.AUSWAHL_KEIN_ERGEBNIS
                         return
                     self.mb.tabsX.fuege_ausgewaehlte_in_tab_ein(ordinale)
                     
@@ -954,7 +948,7 @@ class Auswahl_Button_Listener(unohelper.Base, XActionListener,XTextListener):
         path = os.path.join(self.mb.pfade['tabs'],tab_name+'.xml')
 
         if os.path.exists(path):
-            self.mb.nachricht(LANG.TAB_EXISTIERT_SCHON,'infobox')
+            Popup(self.mb, 'info').text = LANG.TAB_EXISTIERT_SCHON
             return False
         
         else:
@@ -1275,7 +1269,7 @@ class TabsX():
             
             # zur Sicherung, damit der projekt xml nicht ueberschrieben wrd
             if tab_name == 'ORGANON':
-                self.mb.nachricht('ERROR',"warningbox",16777216)
+                Popup(self.mb, 'error').text = 'ERROR in erzeuge_neuen_tab2'
                 return
             
             self.erzeuge_props(tab_name)
@@ -1464,14 +1458,8 @@ class TabsX():
                 if wurde_geloescht:
                     pass
                 
-                elif len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
-                    
-                    ordinal = self.mb.props[T.AB].selektierte_zeile
-                    bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-
-                    path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-
-                    self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)      
+                else:
+                    self.mb.class_Bereiche.datei_nach_aenderung_speichern()      
 
                 T.AB = tab_name
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche()
@@ -1494,15 +1482,10 @@ class TabsX():
             
             if abfrage:
                 # Frage: Soll Tab wirklich geschlossen werden?
-                entscheidung = self.mb.nachricht(LANG.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
+                entscheidung = self.mb.entscheidung(LANG.TAB_SCHLIESSEN %T.AB ,"warningbox",16777216)
                 # 3 = Nein oder Cancel, 2 = Ja
                 if entscheidung == 3:
                     return
-                #print('active tab id', self.mb.tabsX.active_tab_id,self.mb.tabs[self.mb.tabsX.active_tab_id][1])
-                if T.AB == 'ORGANON':
-                    self.mb.nachricht("Project tab can't be closed" ,"warningbox",16777216)
-                    return
-
 
             # loesche tab.xml
             tab_name = T.AB
@@ -1711,7 +1694,7 @@ class TabsX():
         try:
             tree = self.mb.props[tab_name].xml_tree
             root = tree.getroot()
-            et = self.mb.ET             
+            et = ElementTree            
             ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
             
             if parent_neu != None:
@@ -1851,7 +1834,7 @@ class TabsX():
         if self.mb.debug: log(inspect.stack)
 
         pfad = os.path.join(self.mb.pfade['tabs'], tab_name+'.xml')      
-        self.mb.props[tab_name].xml_tree = self.mb.ET.parse(pfad)
+        self.mb.props[tab_name].xml_tree = ElementTree.parse(pfad)
         root = self.mb.props[tab_name].xml_tree.getroot()
 
         self.mb.props[tab_name].kommender_Eintrag = int(root.attrib['kommender_Eintrag'])

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unohelper
+from com.sun.star.beans import PropertyValue
 
 '''
 PFADE:
@@ -200,7 +201,7 @@ class Projekt():
         try:
             # prueft, ob eine Organon Datei geladen ist
             if len(self.mb.props[T.AB].dict_bereiche) != 0:
-                self.mb.nachricht(LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
+                Popup(self.mb, 'warning').text = LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT
                 return 
             
             self.get_writer_vorlagen()
@@ -238,7 +239,8 @@ class Projekt():
             self.erzeuge_import_Settings()
             self.erzeuge_export_Settings()  
             self.erzeuge_proj_Settings()
-                      
+            #self.mb.class_Querverweise.erzeuge_organon_meta_graph()
+            
             self.mb.class_Bereiche.leere_Dokument()        
             self.mb.class_Baumansicht.start()             
             Eintraege = self.beispieleintraege2()
@@ -256,18 +258,18 @@ class Projekt():
             self.mb.speicher_settings("project_settings.txt", self.mb.settings_proj)  
             
             erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
-            self.mb.props[T.AB].selektierte_zeile = erste_datei
-            self.mb.props[T.AB].selektierte_zeile_alt = erste_datei
+            props = self.mb.props[T.AB]
+            props.selektierte_zeile = erste_datei
+            props.selektierte_zeile_alt = erste_datei
+            self.mb.Listener.VC_selection_listener.bereichsname_alt = props.dict_bereiche['ordinal'][erste_datei]
             
             self.mb.class_Tags.lege_tags_an()
             self.mb.class_Tags.speicher_tags()
 
             self.mb.class_Baumansicht.korrigiere_scrollbar()
-            
-            self.mb.use_UM_Listener = True
-            
-            filepath = os.path.join(self.mb.pfade['projekt'],"%s.organon" % self.mb.projekt_name)
-            dateiname = "%s.organon" % self.mb.projekt_name
+
+            dateiname = "{}.organon".format(self.mb.projekt_name)
+            filepath = os.path.join(self.mb.pfade['projekt'], dateiname)
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
             if is_template:
@@ -278,16 +280,17 @@ class Projekt():
                 self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei,action='lade_projekt')
                 
                 # ausgewaehlte zeile einfaerben
-                zeile = self.mb.props[T.AB].Hauptfeld.getControl(erste_datei)
+                zeile = props.Hauptfeld.getControl(erste_datei)
                 textfeld = zeile.getControl('textfeld')
                 textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
             
                 self.mb.Listener.starte_alle_Listener()
+                self.mb.use_UM_Listener = True
                 
                 
         except Exception as e:
             log(inspect.stack,tb())
-            self.mb.nachricht('erzeuge_neues_Projekt ' + str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'erzeuge_neues_Projekt ' + str(e)
             
             
     def beispieleintraege2(self):
@@ -353,7 +356,7 @@ class Projekt():
     def setze_pfade(self): 
         if self.mb.debug: log(inspect.stack)
         
-        paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
+        paths = self.mb.createUnoService( "com.sun.star.util.PathSettings" )
         pHome = paths.Work_writable
         if sys.platform == 'linux':
             os.chdir( '//')        
@@ -459,11 +462,8 @@ class Projekt():
     
             self.mb.doc.storeAsURL(Path2,())  
              
-#         except PermissionError as e:
-#             self.mb.nachricht("You don't have the permission to write into this folder " + str(e),"warningbox")
-#             return False
         except Exception as e:
-            self.mb.nachricht("ERROR: " + str(e),"warningbox")
+            Popup(self.mb, 'error').text = "ERROR: " + str(e)
             return False
         
         return True
@@ -473,7 +473,7 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
+            paths = self.mb.createUnoService( "com.sun.star.util.PathSettings" )
             template = paths.Template
             if ';' in template:
                 template = template.split(';')
@@ -526,7 +526,7 @@ class Projekt():
                 
                 if not ok:
                     return
-              
+            
             dateiname = os.path.basename(filepath)
             dateiendung = os.path.splitext(filepath)[1]
             
@@ -534,6 +534,7 @@ class Projekt():
             self.mb.projekt_path = os.path.dirname(os.path.dirname(filepath))  
 
             self.setze_pfade()
+            
             self.mb.class_Bereiche.leere_Dokument() 
             self.lade_settings() 
                         
@@ -544,10 +545,11 @@ class Projekt():
                 return
 
             Eintraege = self.lese_xml_datei()
-
+            
             self.mb.class_Version.pruefe_version()
-
+            
             self.mb.props[T.AB].Hauptfeld = self.mb.class_Baumansicht.erzeuge_Feld_Baumansicht(self.mb.prj_tab) 
+            
             self.erzeuge_Eintraege_und_Bereiche2(Eintraege) 
             
             if self.mb.win.PosSize.Height > 20:
@@ -563,6 +565,7 @@ class Projekt():
             self.mb.props[T.AB].selektierte_zeile_alt = erste_datei
             self.mb.tabsX.setze_selektierte_zeile(erste_datei,T.AB)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_ersten_Bereichs()
+            self.mb.Listener.VC_selection_listener.bereichsname_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][erste_datei]
             
             self.mb.class_Fenster.erzeuge_Scrollbar2()    
             self.mb.class_Mausrad.registriere_Maus_Focus_Listener(self.mb.props['ORGANON'].Hauptfeld.Context.Context)
@@ -583,9 +586,7 @@ class Projekt():
             erste_datei = self.mb.tabsX.get_erste_datei(T.AB)
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_der_Bereiche(erste_datei,action='lade_projekt')
             
-            self.mb.class_Tags.lade_tags()
-            
-            self.mb.use_UM_Listener = True   
+            self.mb.class_Tags.lade_tags() 
              
             self.trage_projekt_in_zuletzt_geladene_Projekte_ein(dateiname,filepath)
             
@@ -598,15 +599,15 @@ class Projekt():
             self.mb.Listener.starte_alle_Listener()
             
             self.mb.class_Sidebar.erzeuge_sb_layout()
-            
+            self.mb.use_UM_Listener = True  
                         
         except Exception as e:
             log(inspect.stack,tb())
             log(inspect.stack,extras='Projekt nicht geladen\r\n' + str(e))
             if e.typeName == 'com.sun.star.task.ErrorCodeIOException':
-                self.mb.nachricht(LANG.ERROR_PROJECT_LOCKED.format(filepath) + str(e),"warningbox")
+                Popup(self.mb, 'error').text = LANG.ERROR_PROJECT_LOCKED.format(filepath) + str(e)
             else:
-                self.mb.nachricht(LANG.ERROR_LOAD_PROJECT + str(e),"warningbox")
+                Popup(self.mb, 'error').text = LANG.ERROR_LOAD_PROJECT + str(e)
         
     
     def lade_Projekt2(self):
@@ -629,6 +630,7 @@ class Projekt():
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
             
             self.mb.class_Baumansicht.selektiere_zeile(selektierte_zeile, speichern = False)
+            self.mb.Listener.VC_selection_listener.bereichsname_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][selektierte_zeile]
             
             self.mb.class_Fenster.erzeuge_Scrollbar2()    
             self.mb.class_Baumansicht.korrigiere_scrollbar()
@@ -639,9 +641,10 @@ class Projekt():
             self.mb.doc.storeAsURL(Path2,()) 
                                      
         except Exception as e:
-            self.mb.nachricht('ERROR: could not load project\r\n ' + str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'ERROR: could not load project\r\n ' + str(e)
             log(inspect.stack,tb())
-    
+            
+            
     def trage_projekt_in_zuletzt_geladene_Projekte_ein(self,dateiname,filepath):
         if self.mb.debug: log(inspect.stack)
         
@@ -684,7 +687,7 @@ class Projekt():
         if len(self.mb.props[T.AB].dict_bereiche) == 0:
             return False
         else:
-            self.mb.nachricht(LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.PRUEFE_AUF_GELADENES_ORGANON_PROJEKT
             return True
         
         
@@ -692,7 +695,7 @@ class Projekt():
     def erzeuge_Projekt_xml_tree(self):
         if self.mb.debug: log(inspect.stack)
         
-        et = self.mb.ET    
+        et = ElementTree  
         root = et.Element('ORGANON')
         tree = et.ElementTree(root)
         self.mb.props[T.AB].xml_tree = tree
@@ -832,7 +835,7 @@ class Projekt():
             if art == 'waste':
                 CB.erzeuge_bereich_papierkorb(index2,path2) 
             else:
-                CB.erzeuge_bereich(index2,path2,sicht) 
+                CB.erzeuge_bereich(index2,path2,'nein') 
 
             if first_time:       
                 # Viewcursor an den Anfang setzen, damit 
@@ -899,7 +902,7 @@ class Projekt():
         if self.mb.debug: log(inspect.stack)
 
         pfad = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')      
-        self.mb.props[T.AB].xml_tree = self.mb.ET.parse(pfad)
+        self.mb.props[T.AB].xml_tree = ElementTree.parse(pfad)
         root = self.mb.props[T.AB].xml_tree.getroot()
 
         self.mb.props[T.AB].kommender_Eintrag = int(root.attrib['kommender_Eintrag'])
@@ -1145,18 +1148,143 @@ class Projekt():
             
             pass
 
-
-            tags = self.mb.tags
+            
             props = self.mb.props[T.AB]
+            doc = self.mb.doc
+            vc = self.mb.viewcursor
+   
+            #desc = self.mb.createUnoService("com.sun.star.comp.framework.UICommandDescription")    
+            #cmi = ContextMenuInterceptor(self.mb)
+            #contr.registerContextMenuInterceptor(cmi)
+                        
+            
+            vc = self.mb.viewcursor
+            
+
+
+            ordinal = self.mb.class_Bereiche.get_ordinal(vc)
+            self.mb.class_Bereiche.datei_speichern(ordinal)
+            self.mb.class_Tools.zeige_content_xml(ordinal)  
+            
+            import imp, menu_bar
+            imp.reload(menu_bar)
+            
+            #for i in range(1,185,10):
+            
+            text = 31 * ' werter herr gesangs verein # ' 
+            #text = LANG.ORGANIZER_INFO
+            
+
+            attribs = dir(LANG)
+            
+            texte = [getattr(LANG, a) for a in attribs][33:51]
+            
+#             for a in attribs:
+#                 txt = getattr(LANG, a)
+#                 if len(txt.split())>0:
+#                     menu_bar.Popup(self.mb, 'error').text = txt
+#                     break
+            
+            #p.text = 'Hi!'
+            #p.text = 'so' 
             
             
-            #print(self.mb.props['ORGANON'].Hauptfeld.isVisible())#(True)
+            
         except:
             log(inspect.stack,tb())
-            #pd()
+            pd()
         pd() 
         
-                   
+
+
+    
+    
+
+
+
+#             from com.sun.star.beans import StringPair
+#             sp = StringPair()
+#             sp.First = "content.xml"
+#             sp.Second =  "id1720227130"
+#             el = doc.getElementByMetadataReference(sp)
+#             
+#             from com.sun.star.rdf import XURI
+#             
+#             rdf = doc.RDFRepository
+#             gr = rdf.GraphNames[0]
+#             
+#             xuri = self.mb.ctx.ServiceManager.createInstanceWithArgumentsAndContext("com.sun.star.rdf.URI",
+#                             ("http://docs.oasis-open.org/ns/office/1.2/meta/odf#ContentFile",
+#                              ),self.mb.ctx)
+# 
+# 
+#             
+#             
+#             from com.sun.star.beans import PropertyValue
+#             prop = PropertyValue()
+#             
+#             prop.Name = u"text/xml#"
+#             prop.Value = u'content.xml'
+#             graph = doc.RDFRepository.getGraph(xuri)
+#             
+#             footnotes = [doc.Footnotes.getByIndex(i) for i in range(doc.Footnotes.Count)]
+#             
+#             nested = vc.NestedTextContent
+#             statements = graph.getStatements(None,None,None)
+#             
+#             inhalt = []
+#             while statements.hasMoreElements():
+#                 inhalt.append(statements.nextElement())
+#                 
+#                 
+#             xuri2 = self.mb.ctx.ServiceManager.createInstanceWithArgumentsAndContext("com.sun.star.rdf.URI",
+#                             ('file:///C:/Users/Homer/Documents/organon%20projekte/unsinn.organon/Files/odt/template.ott/',
+#                              'content.xml'),self.mb.ctx)
+#                 
+#             graph2 = doc.RDFRepository.getGraph(xuri2)
+            
+#             smgr = self.mb.ctx.ServiceManager
+#             inh = u"\n".join(sorted(smgr.AvailableServiceNames) )
+#             pfad_plain_txt = u'C:\\Users\\Homer\\Desktop\\Neuer Ordner\\odict.txt'
+#             with codecs_open(pfad_plain_txt , "w","utf-8") as f:
+#                 f.write(inh)
+            #uri = self.mb.createUnoService('com.sun.star.rdf.URI')
+            
+            #value_uri = uri.createKnown(com.sun.star.rdf.URIs.RDF_VALUE)
+
+
+
+# from com.sun.star.ui import XContextMenuInterceptor
+# from com.sun.star.ui.ContextMenuInterceptorAction import (
+#     IGNORED, CONTINUE_MODIFIED, EXECUTE_MODIFIED)
+# class ContextMenuInterceptor(unohelper.Base, XContextMenuInterceptor):
+#     
+#     INSERT_SHEET = "slot:26269"
+#     
+#     def __init__(self, mb):
+#         self.mb = mb
+#     
+#     def notifyContextMenuExecute(self, ev):
+#         pd()
+#         cont = ev.ActionTriggerContainer
+# #         if cont.getByIndex(0).CommandURL == self.INSERT_SHEET:
+# #             #item = cont.createInstance("com.sun.star.ui.ActionTriggerSeparator")
+# #             #item.SeparatorType = LINE
+# #             #cont.insertByIndex(8, item)
+# #             items = ActionTriggerContainer()
+# # #             items.insertByIndex(0, ActionTriggerItem(
+# # #                 ".uno:SelectTables", "Sheet...", 
+# # #                 "", None))
+# # #             
+# # #             item = ActionTriggerItem("GoTo", "Go to", "123", items)
+# # #             cont.insertByIndex(7, item)
+# #             
+# #             return EXECUTE_MODIFIED
+#         return IGNORED
+# 
+# 
+
+
 
 
 from com.sun.star.awt import XActionListener
@@ -1234,15 +1362,15 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener):
         
         # Projektname und Speicherort ueberpruefen
         if prj_name == '':
-            self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.KEIN_NAME
             return
         
         elif prj_name != namen_pruefen(prj_name):
-            self.mb.nachricht(LANG.UNGUELTIGE_ZEICHEN,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.UNGUELTIGE_ZEICHEN
             return
              
         elif speicherort == None:
-            self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.KEIN_SPEICHERORT
             return
         
         self.mb.projekt_path = speicherort
@@ -1272,18 +1400,18 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener):
         # erstellt werden soll
         if is_template and templ_art == 'organon':
             if templ_pfad == self.mb.pfade['projekt']:
-                self.mb.nachricht(LANG.GLEICHER_PFAD,'warningbox') 
+                Popup(self.mb, 'warning').text = LANG.GLEICHER_PFAD
                 return
         
         # Pruefen ob aktuelles Dokument den gleichen Namen wie das neue besitzt
         if self.mb.projekt_name == self.mb.doc.Title.split('.odt')[0]:
-            self.mb.nachricht(LANG.DOUBLE_PROJ_NAME,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.DOUBLE_PROJ_NAME
             return
         
         # Wenn das Projekt schon existiert, Abfrage, ob Projekt ueberschrieben werden soll
         elif os.path.exists(self.mb.pfade['projekt']):
             # 16777216 Flag fuer YES_NO
-            entscheidung = self.mb.nachricht(LANG.PROJ_EXISTS,"warningbox",16777216)
+            entscheidung = self.mb.entscheidung(LANG.PROJ_EXISTS,"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return
@@ -1305,7 +1433,7 @@ class neues_Projekt_Dialog_Listener(unohelper.Base,XActionListener):
                 return
             except Exception as e:
                 log(inspect.stack,tb())  
-                self.mb.nachricht(LANG.TEMPLATE_NICHT_GELADEN.format(str(e)),'warningbox') 
+                Popup(self.mb, 'error').text = LANG.TEMPLATE_NICHT_GELADEN.format(str(e))
                 return
         
         self.fenster.dispose()

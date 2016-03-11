@@ -9,7 +9,8 @@ class Funktionen():
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
-        self.mb = mb        
+        self.mb = mb      
+        self.first_time = True  
 
         
     def projektordner_ausklappen(self,ordinal = None):
@@ -321,7 +322,7 @@ class Funktionen():
             
             # alte Datei in Helferdatei speichern
             orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(helfer_url,orga_sec_name_alt)
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern(orga_sec_name_alt, anderer_pfad = helfer_url)
              
             # erzeuge neue Zeile
             nr_neue_zeile = self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument',neuer_Name)
@@ -378,7 +379,7 @@ class Funktionen():
             
             # alte Datei speichern
             orga_sec_name_alt = self.mb.props['ORGANON'].dict_bereiche['ordinal'][zeilenordinal]
-            self.mb.class_Bereiche.datei_nach_aenderung_speichern(URL_source, orga_sec_name_alt, speichern = True)
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern( orga_sec_name_alt, anderer_pfad = URL_source, speichern = True)
                         
             # File Link setzen, um Anzeige zu erneuern
             sec = self.mb.doc.TextSections.getByName(new_OrgInnerSec_name)
@@ -414,7 +415,7 @@ class Funktionen():
                 
         except Exception as e:
             log(inspect.stack,tb())
-            self.mb.nachricht('teile_text ' + str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'teile_text ' + str(e)
             try:
                 doc_new.close(False)
             except:
@@ -424,7 +425,7 @@ class Funktionen():
         if self.mb.debug: log(inspect.stack)
         
         if T.AB != 'ORGANON':
-            self.mb.popup(LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB)
+            Popup(self.mb).text = LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB
             
         ttb = Teile_Text_Batch(self.mb)
         ttb.erzeuge_fenster()
@@ -444,7 +445,7 @@ class Funktionen():
             def pruefe_ob_kombi_moeglich():
                             
                 if index > len(sichtbare) -2:
-                    self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                    Popup(self.mb, zeit=1).text = LANG.KEINE_KOMBINATION_MOEGLICH
                     return False, None
                 
                 nachfolger = sichtbare[index + 1]
@@ -458,21 +459,21 @@ class Funktionen():
                 lvl_nach = nachfolger_xml.attrib['Lvl']
                 
                 if T.AB != 'ORGANON': 
-                    self.mb.popup(LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB)  
+                    Popup(self.mb, zeit=2).text = LANG.FUNKTIONIERT_NUR_IM_PROJEKT_TAB
                     return False, None    
                   
                 elif nachfolger in props.dict_ordner[props.Papierkorb]:
-                    self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                    Popup(self.mb, zeit=1).text = LANG.KEINE_KOMBINATION_MOEGLICH
                     return False, None    
                 
                 elif lvl_sel > lvl_nach:
-                    self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                    Popup(self.mb, zeit=1).text = LANG.KEINE_KOMBINATION_MOEGLICH
                     return False, None    
                 
                 elif nachfolger in props.dict_ordner:
                     elems = nachfolger_xml.findall('.//')
                     if len(elems) > 0:
-                        self.mb.popup(LANG.KEINE_KOMBINATION_MOEGLICH,1)
+                        Popup(self.mb, zeit=1).text = LANG.KEINE_KOMBINATION_MOEGLICH
                         return False, None 
                     
                 for tab in self.mb.props:
@@ -484,7 +485,7 @@ class Funktionen():
                             dateiname = nachfolger_xml.attrib['Name']
                             txt = '{0}\r\n{1}'.format(LANG.KEINE_KOMBINATION_MOEGLICH,
                                                       LANG.NOCH_IN_TAB_GEOEFFNET.format(dateiname,tab))
-                            self.mb.nachricht(txt)
+                            Popup(self.mb, 'warning').text = txt
                             return False, None 
                                            
                     
@@ -550,10 +551,14 @@ class Funktionen():
         return url   
     
     
-    def lade_hidden_doc(self,pfad):
+    def lade_hidden_doc(self, pfad="private:factory/swriter", ordinal=None):
         if self.mb.debug: log(inspect.stack)
 
         try:
+            if ordinal != None:
+                sys_pfad = os.path.join( self.mb.pfade['odts'], ordinal + '.odt' )
+                pfad = uno.systemPathToFileUrl(sys_pfad)
+            
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
             prop.Value = True
@@ -562,6 +567,7 @@ class Funktionen():
                                                     
         except:
             log(inspect.stack,tb())
+            
             
     
     def lade_doc_kombi(self,url1,url2,sec_name1,sec_name2):
@@ -830,11 +836,11 @@ class Funktionen():
             
         if 'Organon Icons' not in gallery.ElementNames:
             
-            paths = self.mb.smgr.createInstance( "com.sun.star.util.PathSettings" )
+            paths = self.mb.createUnoService( "com.sun.star.util.PathSettings" )
             gallery_pfad = uno.fileUrlToSystemPath(paths.Gallery_writable)
             gallery_ordner = os.path.join(gallery_pfad,'Organon Icons')
                     
-            entscheidung = self.mb.nachricht(LANG.BENUTZERDEFINIERTE_SYMBOLE_NUTZEN %gallery_ordner,"warningbox",16777216)
+            entscheidung = self.mb.entscheidung(LANG.BENUTZERDEFINIERTE_SYMBOLE_NUTZEN %gallery_ordner,"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return False
@@ -957,110 +963,7 @@ class Funktionen():
         
         
         
-    def get_attribs(self,obj,max_lvl,lvl=0):
-        results = {}
-        for key in dir(obj):
-    
-            try:
-                value = getattr(obj, key)
-                if 'callable' in str(type(value)):
-                    continue
-            except :
-                #print(key)
-                continue
-    
-            if key not in results:
-                if type(value) in (
-                                   type(None),
-                                   type(True),
-                                   type(1),
-                                   type(.1),
-                                   type('string'),
-                                   type(()),
-                                   type([]),
-                                   type(b''),
-                                   type(r''),
-                                   type(u'')
-                                   ):
-                    results.update({key: value})
-    
-                elif lvl < max_lvl:
-                    try:
-                        results.update({key: get_attribs(value,max_lvl,lvl+1)})
-                    except:
-                        pass
-    
-        return results
-    
-        
-    def find_differences(self,dict1,dict2):
-        diff = []     
-                            
-        def findDiff2(d1, d2, path = []):
-            for k in d1:
-                try:
-                    if k not in d2:
-                        continue
-#                         print (path, ":")
-#                         print (k + " as key not in d2", "\n")
-                    else:
-                        if type(d1[k]) is dict and type(d2[k]) is dict:
-                            #print(k,path)
-                            if path == "":
-                                #path = k
-                                findDiff2(d1[k],d2[k],[k])
-                            else:
-                                #path = path + "->" + k
-                                #print( path + "->" + k)
-                                findDiff2(d1[k],d2[k], path + [k])
-                            
-                        else:
-                            if d1[k] != d2[k]:
-                                if path == '':
-                                    path = [k]
-                                #print('path:'+path+'#')
-                                diff.append((path,k,d1[k],d2[k]))
-                                #path = []
-                except:
-                    print(tb())
-                    wer = wer1
-                            
-        findDiff2(dict1, dict2)
-        return diff
-    
-    
-    def diffenrences_als_dict(self,odiff):
-        
-        def update_odict(odict, v, d):
-                
-            try:
-                if v[0] not in odict:
-                    odict[v[0]] = {}
-                
-                if len(v) > 1:
-                    update_odict(odict[v[0]], v[1:], d)
-                    
-                elif len(v) == 1:
-                    odict[ v[0] ][ d[1] ] = [ d[2], d[3] ]
-            
-            except:
-                print(tb())
-                wer = wer
-        
-        
-        def als_dict(diff):
-        
-            untersch = {}
-            
-            for d in diff:
-                if len(d[0]) == 0:
-                    untersch[d[1]] = [d[2], d[3]]
-                else:
-                    update_odict(untersch, d[0], d )
-                    #odict
-            return untersch
-        
-        return als_dict(odiff)
+
     
     
     def leere_hf(self):
@@ -1140,24 +1043,13 @@ class Funktionen():
          
         pfad_el_tree = os.path.join(neuer_pfad,'Settings','ElementTree.xml')
               
-        xml_tree = self.mb.ET.parse(pfad_el_tree)
+        xml_tree = ElementTree.parse(pfad_el_tree)
         root = xml_tree.getroot()
          
         prj_xml = root.find(".//*[@Art='prj']")
         prj_xml.attrib['Name'] = name
          
         xml_tree.write(pfad_el_tree)
-        
-        
-    def zeitmesser(self,fkt,args=None):
-        z = time.clock()
-        
-        if args:
-            result = fkt(*args)
-        else:
-            result = fkt()
-        print( round(time.clock()-z,3))
-        return result 
         
         
 
@@ -1167,11 +1059,21 @@ class Teile_Text_Batch():
         
     def erzeuge_fenster(self):
         if self.mb.debug: log(inspect.stack)
-     
+                
         try:
             self.dialog_batch_devide()
         except:
             log(inspect.stack,tb())
+            
+        if self.mb.class_Funktionen.first_time:
+            self.mb.class_Funktionen.first_time = False
+            warnung = u'''Cross-references linking from the outside into the
+selected file will still point to the original file after the batch devide.
+
+This behaviour will be changed with the next release of Organon and the
+user will be able to choose, whereto they should refer.
+            '''
+            Popup(self.mb,typ='warning', parent = self.fenster).text = warnung
             
             
     def dialog_batch_devide_elemente(self):
@@ -1262,7 +1164,7 @@ class Teile_Text_Batch():
         leerzeilen = ctrls['control_LEERZEILEN'].State
         
         if text == '' and not ueberschriften and not leerzeilen:
-            self.mb.nachricht(LANG.NICHTS_AUSGEWAEHLT_BATCH,'infobox')
+            Popup(self.mb, 'info').text = LANG.NICHTS_AUSGEWAEHLT_BATCH
         else:
             args = text,ganzes_wort,regex,ueberschriften,leerzeilen
             self.fenster.dispose()
@@ -1280,24 +1182,27 @@ class Teile_Text_Batch():
             ergebnis3 = []
             
             url = self.get_pfad() 
+            ordinal = os.path.basename(url).split('.')[0]
+            self.mb.class_Bereiche.datei_speichern(ordinal)
+            
             doc = self.lade_doc(url)  
             
             erster = self.get_ersten_paragraph(doc)    
                    
             if text != '':
-                ergebnis3 = self.get_suchbegriff(doc,suchbegriff=text,ganzes_wort=ganzes_wort,regex=regex)
+                ergebnis3 = self.get_suchbegriff(doc, suchbegriff=text, ganzes_wort=ganzes_wort, regex=regex)
             if ueberschriften:
                 ergebnis1 = self.get_ueberschriften(doc)
             if leerzeilen:
                 ergebnis2 = self.get_leerzeilen(doc)
-                
+              
             ordnung = sorted(erster + ergebnis1 + ergebnis2 + ergebnis3, key = lambda x : (x[2])) 
     
             ausgesonderte,ordnung = self.erstelle_bereiche(doc,ordnung)              
             ordnung = [o for o in ordnung if o not in ausgesonderte] 
             
             if len(ordnung) > 10:
-                entscheidung = self.mb.nachricht(LANG.ERSTELLT_WERDEN.format(len(ordnung)),"warningbox",16777216)
+                entscheidung = self.mb.entscheidung(LANG.ERSTELLT_WERDEN.format(len(ordnung)),"warningbox",16777216)
                 # 3 = Nein oder Cancel, 2 = Ja
                 if entscheidung == 3:
                     doc.close(False)
@@ -1309,7 +1214,7 @@ class Teile_Text_Batch():
             anz = len(root.findall('.//'))
             
             if anz < 2:
-                self.mb.nachricht(LANG.KEINE_TRENNUNG,'infobox')
+                Popup(self.mb, 'info').text = LANG.KEINE_TRENNUNG
                 doc.close(False)
                 return
             
@@ -1317,15 +1222,18 @@ class Teile_Text_Batch():
             pfad_helfer_system = os.path.join(speicherordner,'batchhelfer.odt')
             pfad_helfer = uno.systemPathToFileUrl(pfad_helfer_system)
             
+            self.mb.class_Querverweise.querverweise_umbenennen(doc,ordinal)
+            
             doc.storeToURL(pfad_helfer,())
             doc.close(False)
                
             tree_new = self.fuege_tree_in_xml_ein(tree)
-            anz = self.neue_Dateien_erzeugen(pfad_helfer, tree)
+            anz = self.neue_Dateien_erzeugen(pfad_helfer, tree)            
             
             os.remove(pfad_helfer_system)
             self.schreibe_neuen_elementtree(tree_new,anz)
             self.lege_dict_sbs_an(tree)
+            self.mb.class_Tags.speicher_tags()
             
             self.mb.Listener.remove_Undo_Manager_Listener()
             self.mb.Listener.remove_VC_selection_listener()
@@ -1450,36 +1358,28 @@ class Teile_Text_Batch():
             ergebnisse2 = doc.findAll(sd)
             
             zeilen = []
-            x = 0
             
-            try:
-                for count in range(ergebnisse1.Count):
-                    erg = ergebnisse1.getByIndex(count)
-                    if erg.ParaStyleName == 'Footnote':
-                        continue
-                    viewcursor.gotoRange(erg.Start,False)
-                    vd = int(doc.CurrentController.ViewData.split(';')[1])
-                    zeilen.append(['leer',viewcursor.Page,vd,viewcursor.Start,erg.String])
-                    x += 1
-            except:
-                log(inspect.stack,tb())
+
+            def get_zeilen(ergs,zeilen):
+                erg = ergs.getByIndex(count)
                 
-            try: 
-                for count in range(ergebnisse2.Count):
-                    erg = ergebnisse2.getByIndex(count)
-                    if erg.ParaStyleName == 'Footnote':
-                            continue
-                    viewcursor.gotoRange(erg.Start,False)
-                    vd = int(doc.CurrentController.ViewData.split(';')[1])
-                    zeilen.append(['leer',viewcursor.Page,vd,viewcursor.Start,erg.String])
-                    x += 1
-            except:
-                log(inspect.stack,tb())
-                                
+                if erg.ParaStyleName == 'Footnote':
+                    return
+
+                viewcursor.gotoRange(erg.Start,False)
+                vd = int(doc.CurrentController.ViewData.split(';')[1])
+                zeilen.append(['leer',viewcursor.Page,vd,viewcursor.Start,erg.String])
+                
+            
+            for count in range(ergebnisse1.Count):
+                get_zeilen(ergebnisse1,zeilen)
+                
+            for count in range(ergebnisse2.Count):
+                get_zeilen(ergebnisse2,zeilen)
+
         except:
             log(inspect.stack,tb())
             
-        
         return zeilen
     
     
@@ -1528,10 +1428,34 @@ class Teile_Text_Batch():
         x = self.mb.props['ORGANON'].kommender_Eintrag
         ausgesonderte = []
         
-        try:                
+        try:    
+            
+            txt_frames = [doc.TextFrames.getByIndex(i) for i in range(doc.TextFrames.Count)] 
+            text_ranges = []
+            
+            for f in txt_frames:
+                cur2 = doc.Text.createTextCursorByRange(f.Text.Anchor)
+                cur2.goLeft(1,False)
+                text_ranges.append(cur2)
+            
+            
+            def is_txt_frame(erg):
+                for t in text_ranges:
+                    try:
+                        #print(doc.Text.compareRegionStarts(t,erg))
+                        if doc.Text.compareRegionStarts(t,erg) == 0:
+                            text_ranges.remove(t)
+                            return True
+                    except:
+                        pass
+                return False
+            
+
             # pro Ueberschrift 1 Ordner
             for o in range(len(ordnung)):
-                 
+                
+                aussondern = True
+                
                 fund = ordnung[o][3]
                 if o + 1 < len(ordnung):
                     fund_ende = ordnung[o+1][3]
@@ -1541,24 +1465,25 @@ class Teile_Text_Batch():
                 # Cursor setzen
                 if ordnung[o][0] == 'leer':
                     cur.gotoRange(fund.Start,False)
+                    if  is_txt_frame(cur):
+                        aussondern = False
                     cur.goRight(1,False)
                     fund = cur.Start
                                                 
                 cur.gotoRange(fund.Start,False)
                 
-#                 cur.setString('ANFANG'+str(o))
-#                 cur.CharBackColor = 502
-                
+                    
+                    
                 if fund_ende != None:
                     cur.gotoRange(fund_ende.Start,True)
                 else:
                     cur.gotoEnd(True)
                     
-                
                 # leere Bereiche aussparen
-                if cur.String.strip() == '':
-                    ausgesonderte.append(ordnung[o])
-                    continue
+                if cur.String.strip() == '':   
+                    if aussondern:                                 
+                        ausgesonderte.append(ordnung[o])
+                        continue
                 
                 try:
                     newSection = doc.createInstance("com.sun.star.text.TextSection")
@@ -1567,8 +1492,11 @@ class Teile_Text_Batch():
                     ordnung[o][4] = cur.String
                     x += 1
                 except:
-                    ausgesonderte.append(ordnung[o])
+                    if aussondern:                                 
+                        ausgesonderte.append(ordnung[o])
+                        continue
                     
+              
         except:
             log(inspect.stack,tb())
         
@@ -1599,7 +1527,7 @@ class Teile_Text_Batch():
         if self.mb.debug: log(inspect.stack)
         
         # XML TREE
-        et = self.mb.ET    
+        et = ElementTree   
         root = et.Element('root')
         root.attrib['NameH'] = 'AAA'
         tree = et.ElementTree(root)
@@ -1698,7 +1626,7 @@ class Teile_Text_Batch():
         speicherordner = self.mb.pfade['odts']
         
         zaehler = 0
-        
+
         try:
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop.Name = 'Hidden'
@@ -1729,11 +1657,22 @@ class Teile_Text_Batch():
                 newSection2.LinkRegion = 'organon_' + o
                   
                 new_doc.Text.insertTextContent(cur, newSection2, True)
+                
+                if newSection2.Anchor.String.startswith('***Inserted By Organon***'):
+                    # Wegen eines Bugs in Writer: Durch Organon eingefuegte Zeile
+                    # wieder loeschen. Vgl. querverweise querverweise_umbenennen()
+                    # benenne_listen_und_ueberschriften_um()
+                    cur2 = newSection2.Anchor.Text.createTextCursorByRange(newSection2.Anchor)
+                    cur2.gotoStartOfParagraph(False)
+                    cur2.gotoNextParagraph(True)
+                    cur2.setString('')
+                
+                    
                 newSection2.dispose()
                 
                 cur.gotoEnd(False)
                 cur.goLeft(1,True)
-                cur.setString('')
+                cur.setString('')                
                 
                 pfad = os.path.join(speicherordner,o +'.odt')
                 pfad2 = uno.systemPathToFileUrl(pfad)

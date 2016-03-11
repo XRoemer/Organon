@@ -1335,7 +1335,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         if self.mb.debug: log(inspect.stack)
 
         if src.State:
-            self.mb.nachricht(LANG.WRITER_DESIGN_INFO,"infobox")
+            Popup(self.mb, 'info').text = LANG.WRITER_DESIGN_INFO
             if self.mb.programm == 'LibreOffice':
                 self.mb.class_Organon_Design.kopiere_personas()
             
@@ -1356,7 +1356,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
             
             odict = self.mb.class_Funktionen.oeffne_json(pfad)
             if odict == None:
-                self.mb.nachricht(LANG.KEINE_JSON_DATEI,"warningbox")
+                Popup(self.mb, 'error').text = LANG.KEINE_JSON_DATEI
                 return
             
             
@@ -1401,7 +1401,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         
         name = self.ctrls['textfeld'].Model.Text
         if name == '':
-            self.mb.nachricht(LANG.EXPORTNAMEN_EINGEBEN,"infobox")
+            Popup(self.mb, 'info').text = LANG.EXPORTNAMEN_EINGEBEN
             return
         
         pfad = self.mb.class_Funktionen.folderpicker()
@@ -1413,7 +1413,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         
         if os.path.exists(pfad):
             # 16777216 Flag fuer YES_NO
-            entscheidung = self.mb.nachricht(LANG.DATEI_EXISTIERT,"warningbox",16777216)
+            entscheidung = self.mb.entscheidung(LANG.DATEI_EXISTIERT,"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return
@@ -1428,7 +1428,7 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         sett = self.mb.settings_orga['designs']  
         
         if len(sett) < 2:
-            self.mb.nachricht(LANG.NICHT_ALLE_DESIGNS_LOESCHEN,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.NICHT_ALLE_DESIGNS_LOESCHEN
             return
         
         active,act_name = None, None
@@ -1450,10 +1450,10 @@ class Listener_Organon_Farben(unohelper.Base,XMouseListener,XActionListener):
         
         name = self.ctrls['textfeld'].Model.Text
         if name == '':
-            self.mb.nachricht(LANG.DESIGNNAMEN_EINGEBEN,"infobox")
+            Popup(self.mb, 'info').text = LANG.DESIGNNAMEN_EINGEBEN
             return
         if name in sett:
-            self.mb.nachricht(LANG.DESIGN_EXISTIERT,"infobox")
+            Popup(self.mb, 'info').text = LANG.DESIGN_EXISTIERT
             return
         
         new_set = copy.deepcopy(self.mb.settings_orga['organon_farben'])
@@ -2062,10 +2062,10 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             name = self.ctrls['control_personas_name'].Text
             
             if name == '':
-                self.mb.nachricht(LANG.PERSONANAMEN_EINGEBEN,"infobox")
+                Popup(self.mb, 'info').text = LANG.PERSONANAMEN_EINGEBEN
                 return
             elif name in self.personas_dict:
-                self.mb.nachricht(LANG.PERSONANAMEN_EXISTIERT,"infobox")
+                Popup(self.mb, 'info').text = LANG.PERSONANAMEN_EXISTIERT
                 return
                 
             url = self.ctrls['control_theme'].Model.ImageURL
@@ -2079,7 +2079,7 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             try:
                 os.mkdir(pers_path)
             except:
-                self.mb.nachricht(LANG.ORDNER_NICHT_ERSTELLT.format(pers_path),"warningbox")
+                Popup(self.mb, 'error').text = LANG.ORDNER_NICHT_ERSTELLT.format(pers_path)
                 return
             
             pfad1 = os.path.join(pers_path,'header.png')
@@ -2104,7 +2104,7 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             thema = self.ctrls['control_personas_list'].SelectedItem
             
             if thema == '':
-                self.mb.nachricht(LANG.KEIN_PERSONA_SELEKTIERT,"infobox")
+                Popup(self.mb, 'info').text = LANG.KEIN_PERSONA_SELEKTIERT
                 return
             
             url = self.personas_dict[thema]
@@ -2134,10 +2134,10 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
         pos = self.ctrls['control_personas_list'].SelectedItemPos
         
         if selected == '':
-            self.mb.nachricht(LANG.KEIN_PERSONA_SELEKTIERT,"infobox")
+            Popup(self.mb, 'info').text = LANG.KEIN_PERSONA_SELEKTIERT
             return
         else:
-            entscheidung = self.mb.nachricht(LANG.LOESCHEN_BESTAETIGEN.format(selected),"warningbox",16777216)
+            entscheidung = self.mb.entscheidung(LANG.LOESCHEN_BESTAETIGEN.format(selected),"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return
@@ -2146,7 +2146,7 @@ class Listener_Persona(unohelper.Base,XItemListener,XActionListener,XMouseListen
             pfad = os.path.dirname(self.personas_dict[selected])
             shutil.rmtree(pfad)
         except:
-            self.mb.nachricht(LANG.ORDNER_NICHT_ENTFERNT.format(pfad),"warningbox")
+            Popup(self.mb, 'warning').text = LANG.ORDNER_NICHT_ENTFERNT.format(pfad)
         
         del self.personas_dict[selected] 
         self.personas_list.remove(selected)

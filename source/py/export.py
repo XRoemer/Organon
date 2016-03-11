@@ -25,7 +25,7 @@ class Export():
             self.dialog_exportfenster()
                 
         except Exception as e:
-            self.mb.nachricht('Export.export '+ str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'ERROR: Export '+ str(e)
             log(inspect.stack,tb())
 
 
@@ -293,7 +293,8 @@ class Export():
             # Controls in Hauptfenster eintragen
             for name,c in ctrls.items():
                 fenster_cont.addControl(name,c)
-                
+            
+            self.fenster, self.fenster_cont = fenster, fenster_cont
         except:
             log(inspect.stack,tb())
             
@@ -304,14 +305,7 @@ class Export():
         
         try:
             
-            # zunaechst den zuletzt bearbeiteten Bereich speichern
-            if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
-                ordinal = self.mb.props[T.AB].selektierte_zeile
-                bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-                # nachfolgende Zeile erzeugt bei neuem Tab Fehler - 
-                path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-                self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
-            
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern()
             
             from shutil import copy 
             
@@ -433,7 +427,7 @@ class Export():
                         os.rename(z_pfad,neuer_name)
                       
         except Exception as e:
-            self.mb.nachricht('kopiere_Projekt ' + str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'ERROR: kopiere_Projekt ' + str(e)
             log(inspect.stack,tb())
 
         
@@ -600,7 +594,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         sections = self.get_ausgewaehlte_bereiche()
         
         if len(sections) < 1:
-            self.mb.nachricht(LANG.NICHTS_AUSGEWAEHLT,"infobox")
+            Popup(self.mb, 'info').text = LANG.NICHTS_AUSGEWAEHLT
             return
         
         if sett['einz_dok']:
@@ -612,15 +606,15 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         
         if ok:
             self.ueberpruefe_auf_ungespeicherte()    
-            self.mb.nachricht(LANG.EXPORT_ERFOLGREICH,"infobox")
+            Popup(self.mb, 'info').text = LANG.EXPORT_ERFOLGREICH
         else:
-            self.mb.nachricht(LANG.EXPORT_NICHT_ERFOLGREICH,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.EXPORT_NICHT_ERFOLGREICH
 
     def ueberpruefe_auf_ungespeicherte(self):
         if self.mb.debug: log(inspect.stack)
 
         if self.ungespeichert != []:
-            self.mb.nachricht(LANG.UNGESPEICHERTE_PFADE,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.UNGESPEICHERTE_PFADE
         
         self.ungespeichert = []
         
@@ -666,9 +660,11 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
     def exp_in_ein_dokument(self,sections):
         if self.mb.debug: log(inspect.stack)
         
-        st_ind = self.mb.current_Contr.Frame.createStatusIndicator()        
+        st_ind = self.mb.doc.CurrentController.Frame.createStatusIndicator()        
         
         try:
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern()
+            
             sett = self.mb.settings_exp
             self.mb.class_Bereiche.starte_oOO()
             
@@ -690,19 +686,26 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 if URL != '':
                     if not os.path.exists(URL):
                         trennerDat_existiert = False
-                    
+            
+            
+            popup = Popup(self.mb,parent = self.mb.class_Export.fenster)   
+            
+            secs = []
+            for s in sections:
+                if s == self.mb.props[T.AB].dict_bereiche['ordinal'][self.mb.props[T.AB].Papierkorb]:
+                    break
+                secs.append(s)
                 
-            for sec_name in sections:         
+            total = len(secs)   
+
+            for sec_name in secs:         
                     
                 zaehler += 1
-                 
+                popup.text = '{0}: {1}/{2}'.format(LANG.FILE, zaehler, total)
+                
                 cur.gotoEnd(False)
                 
                 sec_ordinal = self.mb.props[T.AB].dict_bereiche['Bereichsname-ordinal'][sec_name]
-                
-                if sec_ordinal == self.mb.props[T.AB].Papierkorb:
-                    break  
-                
                 
                 if sett['trenner']:
                 
@@ -800,15 +803,18 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         oOO.Text.removeTextContent(newSection2)
                         
                         cur.gotoEnd(False)
-           
-           
+  
+            self.mb.class_Querverweise.orga_refs_in_writer_refs_umwandeln(oOO, sections, popup)
+            
             # entferne OrgInnerSec
             tsecs = oOO.TextSections
             for tname in tsecs.ElementNames:
                 if 'OrgInnerSec' in tname:
                     sec = tsecs.getByName(tname)
+                    sec.setPropertyValue('IsProtected',False)
                     sec.dispose()
-                    
+            
+            popup.text = LANG.SPEICHERN
             
             path = uno.fileUrlToSystemPath(decode_utf(self.mb.settings_exp['speicherort']))
             Path2 = os.path.join(path, self.mb.projekt_name)
@@ -828,7 +834,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             if os.path.exists(Path2+extension):
                 Path2 = self.pruefe_dateiexistenz(Path2,extension)
             
-            Path1 = Path2+extension
+            Path1 = Path2 + extension
             Path3 = uno.systemPathToFileUrl(Path1)   
             
             prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
@@ -842,12 +848,13 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                 self.mb.class_Html.export2html(oOO.Text,Path1,self.mb.projekt_name)
             else:
                 oOO.storeToURL(Path3,(prop,))
-
+            
             ok = True
         except:
             log(inspect.stack,tb())
             ok = False
-            
+        
+        popup.end()    
         self.mb.class_Bereiche.schliesse_oOO()   
         st_ind.end() 
         
@@ -858,8 +865,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         
         try:
             sett = self.mb.settings_exp
-            st_ind = self.mb.current_Contr.Frame.createStatusIndicator()    
-    
+            st_ind = self.mb.doc.CurrentController.Frame.createStatusIndicator()    
             
             # pruefen, ob speicherordner existiert; Namen aendern
             speicherort = decode_utf(self.mb.settings_exp['speicherort'])
@@ -940,6 +946,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             zaehler = 0
             
             
+            
             while zaehler < anz_sections:
                  
                 self.mb.class_Bereiche.starte_oOO()
@@ -965,6 +972,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         # evt vorhandene Sections loeschen, die mit dem Cursor nicht erreicht werden
                         for el_n in range(oOO.TextSections.Count):
                             el = oOO.TextSections.getByIndex(0)
+                            el.setPropertyValue('IsProtected',False)
                             el.dispose()
     
                         cur.gotoStart(False)
@@ -1002,6 +1010,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                         for tname in tsecs.ElementNames:
                             if 'OrgInnerSec' in tname:
                                 sec = tsecs.getByName(tname)
+                                sec.setPropertyValue('IsProtected',False)
                                 sec.dispose()
 
                         cur.gotoEnd(False)
@@ -1097,7 +1106,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
             
             return True       
         except Exception as e:
-            self.mb.nachricht('exp_in_neues_proj ' + str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'ERROR: exp_in_neues_proj ' + str(e)
             log(inspect.stack,tb())
             return False
     
@@ -1183,13 +1192,13 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
        
         neuer_projekt_name = self.feld_projekt_name.Text
         if neuer_projekt_name == '':
-            self.mb.nachricht(LANG.KEIN_NAME,"warningbox")
+            Popup(self.mb, 'info').text = LANG.KEIN_NAME
             return False
         
         speicherort = self.mb.settings_exp['speicherort']
         
         if speicherort == '':
-            self.mb.nachricht(LANG.KEIN_SPEICHERORT,"warningbox")
+            Popup(self.mb, 'info').text = LANG.KEIN_SPEICHERORT
             return False
     
         sysPath = uno.fileUrlToSystemPath(speicherort)
@@ -1197,7 +1206,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
         path = os.path.join(sysPath,neuer_projekt_name+'.organon')
         
         if os.path.exists(path):
-            self.mb.nachricht(LANG.ORDNER_EXISTIERT_SCHON %neuer_projekt_name,"warningbox")
+            Popup(self.mb, 'warning').text = LANG.ORDNER_EXISTIERT_SCHON %neuer_projekt_name
             return False
         else:
             return True

@@ -145,7 +145,6 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         self.mb = mb
         self.controls = None
-        self.nachricht = mb.nachricht
         self.class_Zitate = class_Zitate
         self.oWindow = None
         
@@ -185,7 +184,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                                                             
                 if not os.path.exists(speicherordner):
                     ntext = LANG.KEIN_SPEICHERORT
-                    self.nachricht(ntext)
+                    Popup(self.mb, 'warning').text = ntext
                     return
                 
                 args = text1,pfad1,speicherordner,pfad2
@@ -204,7 +203,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         if not os.path.exists(pfad):
             ntext = LANG.NOCH_NICHT_AUSGESUCHT %text
-            self.mb.nachricht(ntext)
+            Popup(self.mb, 'warning').text = ntext
             return False
         
         return True
@@ -295,10 +294,7 @@ class Liste_Erstellen():
          self.pfad_quelldatei,
          self.speicherordner,
          self.pfad_translation
-         ) = args
-                 
-        self.nachricht = mb.nachricht
-        
+         ) = args        
         
     
     def run(self):
@@ -364,7 +360,7 @@ class Liste_Erstellen():
             woerter = sorted(posDict1.items(), key= lambda elem : sortieren(elem[1][0]))
 
             if len(woerter) == 0:
-                self.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
+                Popup(self.mb, 'warning').text = LANG.KEINE_UEBEREINSTIMMUNGEN
                 return
             
             self.oeffne_calc()

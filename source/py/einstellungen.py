@@ -1315,14 +1315,14 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         namen = [n['name'].Text for i,n in self.rows.items()]
         
         if not breite:
-            self.mb.nachricht(LANG.KEINE_GUELTIGE_ZAHL.format(breite2),'warningbox')
+            Popup(self.mb, 'warning').text = LANG.KEINE_GUELTIGE_ZAHL.format(breite2)
             return
         
         if name in namen:
-            self.mb.nachricht(LANG.KATEGORIE_EXISTIERT.format(name),'warningbox')
+            Popup(self.mb, 'warning').text = LANG.KATEGORIE_EXISTIERT.format(name)
             return
         if name == '':
-            self.mb.nachricht(LANG.KATEGORIE_NAMEN_EINGEBEN,'warningbox')
+            Popup(self.mb, 'warning').text = LANG.KATEGORIE_NAMEN_EINGEBEN
             return
         
         self.ctrls_neue_kategorie(sel_row,name,typ,breite)
@@ -1577,13 +1577,13 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         for nr,b in tags2['nr_breite'].items():
             breite = self.breite_validieren(b)
             if not breite:
-                self.mb.nachricht(LANG.KEINE_GUELTIGE_ZAHL.format(b),'warningbox')
+                Popup(self.mb, 'warning').text = LANG.KEINE_GUELTIGE_ZAHL.format(b)
                 return
             tags2['nr_breite'][nr] = breite
             
         for name,nr in tags2['name_nr'].items():
             if name == '':
-                self.mb.nachricht(LANG.KATEGORIE_UNGUELTIG.format(nr+1),'warningbox')   
+                Popup(self.mb, 'warning').text = LANG.KATEGORIE_UNGUELTIG.format(nr+1)
                 return
         
  
@@ -1606,7 +1606,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             txt2 = ''.join(txt)
             
             # Info und Nachfrage
-            entscheidung = self.mb.nachricht(LANG.KATEGORIE_UEBERNEHMEN.format(txt2),"warningbox",16777216)
+            entscheidung = self.mb.entscheidung(LANG.KATEGORIE_UEBERNEHMEN.format(txt2),"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return
@@ -1639,7 +1639,7 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         
         # Popup Info
         win = self.mb.class_Einstellungen.haupt_fenster
-        self.mb.popup(LANG.AENDERUNGEN_UEBERNOMMEN,1,win)
+        Popup(self.mb, zeit=1, parent=win).text = LANG.AENDERUNGEN_UEBERNOMMEN
         
          
     def disposing(self,ev):
@@ -2293,7 +2293,7 @@ class Uebersetzungen():
         
         except Exception as e:
             try:
-                self.mb.nachricht(LANG.IMPORT_GESCHEITERT.format(str(e)))
+                Popup(self.mb, 'error').text = LANG.IMPORT_GESCHEITERT.format(str(e))
             except:
                 pass
             return None,False
@@ -2313,16 +2313,16 @@ class Uebersetzungen():
         for v in verbotene:
             if v in neuer_eintrag:
                 if konst != 'UNGUELTIGE_ZEICHEN':
-                    self.mb.nachricht(LANG.EINTRAG_MIT_UNZULAESSIGEN_ZEICHEN.format(v,neuer_eintrag))
+                    Popup(self.mb, 'error').text = LANG.EINTRAG_MIT_UNZULAESSIGEN_ZEICHEN.format(v,neuer_eintrag)
                     return False
 
         if eintrag.count('%s') != neuer_eintrag.count('%s'):
-            self.mb.nachricht(LANG.UNGUELTIGE_ANZAHL1.format(neuer_eintrag))
+            Popup(self.mb, 'error').text = LANG.UNGUELTIGE_ANZAHL1.format(neuer_eintrag)
 
         expr = '\{\d?\}' 
          
         if len(re.findall(expr,eintrag)) != len(re.findall(expr,neuer_eintrag)):
-            self.mb.nachricht(LANG.UNGUELTIGE_ANZAHL2.format(neuer_eintrag))
+            Popup(self.mb, 'error').text = LANG.UNGUELTIGE_ANZAHL2.format(neuer_eintrag)
 
         return True
         
@@ -2518,7 +2518,7 @@ class Uebersetzung_Button_Listener(unohelper.Base, XActionListener,XItemListener
         name = self.titel_feld.Model.Text
         
         if name.strip() == '':
-            self.mb.nachricht(LANG.KEIN_NAME)
+            Popup(self.mb, 'warning').text = LANG.KEIN_NAME
             return
         
         name = name + '.py'
@@ -2627,7 +2627,7 @@ class Listener_Templates(unohelper.Base, XActionListener,XItemListener):
         pfad = templs['pfad']
         templ_pfad = os.path.join(pfad,self.selektiertes_template + '.organon')
         
-        entscheidung = self.mb.nachricht(LANG.TEMPLATE_WIRKLICH_LOESCHEN.format(self.selektiertes_template),"warningbox",16777216)
+        entscheidung = self.mb.entscheidung(LANG.TEMPLATE_WIRKLICH_LOESCHEN.format(self.selektiertes_template),"warningbox",16777216)
         # 3 = Nein oder Cancel, 2 = Ja
         if entscheidung == 3:
             return

@@ -7,7 +7,6 @@ ANSICHT = u'''View'''
 FILE = u'''File'''
 TITEL = u'''Title'''
 PAPIERKORB = u'''Waste Bin'''
-FORMATIERUNG_SPEICHERN = u'''Save formatting of last edited file: {0}'''
 DATEI_NICHT_GESPEICHERT = u'''File couldn't be saved'''
 KEINE = u'''None'''
 KAPITEL = u'''Chapter'''
@@ -18,12 +17,17 @@ LOAD_DESCRIPTION = u'''Load Manual'''
 CLEAR_RECYCLE_BIN = u'''Clear Waste Bin'''
 INSERT_DOC = u'''Insert New Document'''
 INSERT_DIR = u'''Insert New Folder'''
-NICHT_IM_PAPIERKORB_ERSTELLEN = u'''Files can't be created inside the waste bin. Select another row in the treeview.'''
-PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''An Organon Project is already loaded. Close Organon, before you start or load another project. Menubar: Organon>open/close'''
+PROJEKTORDNER_NICHT_UMBENENNBAR = u'''The project folder can't be renamed'''
+NICHT_IM_PAPIERKORB_ERSTELLEN = u'''Files can't be created inside the waste bin.
+Select another row in the treeview.'''
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''An Organon project is already loaded. Close Organon,
+before you start or load another project. 
+Menubar: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'''Show Textsections'''
 SICHTBARE_TAGS_BAUMANSICHT = u'''Visible Tags in Treeview'''
 SICHTBARE_TAGS_SEITENLEISTE = u'''Visible Tags in Sidebar'''
 BACKUP = u'''Create Backup'''
+BACKUP_ERZEUGT = u'''Created Backup File'''
 HOMEPAGE = u'''Homepage'''
 FEEDBACK = u'''Feedback'''
 TEXTTOOLS = u'''Texttools'''
@@ -103,14 +107,17 @@ PAPIERKORB_LEEREN = u'''Empty Waste Bin'''
 SHOW_TAG1 = u'''Color Icons'''
 SHOW_TAG2 = u'''User-defined Icons'''
 GLIEDERUNG = u'''Outline'''
-BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'''If you like to use self-defined icons, Organon has to insert the folder "Organon Icons" to your gallery.
+BENUTZERDEFINIERTE_SYMBOLE_NUTZEN = u'''If you like to use self-defined icons, Organon has to
+insert the folder "Organon Icons" to your gallery.
 
 Furthermore the following folder will be created on your filesystem:
 %s
 
 The gallery can be opened by the symbol in the standard toolbar or from the sidebar.
 
-Organon saves a small amount of icons to this folder. You may delete them and insert your own.Icons are selected by a right click into the empty space between the file/folder icon and the titel.
+Organon saves a small amount of icons to this folder. You may delete them and insert
+your own. Icons are selected by a right click into the empty space between the 
+file/folder icon and the titel.
 
 Should Organon set up an entry in the galerie?
 '''
@@ -151,7 +158,8 @@ ORDNER_EXISTIERT_SCHON = u'''The folder already contains a file/directory %s.org
 NEW_PROJECT2 = u'''new Project'''
 PROJEKT_NAMEN_EINGEBEN = u'''Enter a name for the new project.'''
 UNGESPEICHERTE_PFADE = u'''Following files couldn't be exported.
-Eventually their paths are too long. You might choose another folder for saving or shorten the names of the folders/files.
+Eventually their paths are too long. You might choose another folder for saving or
+shorten the names of the folders/files.
 
 {}'''
 
@@ -189,7 +197,8 @@ IMPORT_FILTER_WARNUNG = u'''WARNING:
 
 This is an experimental feature and not all of the filters are working. (Pdf for example)
 
-It might be a good idea to try filters on an unimportant or fresh project. Export your files from there to .odt files and reimport them to the destination project using the standard .odt filter.'''
+It might be a good idea to try filters on an unimportant or fresh project. Export your files from 
+there to .odt files and reimport them to the destination project using the standard .odt filter.'''
 ERZEUGE_DATEI = u'''creating file %s/%s'''
 NO_FILES = u'''There are no files with the selected filter in the selcted folder'''
 IMP_FORTFAHREN = u'''%s files wil be imported. Do you want to continue?'''
@@ -280,12 +289,15 @@ SUCHBEGRIFFE_HELP_TEXT = u'''You might search for several searchterms at once.
 Searchterms are separated by commas.
 If a searchterm contains a comma, it has to be escaped by a backslash: \,
 
-If the logic operator is \u039B or "Regular Expression" has been chosen and the results should be tagged, a tag-name has to be entered.'''
+If the logic operator is \u039B or "Regular Expression" has been chosen and the results should
+be tagged, a tag-name has to be entered.'''
 KEINE_DATEIEN_AUSGEWAEHLT = u'''No files to search in have been chosen.'''
 KEINE_AKTION_GEWAEHLT = u'''No action has been selected.'''
 REGEX_BRAUCHT_TAGNAMEN = u'''If you choose "Regular Expression" and "Tag results", you have to enter a tag-name.'''
-OPT_ALLE_BRAUCHT_TAGNAMEN = u'''If the logic operator is \u039B and "Tag results" has been chosen, you have to enter a tag-name.'''
-TAG_VORHANDEN_WAEHLEN = u'''The tag "{0}" already exists. If you want to tag the results with it as well, select "Expand existing tags".'''
+OPT_ALLE_BRAUCHT_TAGNAMEN = u'''If the logic operator is \u039B and "Tag results" has been chosen,
+you have to enter a tag-name.'''
+TAG_VORHANDEN_WAEHLEN = u'''The tag "{0}" already exists. If you want to tag the results with it as well,
+select "Expand existing tags".'''
 KEINE_SUCHBEGRIFFE = u'''No searchterms have been entered'''
 SUCHE_KEINE_ERGEBNISSE = u'''Your search has no results.'''
 
@@ -445,7 +457,8 @@ PRJ_NAME_KEINE_AENDERUNG = u'''The project can't be renamed'''
 EIN_TAG_BEREITS_VORHANDEN = u'''One of the tags is already in use in another category.'''
 UEBERNOMMEN = u'''Changes have been applied.'''
 AENDERUNGEN_NOCH_NICHT_UEBERNOMMEN = u'''There are unsaved changes. Do you want to apply these changes?'''
-OO_ORGANIZER_INFO = u'''If one makes use of the Organizer in OpenOffice, the Organon window and the sidebar will be closed on the next restart. If required, one has to open them again.
+OO_ORGANIZER_INFO = u'''If one makes use of the Organizer in OpenOffice, the Organon window and the sidebar will be 
+closed on the next restart. If required, one has to open them again.
 '''
 ORGANIZER_INFO = u'''Usage of the Organizer:
 
@@ -468,16 +481,23 @@ The time has a 24-hour format (00:00 to 23:59)
 The date format can be adjusted in the settings.
 Folders and files can be renamed in the Organizer.
 
-Changes are made by new entries in the Fields and they are adopted by a click on the button "Apply". Also, when changes were made and the Organizer gets closed, one will be asked, if the changes should be applied.
+Changes are made by new entries in the Fields and they are adopted by a click on the button "Apply".
+Also, when changes were made and the Organizer gets closed, one will be asked, if the changes should 
+be applied.
 
 Changes of the icons on the left side are adopted without a feedback immediatly.
 
-The menu of Calc can be opened by clicking on "Menu", so the file can be used otherwise. (printing for example)
-Do not insert rows or columns or change the document from the menu, if you still want to use it with Organon. Such changes might cause a corrupt tag file.
+The menu of Calc can be opened by clicking on "Menu", so the file can be used otherwise.
+(printing for example)
+Do not insert rows or columns or change the document from the menu, if you still want to use it with
+Organon. Such changes might cause a corrupt tag file.
 
 If you don't want to apply any changes, Calc might simply be closed and the following request denied.
 
-The opening of the Organizer gets slowed down by images in image-categories and the icons-categories on the left side. If you want to speed up the process, set these categories to invisible. (The larger the sizes of images are, the more the Organizer gets slowed down. A recalculation of images to thumbnails is missing at the moment.)
+The opening of the Organizer gets slowed down by images in image-categories and the icons-categories 
+on the left side. If you want to speed up the process, set these categories to invisible. 
+(The larger the sizes of images are, the more the Organizer gets slowed down. A recalculation of
+images to thumbnails is missing at the moment.)
 '''
 
 # SHORTCUTS
@@ -514,6 +534,16 @@ KATEGORIE_UEBERNEHMEN = u'''Following categories will be deleted:
 {0}
 
 Proceed?
+'''
+TAGS_NICHT_GEFUNDEN = u'''Couldn't load tags.
+Organon creates new empty tags for all files.'''
+LEGE_TAGS_FUER_DATEI_AN = u'''Organon couldn't load some tags and creates 
+new and empty ones for these files:\n\n'''
+DATEIEN_NICHT_IM_PROJEKT_ABER_AUF_FP = u'''Following files are not part of the project anymore,
+but still existing in the project folder. Should they be deleted?
+
+(Speicherort:{0})
+
 '''
 
 # TRANSLATIONS
@@ -555,6 +585,13 @@ TEMPLATE_NICHT_GELADEN = u'''ERROR: The project couldn't be created from the tem
 GLEICHER_PFAD = u'''Template and new project own the same name and path.'''
 ORG_TEMPLATES_SETZEN = u'''Organon Templates can be set under Organon Menu/File/Preferences/Templates .'''
 WRITER_TEMPLATES_SETZEN = u'''The user templates of Writer are shown. See the manual for further information.'''
+
+# CROSS_REFERENCES
+QUERVERWEISE = u'''Cross-References'''
+QUERVERWEISE_UMWANDELN = u'''Converting Organon Cross-References to Writer Cross-References'''
+ORGA_LESEZEICHEN = u'''Organon Bookmarks'''
+ORGA_FELDER = u'''Organon Fields'''
+WANDLE_QUERVERWEISE = u'''Converting Cross-References ... '''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''Project Folder and Waste Bin can't be moved'''

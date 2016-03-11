@@ -271,7 +271,8 @@ class Sidebar():
                     
                     try:
                         if self.mb.tags['ordinale'][ordinal][panel_nr] != '':
-                            model.ImageURL = self.mb.tags['ordinale'][ordinal][panel_nr]
+                            bildpfad = os.path.join(self.mb.pfade['images'], self.mb.tags['ordinale'][ordinal][panel_nr])
+                            model.ImageURL = uno.systemPathToFileUrl(bildpfad)
                             breite = self.berechne_bildgroesse(model,height)
                             control.setPosSize(0,0,breite,0,4)
                     except:
@@ -417,16 +418,15 @@ class Sidebar():
         basename = os.path.basename(filepath)
         path_image_folder = self.mb.pfade['images']
         complete_path = os.path.join(path_image_folder,basename)
-        path = uno.systemPathToFileUrl(complete_path)
 
         if not os.path.exists(complete_path):
             from shutil import copy2
             copy2(filepath, complete_path)
-            
-        return path
+
+        return basename
     
     
-    def bild_einfuegen(self, panel_nr, ordinal=None, filepath='', erzeuge_layout=True):
+    def bild_einfuegen(self, panel_nr, ordinal=None, filepath='', erzeuge_layout=True, loeschen = True):
         if self.mb.debug: log(inspect.stack)
         
         if filepath == '':
@@ -434,22 +434,23 @@ class Sidebar():
             if not ok:
                 return False
 
-        path = self.bild_in_projektordner_kopieren(filepath)
+        basename = self.bild_in_projektordner_kopieren(filepath)
         
         if ordinal == None:
             ordinal = self.mb.props[T.AB].selektierte_zeile
         
         old_image_path = self.mb.tags['ordinale'][ordinal][panel_nr]
         
-        self.mb.tags['ordinale'][ordinal][panel_nr] = path
+        self.mb.tags['ordinale'][ordinal][panel_nr] = basename
         
         if erzeuge_layout:
             self.mb.class_Sidebar.erzeuge_sb_layout()
         
-        if old_image_path != '' and old_image_path != path:
-            self.bild_loeschen(old_image_path,panel_nr)
+        if loeschen:
+            if old_image_path != '' and old_image_path != basename:
+                self.bild_loeschen(old_image_path,panel_nr)
         
-        return path  
+        return basename  
 
 
     def bild_loeschen_a(self,panel_nr, ordinal=None, erzeuge_layout= True):
@@ -459,29 +460,30 @@ class Sidebar():
             if ordinal == None:
                 ordinal = self.mb.props[T.AB].selektierte_zeile
                 
-            old_image_path = self.mb.tags['ordinale'][ordinal][panel_nr]
+            old_image_basename = self.mb.tags['ordinale'][ordinal][panel_nr]
             
             self.mb.tags['ordinale'][ordinal][panel_nr] = ''
             
             if erzeuge_layout:
                 self.mb.class_Sidebar.erzeuge_sb_layout()
                 
-            self.bild_loeschen(old_image_path,panel_nr)
+            self.bild_loeschen(old_image_basename,panel_nr)
         except:
             log(inspect.stack,tb())
 
 
-    def bild_loeschen(self,old_image_path,panel_nr):
+    def bild_loeschen(self,old_image_basename,panel_nr):
         if self.mb.debug: log(inspect.stack)
         
         try:
             vorhanden = False
             for ordinal in self.mb.tags['ordinale']:
-                if old_image_path == self.mb.tags['ordinale'][ordinal][panel_nr]:
+                if old_image_basename == self.mb.tags['ordinale'][ordinal][panel_nr]:
                     vorhanden = True
 
             if not vorhanden:
-                os.remove(uno.fileUrlToSystemPath(old_image_path))
+                path = os.path.join(self.mb.pfade['images'],old_image_basename)
+                os.remove(uno.fileUrlToSystemPath(path))
                 
             
         except Exception as e:

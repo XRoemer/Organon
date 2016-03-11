@@ -30,7 +30,7 @@ class XML_Methoden():
         # erzeugt den XML Eintrag fuer ein neues Standard Dokument
         tree = self.mb.props[T.AB].xml_tree 
         root = tree.getroot()
-        et = self.mb.ET             
+        et = ElementTree            
         ordinal,parent,name,lvl,art,zustand,sicht,tag1,tag2,tag3 = eintrag
 
         if parent == 'root':

@@ -5,7 +5,7 @@ import unohelper
 from traceback import format_exc as tb
 import sys
 import os
-import xml.etree.ElementTree as ElementTree
+import xml.etree.cElementTree as ElementTree
 import time
 from codecs import open as codecs_open
 from math import floor as math_floor
@@ -15,9 +15,9 @@ import copy
 import inspect
 from pprint import pformat
 import json
+from threading import Thread  
 
 from tabs import TabsX
-platform = sys.platform
 
 
 
@@ -34,7 +34,6 @@ class Menu_Bar():
              win,
              dict_sb,
              debugX,
-             factory,
              menu_start,
              logX,
              class_LogX,
@@ -71,26 +70,21 @@ class Menu_Bar():
             T = Tab()
             
             # Konstanten
-            self.factory = factory
             self.dialog = dialog
             self.ctx = ctx
-            self.smgr = self.ctx.ServiceManager
-            self.toolkit = self.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
-            self.topWindow = self.toolkit.getActiveTopWindow() 
-            self.desktop = self.smgr.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
+            toolkit = ctx.ServiceManager.createInstanceWithContext("com.sun.star.awt.Toolkit", ctx)    
+            self.topWindow = toolkit.getActiveTopWindow() 
+            self.desktop = ctx.ServiceManager.createInstanceWithContext( "com.sun.star.frame.Desktop",self.ctx)
             self.doc = self.get_doc()  
-            self.current_Contr = self.doc.CurrentController 
             self.programm = self.get_office_name() 
             self.undo_mgr = self.doc.UndoManager
-            self.viewcursor = self.current_Contr.ViewCursor
-            self.platform = sys.platform
+            self.viewcursor = self.doc.CurrentController.ViewCursor
             self.language = None
             LANG = self.lade_Modul_Language()
             self.path_to_extension = path_to_extension
             self.programm_version = self.get_programm_version()
             self.filters_import = None
             self.filters_export = None
-            self.BEREICH_EINFUEGEN = self.get_BEREICH_EINFUEGEN()
             self.anleitung_geladen = False
             self.speicherort_last_proj = self.get_speicherort()
             self.projekt_name = None
@@ -132,7 +126,7 @@ class Menu_Bar():
                        'math_floor':math_floor,
                        're':re,
                        'tb':tb,
-                       'platform':platform,
+                       'platform':sys.platform,
                        'KONST':KONST,
                        'pd':pd,
                        'copy':copy,
@@ -140,16 +134,16 @@ class Menu_Bar():
                        'T':T,
                        'log':log,
                        'inspect':inspect,
-                       'LANG':LANG}
+                       'LANG':LANG,
+                       'Popup':Popup,
+                       }
             
             
             # Klassen   
-            self.ET = ElementTree  
             
-            self.nachricht = Mitteilungen(self.ctx,self).nachricht
-            self.nachricht_si = Mitteilungen(self.ctx,self).nachricht_si
-            self.popup = Mitteilungen(self.ctx,self).popup
+            self.entscheidung = Mitteilungen(self).entscheidung
             
+            self.class_Tools =          self.lade_modul('tools','Tools')  
             self.class_Baumansicht,self.class_Zeilen_Listener = self.get_Klasse_Baumansicht()
             self.class_Projekt =        self.lade_modul('projects','Projekt')   
             self.class_XML =            self.lade_modul('xml_m','XML_Methoden')
@@ -173,6 +167,7 @@ class Menu_Bar():
             self.class_Shortcuts =      self.lade_modul('shortcuts','Shortcuts')
             self.class_Fenster =        self.lade_modul('fenster','Fenster')
             self.class_Suche =          self.lade_modul('suche','Suche')
+            self.class_Querverweise =   self.lade_modul('querverweise','Querverweise')  
             
             
             # TABS
@@ -183,7 +178,7 @@ class Menu_Bar():
             
             
             # Plattformabhaengig
-            if self.platform == 'win32':
+            if sys.platform == 'win32':
                 self.class_RawInputReader = self.lade_modul('rawinputdata','RawInputReader')
             
             self.class_Log = class_LogX
@@ -230,7 +225,7 @@ class Menu_Bar():
     def get_office_name(self):
         if self.debug: log(inspect.stack)
         
-        frame = self.current_Contr.Frame
+        frame = self.doc.CurrentController.Frame
         if 'LibreOffice' in frame.Title:
             programm = 'LibreOffice'
         elif 'OpenOffice' in frame.Title:
@@ -240,21 +235,8 @@ class Menu_Bar():
             programm = 'LibreOffice'
         
         return programm
-    
-    def get_BEREICH_EINFUEGEN(self):
-        if self.debug: log(inspect.stack)
-        
-        UM = self.doc.UndoManager
-        newSection = self.doc.createInstance("com.sun.star.text.TextSection")
-        cur = self.doc.Text.createTextCursor()  
-        cur.gotoEnd(False)
-        self.doc.Text.insertTextContent(cur, newSection, False)
-        BEREICH_EINFUEGEN = UM.getCurrentUndoActionTitle()
-        cur.gotoRange(newSection.Anchor,True)
-        newSection.dispose()
-        cur.setString('')
-        return BEREICH_EINFUEGEN
-    
+      
+ 
     def get_programm_version(self):
         if self.debug: log(inspect.stack)
         
@@ -349,7 +331,7 @@ class Menu_Bar():
                 menuB_control.addControl('Test', control)
 
         except Exception as e:
-                self.nachricht('erzeuge_Menu ' + str(e),"warningbox")
+                Popup(self, 'error').text = 'create_menu ' + str(e)
                 log(inspect.stack,tb())       
         
      
@@ -569,7 +551,7 @@ class Menu_Bar():
     def lade_Modul_Language(self):
         if self.debug: log(inspect.stack)
    
-        config_provider = self.smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",self.ctx)
+        config_provider = self.ctx.ServiceManager.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",self.ctx)
         
         prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop.Name = "nodepath"
@@ -609,7 +591,7 @@ class Menu_Bar():
     def lade_RawInputReader(self):
         if self.debug: log(inspect.stack)
         
-        if self.platform != 'win32':
+        if sys.platform != 'win32':
             return None
         
         import rawinputdata
@@ -667,20 +649,20 @@ class Menu_Bar():
             self.class_Export.kopiere_projekt(neuer_projekt_name,pfad_zu_neuem_ordner,
                                                  ordinale,tree,self.tags,True)  
             os.rename(pfad_zu_neuem_ordner,pfad_zu_neuem_ordner+'.organon')  
-            self.nachricht('Backup erzeugt unter: %s' %pfad_zu_neuem_ordner+'.organon', "infobox")           
+            Popup(self, 'info').text = '{0}:\n{1}'.format(LANG.BACKUP_ERZEUGT, pfad_zu_neuem_ordner + '.organon')
+
         except:
             log(inspect.stack,tb())
             
           
-    def debug_time(self):
-        return "%0.2f" %(self.time.clock()-self.timer_start)
-
-     
     def loesche_undo_Aktionen(self):
         if self.debug: log(inspect.stack)
         
-        undoMgr = self.doc.UndoManager
-        undoMgr.reset()
+        try:
+            undoMgr = self.doc.getUndoManager()
+            undoMgr.reset()
+        except:
+            log(inspect.stack,tb())
         
     def speicher_settings(self,dateiname,eintraege):
         if self.debug: log(inspect.stack)
@@ -713,15 +695,7 @@ class Menu_Bar():
         # diese Methode existiert, um alle Schreibvorgaenge
         # des XML_trees bei Bedarf kontrollieren zu koennen
         #self.pruefe()
-        tree.write(pfad)
-    
-    def prettyprint(self,pfad,oObject,w=600):
-        if self.debug: log(inspect.stack) 
-        
-        imp = pformat(oObject,width=w)
-        with codecs_open(pfad , "w",'utf-8') as file:
-            file.write(imp)
-            
+        tree.write(pfad)            
     
     def kalkuliere_und_setze_Control(self,ctrl,h_or_w = None):
         #if self.debug: log(inspect.stack)
@@ -746,8 +720,8 @@ class Menu_Bar():
     # Handy function provided by hanya (from the OOo forums) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
         try:
-            ctrl = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
-            ctrl_model = self.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
+            ctrl = ctx.ServiceManager.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
+            ctrl_model = ctx.ServiceManager.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
             ctrl_model.setPropertyValues(names,values)
             ctrl.setModel(ctrl_model)
             ctrl.setPosSize(x,y,width,height,15)
@@ -761,28 +735,31 @@ class Menu_Bar():
         sm = uno.getComponentContext().ServiceManager
         return sm.createInstanceWithContext(serviceName, uno.getComponentContext())
     
-    def dispatch(self,frame,cmd,oprop=('',None),oprop2=('',None)):
+    def dispatch(self,frame,cmd,*args,**kwargs):
         if self.debug: log(inspect.stack)
-              
+        
         sm = uno.getComponentContext().ServiceManager
         dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
         
-        prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop.Name = oprop[0]
-        prop.Value = oprop[1]
+        props = []
         
-        prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-        prop2.Name = oprop2[0]
-        prop2.Value = oprop2[1]
+        for k,v in kwargs.items():
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = k
+            prop.Value = v
+            
+            props.append(prop)
         
-        res = dispatcher.executeDispatch(frame, ".uno:{}".format(cmd), "", 0, (prop,prop2))
+        props = tuple(props)
+        
+        res = dispatcher.executeDispatch(frame, ".uno:{}".format(cmd), "", 0, (props))
         return res
     
     def erzeuge_texttools_fenster(self,ev,m_win):
         if self.debug: log(inspect.stack)
         
         loc_menu = ev.Source.Context.AccessibleContext.LocationOnScreen
-        loc_cont = self.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+        loc_cont = self.doc.CurrentController.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
         
         x3 = loc_menu.X - loc_cont.X    # Position des Dropdown Menus
         y3 = loc_menu.Y - loc_cont.Y    # Position des Dropdown Menus
@@ -955,11 +932,11 @@ class Listener():
         self.undo_mgr_listener      = Undo_Manager_Listener(self.mb)
         self.listener_doc_close     = Document_Close_Listener(self.mb)
         self.keyhandler             = Key_Handler(self.mb)  
+        self.maus_klick_listener    = Document_Mouse_Click_Handler(self.mb)
         
         self.blocked = False
 
         self.states = {f.replace('remove_',''):False for f in dir(self) if 'remove' in f}
-            
         
         
     def alle_listener_ausschalten(self,ausnahmen = []):
@@ -998,7 +975,7 @@ class Listener():
                     self.states[key] = False
                     
                 
-                self.mb.current_Contr.removeKeyHandler(self.keyhandler)
+                self.mb.doc.CurrentController.removeKeyHandler(self.keyhandler)
                 
             except:
                 pass
@@ -1020,7 +997,7 @@ class Listener():
         if self.blocked : return
         if not self.states['VC_selection_listener']:
             if self.mb.debug: log(inspect.stack)
-            self.mb.current_Contr.addSelectionChangeListener(self.VC_selection_listener)
+            self.mb.doc.CurrentController.addSelectionChangeListener(self.VC_selection_listener)
             self.states['VC_selection_listener'] = True
         else:
             self.versuchter_start('VC_selection_listener')
@@ -1028,7 +1005,7 @@ class Listener():
     def remove_VC_selection_listener(self):
         if self.blocked : return
         if self.mb.debug: log(inspect.stack)
-        self.mb.current_Contr.removeSelectionChangeListener(self.VC_selection_listener)
+        self.mb.doc.CurrentController.removeSelectionChangeListener(self.VC_selection_listener)
         self.states['VC_selection_listener'] = False
         
     def add_Dialog_Window_Size_Listener(self):
@@ -1099,7 +1076,20 @@ class Listener():
         self.mb.doc.removeDocumentEventListener(self.listener_doc_close)
         self.states['Document_Close_Listener'] = False
         
-
+    def add_Maus_Klick_Listener(self):
+        if self.blocked : return
+        if not self.states['Maus_Klick_Listener']:
+            if self.mb.debug: log(inspect.stack)
+            self.mb.doc.CurrentController.addMouseClickHandler(self.maus_klick_listener)
+            self.states['Maus_Klick_Listener'] = True
+        else:
+            self.versuchter_start('Maus_Klick_Listener')
+    
+    def remove_Maus_Klick_Listener(self):
+        if self.blocked : return
+        if self.mb.debug: log(inspect.stack)
+        self.mb.doc.CurrentController.removeMouseClickHandler(self.maus_klick_listener)
+        self.states['Maus_Klick_Listener'] = False
 
 
 
@@ -1202,7 +1192,7 @@ class Menu_Leiste_Listener (unohelper.Base, XMouseListener):
                         controls,listener,Hoehe,Breite = self.mb.erzeuge_Menu_DropDown_Eintraege(items)
                         controls = list((x,'') for x in controls)
 
-                    loc_cont = self.mb.current_Contr.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
+                    loc_cont = self.mb.doc.CurrentController.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
                     
                     x = self.mb.prj_tab.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
                     y = self.mb.prj_tab.AccessibleContext.LocationOnScreen.Y - loc_cont.Y + ev.Source.PosSize.Y + 20
@@ -1320,6 +1310,7 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 
             elif sel == LANG.OPEN_PROJECT:
                 self.mb.class_Projekt.lade_Projekt()
+                return
                 
             elif sel == LANG.NEW_DOC:
                 self.mb.class_Baumansicht.erzeuge_neue_Zeile('dokument')
@@ -1343,8 +1334,8 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 self.mb.tabsX.schliesse_Tab()
                 
             elif sel == LANG.ZEIGE_TEXTBEREICHE:
-                oBool = self.mb.current_Contr.ViewSettings.ShowTextBoundaries
-                self.mb.current_Contr.ViewSettings.ShowTextBoundaries = not oBool  
+                oBool = self.mb.doc.CurrentController.ViewSettings.ShowTextBoundaries
+                self.mb.doc.CurrentController.ViewSettings.ShowTextBoundaries = not oBool  
                  
             elif sel == LANG.HOMEPAGE:
                 import webbrowser
@@ -1403,6 +1394,7 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
             self.mb.loesche_undo_Aktionen()
         except:
             log(inspect.stack,tb())
+            
         
     def do(self): 
         if self.mb.debug: log(inspect.stack)
@@ -1569,13 +1561,13 @@ from com.sun.star.awt.WindowClass import MODALTOP
 from com.sun.star.awt.VclWindowPeerAttribute import OK,YES_NO_CANCEL, DEF_NO
 
 class Mitteilungen():
-    def __init__(self,ctx,mb):
+    def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         
-        self.ctx = ctx
-        self.mb = mb     
-    
-    def nachricht(self, MsgText, MsgType="errorbox", MsgButtons=OK, doc=None):  
+        self.mb = mb   
+        self.ctx = mb.ctx
+          
+    def entscheidung(self, MsgText, MsgType="errorbox", MsgButtons=OK, doc=None):  
         if self.mb.debug: log(inspect.stack)           
         
         smgr = self.ctx.ServiceManager
@@ -1610,64 +1602,218 @@ class Mitteilungen():
             msgbox.setBackground(farben['hf_hintergrund'])
             msgbox.StyleSettings.FieldTextColor = farben['schrift_datei']
         
-        x = msgbox.execute()
+        x = msgbox.execute()        
         msgbox.dispose()
         
         return x
+           
     
-    def nachricht_si(self,nachricht,zeit):
+class Popup(object):
+
+    def __init__(self, mb, typ=None, zeit=-1, parent=None):
+        self.mb = mb
+        self.ctx = uno.getComponentContext()
+        
+        self._text = ''
+        self.zeit = zeit
+        self.parent = parent
+        
+        self.fenster = None
+        self.ctrl = None
+        self.model = None
+        self.ctrl_img = None
+        self.versatz = 0
+        
+        if typ != None:
+            img = {
+                    'error' : 'vnd.sun.star.extension://xaver.roemers.organon/img/error.png',
+                    'info' : 'vnd.sun.star.extension://xaver.roemers.organon/img/idea.png',
+                    'warning' : 'vnd.sun.star.extension://xaver.roemers.organon/img/warning.png',
+                    'help' : 'vnd.sun.star.extension://xaver.roemers.organon/img/help.png',
+                    }
+            
+            
+            self.ctrl_img, model_img = self.mb.createControl(self.ctx, "ImageControl", 10,  16, 24, 24, 
+                                                        ('ImageURL', 'Border'), (img[typ], 0)) 
+            self.versatz = 32
+            
+            
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, text):    
+        
+        self._text = text
+        
+        if self.fenster == None:
+            self.popup(text)
+        else:
+            self.update_text()
+        
+    @text.getter
+    def text(self):    
+        return self._text
+    
+    def end(self):
+        self.fenster.dispose()   
+        self.fenster = None 
+    
+    def popup(self,nachricht):
         if self.mb.debug: log(inspect.stack)  
         
-        if len(nachricht) < 200:
-            x = 200 - len(nachricht)
-            nachricht = int(x/2)*' ' + nachricht + int(x/2)*' '
-        
-        StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
-        StatusIndicator.start(nachricht,2)
-        StatusIndicator.setValue(2)
-        time.sleep(zeit)
-        StatusIndicator.end()
-        
-    def popup(self,nachricht,zeit=3,parent=None):
-        if self.mb.debug: log(inspect.stack)  
-        
-        if parent == None:
-            parent = self.mb.toolkit.getActiveTopWindow() 
+        if self.parent == None:
+            parent = self.mb.topWindow 
             if parent == None:
                 parent = self.mb.win
+        else:
+            parent = self.parent
         
-        posSize = parent.PosSize.Width/2-100, parent.PosSize.Height/2-50, 0, 0
-        fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,Flags=1+32+64+128,parent=parent)
+        BREITE = 500
+        ABSTAND_X = 10
+        ABSTAND_Y = 10
+        MIN_HOEHE = 40
+        
+        def get_breite(n):
+            unoCtrl = 'Edit'
+            
+            prop_names = ('Text','MultiLine')
+            prop_values = (n,True)
+            
+            ctrl3 = self.mb.createUnoService("com.sun.star.awt.UnoControl%s" % unoCtrl)
+            ctrl_model3 = self.mb.createUnoService("com.sun.star.awt.UnoControl%sModel" % unoCtrl)
+            ctrl_model3.setPropertyValues(prop_names,prop_values)
+            ctrl3.setModel(ctrl_model3)
+            ctrl3.setPosSize(0,0,BREITE,0,4)
+                        
+            prefSize = ctrl3.getPreferredSize()
+            width, height = prefSize.Width, prefSize.Height
+
+            quot = width / BREITE 
+            
+            if height < 25:
+                height = int( (quot + 1) * height - (quot * height * .2) )
+            
+            if width > BREITE:
+                width = BREITE
+            
+            if width < 100:
+                width = 100
+                mitte_x = (width - prefSize.Width) / 2
+            else:
+                mitte_x = 0
                 
-        ctrl, model = self.mb.createControl(self.ctx, "FixedText", 10, 15, 1000, 1000, (), ())          
-        model.Label = nachricht
+            if height < MIN_HOEHE:
+                height = MIN_HOEHE
+                mitte_y = (height - prefSize.Height) / 2
+            else:
+                mitte_y = 0
+            
+            
+            return  width, height, mitte_x, mitte_y
+            
+            
+        b, h, mitte_x, mitte_y = get_breite(nachricht) 
+        
+        ctrl, model = self.mb.createControl(self.ctx, "Edit", 
+                                            ABSTAND_X + self.versatz + mitte_x, ABSTAND_Y + mitte_y, b, h, 
+                                            ('Text',
+                                             'MultiLine',
+                                             'Border',
+                                             'ReadOnly',
+                                             'PaintTransparent',
+                                             ), 
+                                            (nachricht,
+                                             True,
+                                             0,
+                                             True,
+                                             True,
+                                             )
+                                            )   
+        # ctrl2 dient nur dazu, den Cursor zu verstecken
+        ctrl2, model2 = self.mb.createControl(self.ctx, "Edit", 
+                                            2000,100,10,10, 
+                                            (), 
+                                            ())   
+            
+
+        Breite = b
+        Hoehe = h
+        
+        posSize = (parent.PosSize.Width/2 - Breite/2, 
+                   parent.PosSize.Height/2- Hoehe/2, 
+                   b  + self.versatz + 2 * ABSTAND_X, 
+                   h + 2 * ABSTAND_Y)
+        
+        fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,
+                                                                              Flags=1+32+64+128,
+                                                                              parent=parent)
+        fenster_cont.addControl('Text2', ctrl2)
+        fenster_cont.addControl('Text', ctrl) 
+         
+        
+        Hoehe2 = ctrl.getPreferredSize().Height
+        
+        if Hoehe2 < MIN_HOEHE:
+            Hoehe2 = MIN_HOEHE
+        
+        
+        fenster.setPosSize(0,0,0, Hoehe2 + 2 * ABSTAND_Y, 8)
+        fenster_cont.setPosSize(0,0,800, Hoehe2 + 2 * ABSTAND_Y, 12)            
+        ctrl.setPosSize(0,0,0, Hoehe2, 8)
+        
+        if self.ctrl_img:
+            fenster_cont.addControl('Bild', self.ctrl_img)
+        
+        fenster.draw(0,0)
+        fenster_cont.draw(0,0)
+        
+        fenster.setPosSize(0,0,0, Hoehe2 + 2 * ABSTAND_Y, 8)
+        
+        def dispose(w,t):
+            import time
+            time.sleep(self.zeit)
+            w.dispose()
+
+        if self.zeit != -1:
+            t = Thread(target=dispose,args=(fenster, self.zeit))
+            t.start()
+        else:
+            self.fenster = fenster
+            self.fenster_cont = fenster_cont
+            self.ctrl = ctrl
+            self.model = model
+
+    def update_text(self):
+        
+        self.model.Text = self._text
+        
+        Breite, Hoehe, mitte_x, mitte_y, pref_Size = self.get_Size(self.ctrl)
+                    
+        self.fenster_cont.setPosSize(0,0,Breite,Hoehe,12)
+        self.fenster.setPosSize(0,0,Breite,Hoehe,12)
+        self.ctrl.setPosSize(mitte_x, mitte_y, pref_Size.Width, Hoehe, 15)
+    
+        self.fenster.draw(0,0)
+        self.fenster_cont.draw(0,0)
+        
+    def get_Size(self,ctrl):
         
         pref_Size = ctrl.getPreferredSize()
         Hoehe = pref_Size.Height + 30
         Breite = pref_Size.Width + 20
-        
+         
         if Hoehe < 60:
             Hoehe = 60
         if Breite < 140:
             Breite = 140
-        
-        fenster.setPosSize(0,0,Breite,Hoehe,12)
-        
+            
         mitte_x = (Breite - pref_Size.Width) / 2
         mitte_y = (Hoehe - pref_Size.Height) / 2
-        ctrl.setPosSize(mitte_x, mitte_y, pref_Size.Width, Hoehe, 15)
+        
+        return Breite, Hoehe, mitte_x, mitte_y, pref_Size
     
-        fenster_cont.addControl('Text', ctrl)
-        fenster.draw(1,1)
-        
-        if zeit != 'frei':
-            fenster.draw(1,1)
-            time.sleep(zeit)
-            fenster.dispose()
-        
-        return fenster, model
-        
-        
 
 from com.sun.star.document import XUndoManagerListener 
 class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener): 
@@ -1682,7 +1828,10 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
     def enteredContext(self,ev):
         if self.mb.use_UM_Listener == False:
             return
-        if ev.UndoActionTitle == self.mb.BEREICH_EINFUEGEN:
+        
+        CMDs = self.mb.settings_orga['CMDs'][self.mb.language]
+
+        if ev.UndoActionTitle == CMDs['BEREICH_EINFUEGEN']:
             if self.mb.debug: log(inspect.stack)
             
             if self.mb.doc.TextSections.Count == 0:
@@ -1692,15 +1841,27 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
     
     
     def leftContext(self,ev):
+
         if self.mb.use_UM_Listener == False:
             return
-        if ev.UndoActionTitle == self.mb.BEREICH_EINFUEGEN:
+        
+        CMDs = self.mb.settings_orga['CMDs'][self.mb.language]
+        
+        if ev.UndoActionTitle == CMDs['BEREICH_EINFUEGEN']:
             if self.mb.debug: log(inspect.stack)
-            
+
             for tbe in self.mb.doc.TextSections.ElementNames:
                 if 'trenner' not in tbe:
                     if tbe not in self.textbereiche:
                         self.bereich_in_OrganonSec_einfuegen(tbe)
+        
+                      
+        elif ev.UndoActionTitle == CMDs['INSERT_FIELD']:
+            vc = self.mb.viewcursor
+            vc.goLeft(1,False)
+            tf = vc.TextField
+            #self.mb.class_Querverweise.fuege_querverweis_ein(tf)
+            self.mb.class_Tools.zeitmesser(self.mb.class_Querverweise.fuege_querverweis_ein,(tf,))
     
     
     def undoActionAdded(self,ev):pass
@@ -1717,75 +1878,71 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
     def bereich_in_OrganonSec_einfuegen(self,tbe):
         if self.mb.debug: log(inspect.stack)
         
-        text = self.mb.doc.Text
-        vc = self.mb.viewcursor
-        TS = self.mb.doc.TextSections
-        
-        sec = TS.getByName(tbe)
-        sec_name = sec.Name
-        
-        if sec.ParentSection == None:
+        try:
+            text = self.mb.doc.Text
+            vc = self.mb.viewcursor
+            TS = self.mb.doc.TextSections
             
-            position_neuer_Bereich = None
+            sec = TS.getByName(tbe)
+            sec_name = sec.Name
             
-            cur2 = self.mb.doc.Text.createTextCursorByRange(vc)
-            cur2.collapseToStart()
-            cur2.goLeft(1,False)
-            
-            if cur2.TextSection == sec:
-                position_neuer_Bereich = 'davor'
-            
-            else:
-                cur2.gotoRange(vc,False)
-                cur2.collapseToEnd()
-                cur2.goRight(1,False)
-             
+            if sec.ParentSection == None:
+                
+                position_neuer_Bereich = None
+                
+                cur2 = self.mb.doc.Text.createTextCursorByRange(vc)
+                cur2.collapseToStart()
+                cur2.goLeft(1,False)
+                
                 if cur2.TextSection == sec:
-                    position_neuer_Bereich = 'danach'
-            
-            cur = self.mb.doc.Text.createTextCursorByRange(vc)
-            cur.collapseToEnd()
-            
-            if position_neuer_Bereich == 'davor':
+                    position_neuer_Bereich = 'davor'
                 
-                cur.gotoRange(sec.Anchor,True)
-                cur.setString('')
-                self.mb.doc.Text.insertString(vc,' ',False)
-                cur.gotoRange(vc,False)
-                goLeft = 1
+                else:
+                    cur2.gotoRange(vc,False)
+                    cur2.collapseToEnd()
+                    cur2.goRight(1,False)
+                 
+                    if cur2.TextSection == sec:
+                        position_neuer_Bereich = 'danach'
                 
-            elif position_neuer_Bereich == 'danach':
-        
-                self.mb.doc.Text.insertString(vc,' ',False)
+                cur = self.mb.doc.Text.createTextCursorByRange(vc)
+                cur.collapseToEnd()
                 
-                cur.gotoRange(sec.Anchor,True)
-                cur.setString('')
-                cur.gotoRange(vc,False)
-                cur.goLeft(1,False)
-                goLeft = 2
+                if position_neuer_Bereich == 'davor':
+                    
+                    cur.gotoRange(sec.Anchor,True)
+                    cur.setString('')
+                    self.mb.doc.Text.insertString(vc,' ',False)
+                    cur.gotoRange(vc,False)
+                    goLeft = 1
+                    
+                elif position_neuer_Bereich == 'danach':
+            
+                    self.mb.doc.Text.insertString(vc,' ',False)
+                    
+                    cur.gotoRange(sec.Anchor,True)
+                    cur.setString('')
+                    cur.gotoRange(vc,False)
+                    cur.goLeft(1,False)
+                    goLeft = 2
+                    
+                else:
+                    return
                 
-            else:
-                return
+                newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+                newSection.setName(sec_name)
+                
+                self.mb.Listener.remove_Undo_Manager_Listener()
+                self.mb.doc.Text.insertTextContent(cur,newSection,False)
+                self.mb.Listener.add_Undo_Manager_Listener()
+                
+                vc.goLeft(goLeft,False)
+    
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern()
+        except:
+            pass
+            log(inspect.stack,tb())
             
-            newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
-            newSection.setName(sec_name)
-            
-            self.mb.Listener.remove_Undo_Manager_Listener()
-            self.mb.doc.Text.insertTextContent(cur,newSection,False)
-            self.mb.Listener.add_Undo_Manager_Listener()
-            
-            vc.goLeft(goLeft,False)
-
-        # Wenn ein Bereich eingefuegt wurde, auf jeden Fall speichern
-        section = vc.TextSection
-        while section != None:
-            bereichsname = section.Name
-            section = section.ParentSection
-        
-        path = self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname]
-        path = uno.systemPathToFileUrl(path)
-        self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)
-        
 
 from com.sun.star.awt import XKeyHandler
 class Key_Handler(unohelper.Base, XKeyHandler):
@@ -1794,7 +1951,7 @@ class Key_Handler(unohelper.Base, XKeyHandler):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        mb.current_Contr.addKeyHandler(self)
+        mb.doc.CurrentController.addKeyHandler(self)
         
     def keyPressed(self,ev):
         
@@ -1810,8 +1967,12 @@ class Key_Handler(unohelper.Base, XKeyHandler):
             # 5 = Shift + Alt
             # 6 = Strg + Alt
             # 7 = Shift + Strg + Alt
-            self.mb.class_Shortcuts.shortcut_ausfuehren(code,mods)
-        
+            return_value = self.mb.class_Shortcuts.shortcut_ausfuehren(code,mods)
+            return return_value
+        elif code == 776:
+            # F9
+            self.mb.class_Querverweise.update_querverweise()
+            return False
         else:
             self.mb.props[T.AB].zuletzt_gedrueckte_taste = ev
             return False
@@ -1847,8 +2008,9 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
         if mb.debug: log(inspect.stack)
         
         self.mb = mb
-        self.ts_old = 'nicht vorhanden'
-        self.mb.selbstruf = False
+        self.selbstruf = False
+        self.bereichsname_alt = None
+        self.x = 0
         
     def disposing(self,ev):
         if self.mb.debug: log(inspect.stack)
@@ -1856,28 +2018,19 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
     
     def selectionChanged(self,ev):
         #if self.mb.debug: log(inspect.stack)
-
+        
+        if self.selbstruf:
+            return False
+        
         try:
-            if self.mb.selbstruf:
-                return False
-
-            selected_ts = self.mb.current_Contr.ViewCursor.TextSection   
-
-            if selected_ts == None:
-                try:
-                    vc = ev.Source.ViewCursor
-                    anchor = vc.Text.Anchor
-                    inner_sec = anchor.TextSection
-                    selected_ts = self.mb.class_Zeilen_Listener.finde_eltern_bereich(inner_sec)
-                except:
-                    return False
-
-            s_name = selected_ts.Name
+            
             props = self.mb.props[T.AB]
+            vc = self.mb.viewcursor
+            selektierte_ts, bereichsname = self.mb.class_Bereiche.get_organon_section(vc)
             
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
-            if 'trenner'  in s_name:
+            if 'trenner'  in bereichsname:
                 
                 if props.zuletzt_gedrueckte_taste == None:
                     try:
@@ -1897,63 +2050,34 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 return False 
             
             # test ob ausgewaehlter Bereich ein Kind-Bereich ist -> Selektion wird auf Parent gesetzt
-            elif 'trenner' not in s_name and 'OrganonSec' not in s_name:
-                sec = []
-                self.test_for_parent_section(selected_ts,sec)
-                selected_ts = sec[0]
-                s_name = selected_ts.Name
+            elif 'trenner' not in bereichsname and 'OrganonSec' not in bereichsname:
                 
-                # steht nach test_for... selcted_text... nicht auf einer OrganonSec, 
+                while selektierte_ts.ParentSection != None:
+                    selektierte_ts = selektierte_ts.ParentSection
+                bereichsname = selektierte_ts.Name
+                
+                # Beinhaltet der Name nicht OrganonSec, 
                 # ist der Bereich ausserhalb des Organon trees
-                if 'OrganonSec' not in selected_ts.Name:
+                if 'OrganonSec' not in bereichsname:
                     return False
                 
             props = self.mb.props[T.AB]  
                 
-            self.so_name =  None   
+            self.bereichsname_alt = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
 
-            ts_old_bereichsname = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
-            self.ts_old = self.mb.doc.TextSections.getByName(ts_old_bereichsname)            
-            self.so_name = props.dict_bereiche['ordinal'][props.selektierte_zeile_alt]
-            
-            if self.ts_old == 'nicht vorhanden':
-                #print('selek gewechs, old nicht vorhanden')
-                self.ts_old = selected_ts 
-                ordinal = props.dict_bereiche['Bereichsname-ordinal'][s_name]
-                props.selektierte_zeile = ordinal
-                props.selektierte_zeile_alt = ordinal
-                return False 
-            
-            elif props.Papierkorb_geleert == True:
-                #print('selek gewechs, Papierkorb_geleert')
-                self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.ts_old.FileLink.FileURL,self.so_name)
-                self.ts_old = selected_ts 
-                props.Papierkorb_geleert = False 
-                return False       
+            if self.bereichsname_alt == bereichsname:
+                return False                
             else:
-                if self.ts_old == selected_ts:
-                    #print('selek nix gewechs',self.so_name , s_name)
-                    return False                
-                else:
-                    #print('selek gewechs',self.so_name , s_name)                    
-                    self.farbe_der_selektion_aendern(selected_ts.Name)
-                    if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
-                        self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.ts_old.FileLink.FileURL,self.so_name)
-                        
-                    self.ts_old = selected_ts  
+                self.farbe_der_selektion_aendern(bereichsname)
+                self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.bereichsname_alt)
+                    
+                self.bereichsname_alt = bereichsname  
         except:
             log(inspect.stack,tb())
-
+        
+        return False
    
-    def test_for_parent_section(self,selected_text_sectionX,sec):
-        try:
-            if selected_text_sectionX.ParentSection != None:
-                selected_text_sectionX = selected_text_sectionX.ParentSection
-                self.test_for_parent_section(selected_text_sectionX,sec)
-            else:
-                sec.append(selected_text_sectionX)
-        except:
-            log(inspect.stack,tb())
+
             
     def farbe_der_selektion_aendern(self,bereichsname): 
         if self.mb.debug: log(inspect.stack)    
@@ -1998,11 +2122,7 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
         try:                
             # speichern, wenn Organon beendet wird.
             # aenderungen nach tabwechsel werden in Tab_Listener.activated() gespeichert
-            if len(self.mb.undo_mgr.AllUndoActionTitles) > 0:
-                ordinal = self.mb.props[T.AB].selektierte_zeile
-                bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
-                path = uno.systemPathToFileUrl(self.mb.props[T.AB].dict_bereiche['Bereichsname'][bereichsname])
-                self.mb.class_Bereiche.datei_nach_aenderung_speichern(path,bereichsname)   
+            self.mb.class_Bereiche.datei_nach_aenderung_speichern()   
 
             if 'files' in self.mb.pfade: 
                 self.mb.class_Tags.speicher_tags()   
@@ -2029,13 +2149,13 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
     Lets Writer close without warning.
     As everything is saved by Organon, a warning isn't necessary.
     Even more: it might confuse the user.
-    
     '''
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb
 
     def documentEventOccured(self,ev):
+         
         if ev.EventName == 'OnPrepareViewClosing':
             if self.mb.debug: log(inspect.stack)
             # Um das Dokument ohne Speicherabfrage zu schliessen
@@ -2043,4 +2163,50 @@ class Document_Close_Listener(unohelper.Base,XDocumentEventListener):
             
     def disposing(self,ev):
         return False
+
+from com.sun.star.beans import UnknownPropertyException  
+from com.sun.star.awt import XMouseClickHandler
+class Document_Mouse_Click_Handler(unohelper.Base,XMouseClickHandler):
+
+    def __init__(self,mb):
+        if mb.debug: log(inspect.stack)
+        self.mb = mb
+
+    def mousePressed(self,ev): return False
+    def disposing(self,ev): return False
+              
+    def mouseReleased(self,ev):
+        vc = self.mb.viewcursor
+        
+        try:
+            if (
+                (
+                    (vc.TextField != None and
+                     hasattr(vc.TextField, 'SourceName') and
+                    ('zzOrganon' in vc.TextField.SourceName or
+                     '__RefNumPara__'  in vc.TextField.SourceName or
+                     '__RefHeading__' in vc.TextField.SourceName)
+                    )
+                or
+                    (vc.TextFrame == None and
+                    vc.Start.TextField != None and 
+                    'zzOrganon' in vc.Start.TextField.TextFieldMaster.Name)
+                )
+            ):
+                
+                self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.mb.Listener.VC_selection_listener.bereichsname_alt)
+                self.mb.class_Querverweise.springe_zum_zielfeld(vc.Start.TextField)                 
+                return True
+        
+        except UnknownPropertyException as e:
+            # wird ausgeloest, wenn Benutzer auf
+            # ein Feld klickt. Dann existiert kein vc.Start
+            return False
+                 
+        except Exception as e:
+            log(inspect.stack,tb())
+            return False
+
+        return False
+            
     

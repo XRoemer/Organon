@@ -111,8 +111,8 @@ class Fenster():
                 try:
                     name,unoCtrl,calc,tabX,Y,width,height,prop_names,prop_values,extras = ct
 
-                    ctrl = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % unoCtrl,self.mb.ctx)
-                    ctrl_model = self.mb.smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % unoCtrl,self.mb.ctx)
+                    ctrl = self.mb.createUnoService("com.sun.star.awt.UnoControl%s" % unoCtrl)
+                    ctrl_model = self.mb.createUnoService("com.sun.star.awt.UnoControl%sModel" % unoCtrl)
                     ctrl_model.setPropertyValues(prop_names,prop_values)
                     ctrl.setModel(ctrl_model) 
                      
@@ -216,8 +216,6 @@ class Fenster():
             tabs_breiten_list = [tabs_breiten[v] for v in sorted(tabs_breiten)]
             tabs_breiten_summen = [sum(tabs_breiten_list[:i+1]) for i in range(len(tabs_breiten_list))]
             
-            #s_tabs2 = [tabs[v][1] for v in sorted(tabs)]
-            #summen_tabs = [sum(s_tabs2[:i+1]) for i in range(len(s_tabs2))]
              
             neue_tabs = {k+1:tabs_breiten_summen[k]  + abstand_links for k,v in tabs.items()}
             neue_tabs[0] = abstand_links
@@ -288,7 +286,7 @@ class Fenster():
         if self.mb.debug: log(inspect.stack)
         
         ctx = self.mb.ctx
-        smgr = self.mb.smgr
+        smgr = ctx.ServiceManager
         
         X,Y,Width,Height = posSize
 
@@ -334,7 +332,7 @@ class Fenster():
         # create new control container
         cont = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
         cont_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-        cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
+        #cont_model.BackgroundColor = KONST.FARBE_ORGANON_FENSTER  # 9225984
         
         cont.setModel(cont_model)
         cont.createPeer(toolkit, oWindow)
@@ -572,7 +570,7 @@ class Window_Dispose_Listener(unohelper.Base,XEventListener):
     
     def disposing(self,ev):
 
-        if 'win' in self.mb.platform:
+        if sys.platform == 'win32':
             # Beschleunigt das Dispose ungemein !
             self.fenster.setVisible(False)
             return

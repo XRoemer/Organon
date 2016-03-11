@@ -279,7 +279,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
                                         
                 if not os.path.exists(speicherordner):
                     ntext = LANG.KEIN_SPEICHERORT
-                    self.mb.nachricht(ntext)
+                    Popup(self.mb, 'warning').text = ntext
                     return
                 
                 args = text1,text2,name1,name2,speicherordner,anz_SW,chronologisch
@@ -310,7 +310,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
         
         if not os.path.exists(pfad):
             ntext = LANG.NOCH_NICHT_AUSGESUCHT %text
-            self.mb.nachricht(ntext)
+            Popup(self.mb, 'warning').text = ntext
             return False
         
         return True
@@ -357,7 +357,7 @@ class Speicherordner_Button_Listener(unohelper.Base, XActionListener):
             oWindow,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)
             listener.window = oWindow
             
-            y_desk = self.mb.current_Contr.ComponentWindow.PosSize.Height
+            y_desk = self.mb.doc.CurrentController.ComponentWindow.PosSize.Height
             oWindow.setPosSize(0,0,0,y_desk,8) 
             self.setze_hoehe_und_scrollbalken(Y,y_desk,oWindow,cont,container)
             
@@ -651,7 +651,7 @@ class Suche():
             
             if len(uebereinstimmungen) == 0:
                 SI.end()
-                self.mb.nachricht(LANG.KEINE_UEBEREINSTIMMUNGEN) 
+                Popup(self.mb, 'warning').text = LANG.KEINE_UEBEREINSTIMMUNGEN
                 return
             
             vks = {}     

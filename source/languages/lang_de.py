@@ -18,13 +18,16 @@ LOAD_DESCRIPTION = u'''Anleitung laden'''
 CLEAR_RECYCLE_BIN = u'''Papierkorb leeren'''
 INSERT_DOC = u'''Neues Dokument einfügen'''
 INSERT_DIR = u'''Neuen Ordner einfügen'''
+PROJEKTORDNER_NICHT_UMBENENNBAR = u'''Der Projektordner kann nicht umbenannt werden'''
 NICHT_IM_PAPIERKORB_ERSTELLEN = u'''Es kann keine Datei im Papierkorb erstellt werden. Wählen Sie eine andere Zeile in der Baumansicht aus.'''
-PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen, bevor Sie ein neues Projekt
-beginnen oder laden. Menüleiste: Organon>open/close'''
+PRUEFE_AUF_GELADENES_ORGANON_PROJEKT = u'''Es ist bereits ein Projekt geladen. Sie müssen Organon erst schließen,
+bevor Sie ein neues Projekt beginnen oder laden. 
+Menüleiste: Organon>open/close'''
 ZEIGE_TEXTBEREICHE = u'''Zeige Textbereiche'''
 SICHTBARE_TAGS_BAUMANSICHT = u'''Sichtbare Tags in der Baumansicht'''
 SICHTBARE_TAGS_SEITENLEISTE = u'''Sichtbare Tags in der Sidebar'''
 BACKUP = u'''Erzeuge Backup'''
+BACKUP_ERZEUGT = u'''Backup erzeugt'''
 HOMEPAGE = u'''Homepage'''
 FEEDBACK = u'''Feedback'''
 TEXTTOOLS = u'''Textwerkzeuge'''
@@ -286,12 +289,16 @@ SUCHBEGRIFFE_HELP_TEXT = '''Sie können nach mehreren Begriffen gleichzeitig suc
 Begriffe werden durch ein Komma abgetrennt.
 Wenn der Suchbegriff ein Komma enthält, muß das Komma mit einem Rückstrich versehen werden: \,
 
-Wenn der logische Operator auf \u039B steht oder "Regulärer Ausdruck" gewählt wurde und die Funde getaggt werden sollen, müssen Sie einen Tagnamen angeben.'''
+Wenn der logische Operator auf \u039B steht oder "Regulärer Ausdruck" gewählt wurde und die Funde getaggt werden sollen,
+müssen Sie einen Tagnamen angeben.'''
 KEINE_DATEIEN_AUSGEWAEHLT = u'''Es sind keine Dateien für die Suche ausgewählt.'''
 KEINE_AKTION_GEWAEHLT = u'''Es wurde keine Aktion ausgewählt.'''
-REGEX_BRAUCHT_TAGNAMEN = u'''Wenn die Optionen "Regulärer Ausdruck" und "Funde taggen" gewählt wurden, muß ein Name für den zu vergebenden Tag angegeben werden.'''
-OPT_ALLE_BRAUCHT_TAGNAMEN = u'''Wenn der logische Operator \u039B und "Funde taggen" gewählt wurden, muß ein Name für den zu vergebenden Tag angegeben werden.'''
-TAG_VORHANDEN_WAEHLEN = u'''Der Tag "{0}" existiert bereits. Wenn Sie die Fundstellen ebenfalls mit ihm taggen wollen, wählen Sie "Vorhandene Tags erweitern".'''
+REGEX_BRAUCHT_TAGNAMEN = u'''Wenn die Optionen "Regulärer Ausdruck" und "Funde taggen" gewählt wurden, muß ein Name für 
+den zu vergebenden Tag angegeben werden.'''
+OPT_ALLE_BRAUCHT_TAGNAMEN = u'''Wenn der logische Operator \u039B und "Funde taggen" gewählt wurden, muß ein Name für 
+den zu vergebenden Tag angegeben werden.'''
+TAG_VORHANDEN_WAEHLEN = u'''Der Tag "{0}" existiert bereits. Wenn Sie die Fundstellen ebenfalls mit ihm taggen wollen, 
+wählen Sie "Vorhandene Tags erweitern".'''
 KEINE_SUCHBEGRIFFE = u'''Keine Suchbegriffe eingegeben.'''
 SUCHE_KEINE_ERGEBNISSE = u'''Ihre Suche brachte keine Ergebnisse.'''
 
@@ -475,23 +482,31 @@ Die Uhrzeit hat ein 24 Stunden Format (00:00 bis 23.59)
 Das Datumsformat kann in den Einstellungen angepaßt werden.
 Ordner und Dateien können im Organizer umbenannt werden.
 
-Änderungen werden durch neue Einträge in den jeweiligen Feldern vorgenommen. Die Änderungen werden durch einen Klick auf den Button "Übernehmen" für das Projekt übernommen. Bei geänderten Tags wird aber auch beim Schließen des Organizers gefragt, ob Änderungen übernommen werden sollen.
+Änderungen werden durch neue Einträge in den jeweiligen Feldern vorgenommen. Die Änderungen werden
+durch einen Klick auf den Button "Übernehmen" für das Projekt übernommen. Bei geänderten Tags wird 
+aber auch beim Schließen des Organizers gefragt, ob Änderungen übernommen werden sollen.
 
 Änderungen der linksseitigen Icons werden sofort und ohne Rückmeldung übernommen.
 
-Das Menü von Calc wird durch einen Klick auf "Menu" geöffnet, wodurch die Datei anderweitig verwertet werden kann. (z.B. Druck)
-Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das Dokument sonstwie vom Menü her verändert werden, wenn es für Organon weiterhin zur Verfügung stehen soll. Derartige Änderungen können zu fehlerhaften Tags führen, gegebenenfalls wird das gesamte Organon Projekt beschädigt.
+Das Menü von Calc wird durch einen Klick auf "Menu" geöffnet, wodurch die Datei anderweitig
+verwertet werden kann. (z.B. Druck) Es sollten jedoch keine Zeilen oder Spalten eingefügt oder das
+Dokument sonstwie vom Menü her verändert werden, wenn es für Organon weiterhin zur Verfügung stehen 
+soll. Derartige Änderungen können zu fehlerhaften Tags führen, gegebenenfalls wird das gesamte 
+Organon Projekt beschädigt.
 
-Sollen Änderungen nicht übernommen werden, kann der Organizer einfach geschlossen und die anschließende Abfrage verneint werden.
+Sollen Änderungen nicht übernommen werden, kann der Organizer einfach geschlossen und die 
+anschließende Abfrage verneint werden.
 
-Das Öffnen des Organizers wird durch Bilder in Bild-Kategorien und die linksseitigen Icons-Kategorien verlangsamt. Zur Beschleunigung des Öffnens setzen Sie diese Kategorien auf unsichtbar. (Je größer Bilder in Bild-Kategorien sind, desto stärker wird der Organizer ausgebremst. Eine Umrechnung von Bildern in Thumbnails fehlt derzeit noch.)
+Das Öffnen des Organizers wird durch Bilder in Bild-Kategorien und die linksseitigen 
+Icons-Kategorien verlangsamt. Zur Beschleunigung des Öffnens setzen Sie diese Kategorien auf 
+unsichtbar. (Je größer Bilder in Bild-Kategorien sind, desto stärker wird der Organizer ausgebremst.
+Eine Umrechnung von Bildern in Thumbnails fehlt derzeit noch.)
 '''
 
 # SHORTCUTS
 SHORTCUTS = u'''Shortcuts'''
 OEFFNE_ORGANIZER = u'''öffne Organizer'''
 SICHTBARKEIT = u'''Sichtbarkeit'''
-FORMATIERUNG_SPEICHERN2 = u'''Speichern des zuletzt bearbeiteten Bereiches'''
 BAUMANSICHT_HOCH = u'''Baumansicht ein Eintrag hoch'''
 BAUMANSICHT_RUNTER = u'''Baumansicht ein Eintrag runter'''
 BENENNE_DATEI_UM = u'''Datei umbenennen'''
@@ -521,6 +536,16 @@ KATEGORIE_UEBERNEHMEN = u'''Folgende Kategorien sollen gelöscht werden:
 {0}
 
 Fortfahren?
+'''
+TAGS_NICHT_GEFUNDEN = u'''Die Tags konnten nicht geladen werden.
+Organon legt neue leere Tags für alle Dateien an.'''
+LEGE_TAGS_FUER_DATEI_AN = u'''Die Tags für folgende Dateien konnten nicht geladen werden
+und werden neu angelegt:\n\n'''
+DATEIEN_NICHT_IM_PROJEKT_ABER_AUF_FP = u'''Folgende Dateien sind nicht mehr Teil des Projektes, aber noch
+im Projektordner gespeichert. Sollen Sie gelöscht werden?
+
+(Speicherort:{0})
+
 '''
 
 # TRANSLATIONS
@@ -561,7 +586,15 @@ TEMPLATE_NICHT_GELADEN = u'''FEHLER: Das Projekt konnte nicht mit der Vorlage er
 {}'''
 GLEICHER_PFAD = u'''Vorlage und neues Projekt besitzen denselben Namen und denselben Pfad'''
 ORG_TEMPLATES_SETZEN = u'''Organon Vorlagen können unter Organon Menü/Datei/Einstellungen/Vorlagen gesetzt werden.'''
-WRITER_TEMPLATES_SETZEN = u'''Es werden die Nutzervorlagen von Writer angezeigt. Weitere Informationen im Organon Handbuch'''
+WRITER_TEMPLATES_SETZEN = u'''Es werden die Nutzervorlagen von Writer angezeigt. 
+Weitere Informationen im Organon Handbuch'''
+
+# CROSS_REFERENCES
+QUERVERWEISE = u'''Querverweise'''
+QUERVERWEISE_UMWANDELN = u'''Organon Querverweise in Writer Querverweise umwandeln'''
+ORGA_LESEZEICHEN = u'''Organon Lesezeichen'''
+ORGA_FELDER = u'''Organon Felder'''
+WANDLE_QUERVERWEISE = u'''Wandle Querverweise um ... '''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''Projektordner und Papierkorb können nicht verschoben werden'''

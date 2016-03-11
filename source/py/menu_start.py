@@ -21,7 +21,6 @@ class Menu_Start():
          win,
          dict_sb,
          debugX,
-         factory,
          logX,
          class_LogX,
          konst,
@@ -43,7 +42,6 @@ class Menu_Start():
         try:
              
             # Konstanten
-            self.factory = factory
             self.dialog = dialog
             self.ctx = ctx
             self.smgr = self.ctx.ServiceManager
@@ -59,14 +57,18 @@ class Menu_Start():
             self.dict_sb = dict_sb
             self.dict_sb['setze_sidebar_design'] = self.setze_sidebar_design
             
-            try:                
+            try:    
+                
+                listener = Listener_Fuer_Layout_Finished(self)
+                listener.listener = listener
+                self.doc.addDocumentEventListener(listener)
+                        
                 if self.settings_orga['organon_farben']['design_office']:
                     
                     orga_sb,seitenleiste = self.get_seitenleiste()
                      
                     if None in (orga_sb,seitenleiste):
-                        event_listener = Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(self)
-                        self.doc.addDocumentEventListener(event_listener)
+                        listener.erzeuge_seitenleiste = True
                     else:
                         self.dict_sb['seitenleiste'] = seitenleiste
                         self.dict_sb['orga_sb'] = orga_sb
@@ -78,6 +80,9 @@ class Menu_Start():
 
             except:
                 log(inspect.stack,tb())
+                
+                
+            
                             
         except Exception as e:
             log(inspect.stack,tb())
@@ -126,7 +131,7 @@ class Menu_Start():
           
         except:
             log(inspect.stack,tb())
-
+            
 
     def get_office_name(self):
         if debug: log(inspect.stack)
@@ -234,7 +239,8 @@ class Menu_Start():
     def erzeuge_Menu(self):
         if debug: log(inspect.stack)
           
-        try:   
+        try:  
+                         
             import menu_bar
             
             args = (pd,
@@ -244,7 +250,6 @@ class Menu_Start():
                     self.win,
                     self.dict_sb,
                     debug,
-                    self.factory,
                     self,
                     log,
                     class_Log,
@@ -273,9 +278,22 @@ class Menu_Start():
     
             language = comps[0].CharLocale.Language
             
-#             if language not in ('de'):
-#                 language = 'en'
-                
+            config_provider = self.ctx.ServiceManager.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider",self.ctx)
+        
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = "nodepath"
+            prop.Value = "org.openoffice.Setup/L10N"
+            
+            try:      
+                config_access = config_provider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationUpdateAccess", (prop,))
+                locale = config_access.getByName('ooLocale')
+    
+                loc = locale[0:2]
+                language = loc
+            except:
+                log(inspect.stack,tb())
+                language = 'en'
+            
             self.language = language
             
             import lang_en 
@@ -493,11 +511,29 @@ class Menu_Start():
         except:
             log(inspect.stack,tb())
         
+    def dispatch(self,frame,cmd,*args,**kwargs):
+        if debug: log(inspect.stack)
         
+        sm = uno.getComponentContext().ServiceManager
+        dispatcher = sm.createInstanceWithContext("com.sun.star.frame.DispatchHelper", uno.getComponentContext())
+        
+        props = []
+        
+        for k,v in kwargs.items():
+            prop = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+            prop.Name = k
+            prop.Value = v
+            
+            props.append(prop)
+        
+        props = tuple(props)
+        
+        res = dispatcher.executeDispatch(frame, ".uno:{}".format(cmd), "", 0, (props))
+        return res
    
     # Handy function provided by hanya (from the OOo forum) to create a control, model.
     def createControl(self,ctx,type,x,y,width,height,names,values):
-        smgr = ctx.getServiceManager()
+        smgr = ctx.ServiceManager
         ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % type,ctx)
         ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % type,ctx)
         ctrl_model.setPropertyValues(names,values)
@@ -581,7 +617,8 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
             control, model = self.menu.createControl(self.menu.ctx,"Edit",0,0,1500,1500,(),() )  
             model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
             self.menu.cont.addControl('wer',control)
-    
+            
+
             self.menu.erzeuge_Menu()
             self.menu.Menu_Bar.class_Projekt.lade_Projekt(False,projekt_pfad)
             
@@ -593,28 +630,110 @@ class Menu_Listener (unohelper.Base, XActionListener,XMouseListener):
         pass
            
 
-from com.sun.star.document import XDocumentEventListener
-class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEventListener):
+from com.sun.star.document import XDocumentEventListener    
+class Listener_Fuer_Layout_Finished(unohelper.Base,XDocumentEventListener):
 
     def __init__(self,ms):
         if debug: log(inspect.stack)
         self.ms = ms
+        self.listener = None
+        self.erzeuge_seitenleiste = None
+        
+    def documentEventOccured(self,ev):     
 
-    def documentEventOccured(self,ev):        
-        #print(ev.EventName)
         if ev.EventName == 'OnLayoutFinished':
-
-            ctrl = self.ms.dict_sb['controls']
+            self.get_CMDs()
             
-            if 'organon_sidebar' not in ctrl:
-                if debug: log(inspect.stack)
-                
+            if self.erzeuge_seitenleiste:
                 self.seitenleiste_erzeugen()
-                
-            self.ms.doc.removeDocumentEventListener(self)
+ 
+            self.ms.doc.removeDocumentEventListener(self.listener)
       
     def disposing(self,ev):
-        return False
+        return False            
+    
+    def get_CMDs(self):
+        '''
+        uno: dispatch Befehle werden in der Sprache der jeweiligen Office Installation ausgegeben.
+        Daher wird hier nach den Uebersetzungen gesucht.
+        
+        Eine Methode, die direkt nach den Uebersetzungen schaut waere natuerlich
+        eleganter. Uebersetzungen finden sich in: 
+        
+        H:\Programme\LibreOffice\share\registry\registry_de.xcd
+        Oder : desc = self.mb.createUnoService("com.sun.star.comp.framework.UICommandDescription")
+        
+        Allerdings ist nicht ersichtlich, nach welchen Regeln sich 
+        zusammengesetzte Ausdruecke bestimmen.
+        Bzw. uno:InsertReferenceField enthaelt nur: 'Querverweise'
+        statt: 'Einfuegen: Querverweise', wie es der UndoManager angibt.
+        '''   
+        
+        settings_orga = self.ms.settings_orga
+        doc = self.ms.doc
+        UM = self.ms.doc.UndoManager
+        
+        if 'CMDs' not in settings_orga:
+            settings_orga['CMDs'] = {}
+            
+        if self.ms.language not in settings_orga['CMDs']:
+            settings_orga['CMDs'][self.ms.language] = {}
+            
+        if 'BEREICH_EINFUEGEN' not in settings_orga['CMDs'][self.ms.language]:
+
+            newSection = doc.createInstance("com.sun.star.text.TextSection")
+            cur = doc.Text.createTextCursor()  
+            doc.Text.insertTextContent(cur, newSection, False)
+            settings_orga['CMDs'][self.ms.language]['BEREICH_EINFUEGEN'] = UM.CurrentUndoActionTitle
+            UM.undo()
+            
+            
+        if 'INSERT_FIELD' not in settings_orga['CMDs'][self.ms.language]:
+
+            frame = doc.CurrentController.Frame
+            res = self.ms.dispatch(frame,'InsertField', Type=13, SubType=1, 
+                            Name='xxx', Content='1', Format=0, Separator=' ')
+            
+            settings_orga['CMDs'][self.ms.language]['INSERT_FIELD'] = UM.CurrentUndoActionTitle
+            UM.undo()
+            
+        if 'REFERENZ_NICHT_GEFUNDEN' not in settings_orga['CMDs'][self.ms.language]:
+            
+            try:
+                bm = doc.createInstance("com.sun.star.text.Bookmark")
+                bm.Name = 'Organon_test_mark'
+                vc = doc.CurrentController.ViewCursor
+                vc.Text.insertTextContent(vc,bm,True)
+    
+                ref = doc.createInstance("com.sun.star.text.textfield.GetReference")   
+                ref.SourceName = bm.Name
+                ref.ReferenceFieldPart = 0
+                ref.ReferenceFieldSource = 2 
+                vc.Text.insertTextContent(vc,ref,False)
+                ref.update()
+                
+                vc.Text.removeTextContent(bm)
+                
+                def get_ref_nicht_gefunden(ref,odict):
+                    x = 0
+                    import time
+                    while ref.CurrentPresentation == '':
+                        time.sleep(.1)
+                        if x > 20:
+                            break
+                        x += 1
+                    if ref.CurrentPresentation != '':
+                        odict['REFERENZ_NICHT_GEFUNDEN'] = ref.CurrentPresentation
+                    ref.dispose()
+                
+                
+                from threading import Thread  
+                t = Thread(target=get_ref_nicht_gefunden,args=(ref,settings_orga['CMDs'][self.ms.language]))
+                t.start()
+                
+            except Exception as e:
+                log(inspect.stack,tb())
+            
     
     def seitenleiste_erzeugen(self):
         if debug: log(inspect.stack)
@@ -715,5 +834,6 @@ class Listener_Erzeugt_Seitenleiste_Bei_OrgaDesign(unohelper.Base,XDocumentEvent
             log(inspect.stack,tb())
             
      
-            
-            
+     
+     
+     

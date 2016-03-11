@@ -36,13 +36,13 @@ class ImportX():
                 papierkorb_inhalt = self.mb.class_XML.get_papierkorb_inhalt()
                 
                 if selektiert in papierkorb_inhalt:
-                    self.mb.nachricht(LANG.NICHT_IM_PAPIERKORB_ERSTELLEN,'infobox')
+                    Popup(self.mb, 'info').text = LANG.KEINE_TRENNUNGLANG.NICHT_IM_PAPIERKORB_ERSTELLEN
                     return
             
                 self.dialog_importfenster()
                 
         except Exception as e:
-            self.mb.nachricht('ImportX ' + str(e),"warningbox")
+            Popup(self.mb, 'error').text = 'Error: ImportX ' + str(e)
             log(inspect.stack,tb())
 
 
@@ -371,8 +371,7 @@ class ImportX():
                         if 2 in flags:  
                             if 'bib' in extensions:
                                 pass 
-#                             time.sleep(0.04)
-#                             print(extensions)                    
+
                             # FilterName: Filter als Label, Extensions Endungen
                             self.mb.filters_export.update({filt:(formatiere(str(label2)),extensions)})
 
@@ -382,16 +381,6 @@ class ImportX():
         except:
             log(inspect.stack,tb())
                         
-    def warning(self,mb):
-        if self.mb.debug: log(inspect.stack)
-        
-        LANG.IMPORT_WARNING = "Don't try to import files, which hold any links to other files, ole-ojects, internet-links etc. inside."
-        entscheidung = mb.nachricht(LANG.IMPORT_WARNING,"warningbox",16777216)
-        # 3 = Nein oder Cancel, 2 = Ja
-        if entscheidung == 3:
-            return False
-        elif entscheidung == 2:
-            return True
 
 
 def encode_utf(term):
@@ -467,7 +456,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             if int(imp_set['imp_dat']) == 1:
                 
                 if imp_set['url_dat'] == '':
-                    self.mb.nachricht(LANG.ERST_DATEI_AUSWAEHLEN,"warningbox")
+                    Popup(self.mb, 'warning').text = LANG.ERST_DATEI_AUSWAEHLEN
                     self.fenster.toFront()
                     return
                 
@@ -477,7 +466,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                 
             else:
                 if imp_set['url_ord'] == '':
-                    self.mb.nachricht(LANG.ERST_ORDNER_AUSWAEHLEN,"warningbox")
+                    Popup(self.mb, 'warning').text = LANG.ERST_ORDNER_AUSWAEHLEN
                     self.fenster.toFront()
                     return
     
@@ -489,7 +478,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
     
                 if lade:
                     self.mb.class_Projekt.lade_Projekt2()
-                    self.mb.nachricht(LANG.IMPORT_ABGESCHLOSSEN,'infobox')
+                    Popup(self.mb, 'info', zeit=2).text = LANG.IMPORT_ABGESCHLOSSEN
                     
                 self.mb.Listener.add_Undo_Manager_Listener()
         except:
@@ -505,12 +494,12 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             prop.Value = True
             
             url_dat2 = uno.systemPathToFileUrl(url_dat)
-            self.oOO = self.mb.desktop.loadComponentFromURL(url_dat2,'_blank',8+32,(prop,))
+            doc = self.mb.desktop.loadComponentFromURL(url_dat2,'_blank',8+32,(prop,))
             
             # moeglicherweise vorhandene Links entfernen
-            ok = self.entferne_links(self.oOO)
+            ok = self.entferne_links(doc)
             if not ok:
-                self.mb.nachricht(LANG.IMPORT_GESCHEITERT.format('Is it a text file?'),'warningbox')
+                Popup(self.mb, 'warning').text = LANG.IMPORT_GESCHEITERT.format('Is it a text file?')
                 return
             
             zeile_nr,zeile_pfad = self.erzeuge_neue_Zeile()
@@ -521,17 +510,22 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             neuer_Bereich = sections.getByName(bereichsname) 
             
             
-            self.kapsel_in_Bereich(self.oOO,str(zeile_nr))
-            self.entferne_seitenumbrueche_am_anfang(self.oOO)
-                    
+            self.kapsel_in_Bereich(doc,str(zeile_nr))
+            self.entferne_seitenumbrueche_am_anfang(doc)
+            
+            p = Popup(self.mb)
+            p.text = '{0}:\n{1}\n'.format(LANG.IMPORT_2, url_dat)
+            self.querverweise_umwandeln(doc,url_dat,p)
+            p.end()
+  
             prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
             prop3.Name = 'FilterName'
             prop3.Value = 'writer8'
     
             Path2 = uno.systemPathToFileUrl(zeile_pfad)
-            self.oOO.storeToURL(Path2,(prop3,))
-            self.mb.class_Bereiche.plain_txt_speichern(self.oOO.Text.String,ordinal_neuer_Eintrag)
-            self.oOO.close(False)
+            doc.storeToURL(Path2,(prop3,))
+            self.mb.class_Bereiche.plain_txt_speichern(doc.Text.String,ordinal_neuer_Eintrag)
+            doc.close(False)
             
             SFLink = neuer_Bereich.FileLink
             neuer_Bereich.setPropertyValue('FileLink',SFLink)
@@ -545,7 +539,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             name2 = name1.split(endung)[0]
     
             zeile_textfeld.Model.Text = name2
-            
+
             tree = self.mb.props[T.AB].xml_tree
             root = tree.getroot() 
             
@@ -556,13 +550,15 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
             self.mb.tree_write(tree,Path)
             
             self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordinal_neuer_Eintrag)
+            self.mb.class_Tags.speicher_tags()
             
             return ordinal_neuer_Eintrag,bereichsname
         
         except Exception as e:
-            self.mb.nachricht(LANG.IMPORT_GESCHEITERT.format(e),'warningbox')
+            Popup(self.mb, 'error').text = LANG.IMPORT_GESCHEITERT.format(e)
+            log(inspect.stack,tb())
             try:
-                self.oOO.close(False)
+                doc.close(False)
             except:
                 pass 
      
@@ -580,16 +576,16 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
     
             
-    def entferne_links(self,oOO):
+    def entferne_links(self,doc):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            self.mb.class_Bereiche.verlinkte_Bilder_einbetten(oOO)
+            self.mb.class_Bereiche.verlinkte_Bilder_einbetten(doc)
             
             all_links = []
             
-            for name in oOO.Links.ElementNames:
-                all_links.append( oOO.Links.getByName(name))
+            for name in doc.Links.ElementNames:
+                all_links.append( doc.Links.getByName(name))
     
             for l in all_links:
                 if len(l.ElementNames) != 0:
@@ -635,18 +631,47 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         
         oOO.Text.insertTextContent(cur,newSection,True)
         
+    
+    def querverweise_umwandeln(self, doc, url_dat, popup):
+        if self.mb.debug: log(inspect.stack)
         
+        try:
+            bms = self.mb.class_Querverweise.get_lesezeichen_in_content_xml(pfad=url_dat) 
+            
+            enum = doc.TextFields.createEnumeration()
+            tfs = []
+            while enum.hasMoreElements():
+                tfs.append(enum.nextElement())
+                 
+            refs = [t for t in tfs if 'com.sun.star.text.TextField.GetReference' in t.SupportedServiceNames]
+            
+            self.mb.class_Querverweise.neue_bms = []
+            self.mb.class_Querverweise.get_notes(doc)
+            self.mb.class_Querverweise.get_text_fields_seq(doc)
+            
+            txt = popup.text
+            
+            for i,tf in enumerate(refs):
+                
+                if i % 20 == 0: 
+                    popup.text = txt + '{0} {1}/{2}'.format(LANG.WANDLE_QUERVERWEISE, i, len(refs) )
+                    
+                loeschen = self.mb.class_Querverweise.fuege_querverweis_ein_import(tf,doc,bms)
+                if loeschen:
+                    tf.dispose()
+            
+        except:
+            log(inspect.stack,tb())
+            
             
     def erzeuge_neue_Zeile(self):
         if self.mb.debug: log(inspect.stack)
         
         if self.mb.props[T.AB].selektierte_zeile == None:       
-            self.mb.nachricht(self.mb.LANG.ZEILE_AUSWAEHLEN,'infobox')
+            Popup(self.mb, 'info').text = self.mb.LANG.ZEILE_AUSWAEHLEN
             return None
         else:
-            
-            
-                      
+                                  
             ord_sel_zeile = self.mb.props[T.AB].selektierte_zeile
             
             # XML TREE
@@ -772,46 +797,56 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
                     
         anzahl_links = len(links_und_filter)
         index = 1
-
-        for ordn,link_filt in links_und_filter.items():
-            
-            link,filt = link_filt
-            
-            StatusIndicator = self.mb.desktop.getCurrentFrame().createStatusIndicator()
-            StatusIndicator.start(LANG.ERZEUGE_DATEI %(index,anzahl_links),anzahl_links)
-            StatusIndicator.setValue(index)
-            index += 1
         
-            if filt != None:
-                prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-                prop2.Name = 'FilterName'
-                prop2.Value = filt[0]
+        p = Popup(self.mb)
+        
+        try:
+            for ordn,link_filt in links_und_filter.items():
+                
+                link,filt = link_filt        
+                
+                p.text = LANG.ERZEUGE_DATEI %(index,anzahl_links) + (len(LANG.WANDLE_QUERVERWEISE) +2 ) * ' ' + '\n'
+                
+                index += 1
+            
+                if filt != None:
+                    prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                    prop2.Name = 'FilterName'
+                    prop2.Value = filt[0]
+                      
+                    props = prop,prop2
+                else:
+                    props = prop,
                   
-                props = prop,prop2
-            else:
-                props = prop,
-              
-            self.oOO = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
-
-            self.entferne_links(self.oOO)
-            self.kapsel_in_Bereich(self.oOO,ordn.replace('nr',''))
-            self.entferne_seitenumbrueche_am_anfang(self.oOO)
+                doc = self.mb.desktop.loadComponentFromURL(link,'_blank',8+32,(props))
+    
+                self.entferne_links(doc)
+                self.kapsel_in_Bereich(doc,ordn.replace('nr',''))
+                self.entferne_seitenumbrueche_am_anfang(doc)
+                
+                if link != 'private:factory/swriter':
+                    self.mb.class_Tools.zeitmesser(self.querverweise_umwandeln,(doc,uno.fileUrlToSystemPath(link),p) )
+                
+                prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+                prop3.Name = 'FilterName'
+                prop3.Value = 'writer8'
+                
+                pfad = os.path.join(speicherordner,ordn +'.odt')
+                pfad2 = uno.systemPathToFileUrl(pfad)
+                
+                doc.storeToURL(pfad2,(prop3,))
+                self.mb.class_Bereiche.plain_txt_speichern(doc.Text.String,ordn)
+                doc.close(False)
+                
+                self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordn)
+                
+            self.mb.class_Tags.speicher_tags()
             
-            prop3 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
-            prop3.Name = 'FilterName'
-            prop3.Value = 'writer8'
+        except:
+            log(inspect.stack,tb())
             
-            pfad = os.path.join(speicherordner,ordn +'.odt')
-            pfad2 = uno.systemPathToFileUrl(pfad)
-            
-            self.oOO.storeToURL(pfad2,(prop3,))
-            self.mb.class_Bereiche.plain_txt_speichern(self.oOO.Text.String,ordn)
-            self.oOO.close(False)
-            
-            self.mb.class_Tags.erzeuge_tags_ordinal_eintrag(ordn)
-            
-            StatusIndicator.end()
-
+        p.end()
+        
  
     def fuege_importXml_in_xml_ein(self,importXml):
         if self.mb.debug: log(inspect.stack)
@@ -835,17 +870,17 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         path = uno.fileUrlToSystemPath(imp_set['url_ord'])
         
         if not os.path.exists(path):
-            self.mb.nachricht(LANG.NO_FILES,"infobox")
+            Popup(self.mb, 'info').text = LANG.NO_FILES
             return None,None,False
         
         Verzeichnis,AusgangsOrdner = self.durchlaufe_ordner(path)
         anz = len(Verzeichnis)
         
         if anz == 0:
-            self.mb.nachricht(LANG.NO_FILES,"infobox")
+            Popup(self.mb, 'info').text = LANG.NO_FILES
             return None,None,False
         elif anz > 10:
-            entscheidung = self.mb.nachricht(LANG.IMP_FORTFAHREN %anz,"warningbox",16777216)
+            entscheidung = self.mb.entscheidung(LANG.IMP_FORTFAHREN %anz,"warningbox",16777216)
             # 3 = Nein oder Cancel, 2 = Ja
             if entscheidung == 3:
                 return None,None,False
@@ -854,7 +889,7 @@ class Import_Button_Listener(unohelper.Base, XActionListener):
         ordinal_neuer_Eintrag = 'nr%s' %self.mb.props[T.AB].kommender_Eintrag
         self.mb.props[T.AB].kommender_Eintrag += 1
 
-        et = self.mb.ET
+        et = ElementTree
         root_xml = et.Element(ordinal_neuer_Eintrag)
         tree_xml = et.ElementTree(root_xml)
         
@@ -1355,7 +1390,7 @@ class Filter_CheckBox_Listener(unohelper.Base, XActionListener):
         
         if ev.ActionCommand == 'auswahl':
             if ev.Source.State == True:
-                self.mb.nachricht(LANG.IMPORT_FILTER_WARNUNG,"warningbox")
+                Popup(self.mb, 'warning').text = LANG.IMPORT_FILTER_WARNUNG
                 self.fenster.toFront()
             for but in self.buttons:
                 if but != 'auswahl':

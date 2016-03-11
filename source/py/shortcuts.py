@@ -43,7 +43,6 @@ class Shortcuts():
                          'INSERT_DIR' : self.erzeuge_neuen_Ordner,
                          'IN_PAPIERKORB_VERSCHIEBEN' : self.in_Papierkorb_einfuegen,
                          'CLEAR_RECYCLE_BIN' : self.leere_Papierkorb,
-                         'FORMATIERUNG_SPEICHERN2' : self.datei_nach_aenderung_speichern,
                          'NEUER_TAB' : self.starte_neuen_Tab,
                          'SCHLIESSE_TAB' : self.schliesse_Tab,
                          'BACKUP' : self.erzeuge_Backup,
@@ -68,11 +67,13 @@ class Shortcuts():
             if code in self.keycodes:
                 keychar = self.keycodes[code]
             else:
-                return
+                return False
             
             if keychar.upper() in self.shortcuts[str(mods)]:
                 cmd = self.shortcuts[str(mods)][keychar.upper()]
                 self.shortcuts_befehle[cmd]()
+                return True
+            return False
         except:
             log(inspect.stack,tb())
             
@@ -111,24 +112,6 @@ class Shortcuts():
         if self.mb.debug: log(inspect.stack)
         self.mb.class_Baumansicht.leere_Papierkorb()  
         
-    def datei_nach_aenderung_speichern(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        props = self.mb.props[T.AB]
-        zuletzt = props.selektierte_zeile_alt
-        bereichsname = props.dict_bereiche['ordinal'][zuletzt]
-        path = props.dict_bereiche['Bereichsname'][bereichsname]
-        
-        self.mb.class_Bereiche.datei_nach_aenderung_speichern(uno.systemPathToFileUrl(path),bereichsname)
-        
-        # Bestaetigung ausgeben
-        tree = self.mb.props[T.AB].xml_tree
-        root = tree.getroot()        
-        source = root.find('.//'+zuletzt)  
-        name = source.attrib['Name']
-        
-        self.mb.nachricht_si(LANG.FORMATIERUNG_SPEICHERN.format(name),1)
-            
     def starte_neuen_Tab(self):
         if self.mb.debug: log(inspect.stack)
         self.mb.class_Tabs.start(False)
@@ -194,7 +177,7 @@ class Shortcuts():
         self.mb.schreibe_settings_orga()
         self.mb.debug = new_state
         
-        self.mb.popup('{0}: {1}'.format(LANG.KONSOLENAUSGABE,new_state), 1)
+        Popup(self.mb, zeit=1).text = '{0}: {1}'.format(LANG.KONSOLENAUSGABE, new_state)
         
     def tv_up(self):
         if self.mb.debug: log(inspect.stack)
