@@ -1,5 +1,9 @@
 Teile Text (Stapel)
-Mit der Stapelverarbeitung der Funktion „Teile Text“ kann ein Text in mehrere Dateien und Ordner zerlegt werden.
+Mit der Stapelverarbeitung der Funktion „Teile Text“ kann ein Text in mehrere Dateien und Ordner zerlegt werden. Die aufgetrennte Datei wird dabei nicht gelöscht, sondern muss vom Nutzer selbst gelöscht werden. Die neuen Dateien werden auf derselben Ebene wie die aufgetrennte Datei angelegt.
+Da Organon keine Möglichkeit bietet, diese Aktion rückgängig zu machen, und das Ergebnis der Trennung eventuell schlecht vorhersehbar ist, kann der Nutzer nach der Trennung selbst entscheiden, mit welchen Dateien er weiterarbeiten und welche er löschen möchte. Auf diese Art kann eine Trennung auch erst ausprobiert werden.
+
+Tip:
+Um eine Trennung zunächst auszuprobieren, ist es ratsam, einen Ordner anzulegen und die zu trennende Datei in diesen Ordner zu verschieben. Sollen die neu erzeugten Datei wieder gelöscht werden, wird die Ausgangsdatei wieder aus dem Ordner herausgenommen und die neuen Dateien können bequem mit dem gesamten Order gelöscht werden.
 
 Die Wortsuche teilt den Ausgangstext vor der Fundstelle des gesuchten Wortes.
 Die Wortsuche unterscheidet nicht zwischen Groß- und Kleinschreibung.
@@ -12,3 +16,6 @@ Die Option Leerzeilen teilt den Text bei Vorkommen von Leerzeilen.
 Werden Überschriften ausgewählt, wird der Text anhand seiner Überschriften in der Standardformatierung geteilt (Überschrift, Überschrift1, Überschrift2 etc.). 
 
 Während Wortsuche und Leerzeilen Dateien erzeugen, werden Überschriften als Ordner erstellt. Die Überschriften werden in ihrer Hierarchie in den neu erzeugten Ordnern gespiegelt.
+
+Verlinke Querverweise in neue Dateien wandelt Querverweise, die von anderen Dateien auf Verweisziele in der ausgewählten und zu teilenden Datei verweisen, so um, dass sie nach der Trennung auf die entsprechenden Stellen in den neuen Dateien verweisen.
+Diese Option sollte beim probeweisen Trennen nicht aktiviert sein, da einmal umverlinkte Querverweise ihr Verweisziel verlieren, wenn die Dateien, die das Ziel enthalten, gelöscht werden.

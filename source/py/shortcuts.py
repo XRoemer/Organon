@@ -55,7 +55,6 @@ class Shortcuts():
                          'BENENNE_DATEI_UM' : self.datei_umbenennen,
                          'DATEIEN_VEREINEN' :  self.mb.class_Funktionen.vereine_dateien,   
                          'KONSOLENAUSGABE' :  self.toggle_logging,   
-                         'SUCHE' : self.oeffne_suche,              
                           }
 
 
@@ -69,14 +68,19 @@ class Shortcuts():
             else:
                 return False
             
-            if keychar.upper() in self.shortcuts[str(mods)]:
-                cmd = self.shortcuts[str(mods)][keychar.upper()]
+            if isinstance(keychar, int):
+                taste = keychar
+            else:
+                taste = keychar.upper()
+            
+            if taste in self.shortcuts[str(mods)]:
+                cmd = self.shortcuts[str(mods)][taste]
                 self.shortcuts_befehle[cmd]()
                 return True
             return False
         except:
             log(inspect.stack,tb())
-            
+            return False
     
     def teile_text(self):
         if self.mb.debug: log(inspect.stack)
@@ -218,11 +222,7 @@ class Shortcuts():
         
         listener = Datei_Umbenennen_Listener(self.mb,sel,win)
         ctrl.addKeyListener(listener)
-    
-    def oeffne_suche(self):
-        if self.mb.debug: log(inspect.stack)
-        
-        self.mb.class_Suche.dialog_suche()
+
 
     def get_mods(self,cmd,ctrls):
         if self.mb.debug: log(inspect.stack)

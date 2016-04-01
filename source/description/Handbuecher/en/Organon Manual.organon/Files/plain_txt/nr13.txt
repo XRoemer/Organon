@@ -1,2 +1,2 @@
-Tags:
+Tags
 Tags will be shown by activating the checkbox. Empty space will be shown between the symbol and the text of a node. By doubleclick the tags can be edited.

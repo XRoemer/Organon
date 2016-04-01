@@ -35,30 +35,21 @@ ERZEUGE_INDEX = u'''Erzeuge Index'''
 
 SPEICHERORT = u'''Speicherort'''
 FORMATIERUNG = u'''Formatierung'''
-TEMPLATE_WRITER = u'''Writer Standard Vorlage'''
-TEMPLATE_USER = u'''Dokumentenvorlage Benutzer'''
 NO_TEMPLATES = u'''keine Vorlagen'''
-EIGENES_TEMPL_ERSTELLEN = u'''Formatvorlage aus Auswahl erstellen'''
 NAME = u'''Name'''
 ERSTELLEN = u'''Erstellen'''
 TEMPLATE = u'''Template'''
-WARNUNG_NAME_TEMPLATE = u'''Geben Sie einen Namen für die Formatvorlage ein   '''
-WARNUNG_TEMPLATE_EXISTS = u'''Die Vorlage existiert schon   '''
-NEUES_TEMPLATE = u'''Neue Vorlage erstellt in:'''
 
 NEW_DOC = u'''Neues Dokument'''
 NEW_DIR = u'''Neuer Ordner'''
 TAB = u'''Tab'''
-TABNAMEN_EINGEBEN = u'''Sie müssen einen Namen für den Tab eingeben.'''
 NEUER_TAB = u'''Neuer Tab'''
 SCHLIESSE_TAB = u'''Schließe aktiven Tab'''
 TAB_SCHLIESSEN = u'''Soll der Tab "%s" wirklich geschlossen werden?'''
 TAB_EXISTIERT_SCHON = u'''Der Tabname existiert schon.'''
 UNFOLD_PROJ_DIR = u'''Projektordner ausklappen'''
 TRENNE_TEXT = u'''Teile Text'''
-TRENNE_TEXT_Help = u'''Teile Text an Cursorposition'''
 
-CREATE_NEW_PROJECT = u'''Neues Projekt anlegen'''
 CANCEL = u'''Abbrechen'''
 OK = u'''OK'''
 ENTER_PROJ_NAME = u'''Projektname:'''
@@ -78,7 +69,6 @@ TRENNER_FORMATIERUNG = u'''Trenner Formatierung'''
 LINIE = u'''Linie'''
 FARBE = u'''Farbe'''
 FARBE_SCHRIFT = u'''Farbe Schrift'''
-FARBE_HINTERGRUND = u'''Farbe Hintergrund'''
 BENUTZER = u'''Benutzer'''
 KEIN_TRENNER = u'''kein Trenner'''
 TRENNER_ANMERKUNG = u'''Die Farben des Trenners sind Teil des Designs und 
@@ -216,7 +206,6 @@ BENUTZER1 = u'''Benutzer 1'''
 BENUTZER2 = u'''Benutzer 2'''
 BENUTZER3 = u'''Benutzer 3'''
 
-GROESSE_TEXT_BOX = u'''Größe Text Box'''
 HOEHE = u'''Höhe'''
 BREITE = u'''Breite'''
 
@@ -259,7 +248,6 @@ ORDNER_AUSSUCHEN = u'''Ordner aussuchen'''
 TEXTVERGLEICH = u'''Textvergleich: Zitate finden '''
 ANZ_SUCHWOERTER = u'''Anzahl Suchwörter'''
 START = u'''Start'''
-KEINE_AUSGABE_GEWAEHLT = u'''Sie haben keine Ausgabe gewählt'''
 NOCH_NICHT_AUSGESUCHT = u'''Sie haben %s noch nicht ausgesucht!'''
 VERGLEICH_VON_MIT = u'''Vergleich von %s mit %s'''
 KEINE_UEBEREINSTIMMUNGEN = u'''keine Übereinstimmungen gefunden'''
@@ -280,6 +268,9 @@ CHRONOLOGISCH = u'''chronologisch'''
 # SEARCH
 SUCHE = u'''Suche'''
 GROSS_KLEIN = u'''Groß-/Kleinschreibung'''
+KEINE_SUCHE_AUSGEWAEHLT = u'''Es ist kein Suchergebnis ausgewählt'''
+DATEI_NICHT_IM_TAB = u'''Die Datei ist im aktuellen Tab nicht vorhanden'''
+FUNDE_WURDEN_GETAGGT = u'''Die Suchergebnisse wurden getaggt.'''
 IN_NEUEM_TAB = u'''In neuem Tab öffnen'''
 FUNDE_TAGGEN = u'''Funde taggen'''
 MARK_FUNDE = u'''Markiere Fundstellen'''
@@ -287,16 +278,9 @@ SUCHBEGRIFFE = u'''Suchbegriffe'''
 IN_VORHANDENE_TAGS_EINTRAGEN = u'''Vorhandene Tags erweitern'''
 SUCHBEGRIFFE_HELP_TEXT = '''Sie können nach mehreren Begriffen gleichzeitig suchen.
 Begriffe werden durch ein Komma abgetrennt.
-Wenn der Suchbegriff ein Komma enthält, muß das Komma mit einem Rückstrich versehen werden: \,
-
-Wenn der logische Operator auf \u039B steht oder "Regulärer Ausdruck" gewählt wurde und die Funde getaggt werden sollen,
-müssen Sie einen Tagnamen angeben.'''
+Wenn der Suchbegriff ein Komma enthält, muß das Komma mit einem Rückstrich versehen werden: \,'''
 KEINE_DATEIEN_AUSGEWAEHLT = u'''Es sind keine Dateien für die Suche ausgewählt.'''
-KEINE_AKTION_GEWAEHLT = u'''Es wurde keine Aktion ausgewählt.'''
-REGEX_BRAUCHT_TAGNAMEN = u'''Wenn die Optionen "Regulärer Ausdruck" und "Funde taggen" gewählt wurden, muß ein Name für 
-den zu vergebenden Tag angegeben werden.'''
-OPT_ALLE_BRAUCHT_TAGNAMEN = u'''Wenn der logische Operator \u039B und "Funde taggen" gewählt wurden, muß ein Name für 
-den zu vergebenden Tag angegeben werden.'''
+REGEX_BRAUCHT_TAGNAMEN = u'''Wenn ein regulärer Ausdruck gesucht wurden, muß ein Name für den zu vergebenden Tag angegeben werden.'''
 TAG_VORHANDEN_WAEHLEN = u'''Der Tag "{0}" existiert bereits. Wenn Sie die Fundstellen ebenfalls mit ihm taggen wollen, 
 wählen Sie "Vorhandene Tags erweitern".'''
 KEINE_SUCHBEGRIFFE = u'''Keine Suchbegriffe eingegeben.'''
@@ -355,7 +339,6 @@ PERSONA = u'''Persona'''
 DESIGN_PERSONA = u'''Design: Personas'''
 DESIGN_ORGANON = u'''Design: Organon'''
 DESIGN_TRENNER = u'''Design: Trenner'''
-DESIGN_OFFICE = u'''Design: Office'''
 THEMA_UNTERTITEL = u'''Farbe der Schrift in der Menüleiste'''
 NEUES_PERSONA_THEMA = u'''neues Persona'''
 PERSONA_ANWENDEN = u'''Persona anwenden'''
@@ -364,7 +347,6 @@ PERSONANAMEN_EINGEBEN = u'''Geben Sie einen Namen für das neue Persona an'''
 HINTERGRUND_EINFARBIG = u'''Hintergrund: Farbe'''
 HINTERGRUND_GRADIENT = u'''Hintergrund: Verlauf'''
 HINTERGRUND_NUTZER = u'''Hintergrund: Nutzer'''
-HINTERGRUND_2 = u'''Hintergrund 2'''
 FARBE2 = u'''Farbe 2'''
 URL = u'''URL'''
 ERZEUGE_GRADIENT = u'''erzeuge Gradient'''
@@ -380,7 +362,6 @@ und versuchen Sie es dann erneut.'''
 KEIN_PERSONA_SELEKTIERT = u'''Es ist kein Persona ausgewählt.'''
 LOESCHEN_BESTAETIGEN = u'''Möchten Sie das Persona "{0}" wirklich löschen?'''
 ORDNER_NICHT_ENTFERNT = u'''Der Ordner "{0}" konnte nicht gelöscht werden.'''
-AENDERUNG_NACH_NEUSTART = u'''Die Änderungen werden erst nach einem Neustart von Writer sichtbar.'''
 KEIN_PERSONA = u'''Kein Persona'''
 
 # WRITER DESIGN
@@ -595,11 +576,16 @@ QUERVERWEISE_UMWANDELN = u'''Organon Querverweise in Writer Querverweise umwande
 ORGA_LESEZEICHEN = u'''Organon Lesezeichen'''
 ORGA_FELDER = u'''Organon Felder'''
 WANDLE_QUERVERWEISE = u'''Wandle Querverweise um ... '''
+VERLINKE_IN_NEUE_DATEIEN = u'''Verlinke Querverweise in neue Dateien'''
+VERLINKE_IN_NEUE_DATEIEN_HELP = u'''Verlinkt Querverweise, die aus anderen Dateien auf die aktuell ausgewählte verweisen,
+auf die neu angelegten Dateien.
+
+Wählen Sie die Option erst aus, wenn Sie sicher sind, die Teilung der aktuellen Datei auch beibehalten zu wollen.
+Einmal umgewandelte Querverweise gehen sonst verloren, wenn Sie die neuen Dateien wieder löschen.'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''Projektordner und Papierkorb können nicht verschoben werden'''
 WOERTERLISTE = u'''Wörterliste erstellen'''
-UNGUELTIGE_FARBE = u'''Keine gültige Farbe'''
 LISTE_GESPEICHERT = u'''Die Liste wurde erfolgreich gespeichert unter {}'''
 
 # ERRORS

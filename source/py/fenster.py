@@ -257,7 +257,6 @@ class Fenster():
         except:
             log(inspect.stack,tb())
             
-     
 
     def container_anpassen(self,container,max_breite=None,max_hoehe=None,fenster=None):
         if self.mb.debug: log(inspect.stack)
@@ -342,7 +341,7 @@ class Fenster():
         # PosSize muss erneut gesetzt werden, um die Anzeige zu erneuern,
         # sonst bleibt ein Teil des Fensters schwarz
         oWindow.setPosSize(0,0,Width,Height,12)
-        
+
         # um das fenster bei sehr vielen Controls schneller zu schliessen,
         # wird es vom Listener auf invisible(True) gesetzt
         dispose_listener = Window_Dispose_Listener(oWindow,self.mb)
@@ -651,7 +650,6 @@ class ScrollBar_Listener (unohelper.Base,XAdjustmentListener):
         self.called_from_hf = False
         
     def adjustmentValueChanged(self,ev):
-        
         self.fenster_cont.setPosSize(0, -ev.value.Value,0,0,2)
         if self.called_from_hf:
             self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()

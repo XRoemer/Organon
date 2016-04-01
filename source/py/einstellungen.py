@@ -564,7 +564,6 @@ class Auswahl_Item_Listener(unohelper.Base, XItemListener):
                  ['INSERT_DOC' , LANG.INSERT_DOC],
                  ['INSERT_DIR' , LANG.INSERT_DIR],
                  ['TRENNE_TEXT' , LANG.TRENNE_TEXT],
-                 ['SUCHE' , LANG.SUCHE],
                  ['DATEIEN_VEREINEN' , LANG.DATEIEN_VEREINEN],
                  ['BENENNE_DATEI_UM' , LANG.BENENNE_DATEI_UM],
                  ['IN_PAPIERKORB_VERSCHIEBEN' , LANG.IN_PAPIERKORB_VERSCHIEBEN],

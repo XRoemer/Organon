@@ -1,4 +1,4 @@
-Trennerfenster:
+Trennerfenster
 Formatierung des Trenners, der zwischen jeder Datei eingefügt werden soll.
 Im exportierten Dokument entspricht die Abfolge der Darstellung im Trennerfenster:
 

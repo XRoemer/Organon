@@ -30,3 +30,26 @@ Find quotes: text comparison of two texts and finding all common points. The res
 Create Word List: A list of all words used are saved as Calc file. Chronological or alphabetical order.
 Generate index: specialized tool for index creation in texts with counting (eg ancient texts or text-critical editions). The result is a navigable browser document.
 Writer tools like search, view Full Screen, spelling and grammar, and plugins can still be used.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

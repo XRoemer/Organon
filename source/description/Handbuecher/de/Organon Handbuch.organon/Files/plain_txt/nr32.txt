@@ -1,17 +1,23 @@
- Unter Organon Menü > Optionen können die in der Seitenleiste angezeigten Kategorien ausgewählt werden.
+Tags
+Unter Organon Menü > Optionen können die in der Seitenleiste angezeigten Kategorien ausgewählt werden.
+
 Tags: Synopsis und Notizen
 Abgesehen vom Namen identisch. Beide Textfelder können in ihrer Größe verändert werden. Dazu auf die Schaltfläche Optionen im Kopf der Leiste klicken. Werte können eingegeben oder mit dem Mausrad verändert werden.
+
 Tags: Bilder
 Momentan kann nur ein Bild geladen werden. Die Höhe ist auf 200px festgelegt und die Breite wird entsprechend skaliert.
+
 Tags: Allgemein, Charaktere, Orte, Objekte, Benutzer 1 bis 3
 Um einen Tag hinzuzufügen schreibt man in das Textfeld und klickt danach an einen anderen Ort (z.B. ins Dokumentenfenster). Der erzeugte Tag erscheint auf der rechten Seite des Tagfensters der zugehörigen Datei. In allen übrigen Dateien/Ordnern erscheint der Tag ebenfalls auf der rechten Seite in der entsprechenden Kategorie. Mit dem kleinen Button rechts davon kann der Tag dort ebenfalls eingefügt werden.
 Um Tags wieder zu entfernen, klicken Sie auf die Schaltfläche mit dem Kreuz.
+
 Tags: Allgemein
 Hier werden auf der linken Seite alle Tags aus allen Kategorien der Datei / des Ordners angezeigt. Auf der rechten finden sich alle Tags aus dem gesamten Dokument.
 Das Löschen von allgemeinen Tags kann auf zwei Weisen geschehen:
-- Der Tag wird aus aus der selektierten Datei / dem selektierten Ordner entfernt.
-- Der Tag wird im gesamten Dokument aus allen Dateien/Ordnern entfernt
+Der Tag wird aus aus der selektierten Datei / dem selektierten Ordner entfernt.
+Der Tag wird im gesamten Dokument aus allen Dateien/Ordnern entfernt
 Zur Einstellung des Verhaltens betätigen Sie das Optionenfenster in der Leiste von “Tags: Allgemein”
+
 Speichern von Tags:
 Während Dateien/Ordner nach einer Änderung unmittelbar mit dem Aufrufen einer anderen Ansicht gespeichert werden, werden Tags nur beim Schließen des Dokuments gespeichert. Sollten Sie also umfangreiche Änderungen in den Tags vorgenommen haben, empfiehlt es sich, das Projekt zwischendurch kurz zu schließen und wieder zu öffnen.
 

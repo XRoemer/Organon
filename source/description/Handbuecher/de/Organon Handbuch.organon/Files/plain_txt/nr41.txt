@@ -1,1 +1,3 @@
- Siehe: Start / Neues Projekt / Projekt Backup
+Backup
+Benutzen Sie die Backup Funktion von Organon (Datei / Backup ). Eine Kopie des Projektes wird im Projektordner unter Backups angelegt. Der Name des Projektes wird mit Datum und Zeit versehen. Das Backup kann aus diesem Ordner wie jedes andere Organon Projekt geöffnet werden.
+Eine andere Möglichkeit, ein Backup anzulegen, ist das Kopieren des Projektes an einen anderen Ort. Der Projektordner darf nicht umbenannt werden!

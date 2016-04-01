@@ -18,7 +18,11 @@ import json
 from threading import Thread  
 
 from tabs import TabsX
+from com.sun.star.beans import PropertyValue
 
+prop_hidden = PropertyValue()
+prop_hidden.Name = 'Hidden'
+prop_hidden.Value = True
 
 
 class Menu_Bar():
@@ -136,6 +140,9 @@ class Menu_Bar():
                        'inspect':inspect,
                        'LANG':LANG,
                        'Popup':Popup,
+                       'PROP':PropertyValue,
+                       'PROP_HIDDEN':prop_hidden,
+                       'json' : json
                        }
             
             
@@ -824,7 +831,6 @@ class Menu_Bar():
             items = ( 
                 LANG.ORGANIZER,
                 LANG.NEUER_TAB,
-                LANG.SUCHE,
                 'SEP',
                 LANG.TRENNE_TEXT,
                 LANG.TEXT_BATCH_DEVIDE,
@@ -839,7 +845,6 @@ class Menu_Bar():
             if T.AB != 'ORGANON':
                 items = (  
                     LANG.ORGANIZER,
-                    LANG.SUCHE,
                     'SEP',
                     LANG.NEUER_TAB,
                     LANG.SCHLIESSE_TAB,
@@ -1384,9 +1389,6 @@ class Auswahl_Menu_Eintrag_Listener(unohelper.Base, XMouseListener):
                 
             elif sel == LANG.DATEIEN_VEREINEN:
                 self.mb.class_Funktionen.vereine_dateien()
-            
-            elif sel == LANG.SUCHE:
-                self.mb.class_Suche.dialog_suche()
                 
             elif sel == LANG.TAG_LOESCHEN:
                 self.mb.class_Tags.erstelle_tags_loeschfenster()
@@ -1773,7 +1775,7 @@ class Popup(object):
         
         def dispose(w,t):
             import time
-            time.sleep(self.zeit)
+            time.sleep(t)
             w.dispose()
 
         if self.zeit != -1:
@@ -1860,8 +1862,7 @@ class Undo_Manager_Listener(unohelper.Base,XUndoManagerListener):
             vc = self.mb.viewcursor
             vc.goLeft(1,False)
             tf = vc.TextField
-            #self.mb.class_Querverweise.fuege_querverweis_ein(tf)
-            self.mb.class_Tools.zeitmesser(self.mb.class_Querverweise.fuege_querverweis_ein,(tf,))
+            self.mb.class_Querverweise.fuege_querverweis_ein(tf)
     
     
     def undoActionAdded(self,ev):pass
@@ -2028,6 +2029,9 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             vc = self.mb.viewcursor
             selektierte_ts, bereichsname = self.mb.class_Bereiche.get_organon_section(vc)
             
+            if selektierte_ts == None:
+                return False
+            
             # stellt sicher, dass nur selbst erzeugte Bereiche angesprochen werden
             # und der Trenner uebersprungen wird
             if 'trenner'  in bereichsname:
@@ -2051,7 +2055,7 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
             
             # test ob ausgewaehlter Bereich ein Kind-Bereich ist -> Selektion wird auf Parent gesetzt
             elif 'trenner' not in bereichsname and 'OrganonSec' not in bereichsname:
-                
+                                
                 while selektierte_ts.ParentSection != None:
                     selektierte_ts = selektierte_ts.ParentSection
                 bereichsname = selektierte_ts.Name
@@ -2069,6 +2073,10 @@ class ViewCursor_Selection_Listener(unohelper.Base, XSelectionChangeListener):
                 return False                
             else:
                 self.farbe_der_selektion_aendern(bereichsname)
+                
+                ordinal = props.dict_bereiche['Bereichsname-ordinal'][bereichsname]
+                zeile = props.Hauptfeld.getControl(ordinal)
+                self.mb.class_Baumansicht.mache_zeile_sichtbar(ordinal, zeile)
                 self.mb.class_Bereiche.datei_nach_aenderung_speichern(self.bereichsname_alt)
                     
                 self.bereichsname_alt = bereichsname  
@@ -2111,6 +2119,7 @@ class Dialog_Window_Size_Listener(unohelper.Base,XWindowListener,XEventListener)
     def windowResized(self,ev):
         self.mb.tabsX.layout_tab_zeilen(ev.Width)
         self.mb.class_Baumansicht.korrigiere_scrollbar()
+        self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
 
     def windowMoved(self,ev): pass
     def windowShown(self,ev): pass

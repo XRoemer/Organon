@@ -1,4 +1,4 @@
-Löschen des Papierkorbs:
+Leeren des Papierkorbs
 Der Papierkorb wird durch einen Klick auf das Symbol in der Menuleiste geleert.
 Oder den Eintrag Bearbeiten / Papierkorb leeren klicken.
 

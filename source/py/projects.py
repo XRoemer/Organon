@@ -333,12 +333,18 @@ class Projekt():
             files.extend(filenames)
             break
         
+        settings_proj = self.mb.settings_proj
+        
         if 'template.ott' in filenames:
             templ_pfad = os.path.join(dirpath,'template.ott')
-            self.mb.settings_proj['use_template'] = [1,templ_pfad]
+            if settings_proj['use_template'] != [1,templ_pfad]:
+                settings_proj['use_template'] = [1,templ_pfad]
+                self.mb.speicher_settings("project_settings.txt", settings_proj)  
             return True,templ_pfad
-         
-        self.mb.settings_proj['use_template'] = [0,'']
+        
+        if settings_proj['use_template'] != [0,'']:
+            settings_proj['use_template'] = [0,'']
+            self.mb.speicher_settings("project_settings.txt", settings_proj)  
         return False,''
             
     
@@ -639,6 +645,8 @@ class Projekt():
             Path1 = (os.path.join(self.mb.pfade['odts'],'%s.odt' % self.mb.projekt_name))
             Path2 = uno.systemPathToFileUrl(Path1)
             self.mb.doc.storeAsURL(Path2,()) 
+            
+            self.mb.Listener.starte_alle_Listener()
                                      
         except Exception as e:
             Popup(self.mb, 'error').text = 'ERROR: could not load project\r\n ' + str(e)
@@ -1159,132 +1167,24 @@ class Projekt():
                         
             
             vc = self.mb.viewcursor
-            
-
 
             ordinal = self.mb.class_Bereiche.get_ordinal(vc)
-            self.mb.class_Bereiche.datei_speichern(ordinal)
-            self.mb.class_Tools.zeige_content_xml(ordinal)  
+            #self.mb.class_Bereiche.datei_speichern(ordinal)
+            #self.mb.class_Tools.zeige_content_xml(ordinal)  
             
-            import imp, menu_bar
-            imp.reload(menu_bar)
-            
-            #for i in range(1,185,10):
-            
-            text = 31 * ' werter herr gesangs verein # ' 
-            #text = LANG.ORGANIZER_INFO
-            
-
-            attribs = dir(LANG)
-            
-            texte = [getattr(LANG, a) for a in attribs][33:51]
-            
-#             for a in attribs:
-#                 txt = getattr(LANG, a)
-#                 if len(txt.split())>0:
-#                     menu_bar.Popup(self.mb, 'error').text = txt
-#                     break
-            
-            #p.text = 'Hi!'
-            #p.text = 'so' 
+                        
+            suche = self.mb.class_Suche
             
             
+            
+            
+            #attr = self.mb.class_Tools.ueberpruefe_LANG()
             
         except:
             log(inspect.stack,tb())
-            pd()
+            
         pd() 
         
-
-
-    
-    
-
-
-
-#             from com.sun.star.beans import StringPair
-#             sp = StringPair()
-#             sp.First = "content.xml"
-#             sp.Second =  "id1720227130"
-#             el = doc.getElementByMetadataReference(sp)
-#             
-#             from com.sun.star.rdf import XURI
-#             
-#             rdf = doc.RDFRepository
-#             gr = rdf.GraphNames[0]
-#             
-#             xuri = self.mb.ctx.ServiceManager.createInstanceWithArgumentsAndContext("com.sun.star.rdf.URI",
-#                             ("http://docs.oasis-open.org/ns/office/1.2/meta/odf#ContentFile",
-#                              ),self.mb.ctx)
-# 
-# 
-#             
-#             
-#             from com.sun.star.beans import PropertyValue
-#             prop = PropertyValue()
-#             
-#             prop.Name = u"text/xml#"
-#             prop.Value = u'content.xml'
-#             graph = doc.RDFRepository.getGraph(xuri)
-#             
-#             footnotes = [doc.Footnotes.getByIndex(i) for i in range(doc.Footnotes.Count)]
-#             
-#             nested = vc.NestedTextContent
-#             statements = graph.getStatements(None,None,None)
-#             
-#             inhalt = []
-#             while statements.hasMoreElements():
-#                 inhalt.append(statements.nextElement())
-#                 
-#                 
-#             xuri2 = self.mb.ctx.ServiceManager.createInstanceWithArgumentsAndContext("com.sun.star.rdf.URI",
-#                             ('file:///C:/Users/Homer/Documents/organon%20projekte/unsinn.organon/Files/odt/template.ott/',
-#                              'content.xml'),self.mb.ctx)
-#                 
-#             graph2 = doc.RDFRepository.getGraph(xuri2)
-            
-#             smgr = self.mb.ctx.ServiceManager
-#             inh = u"\n".join(sorted(smgr.AvailableServiceNames) )
-#             pfad_plain_txt = u'C:\\Users\\Homer\\Desktop\\Neuer Ordner\\odict.txt'
-#             with codecs_open(pfad_plain_txt , "w","utf-8") as f:
-#                 f.write(inh)
-            #uri = self.mb.createUnoService('com.sun.star.rdf.URI')
-            
-            #value_uri = uri.createKnown(com.sun.star.rdf.URIs.RDF_VALUE)
-
-
-
-# from com.sun.star.ui import XContextMenuInterceptor
-# from com.sun.star.ui.ContextMenuInterceptorAction import (
-#     IGNORED, CONTINUE_MODIFIED, EXECUTE_MODIFIED)
-# class ContextMenuInterceptor(unohelper.Base, XContextMenuInterceptor):
-#     
-#     INSERT_SHEET = "slot:26269"
-#     
-#     def __init__(self, mb):
-#         self.mb = mb
-#     
-#     def notifyContextMenuExecute(self, ev):
-#         pd()
-#         cont = ev.ActionTriggerContainer
-# #         if cont.getByIndex(0).CommandURL == self.INSERT_SHEET:
-# #             #item = cont.createInstance("com.sun.star.ui.ActionTriggerSeparator")
-# #             #item.SeparatorType = LINE
-# #             #cont.insertByIndex(8, item)
-# #             items = ActionTriggerContainer()
-# # #             items.insertByIndex(0, ActionTriggerItem(
-# # #                 ".uno:SelectTables", "Sheet...", 
-# # #                 "", None))
-# # #             
-# # #             item = ActionTriggerItem("GoTo", "Go to", "123", items)
-# # #             cont.insertByIndex(7, item)
-# #             
-# #             return EXECUTE_MODIFIED
-#         return IGNORED
-# 
-# 
-
-
 
 
 from com.sun.star.awt import XActionListener

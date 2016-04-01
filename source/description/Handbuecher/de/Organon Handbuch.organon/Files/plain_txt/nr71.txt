@@ -3,6 +3,7 @@ Für die Erstellung eigener Übersetzungen durch den Benutzer.
 
 Linke Seite:
 Der ganz links stehende Text ist die Referenz (deutsch oder englisch), darunter die Box, in die die jeweilige Übersetzung eingetragen werden kann. Farbige Einträge und „*******“ zeigen unübersetzte Einträge.
+
 Rechte Seite:
 Referenz:
 Wählen sie die Referenz aus der übersetzt werden soll (deutsch oder englisch).

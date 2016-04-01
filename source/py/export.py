@@ -371,7 +371,7 @@ class Export():
                 for d in dirs:
                     z_pfad = os.path.join(ziel,d)
                     os.makedirs(z_pfad)
-                    
+                  
                 for f in files:
                     q_pfad = os.path.join(root,f)
                     z_pfad = os.path.join(ziel,f)
@@ -395,7 +395,7 @@ class Export():
                         
                         # ungenutzte odts vom Kopieren aussschliessen  
                         elif 'odt' == os.path.basename(root):
-                            if f not in ordinale_files:
+                            if f not in ordinale_files and f.split('.')[-1] != '.ott':
                                 continue
                         
                         # ungenutzte Bilder vom Kopieren aussschliessen  
@@ -714,6 +714,7 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                             from com.sun.star.style.BreakType import PAGE_BEFORE
                             cur.BreakType = PAGE_BEFORE
                             text.insertControlCharacter(cur, 0, True)
+                            print(sec_ordinal)
                             
                     if sett['seitenumbruch_dat']:
                         if sec_ordinal not in self.mb.props[T.AB].dict_ordner:
@@ -813,6 +814,10 @@ class Export_Button_Listener(unohelper.Base, XActionListener):
                     sec = tsecs.getByName(tname)
                     sec.setPropertyValue('IsProtected',False)
                     sec.dispose()
+                    
+            for i in range(oOO.DocumentIndexes.Count):
+                di = oOO.DocumentIndexes.getByIndex(i)
+                di.update()
             
             popup.text = LANG.SPEICHERN
             

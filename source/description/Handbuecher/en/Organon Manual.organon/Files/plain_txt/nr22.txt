@@ -1,4 +1,4 @@
-Clear recycle bin:
+Clear recycle bin
 The recycle bin will be cleared by clicking on the recycle bin symbol in the menu bar of Organon.
 Please note: This action can't be undone. 
 To restore files and folders in the Recycle Bin, they can simply be pulled back into the project.

@@ -1,4 +1,4 @@
- Neuer Tab
+Neuer Tab
 
 Neue Tabs können durch Auswahl erstellt werden. Auswahlmöglichkeiten sind:
 Eigene Auswahl. Erzeugt neues Auswahlfenster, in dem alle zur Verfügung stehenden Files aufgelistet sind.

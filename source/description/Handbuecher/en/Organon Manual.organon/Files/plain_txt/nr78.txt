@@ -1,6 +1,7 @@
 Translations
 
 Enables the user to create his own translation of Organon.
+
 Left Side:
 The more left sided text is the reference, below is the translation. A colored translation box and “*******” are showing an untranslated entry.
 

@@ -1,15 +1,19 @@
 Import
-Selection: Import File or Folder
-Keep Folder Structure: 
+
+Selection
+Import File or Folder
+
+Keep Folder Structure
 Folders can be imported in two ways:
 without folder structure:
 Organon will set all imported files into one folder
 with folder structure:
 Organon will reflect the folder structure of the imported folder
 
-Filter:
+Filter
 Only Files with the corresponding filter will be imported. (Only upon folder import)
-Filter, User Selection:
+
+Filter, User Selection
 This is an experimental feature and some of the filters don't work (pdf for instance, as the filter imports to a Draw document). As OO and LO offer a lot of filters, you can try to use them on demand.
 Writer might crash or destroy your project.
 It is recommended to import to a newly created project, export from there to .odt and reimport to the target project.

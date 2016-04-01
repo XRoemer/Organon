@@ -4,9 +4,10 @@ Organon legt einen neuen Eintrag in der Seitenleiste an, in dem verschiedentlich
 
 Features:
 Drag und Drop
-Vergabe von Tags
+Vergabe von Schlagworten
 Öffnen von Projektteilen in Tabs
 Bei Anzeige der Dateien eines Ordners ist bei Bearbeitung im Dokument immer die jeweilige Stelle im Ordner sichtbar. 
+Querverweise
 Verschiedentlich, auch durch den Benutzer konfigurierbarer Trenner. Der Trenner trennt bei der Anzeige eines Ordners die einzelnen Dateien optisch voneinander.
 Import von Einzeldateien. Alle für Writer verfügbare Dateifilter können genutzt werden.
 Import aller Dateien eines Ordners, filterbar (Batchimport)
@@ -28,3 +29,18 @@ Zitate finden: Textvergleich zweier Texte und Auffinden aller gemeinsamen Stelle
 Wörterliste erstellen: Eine Liste aller verwendeten Wörter als Calc Datei speichern. Chronologisch oder alphabetisch geordnet.
 Index erzeugen: spezialisiertes Werkzeug für die Indexerzeugung bei Texten mit Zählung (z.B. antike Texte oder textkritische Ausgaben). Ergebnis ist ein navigierbares Browserdokument.
 Writer Tools wie Suche, Ansicht Gesamter Bildschirm, Rechtschreibung und Grammatik, Plugins können natürlich weiter genutzt werden.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

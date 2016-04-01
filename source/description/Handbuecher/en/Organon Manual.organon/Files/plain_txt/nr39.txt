@@ -5,7 +5,7 @@ The way the results are combined can be controlled by the logic signs to the rig
 ˄ = AND
 (Default is OR)
 
-˅: The results of  each selection will be added.
+˅: The results of each selection will be added.
 	Example: 	The results of 'tags sidebar' are: Scene 1, Scene 2
 			The results of 'tags treeview' are: Scene 2, Scene 3
 			The total result will be: Scene 1, Scene 2, Scene 3

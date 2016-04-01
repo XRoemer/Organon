@@ -1,2 +1,2 @@
- Schließe aktive Tab
+Schließe aktive Tab
 Schließt aktiven Tab

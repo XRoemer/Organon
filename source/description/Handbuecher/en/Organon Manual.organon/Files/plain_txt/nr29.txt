@@ -1,1 +1,1 @@
-Sidebar
+Sidebar: Tags

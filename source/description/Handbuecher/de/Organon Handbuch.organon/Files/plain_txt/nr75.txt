@@ -1,4 +1,4 @@
- Querverweise
+Querverweise
 
 Querverweise können vom Benutzer in Organon durch die in Writer übliche Art und Weise angelegt und benutzt werden. Aktualisiert werden sie mit F9. Auch Querverweise in importierten Dateien werden erkannt und integriert. Desweiteren springt Organon bei einem Mausklick auf einen Verweis zum Verweisziel.
 
@@ -8,7 +8,7 @@ Bei dem Export in ein Dokument werden die Querverweise automatisch aktualisiert 
 
 
 Es gibt allerdings einige Besonderheiten:
-Da Organon zum einen nicht alle Dateien beim Start lädt und zum anderen meist nur Ausschnitte des Projektes sichtbar sind, zeigen Querverweise nach der Aktualisierung falsche Seitenzahlen, Kapitelnummern, Position (Oberhalb/Unterhalb) oder auch Verweisnummern an. 
+Da Organon zum einen nicht alle Dateien beim Start lädt und zum anderen meist nur Ausschnitte des Projektes sichtbar sind, zeigen Querverweise nach der Aktualisierung, wenn nur ein Teil des Projektes sichtbar ist, falsche Seitenzahlen, Kapitelnummern, Position (Oberhalb/Unterhalb) oder auch Verweisnummern an. 
 Organon wandelt Querverweise unbemerkt vom Nutzer in Lesezeichen und Nutzervariablen um. Diese finden sich in den Lesezeichen als „zzOrganonBM“ und in den Nutzervariablen als „zzOrganonField“. Diese Lesezeichen und Variablen sollten natürlich nicht angetastet werden. Ein Verstecken vor dem Nutzer war wegen möglichen unbeabsichtigten Löschens durch den Nutzer leider nicht realisierbar.
 Beim Export in ein Dokument und ins .odt Format werden sie wieder in gewöhnliche Writer Verweise umgewandelt.
 Wird das Projekt in Einzeldateien exportiert, zeigen Querverweise einen Fehler. Eine Umwandlung findet nicht statt.

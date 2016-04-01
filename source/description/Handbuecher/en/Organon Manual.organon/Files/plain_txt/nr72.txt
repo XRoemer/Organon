@@ -1,5 +1,5 @@
 Organizer
-
+ 
 The Organizer offers a fast and simple way to show and edit all tags of the current tab. 
 
 Changes are made by new entries in the Fields. Changes are adopted 

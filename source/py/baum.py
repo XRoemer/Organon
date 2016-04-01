@@ -362,64 +362,182 @@ class Baumansicht():
 
     
     def in_Papierkorb_einfuegen(self,ordinal):
+        '''
+        Moeglichkeiten:
+        
+        Selektierter ist Datei oder Ordner
+        Sichtbare(r) ist Datei oder Ordner
+        
+        
+        - Selektierter ist Projektordner oder Papierkorb
+            - abbrechen
+        
+        - Selektierter ist Datei:
+            - Selektierter ist in sichtbarem Ordner:
+                Selektierten verschieben und Ordner neu selektieren
+                
+            - Selektierter ist Sichtbarer:
+                Auf Nachfolger oder Vorgaenger umschalten, Selektierten verschieben
+            - Selektierter ist nicht sichtbar:
+                Selektierten verschieben
+                
+        - Selektierter ist Ordner
+            - Sichtbare sind uebergeordneter Ordner
+                Selektierten Ordner verschieben und sichtbaren Ordner neu selektieren
+            - Sichtbare(r) sind Teilmenge des selektierten Ordners
+                Auf Nachfolger oder Vorgaenger des selektierten Ordners umschalten, Ordner verschieben
+            - Sichtbare sind nicht im Ordner
+                Ordner verschieben
+                
+        Bei zu loeschenden Dateien oder Ordnern wird auf den Vorgaenger umgeschaltet.
+        Wenn kein Vorgaenger existiert, wird ein Nachfolger ausgesucht.
+        
+        Wenn der Vorgaenger ein Ordner ist und im Ordner keine weitere Datei existiert,
+        wird der Ordner und der Papierkrob geschlossen und dann verschoben. Der Papierkorb
+        wird danach wieder geoeffnet.
+        
+        '''
         if self.mb.debug: log(inspect.stack)
-            
+        
         props = self.mb.props[T.AB]
+        root = props.xml_tree.getroot()
+        
+        papierkorb = props.Papierkorb
+        projektordner = props.Projektordner
         
         if T.AB == 'ORGANON':
             ok = self.existiert_datei_in_anderem_tab(ordinal)
             if not ok:
                 return
-        
-        papierkorb = props.Papierkorb
-        projektordner = props.Projektordner
-        
+            
         if ordinal in [papierkorb,projektordner,None]:
             return
         
-        neu_seletieren = (ordinal == props.selektierte_zeile_alt)
         
-        nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
-        vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
-        
-        
-        if props.selektierte_zeile_alt in props.dict_ordner:  
-            erst_zeilen_ordnen = True 
-            
-        elif ordinal in props.dict_ordner:
-            
-            erst_zeilen_ordnen = True 
-            neu_seletieren = True
-            
-            sel = props.selektierte_zeile_alt
-            props.selektierte_zeile_alt = ordinal
-            nachfolger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('nachfolger')    
-            vorgaenger = self.mb.class_XML.finde_nachfolger_oder_vorgaenger('vorgaenger') 
-            props.selektierte_zeile_alt = sel
+        try:
+            def finde_vorgaenger(ordi):
+                elems = []
+                
+                for el in root.iter():
+                    if el.tag == ordi:
+                        return elems[-1]
+                    
+                    if 'Sicht' in el.attrib:
+                        if el.attrib['Sicht'] == 'ja':
+                            elems.append(el.tag)
+                    else:
+                        elems.append(el.tag)
 
-        else:
-            erst_zeilen_ordnen =  False
-        
-        
-        if not erst_zeilen_ordnen:
-            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
-        
-        if neu_seletieren:
+            def finde_nachfolger_o(ordi):
+                parent = root.find( './/{0}/..'.format(ordi) )
+                
+                childs = [el.tag for el in parent]
+                index = childs.index(ordi)
+                
+                if len(childs) - 1 > index:
+                    nachfolger = childs[index + 1]
+                    return nachfolger
+                else:
+                    vorgaenger = finde_vorgaenger(ordi)
+                    return vorgaenger
 
-            if ordinal in props.dict_ordner:
-                if vorgaenger != None:
-                    self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
-            elif nachfolger != None:
-                self.mb.class_Baumansicht.selektiere_zeile(nachfolger)
-            else:
-                if vorgaenger != None:
-                    self.mb.class_Baumansicht.selektiere_zeile(vorgaenger)
-        
-        if erst_zeilen_ordnen:
-            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')          
-        
-
+            def finde_nachfolger_ordner(ordi):   
+                nachf = finde_nachfolger_o(ordi)
+                
+                if nachf != papierkorb:
+                    return nachf
+                else:
+                    return finde_vorgaenger(ordi)
+            
+            
+            def finde_vor(ordi):
+                vor = finde_vorgaenger(ordi)
+                if vor not in ('ORGANON','Tabs'):
+                    if vor not in props.dict_ordner:
+                        return vor
+                    else:
+                        nachf = finde_nachfolger_ordner(ordi)
+                        if nachf not in props.dict_ordner:
+                            return nachf
+                        else:
+                            self.mb.class_Funktionen.ordner_schliessen(vor,'leer')
+                            self.mb.class_Funktionen.ordner_schliessen(papierkorb,'leer')
+                            return vor
+                else:
+                    nachf = finde_nachfolger_ordner(ordi)
+                    return nachf
+            
+            
+            #################################################
+            # ART DER SICHTBAREN UND DES ORDINALS BESTIMMEN
+            sichtbare = [props.dict_bereiche['Bereichsname-ordinal'][s] for s in self.mb.sichtbare_bereiche]
+            
+            sichtbarer_ordner = None
+            if sichtbare[0] in props.dict_ordner:
+                sichtbarer_ordner = sichtbare[0]
+              
+            datei_ist_sichtbar = ordinal in sichtbare
+            selektierter_ist_datei = ordinal not in props.dict_ordner
+                        
+            if not selektierter_ist_datei:
     
+                sel_ordner_ist_sichtbar = len( set(props.dict_ordner[ordinal]).intersection(set(sichtbare)) ) > 0
+    
+                if sel_ordner_ist_sichtbar:
+                    zu_loeschender_ordner_ist_uebergeordnet = len(sichtbare) < len(props.dict_ordner[ordinal])
+                    sel_ordner_wird_geloescht = ordinal == sichtbarer_ordner
+            ##################################################
+            
+            
+            # DATEIEN / ORDNER LOESCHEN
+            
+            if selektierter_ist_datei: 
+                # DATEI
+                #print('Datei loeschen.')
+                if not datei_ist_sichtbar:
+                    #print('Datei nicht sichtbar. Kann verschoben werden')
+                    self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+                else:
+                    if not sichtbarer_ordner:
+                        #print('Nur eine Datei sichtbar, daher umschalten, dann verschieben.')
+                        ordi = finde_vor(ordinal)
+                        self.selektiere_zeile(ordi)
+                        self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+                    else:
+                        #print('Datei ist in Ordner {0} sichtbar, daher umschalten und neu selektieren.'.format(sichtbarer_ordner))
+                        self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')  
+                        self.selektiere_zeile(sichtbarer_ordner)
+            else:
+                # ORDNER
+                #print('Ordner loeschen.')
+                if sel_ordner_ist_sichtbar:
+                    #print('Ordner ist sichtbar')
+                    if zu_loeschender_ordner_ist_uebergeordnet:
+                        #print('zu_loeschender_ordner_ist_uebergeordnet')
+                        ordi = finde_vor(ordinal)
+                        self.selektiere_zeile(ordi)
+                        self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+                        self.mb.class_Funktionen.projektordner_ausklappen(ordinal=papierkorb, selektiere_zeile=False, ist_papierkorb=True)
+                    else:
+                        if sel_ordner_wird_geloescht:
+                            #print('zu loeschender Ordner ist sichtbarer Ordner')
+                            ordi = finde_vor(ordinal)
+                            self.selektiere_zeile(ordi)
+                            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+                        else:
+                            #print('zu loeschender Ordner ist Teilmenge des sichtbaren Ordners')
+                            self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')  
+                            self.selektiere_zeile(sichtbarer_ordner)
+                else:
+                    #print('Ordner ist nicht sichtbar. Kann verschoben werden')
+                    self.mb.class_Zeilen_Listener.zeilen_neu_ordnen(ordinal,papierkorb,'inPapierkorbEinfuegen')
+            
+        except:
+            log(inspect.stack,tb()) 
+            
+        return
+    
+ 
     def leere_Papierkorb(self):
         if self.mb.debug: log(inspect.stack)
         
@@ -605,17 +723,24 @@ class Baumansicht():
     def selektiere_zeile(self,ordinal, speichern = True):
         if self.mb.debug: log(inspect.stack)
         
-        selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
+        try:
         
-        zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
-        textfeld = zeile.getControl('textfeld')
-        
-        try:     
+            if ordinal not in self.mb.props[T.AB].dict_bereiche['ordinal']:
+                Popup(self.mb, 'warning').text = LANG.DATEI_NICHT_IM_TAB
+                return
+            
+            selektierte_zeile = self.mb.props[T.AB].selektierte_zeile_alt
+
+            zeile = self.mb.props[T.AB].Hauptfeld.getControl(ordinal)
+            textfeld = zeile.getControl('textfeld')
+            
+            self.mache_zeile_sichtbar(ordinal, zeile)
+            
             # selektierte Zeile einfaerben, ehem. sel. Zeile zuruecksetzen
             ctrl = self.mb.props[T.AB].Hauptfeld.getControl(selektierte_zeile).getControl('textfeld')
             ctrl.Model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
             textfeld.Model.BackgroundColor = KONST.FARBE_AUSGEWAEHLTE_ZEILE 
-     
+                        
             # bei bearbeitetem Bereich: speichern  
             if speichern:
                 bereichsname_zeile_alt = self.mb.props[T.AB].dict_bereiche['ordinal'][selektierte_zeile]
@@ -629,8 +754,48 @@ class Baumansicht():
             
         except:
             log(inspect.stack,tb())
+
+    
+    def mache_zeile_sichtbar(self,ordinal, zeile):
+        if self.mb.debug: log(inspect.stack)
         
-        
+        try:
+            
+            
+            parents = self.mb.class_XML.get_parents(ordinal)
+            for p in parents:
+                if p[1].attrib['Zustand'] == 'zu':
+                    self.mb.class_Funktionen.projektordner_ausklappen(parents[-1][0],selektiere_zeile=False)
+                    break
+                
+            tabsX = self.mb.tabsX
+            win = tabsX.Hauptfelder[T.AB]
+            SB = win.getControl('ScrollBar') 
+            
+            if SB == None:
+                return
+            
+            hf = self.mb.props[T.AB].Hauptfeld
+                
+            sb_hoehe = SB.Size.Height
+            zeile_y = zeile.PosSize.Y + zeile.PosSize.Height + hf.PosSize.Y
+            
+            diff = 0
+            if zeile_y < 0:
+                diff = zeile_y - 20
+            elif sb_hoehe - zeile_y < 0:
+                diff = -(sb_hoehe - zeile_y)
+            
+            if diff != 0:                
+                y = hf.PosSize.Y - diff
+                hf.setPosSize(0,y,0,0,2)
+                self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
+                SB.Value = SB.Value + diff
+
+        except:
+            log(inspect.stack())
+            
+    
         
 from com.sun.star.style.ParagraphAdjust import CENTER 
 from com.sun.star.awt import XMouseListener,XMouseMotionListener,XFocusListener
@@ -654,7 +819,9 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         self.dragged = False
         
         self.SFLink = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+        self.SFLink.FilterName = 'writer8'
         self.SFLink2 = uno.createUnoStruct("com.sun.star.text.SectionFileLink")
+        self.SFLink2.FilterName = 'writer8'
         
         # nur fuers logging
         self.log_selbstruf = False
@@ -1025,7 +1192,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
         return (zielordner,info)
  
            
-    def zeilen_neu_ordnen(self,source,target,action):
+    def zeilen_neu_ordnen(self,source,target,action,schalte_bereiche=True):
         if self.mb.debug: log(inspect.stack)
 
         if action != 'gescheitert':
@@ -1043,13 +1210,13 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             self.posY_in_tv_anpassen(eintraege)
             
             if 'inPapierkorbEinfuegen' in action:
-                
+                 
                 props = self.mb.props[T.AB]
                 tree = props.xml_tree
                 root = tree.getroot()
-
+ 
                 papierk = root.find('.//' + props.Papierkorb)
-                
+                 
                 if papierk.attrib['Zustand'] == 'zu':
                     for el in papierk.findall('.//'):
                         el.attrib['Sicht'] = 'nein'
@@ -1065,13 +1232,16 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             
 
             # Sichtbarkeit der Bereiche umschalten
-            self.schalte_sichtbarkeit_der_Bereiche(action=action)     
+            if schalte_bereiche:
+                self.schalte_sichtbarkeit_der_Bereiche(action=action)     
             
             if T.AB == 'ORGANON':   
                 Path = os.path.join(self.mb.pfade['settings'] , 'ElementTree.xml' )
             else:
                 Path = os.path.join(self.mb.pfade['tabs'] , T.AB + '.xml' )
             self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
+            
+            self.schalte_sichtbarkeit_hf_ctrls()
             
             return True
 
@@ -1343,14 +1513,17 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
     
     def get_links2(self,sections_uno):
         if self.mb.debug: log(inspect.stack)
- 
-        odict = {}
-
-        for name in sections_uno:
-            sec = sections_uno[name]
-            odict.update({sec.FileLink.FileURL:sec.Name})
-
-        return odict       
+        
+        try:
+            odict = {}
+    
+            for name in sections_uno:
+                sec = sections_uno[name]
+                odict.update({sec.FileLink.FileURL:sec.Name})
+    
+            return odict  
+        except:
+            log(inspect.stack,tb())     
     
         
     def schalte_sichtbarkeit_der_Bereiche(self,zeilenordinal=None, action=None, add_listener=True):
@@ -1375,61 +1548,48 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if zeilenordinal in props.dict_ordner:
                 zeilen_in_ordner_ordinal = props.dict_ordner[zeilenordinal]
                 
-                hinzugefuegte = []
+                einzublendende = [props.dict_bereiche['ordinal'][z] for z in zeilen_in_ordner_ordinal]
+                                
                 first_time = True
+                self.mb.sec_helfer.IsVisible = True
                 
+                # Sichtbare ausblenden                
+                for bereich in reversed(self.mb.sichtbare_bereiche): 
+                    if bereich not in einzublendende:                            
+                        sec = sections_uno[bereich]
+                        sec.setPropertyValue('IsVisible', False)
+                        self.entferne_Trenner(sec)
+                                
                 # alle Zeilen im Ordner einblenden
-                for z in zeilen_in_ordner_ordinal:
-                    
-                    ordnereintrag_name = props.dict_bereiche['ordinal'][z]
+                for ordnereintrag_name in einzublendende:
+                    #time.sleep(.5)
                     z_in_ordner = sections_uno[ordnereintrag_name]
-                    hinzugefuegte.append(z_in_ordner.Name)
-
                     self.verlinke_Sektion(ordnereintrag_name,z_in_ordner,sections_uno)
-                    
-                    if action != 'inPapierkorbEinfuegen':
-                        
-                        #print('blende ein:',z_in_ordner.Name,'##################')
-                        z_in_ordner.IsVisible = True
-                        self.mache_Kind_Bereiche_sichtbar(z_in_ordner)
-                    
-                        if first_time:
-                            first_time = False
-                            self.mb.viewcursor.gotoRange(z_in_ordner.Anchor.Start,False)
-                    
-                    # Ordner in Papierkorb eingefuegt
-                    if action == 'inPapierkorbEinfuegen':
-                        pass
+
+                    z_in_ordner.IsVisible = True
+                    self.mache_Kind_Bereiche_sichtbar(z_in_ordner)
+                
+                    if first_time:
+                        first_time = False
+                        self.mb.viewcursor.gotoRange(z_in_ordner.Anchor.Start,False)
+
                     # Wenn mehr als nur ein geschlossener Ordner zu sehen ist
-                    elif len(zeilen_in_ordner_ordinal) > 1:
+                    if len(zeilen_in_ordner_ordinal) > 1:
                         # Wenn die Zeile im Papierkorb ist, darf der letzte trenner nicht gezeigt werden, da
                         # er nicht existiert
                         if zeilenordinal in props.dict_ordner[props.Papierkorb]:
-                            if zeilen_in_ordner_ordinal.index(z) != len(zeilen_in_ordner_ordinal)-1:
+                            if ordnereintrag_name != einzublendende[-1]:
                                 self.zeige_Trenner(z_in_ordner,zeilenordinal)
                         else:
                             self.zeige_Trenner(z_in_ordner,zeilenordinal)
                     # Wenn der Ordner keine Kinder hat
                     else:
                         self.entferne_Trenner(z_in_ordner)
-                       
-                # uebrige noch sichtbare ausblenden                
-                for bereich in (self.mb.sichtbare_bereiche): 
-                    
-                    if bereich not in hinzugefuegte:                            
-                        #sec = self.mb.doc.TextSections.getByName(bereich)
-                        sec = sections_uno[bereich]
-                        sec.IsVisible = False 
-
-                        #print('blende aus:',sec.Name,bereich,'---------------')
-                        self.entferne_Trenner(sec)
-                
+       
                 # sichtbare Bereiche wieder in Prop eintragen
-                self.mb.sichtbare_bereiche = []  
-                for b in zeilen_in_ordner_ordinal:
-                    self.mb.sichtbare_bereiche.append(props.dict_bereiche['ordinal'][b]) 
-                    
+                self.mb.sichtbare_bereiche = [ props.dict_bereiche['ordinal'][b] for b in zeilen_in_ordner_ordinal ]
                 
+                self.mb.sec_helfer.IsVisible = False
             else:
             # Dateien 
                 
@@ -1453,9 +1613,11 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                 
                 if action != 'lade_projekt':
                     self.entferne_Trenner(selekt_bereich)
-                                
+                
+                selekt_bereich.IsVisible = True 
+                              
                 for bereich in reversed(self.mb.sichtbare_bereiche):
-                    
+                    #time.sleep(.5)
                     if bereich != selekt_bereich_name:
                         
                         section = self.mb.doc.TextSections.getByName(bereich)  
@@ -1464,7 +1626,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
                         if action != 'lade_projekt':
                             self.entferne_Trenner(section)
 
-                selekt_bereich.IsVisible = True 
+                
                 self.mb.viewcursor.gotoRange(selekt_bereich.Anchor.Start,False)
                 self.mb.sec_helfer.IsVisible = False
                 self.mb.sichtbare_bereiche = [selekt_bereich_name]
@@ -1658,7 +1820,6 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             log(inspect.stack,tb())
             
             
-            
     def setze_Trenner_Formatierung(self,sec_trenner,sec_nachfolger_name,source_ordinal,sec_ordinal):  
         if self.mb.debug: log(inspect.stack)
         try:
@@ -1742,6 +1903,7 @@ class Zeilen_Listener (unohelper.Base, XMouseListener,XMouseMotionListener,XFocu
             if trenner_name not in self.mb.doc.TextSections.ElementNames:
                 return
             trenner = self.mb.doc.TextSections.getByName(trenner_name)
+            trenner.setPropertyValue('IsVisible',False)
             if trenner.IsVisible:
                 trenner.IsVisible = False
         except:
@@ -1819,9 +1981,12 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             if ev.ClickCount == 2: 
                 
                 try:
-                    self.mb.props[T.AB].selektierte_zeile = ordinal
+                    props = self.mb.props[T.AB]
+                    selektierter = props.selektierte_zeile_alt
+                    props.selektierte_zeile = ordinal
+                    umschalten = False
                     
-                    tree = self.mb.props[T.AB].xml_tree
+                    tree = props.xml_tree
                     root = tree.getroot()
                     ordinal_xml = root.find('.//' + ordinal)
                     zustand = ordinal_xml.attrib['Zustand']
@@ -1843,12 +2008,19 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                             ev.Source.Model.ImageURL = bild_ordner
                         if ordinal_xml.attrib['Art'] == 'waste':
                             ev.Source.Model.ImageURL = KONST.IMG_PAPIERKORB_LEER
-                         
+                                                
+                        if selektierter in props.dict_ordner[ordinal]:
+                            umschalten = True
+                        
                             
                     self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(ordinal,ordinal_xml,zustand,hf_ctrls=False)
                     self.mb.class_Projekt.erzeuge_dict_ordner() 
                     self.mb.class_Baumansicht.korrigiere_scrollbar()
                     self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
+                    
+                    if umschalten:
+                        self.mb.class_Baumansicht.selektiere_zeile(ordinal)
+                    
                 except:
                     log(inspect.stack,tb())
                 
@@ -1865,7 +2037,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         
         try:
-            
+
             papierkorb = self.mb.props[T.AB].Papierkorb
             projektordner = self.mb.props[T.AB].Projektordner
 
@@ -1915,21 +2087,9 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
             control, model = self.mb.createControl(self.mb.ctx, "FixedLine", 20, 5, 5,h,(),())
             model.Orientation = 1
             controls.append(control)
-            
-            # Position finden
-            BREITE = b
-            HOEHE = h
 
-            loc_cont = self.mb.doc.CurrentController.Frame.ContainerWindow.AccessibleContext.LocationOnScreen
-            pos_hf = self.mb.props['ORGANON'].Hauptfeld.AccessibleContext.LocationOnScreen
-            
-            y = pos_hf.Y - loc_cont.Y
-            y +=  ev.Source.Context.PosSize.Y 
-            if sys.platform == 'linux':
-                y -= 20
-                
-            x = self.mb.prj_tab.AccessibleContext.LocationOnScreen.X - loc_cont.X + ev.Source.PosSize.X
-            posSize = x + 20, y, BREITE + 50, HOEHE + 10
+            x,y = self.mb.class_Tools.get_mausposition(ev)
+            posSize = x, y, b + 50, h + 10
             
             # Fenster erzeugen
             win,cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize,1+16)
@@ -1949,7 +2109,7 @@ class TreeView_Symbol_Listener (unohelper.Base, XMouseListener):
                 cont.addControl(ctrl.Model.Label,ctrl)
         except:
             log(inspect.stack,tb())
-            
+
             
 class Symbol_Popup_Mouse_Listener (unohelper.Base, XMouseListener):
     
@@ -2000,8 +2160,7 @@ class Tag1_Listener (unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT: 
             ord_source = ev.Source.AccessibleContext.AccessibleParent.AccessibleContext.AccessibleName 
-            X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.X +20
-            Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.Y
+            X,Y = self.mb.class_Tools.get_mausposition(ev)
             self.mb.class_Funktionen.erzeuge_Tag1_Container(ord_source,X,Y)
         return False
        
@@ -2022,9 +2181,8 @@ class Tag2_Listener (unohelper.Base, XMouseListener):
         if self.mb.debug: log(inspect.stack)
         if ev.Buttons == MB_LEFT and ev.ClickCount == 2 or ev.Buttons == MB_RIGHT:  
             ordinal = ev.Source.Context.AccessibleContext.AccessibleName  
-            X = ev.value.Source.AccessibleContext.LocationOnScreen.value.X - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.X +40
-            Y = ev.value.Source.AccessibleContext.LocationOnScreen.value.Y - self.mb.topWindow.AccessibleContext.LocationOnScreen.value.Y -60
-            self.mb.class_Funktionen.erzeuge_Tag2_Container(ordinal,X,Y)
+            X,Y = self.mb.class_Tools.get_mausposition(ev)
+            self.mb.class_Funktionen.erzeuge_Tag2_Container(ordinal,X,Y-60)
                 
     def mouseEntered(self,ev):
         return False

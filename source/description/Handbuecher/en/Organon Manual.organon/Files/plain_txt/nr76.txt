@@ -1,6 +1,10 @@
-Devide Text (Batch)
+Divide Text (Batch)
 
-With the function “Devide Text (Batch)” a file can be divided into multiple files and folders at once.
+With the function “Divide Text (Batch)” a file can be divided into multiple files and folders at once. The source file will be kept. The newly created files will be created on the same level as the source file.
+As Organon offers no possibility to undo this action, and the result of the division might be unpredictable, the user can decide himself, with witch files he want's to work on. In this manner he can try out a division first.
+
+Tip:
+To try out a division first, it's a good idea, to create a folder and to move the source into that folder. If the newly created files should be deleted again, the source can be moved back and the folder containing the new files can be deleted easily.
 
 The searchterm divides the source text before the occurrence of the searchterm.
 The word search is not case sensitive.
@@ -14,4 +18,5 @@ When Headings are selected, the text is divided according to its headers in the 
 
 While the searchterm and blank lines create files, headings are created as a folder. The headings are mirrored in their hierarchy in the newly created folders. 
 
-The source file will be kept.
+Link Cross-References to new Files:
+If this option is checked, Organon will search for cross-references from other files into the source file and convert them, so that they will be linked to the newly created files after the division. This option shouldn’t be checked while trying out a division first, as once relinked references will get lost, when the files containing the reference target are deleted.

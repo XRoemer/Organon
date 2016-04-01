@@ -1,4 +1,4 @@
- Löschen von Dateien/Ordnern
+Löschen von Dateien / Ordnern
 Um Dateien oder ganze Ordner zu löschen, kann man sie:
 in den Papierkorb ziehen oder
 auf ihr Icon einen Rechtsklick ausführen und „In den Papierkorb verschieben“ wählen.

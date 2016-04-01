@@ -22,6 +22,21 @@
                     <value>org.apache.openoffice.Organon.sidebar.OrganonSidebarFactory</value>
                 </prop>
             </node>
+			
+			<node oor:name="WorkbenchOrganonPanelSearchFactory" oor:op="replace">
+                <prop oor:name="Type">
+                    <value>toolpanel</value>
+                </prop>
+                <prop oor:name="Name">
+                    <value>OrganonSearchFactory</value>
+                </prop>
+                <prop oor:name="Module">
+                    <value/>
+                </prop>
+                <prop oor:name="FactoryImplementation">
+                    <value>org.apache.openoffice.Organon.sidebar.OrganonSearchFactory</value>
+                </prop>
+            </node>
             
         </node>
     </node>

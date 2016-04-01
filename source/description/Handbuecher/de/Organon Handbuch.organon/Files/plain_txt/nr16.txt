@@ -1,4 +1,4 @@
-Navigation:
+Navigation
 Um Dateien/Ordner im Baum durch Ziehen zu verschieben, müssen Sie mit gedrückter linker Maustaste am Text des Eintrages ziehen. Ein Pfeil zeigt den Ort, an dem die Dateien/Ordner eingefügt werden. Ein Ordner kann nicht in sich selbst verschoben werden (es erscheint ein roter Punkt). 
 
 Um einen Ordner zu öffnen oder zu schließen, klicken sie doppelt auf sein Icon.

@@ -5,4 +5,4 @@ It ain't possible to delete files in the project folder, when they are still ope
 
 In the dialog multiple selections are possible. Each selection from 'own selection', 'tags sidebar', 'tags treeview', 'search' ('search' isn't implemented yet) will create its own results, which will be combined, when you choose more than one entry. 
 
-The tab name can freely be chosen. Double names for tabs are not allowed.
+The tab name can freely be chosen. Double entries for names are not allowed.

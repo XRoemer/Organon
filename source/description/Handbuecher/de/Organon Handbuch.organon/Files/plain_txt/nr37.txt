@@ -1,4 +1,5 @@
-Trenner Formatierung
+Trenner 
+Formatierung
 Es gibt vier Möglichkeiten für die Formatierung des Trenners:
 Linie
 Farbe mit Beschriftung

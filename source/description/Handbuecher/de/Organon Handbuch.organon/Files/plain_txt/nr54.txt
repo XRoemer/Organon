@@ -1,4 +1,4 @@
- Erzeuge Index
+Erzeuge Index
 Ein sehr spezialisiertes Werkzeug, um einen Index für eine Übersetzung mit Zählung anzulegen. Texte mit Zählungen sind etwa die antiken Texte oder Texte in kritischen Ausgaben. Die Zählung muss die Form „Eckige öffnende Klammer / Zahl / Komma / Zahl / eckige schließende Klammer“ haben ( [102,15] )
 (Geplant für eine zukünftige Implementierung ist ein regulärer Ausdruck, mit der die Form der Zählung vom Benutzer bestimmt werden kann.)
 

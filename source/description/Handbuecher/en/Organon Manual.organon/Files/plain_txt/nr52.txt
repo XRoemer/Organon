@@ -1,4 +1,4 @@
-Separator formatting
+Separator
 There are four options for the formatting of the separator :
 Line
 Color with inscription

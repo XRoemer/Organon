@@ -1,17 +1,18 @@
-Export Main Window 
-All / Visible / Selection:
+Main Window and Selection Window
+
+All / Visible / Selection
 „All“ selects all nodes of the project folder. Files or Folders, which are not included in the project folder, won't be selected.
 „Visible“ selects all nodes, which are visible in the document window.
 „Selection“ lets you choose a selection from the project folder. The selection will be saved an shown on the call of the selection window . 
 Selection Window: „Click on Folder selects Folder Entry“:
 		If activated, folder entries will be selected by clicking on a folder.
 
-Export as: 
+Export as:
 One Document: The selected nodes will be exported into one document
 Separator: between each node a separator will be inserted. See Separator Window
 Single Files: All selected nodes will be exported into separat files.
 Keep Folder Structure: The folder structure resolve into a folder structure on disk.
 
-Type (Filter):
+Type (Filter)
 Files will be converted by the selected filter. (In opposite to import, pdf works with export)
 

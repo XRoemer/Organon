@@ -1,11 +1,12 @@
-Scrolling:
+Scrolling / Mouse Wheel Scrolling
 If files and folders need more space than the Organon window offers, a scrollbar will be shown.
 
 Unfortunately the scrollbar can't be moved by the mousewheel. I couldn't find an (easy) solution for using the mousewheel with Office. 
+
 Scrolling the mouse wheel :
 Scrolling the mouse wheel can be activated in the preferences (Windows and Linux) .
 File / Preferences / Mouse Wheel
-The mouse wheel can be used in the tree view and the dialogs, when a scrollbar exists. The wheel can also be used during the drag and drops to reach parts of the tree that are outside of the display .
+The mouse wheel can be used in the tree view and the dialogs, when a scrollbar exists. The wheel can also be used during the drag and drops to reach parts of the tree that are outside of the display.
 
 The library X11 must be installed in Linux. (In Ubuntu its part of the standard install .)
 If you have problems (Slow display or error messages ) disable the mouse wheel again.

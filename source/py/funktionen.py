@@ -10,10 +10,9 @@ class Funktionen():
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
         self.mb = mb      
-        self.first_time = True  
 
         
-    def projektordner_ausklappen(self,ordinal = None):
+    def projektordner_ausklappen(self, ordinal=None, selektiere_zeile=True,ist_papierkorb=False):
         if self.mb.debug: log(inspect.stack)
         
         tree = self.mb.props[T.AB].xml_tree
@@ -30,7 +29,11 @@ class Funktionen():
 
         projekt_zeile = self.mb.props[T.AB].Hauptfeld.getControl(xml_projekt.tag)
         icon = projekt_zeile.getControl('icon')
-        icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
+        
+        if ist_papierkorb:
+            icon.Model.ImageURL = KONST.IMG_PAPIERKORB_GEOEFFNET
+        else:
+            icon.Model.ImageURL = KONST.IMG_ORDNER_GEOEFFNET_16
         
         for zeile in alle_elem:
             zeile.attrib['Sicht'] = 'ja'
@@ -44,7 +47,8 @@ class Funktionen():
         self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(xml_projekt.tag,xml_projekt,'zu',True)
         self.mb.class_Projekt.erzeuge_dict_ordner() 
         self.mb.class_Baumansicht.korrigiere_scrollbar()   
-        self.mb.class_Baumansicht.selektiere_zeile(ordinal)
+        if selektiere_zeile:
+            self.mb.class_Baumansicht.selektiere_zeile(ordinal)
          
         if T.AB == 'ORGANON':
             Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
@@ -52,7 +56,54 @@ class Funktionen():
             Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
         self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
 
+    
+    def ordner_schliessen(self,ordinal,bild=None):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            props = self.mb.props[T.AB]
+            props.selektierte_zeile = ordinal
+            
+            tree = props.xml_tree
+            root = tree.getroot()
+            ordinal_xml = root.find('.//' + ordinal)                
+
+            ordinal_xml.attrib['Zustand'] = 'zu'
+            
+            if bild == None:
+                bild_ordner = KONST.IMG_ORDNER_16
+                childs = list(ordinal_xml)
+                if len(childs) > 0:
+                    bild_ordner = KONST.IMG_ORDNER_VOLL_16
+            else:
+                bild_ordner = KONST.IMG_ORDNER_16
+                
+            zeile = props.Hauptfeld.getControl(ordinal)
+            model = zeile.getControl('icon').Model
+            model.ImageURL = bild_ordner
+            
+            if ordinal_xml.attrib['Art'] == 'waste':
+                model.ImageURL = KONST.IMG_PAPIERKORB_LEER
+                
+            self.mb.class_Baumansicht.selektiere_zeile(ordinal)
    
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_des_hf(ordinal,ordinal_xml,'auf',hf_ctrls=False)
+            self.mb.class_Projekt.erzeuge_dict_ordner() 
+            self.mb.class_Baumansicht.korrigiere_scrollbar()
+            self.mb.class_Zeilen_Listener.schalte_sichtbarkeit_hf_ctrls()
+            
+            self.mb.class_Baumansicht.selektiere_zeile(ordinal)
+            
+            if T.AB == 'ORGANON':
+                Path = os.path.join(self.mb.pfade['settings'], 'ElementTree.xml')
+            else:
+                Path = os.path.join(self.mb.pfade['tabs'] , T.AB +'.xml' )
+            self.mb.tree_write(self.mb.props[T.AB].xml_tree,Path)
+        
+        except:
+            log(inspect.stack,tb())
+                    
+                    
     def erzeuge_Tag1_Container(self,ord_source,X,Y,window_parent=None):
         if self.mb.debug: log(inspect.stack)
 
@@ -743,10 +794,14 @@ class Funktionen():
         if self.mb.debug: log(inspect.stack)
         
         try:
-            with codecs_open(pfad) as data:  
-                content = data.read().decode()  
-                odict = json.loads(content)
-                return odict
+            with open(pfad) as data:  
+                try:
+                    content = data.read()#.decode() 
+                    odict = json.loads(content)
+                except:
+                    odict = json.load(data)
+            
+            return odict
         except:
             log(inspect.stack,tb())  
             return None
@@ -1052,6 +1107,50 @@ class Funktionen():
         xml_tree.write(pfad_el_tree)
         
         
+    def repariere_Bereiche(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            secs = [doc.TextSections.getByName(s) for s in props.dict_bereiche['Bereichsname']]            
+            
+            ausnahmen = []
+            fehlerhafte = []
+            
+            for s in secs:
+                try:
+                    if 'OrgInnerSec' not in s.ChildSections[0].Name:
+                        fehlerhafte.append(s)
+                except:
+                    ausnahmen.append(s)
+                    
+            for a in ausnahmen:
+                # Ausnahmen besitzen gar keinen inneren Bereich
+                name = a.name
+                ordinal = props.dict_bereiche['Bereichsname-ordinal'][name]
+                org_name = 'OrgInnerSec' + ordinal.replace('nr','')
+                 
+                newSection = self.mb.doc.createInstance("com.sun.star.text.TextSection")
+                newSection.setName(org_name)
+                 
+                cur = a.Anchor.Text.createTextCursorByRange(a.Anchor)
+                a.Anchor.Text.insertTextContent(cur, newSection, True)
+                
+                self.mb.class_Bereiche.datei_speichern(ordinal)
+                 
+              
+            for f in fehlerhafte:
+                # fehlerhaft benannte Bereiche
+                name = a.name
+                ordinal = props.dict_bereiche['Bereichsname-ordinal'][name]
+                org_name = 'OrgInnerSec' + ordinal.replace('nr','')
+                 
+                f.ChildSections[0].setName(org_name)
+
+                self.mb.class_Bereiche.datei_speichern(ordinal)
+        except:
+            log(inspect.stack,tb())
+        
+
 
 class Teile_Text_Batch():
     def __init__(self,mb):
@@ -1064,17 +1163,7 @@ class Teile_Text_Batch():
             self.dialog_batch_devide()
         except:
             log(inspect.stack,tb())
-            
-        if self.mb.class_Funktionen.first_time:
-            self.mb.class_Funktionen.first_time = False
-            warnung = u'''Cross-references linking from the outside into the
-selected file will still point to the original file after the batch devide.
-
-This behaviour will be changed with the next release of Organon and the
-user will be able to choose, whereto they should refer.
-            '''
-            Popup(self.mb,typ='warning', parent = self.fenster).text = warnung
-            
+                        
             
     def dialog_batch_devide_elemente(self):
         if self.mb.debug: log(inspect.stack)
@@ -1083,15 +1172,15 @@ user will be able to choose, whereto they should refer.
         
         controls = [
             10,
-            ('control_Titel',"FixedText",0,       
-                                    20,0,250,20,    
+            ('control_Titel',"FixedText",1,       
+                                    'tab0',0,30,20,    
                                     ('Label','FontWeight'),
                                     (LANG.TEXT_BATCH_DEVIDE ,150),                  
                                     {}
                                     ), 
             35,
             ('control_Text',"Edit",0,        
-                                    20,0,350,20,    
+                                    'tab0x-tab1-E',0,100,20,    
                                     (),
                                     (),                  
                                     {}
@@ -1102,8 +1191,8 @@ user will be able to choose, whereto they should refer.
                 
         for el in elemente:
             controls.extend([
-            ('control_{}'.format(el),"CheckBox",0,      
-                                    20,0,200,20,    
+            ('control_{}'.format(el),"CheckBox",1,      
+                                    'tab0',0,200,20,    
                                     ('Label','State'),
                                     (getattr(LANG, el),0),        
                                     {'setActionCommand':el,'addActionListener':(listener,)} 
@@ -1111,16 +1200,34 @@ user will be able to choose, whereto they should refer.
             25 if el != 'REGEX' else 45])
             
         controls.extend([
-            -35,
+            20,
+            ('control_link',"CheckBox",1,      
+                                    'tab0x',0,20,20,    
+                                    ('Label','State','HelpText'),
+                                    (LANG.VERLINKE_IN_NEUE_DATEIEN,0,LANG.VERLINKE_IN_NEUE_DATEIEN_HELP),        
+                                    {'setActionCommand':'link','addActionListener':(listener,)} 
+                                    ), 
+            30,
             ('control_start',"Button",0,      
-                                    290,0,80,30,    
+                                    'tab1-max',0,80,30,    
                                     ('Label',),
                                     (LANG.START,),        
                                     {'setActionCommand':'start','addActionListener':(listener,)} 
                                     ),  
-            0])
+            20])
         
-        return controls
+        # feste Breite, Mindestabstand
+        tabs = {
+                 0 : (None, 10),
+                 1 : (None, 10),
+                 }
+        
+        abstand_links = 10
+        controls2,tabs3,max_breite = self.mb.class_Fenster.berechne_tabs(controls, tabs, abstand_links)
+          
+        return controls2,max_breite
+        
+        #return controls
 
  
     def dialog_batch_devide(self): 
@@ -1134,14 +1241,14 @@ user will be able to choose, whereto they should refer.
             # Listener erzeugen 
             self.listener = Batch_Text_Devide_Listener(self.mb)         
             
-            controls = self.dialog_batch_devide_elemente()
+            controls,max_breite = self.dialog_batch_devide_elemente()
             ctrls,pos_y = self.mb.class_Fenster.erzeuge_fensterinhalt(controls)   
             
             self.listener.ctrls = ctrls
             self.listener.ttb = self
             
             # Hauptfenster erzeugen
-            posSize = X,Y,380,210
+            posSize = X,Y,max_breite,pos_y
             fenster,fenster_cont = self.mb.class_Fenster.erzeuge_Dialog_Container(posSize)             
               
             # Controls in Hauptfenster eintragen
@@ -1162,11 +1269,12 @@ user will be able to choose, whereto they should refer.
         regex = ctrls['control_REGEX'].State
         ueberschriften = ctrls['control_UEBERSCHRIFTEN'].State
         leerzeilen = ctrls['control_LEERZEILEN'].State
+        verlinken = ctrls['control_link'].State
         
         if text == '' and not ueberschriften and not leerzeilen:
             Popup(self.mb, 'info').text = LANG.NICHTS_AUSGEWAEHLT_BATCH
         else:
-            args = text,ganzes_wort,regex,ueberschriften,leerzeilen
+            args = text, ganzes_wort, regex, ueberschriften, leerzeilen, verlinken
             self.fenster.dispose()
             self.run(args)
 
@@ -1175,7 +1283,7 @@ user will be able to choose, whereto they should refer.
         if self.mb.debug: log(inspect.stack)
         
         try:
-            text,ganzes_wort,regex,ueberschriften,leerzeilen = args
+            text, ganzes_wort, regex, ueberschriften, leerzeilen, verlinken = args
             
             ergebnis1 = []
             ergebnis2 = []
@@ -1222,22 +1330,22 @@ user will be able to choose, whereto they should refer.
             pfad_helfer_system = os.path.join(speicherordner,'batchhelfer.odt')
             pfad_helfer = uno.systemPathToFileUrl(pfad_helfer_system)
             
-            self.mb.class_Querverweise.querverweise_umbenennen(doc,ordinal)
+            self.mb.class_Querverweise.querverweise_umbenennen(doc, ordinal, verlinken)
             
             doc.storeToURL(pfad_helfer,())
             doc.close(False)
                
             tree_new = self.fuege_tree_in_xml_ein(tree)
             anz = self.neue_Dateien_erzeugen(pfad_helfer, tree)            
-            
+
             os.remove(pfad_helfer_system)
             self.schreibe_neuen_elementtree(tree_new,anz)
             self.lege_dict_sbs_an(tree)
             self.mb.class_Tags.speicher_tags()
-            
+
             self.mb.Listener.remove_Undo_Manager_Listener()
             self.mb.Listener.remove_VC_selection_listener()
-            
+             
             self.mb.class_Projekt.lade_Projekt2()
             
         except:
@@ -1471,9 +1579,7 @@ user will be able to choose, whereto they should refer.
                     fund = cur.Start
                                                 
                 cur.gotoRange(fund.Start,False)
-                
-                    
-                    
+                                    
                 if fund_ende != None:
                     cur.gotoRange(fund_ende.Start,True)
                 else:
@@ -1499,7 +1605,7 @@ user will be able to choose, whereto they should refer.
               
         except:
             log(inspect.stack,tb())
-        
+            
         return ausgesonderte,ordnung
     
      

@@ -1,4 +1,4 @@
-Anzeige von Ordnern/Dateien:
+Anzeige von Ordnern / Dateien
 Bei Klick auf eine Datei wird nur die Datei angezeigt.
 Bei Klick auf einen geschlossenen Ordner wird nur der Ordner selbst angezeigt.
 Bei Klick auf einen ausgeklappten Ordner werden alle Dateien und Ordner, die er beinhaltet, angezeigt. Von geschlossenen Ordnern in geöffneten Ordner werden wiederum nur die Ordner selbst angezeigt.

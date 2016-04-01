@@ -1,1 +1,2 @@
+Mouse Wheel
 See: General / Mouse Wheel Scrolling

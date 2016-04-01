@@ -741,8 +741,7 @@ class Erzeuge_Htmls():
 
     
     def erstelle_nav(self,dict_eintraege):    
-        
-        import json
+        if self.mb.debug: log(inspect.stack)
         
         self.navigation = []
         self.navigation.append(self.nav_Praeambel())        

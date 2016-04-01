@@ -29,13 +29,13 @@ class Bereiche():
         prop2 = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
         prop2.Name = 'AsTemplate'
         prop2.Value = True
-                
+            
         if URL == None:
             URL="private:factory/swriter"
             if self.mb.settings_proj['use_template'][0] == True:
                 if self.mb.settings_proj['use_template'][1] != '':
                     URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
-                
+                    
         self.oOO = self.mb.doc.CurrentController.Frame.loadComponentFromURL(URL,'_blank',0,(prop,prop2))
         
         
@@ -87,8 +87,8 @@ class Bereiche():
             
             URL="private:factory/swriter"
     
-            if self.mb.settings_proj['use_template'][0] == True:
-                URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
+#             if self.mb.settings_proj['use_template'][0] == True:
+#                 URL = uno.systemPathToFileUrl(self.mb.settings_proj['use_template'][1])
             self.oOO = self.mb.desktop.loadComponentFromURL(URL,'_blank',8+32,(prop,))
             
             nr = str(i) 
@@ -108,6 +108,8 @@ class Bereiche():
             
             if not self.mb.debug:
                 inhalt = ' '
+                
+            #inhalt = 'Die Datei ' + nr
                 
             text.insertString( cursor, inhalt, True )
             
@@ -280,7 +282,7 @@ class Bereiche():
         
         bereichsname = self.mb.props[T.AB].dict_bereiche['ordinal'][ordinal]
         self.datei_nach_aenderung_speichern(bereichsname,speichern = True)        
-        
+
         
     def datei_nach_aenderung_speichern(self, bereichsname = None, anderer_pfad = None, speichern = False):
         
@@ -472,7 +474,7 @@ class Bereiche():
                 sec, sec_name = self.get_organon_section(text_range)
                 
             ordinal = 'nr{}'.format(sec.Name.split('OrgInnerSec')[1])
-            
+
             if is_in_frame:
                 return ordinal, info['frame']
             else:
@@ -507,7 +509,7 @@ class Bereiche():
                     return None, ''
             
             par_sec = None  
-              
+            
             if text_range.TextSection != None:
                 sec = text_range.TextSection
                 
@@ -533,6 +535,8 @@ class Bereiche():
                     if sec != None:
                         par_sec = get_parsec(sec)
                         if info: get_info(text_range.TextFrame.Text)
+                except:
+                    return None, ''
                     
             if info:
                 return par_sec, par_sec.Name, info2

@@ -1,4 +1,4 @@
- Tags
+Tags
 
 Tags Categories are freely configurable.
 Name and width (in the Organizer view in cm) existing categories will be changed by changing the entry and then clicking on "Apply".

@@ -1,4 +1,4 @@
- öffnen/schließen
+Öffnen / Schließen
 Die Seitenleiste wird mit Menu > Ansicht > Seitenleiste geöffnet.
 Unter LO muss sie eventuell noch aktiviert werden:
 Extras > Optionen > LibreOffice > Erweitert > Experimentelle Funktionen aktivieren

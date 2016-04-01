@@ -93,5 +93,69 @@
 			
 			
     	</node>
+		<node oor:name="DeckList">
+	
+			<node oor:name="OrganonsToolDeckSearch" oor:op="replace">
+	    	    <prop oor:name="Title" oor:type="xs:string">
+            	   	<value >Organon Search</value>
+					
+	            </prop>
+	            <prop oor:name="Id" oor:type="xs:string">
+	               	<value>OrganonsToolDeckSearch</value>
+	            </prop>
+	            <prop oor:name="IconURL" oor:type="xs:string">
+	               	<value>vnd.sun.star.extension://xaver.roemers.organon/img/organon_icon_suche_30.png</value>
+	            </prop>				
+		       	<prop oor:name="ContextList">
+	           		<value oor:separator=";">
+	           			Writer, any, visible ;
+	               	</value>
+	           	</prop>
+				<prop oor:name="OrderIndex" oor:type="xs:int">
+					<value>10000</value>
+				</prop>
+	       	</node>
+
+	    </node>
+    	<node oor:name="PanelList">
+	
+			<node oor:name="Organon_Search" oor:op="replace">
+	        	<prop oor:name="Title" oor:type="xs:string">
+                	<value xml:lang="en">Organon Search</value>
+					<value xml:lang="de">Organon Search</value>
+					<value>Organon_Search</value>
+            	</prop>
+            	<prop oor:name="Id" oor:type="xs:string">
+                	<value>Organon_Search</value>
+            	</prop>
+            	<prop oor:name="DeckId" oor:type="xs:string">
+                	<value>OrganonsToolDeckSearch</value>
+            	</prop>
+            	<prop oor:name="ContextList">
+            		<value oor:separator=";">
+            			Writer, any, visible ;
+                	</value>
+            	</prop>
+            	<prop oor:name="ImplementationURL" oor:type="xs:string">
+            		<value>private:resource/toolpanel/OrganonSidebarFactory/organon_search</value>
+            	</prop>				
+            	<prop oor:name="OrderIndex" oor:type="xs:int">
+            		<value>100</value>
+            	</prop>
+            	<prop oor:name="WantsCanvas" oor:type="xs:boolean">
+            		<value>false</value>
+            	</prop>
+            	<prop oor:name="TitleBarIsOptional" oor:type="xs:boolean">
+            		<value>true</value>
+            	</prop>
+            	<!-- <prop oor:name="DefaultMenuCommand">
+          			<value>org.apache.openoffice.Organon.sidebar:Synopsis</value>
+        		</prop> -->
+        	</node>
+        	
+        	
+			
+			
+    	</node>
     </node>
 </oor:component-data>

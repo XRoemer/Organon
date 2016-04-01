@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pprint import pformat
+from collections import OrderedDict
 
 class Tools():
     
@@ -20,7 +21,7 @@ class Tools():
                 
             zipped = zipfile.ZipFile(pfad)
             content_xml = zipped.read(art).decode('utf-8')
-            
+            zipped.close()
             
             with codecs_open(pfad_plain_txt , "w","utf-8") as f:
                 f.write(content_xml)
@@ -109,7 +110,6 @@ class Tools():
     def xml2dict(self, node, ordered_dict=False):
         
         if ordered_dict:
-            from collections import OrderedDict
             d = OrderedDict()
         else:
             d = {}
@@ -126,9 +126,29 @@ class Tools():
             
             while key in d:
                 key = key + '_'
-            d[key] = xml2dict(e,ordered_dict)
+            d[key] = self.xml2dict(e,ordered_dict)
 
         return d
+    
+    
+    def xml2dict2(self, root):  
+                
+        xml_dict = {}
+          
+        def get_childs(el,xml):   
+                            
+            xml['tag'] = el.tag
+            xml['attrib'] = el.attrib
+            xml['children'] = {}
+            
+            for child in el:
+                xml['children'][child.tag] = {}
+                get_childs(child, xml['children'][child.tag])
+
+        get_childs(root, xml_dict)    
+        
+        return xml_dict
+    
     
     
     def get_screen_size(self):
@@ -143,6 +163,28 @@ class Tools():
          
         return res.strip()
      
+    
+    def get_mausposition(self,ev):
+        if self.mb.debug: log(inspect.stack)
+        
+        loc_on_screen = ev.Source.AccessibleContext.LocationOnScreen
+        loc_on_screenX = loc_on_screen.X
+        loc_on_screenY = loc_on_screen.Y
+        top_loc = self.mb.topWindow.AccessibleContext.LocationOnScreen
+        top_locX = top_loc.X
+        top_locY = top_loc.Y
+        
+        x = loc_on_screenX - top_locX
+        y =  loc_on_screenY - top_locY
+        
+        # In linux koennen die Fensterdekorationen bei den meisten
+        # Windowmanagern nicht unterdrueckt werden. Daher wird
+        # die Mausposition um 20px nach oben verschoben.
+        if sys.platform == 'linux':
+            y -= 20
+        
+        return x, y
+
        
     def prettyprint(self,pfad,oObject,w=600):
         if self.mb.debug: log(inspect.stack) 
@@ -383,7 +425,27 @@ class Tools():
     
     
     
-    
+    def ueberpruefe_LANG(self):
+                
+        import lang_de
+        
+        attr = [l for l in lang_de.__dict__ if not l.startswith('__')]                
+        pfad = os.path.join(self.mb.path_to_extension, 'py')
+        
+        for a,b,files in os.walk(pfad):
+            break
+
+        for f in files:
+            pfad2 = os.path.join(pfad,f)
+            gefundene = []
+            with codecs_open(pfad2, 'r', 'utf-8') as datei:
+                txt = datei.read()
+                for a in attr:
+                    if a in txt:
+                        gefundene.append(a)
+                for g in gefundene:
+                    attr.remove(g)
+        return attr
     
     
     

@@ -1,8 +1,6 @@
 Cross-references
 Cross-references in Organon can be created and used in the usual manner of Writer.
-They are updated with F9. Also cross-references in imported
-files are detected and integrated. Furthermore Organon jumps at a mouse click
-on a reference to the reference target.
+They are updated with F9. Also cross-references in imported files are detected and integrated. Furthermore Organon jumps at a mouse click on a reference to the reference target.
 
 
 
@@ -11,16 +9,16 @@ be selected and F9 has to be pressed to update.
 When exporting to one document cross-references are updated automatically.
 
 
-
 However, there are some special behaviours:
-• Since Organon doesn't load all files on startup and furthermore usually only
+Since Organon doesn't load all files on startup and furthermore usually only
 excerpts of the project are visible, cross-references show after updating
 incorrect page numbers, chapter numbers, position (above / below), or
 reference numbers.
-• Organon converts cross-references unnoticed by users into bookmarks and user variables. These can be found in the bookmarks as "zzOrganonBM" and in the user variables
+Organon converts cross-references unnoticed by users into bookmarks and user variables. These can be found in the bookmarks as "zzOrganonBM" and in the user variables
 as "zzOrganonField". These bookmarks and variables should not be affected, of course. Hiding them from the users was due to possible inadvertent erasure by the user not feasible.
-• When exporting to a document and the .odt format references are converted back into ordinary Writer references.
-• If the project is exported to individual files cross-references will show an error. There's no transformation of bookmarks and variables.
+When exporting to a document and the .odt format references are converted back into ordinary Writer references.
+If the project is exported to individual files cross-references will show an error. There's no transformation of bookmarks and variables.
+
 
 Note:
 References to chapter numbers do work in Organon, in Writer they don't (A bug in

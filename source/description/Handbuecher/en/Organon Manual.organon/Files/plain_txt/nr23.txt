@@ -1,3 +1,3 @@
-Undo:
+Undo
 You can undo sections as long as you only work within one node / file.
 As soon as you change the node, the text will be saved and the UndoManager will be resetted, so no action can be undone anymore.

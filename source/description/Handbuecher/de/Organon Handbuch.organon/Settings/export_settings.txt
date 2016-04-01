@@ -8,7 +8,7 @@
  'einz_dat': 0,
  'einz_dok': 1,
  'format_dat': 0,
- 'format_ord': 1,
+ 'format_ord': 0,
  'hoehe_auswahlfenster': 200,
  'html_export': {'AUSRICHTUNG': 1,
                  'CSS': 0,

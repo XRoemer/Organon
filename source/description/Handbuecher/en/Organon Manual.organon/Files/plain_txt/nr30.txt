@@ -1,5 +1,5 @@
-open/close
-To open or close the sidebar in OO/LO:
+Open / close
+To open or close the sidebar in OO / LO:
 View > Sidebar
 To enable the sidebar in LO:
 Tools > Options > Advanced > Enable Experimental Features/Sidebar

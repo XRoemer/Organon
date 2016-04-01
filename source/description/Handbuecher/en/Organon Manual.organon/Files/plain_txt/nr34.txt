@@ -1,4 +1,4 @@
-Homepage and Feedback:
+Homepage and Feedback
 
 The entries Homepage and Feedback will open the related sites in a browser.
 Homepage: https://github.com/XRoemer/Organon

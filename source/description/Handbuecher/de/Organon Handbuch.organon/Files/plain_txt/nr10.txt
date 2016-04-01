@@ -1,17 +1,18 @@
-Export Hauptfenster 
-Alles/Sichtbare/Auswahl:
+Export Hauptfenster
+
+Alles/Sichtbare/Auswahl
 „Alles“ wählt alles aus dem Projektordner aus. Ordner, die nicht im Projektordner enthalten sind, werden nicht exportiert. 
 „Sichtbare“ wählt im Dokumentenfenster sichtbare Dateien und Ordner aus.
 „Auswahl“ läßt Sie eine Auswahl aus allen Dateien/Ordnern im Projektordner treffen. Die Auswahl wird gespeichert und ist beim nächsten Aufruf wieder vorhanden. 
 Im Auswahlfenster: „Klick auf Ordner wählt Untereinträge aus“:
 		Aktiviert, werden Untereinträge automatisch ausgewählt.
 
-exportieren als:
+exportieren als
 Ein Dokument: Die getroffene Dateiauswahl wird in ein Dokument exportiert
 Trenner: zwischen jeder Datei wird ein Trenner eingefügt. Siehe Trennerfenster
 einzelne Dateien: Alle ausgewählte Dateien werden wieder in einzelne Dateien exportiert.
 Ordnerstruktur beibehalten: Die Ordnerstruktur im Dokument wird beim Export beibehalten.
 
-Dateityp (Filter):
+Dateityp (Filter)
 Die Dateien werden als entsprechender Typ exportiert. (Beim Export funktioniert pdf)
 

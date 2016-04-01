@@ -1,4 +1,4 @@
-Display of Files and Folders:
+Display of Files and Folders
 On click on a file only the file will be shown.
 On click on a closed folder only the folder himself will be shown.
 On click on a open folder all files and contained folders will be shown. Closed folders inside will only show themselves

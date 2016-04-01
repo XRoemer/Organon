@@ -52,11 +52,12 @@ def pydevBrk():
     # adjust your path 
     if platform == 'linux':
         # Ubuntu
-        #sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc') 
+        sys.path.append('/home/xgr/.eclipse/org.eclipse.platform_4.4.1_1473617060_linux_gtk_x86_64/plugins/org.python.pydev_4.0.0.201504132356/pysrc') 
         # Fedora
-        sys.path.append('/root/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc')     
+        #sys.path.append('/root/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc')     
     else:
-        sys.path.append(r'C:/Users/Homer/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc')  
+        sys.path.append(r'C:/Users/Homer/.p2/pool/plugins/org.python.pydev_4.4.0.201510052309/pysrc') 
+        #sys.path.append(r'C:/Users/xgr/.p2/pool/plugins/org.python.pydev_4.5.4.201601292234/pysrc') 
     from pydevd import settrace
     settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True) 
 pd = pydevBrk
@@ -363,6 +364,7 @@ set_konst()
 dict_sb = {
            'controls' : {},
            'erzeuge_sb_layout' : None,
+           'erzeuge_sb_search_layout' : None,
            'setze_sidebar_design'  : None,
            'design_gesetzt' : False,
            'sb_closed' : True,
@@ -423,7 +425,12 @@ class ElementFactory( unohelper.Base, XUIElementFactory ):
             if dict_sb['erzeuge_sb_layout'] != None:
  
                 dict_sb['sb_closed'] = False
-                dict_sb['erzeuge_sb_layout']()
+                if cmd == 'organon_sidebar':
+                    dict_sb['sb_closed'] = False
+                    dict_sb['erzeuge_sb_layout']()
+                else:
+                    dict_sb['sb_closed'] = True
+                    dict_sb['erzeuge_sb_search_layout']()
             else:
                 pos_y = 10
                 height = 50 
@@ -460,7 +467,6 @@ g_ImplementationHelper.addImplementation(
         ElementFactory,
         "org.apache.openoffice.Organon.sidebar.OrganonSidebarFactory",
         ("com.sun.star.task.Job",),) 
-
 
 
 ####################################################

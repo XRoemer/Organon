@@ -1,4 +1,4 @@
-Show Text Sections:
+Show Text Sections
 For a better user experience the text section boundaries can be toggled.
 
 In LO the function turns off of both text boundaries and area boundaries .

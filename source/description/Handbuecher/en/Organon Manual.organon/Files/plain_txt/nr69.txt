@@ -1,4 +1,4 @@
- Personas (only LO)
+Personas (only LO)
 Under "Design: Personas" in the Organon settings Personas can quickly and easily be created, as well as existing ones can be set or cleared.
 
 To set a Persona, a persona has to be selected in the left column. The font color is determined by font color displayed in the middle column. Press "use Persona".

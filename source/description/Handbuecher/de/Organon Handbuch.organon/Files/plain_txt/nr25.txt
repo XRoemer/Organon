@@ -1,4 +1,4 @@
-Zeige Textbereiche:
+Zeige Textbereiche
 Für eine bessere Darstellung kann die Anzeige der Bereichsumrandungen an- und abgestellt werden. 
 In LO werden mit der Funktion sowohl Textbegrenzungen als auch Bereichsumrandungen ausgeschaltet. 
 In OO müssen die Bereichsumrandungen unter:

@@ -97,7 +97,7 @@ xmlns:css3t="orgax_nsp123">'''
         
     
     def get_root(self,txt):
-        import xml.etree.ElementTree as ElementTree
+        #import xml.etree.ElementTree as ElementTree
         try:
             if ':' in txt:
                 txt = self.prae + txt + self.post
@@ -430,7 +430,8 @@ xmlns:css3t="orgax_nsp123">'''
                 bms = doc.Bookmarks
                 bm = bms.getByName(source_name)
                 
-                ordinal = self.mb.class_Bereiche.get_ordinal(bm.Anchor)
+                ordinal2 = self.mb.class_Bereiche.get_ordinal(bm.Anchor)
+                self.mb.class_Bereiche.datei_speichern(ordinal2)
                 self.mb.class_Bereiche.datei_speichern(ordinal)
                 return
 
@@ -507,8 +508,7 @@ xmlns:css3t="orgax_nsp123">'''
                     text = self.get_ueberschrift(ordinal, fn.Anchor)
                     orga_ref = 'zzOrganonField_{0}_{1}_'.format(ref_field_source, ref_field_part) + bm_name.replace('zzOrganonBM_', '')
                     self.benutzerfeld_anlegen(doc, cursor, orga_ref, text)
-                
-            
+              
             if ordinal == zf_ordinal:
                 self.mb.class_Bereiche.datei_speichern(ordinal) 
             else:
@@ -529,10 +529,11 @@ xmlns:css3t="orgax_nsp123">'''
             
             zipped = ZipFile(pfad)
             text_xml = zipped.read('content.xml')
+            zipped.close()
+            
             text_part = text_xml.split(b'<office:text',1)[1]
             
-            bms = [t.split(b'"/>')[0].decode('utf-8') for t in text_part.split(b'<text:bookmark-start text:name="')][1:]
-            
+            bms = [t.split(b'"/>')[0].decode('utf-8') for t in text_part.split(b'<text:bookmark-start text:name="')][1:]            
             return bms
 
         except:
@@ -567,7 +568,7 @@ xmlns:css3t="orgax_nsp123">'''
                             if 'zzOrganonBM_' in bm.Name:
                                 return bm.Name
                     except:
-                        # wenn Textinstanzen von doc und einem frame verglichen
+                        # wenn Textinstanzen von doc und einem textfeld verglichen
                         # werden, erzeugt das Fehler
                         pass
             except:
@@ -710,6 +711,9 @@ xmlns:css3t="orgax_nsp123">'''
 
                     if master.Content != text:
                         master.Content = text
+                        
+                else:
+                    master.Content = self.mb.settings_orga['CMDs'][self.mb.language]['REFERENZ_NICHT_GEFUNDEN']
 
             except:
                 log(inspect.stack,tb())
@@ -824,6 +828,8 @@ xmlns:css3t="orgax_nsp123">'''
                     
                     zipped = ZipFile(pf)
                     text_xml = zipped.read('content.xml').decode('utf-8')
+                    zipped.close()
+                    
                     if ref_xml in text_xml:
                         ziel_ordinal = ordinal
                         break
@@ -960,6 +966,7 @@ xmlns:css3t="orgax_nsp123">'''
                 pfad = os.path.join(self.mb.pfade['odts'], ordinal + '.odt')
                 zipped = ZipFile(pfad)
                 text_xml = zipped.read('content.xml').decode('utf-8')
+                zipped.close()
                 
                 fundstellen = sorted( 
                                      [ 
@@ -1161,12 +1168,9 @@ xmlns:css3t="orgax_nsp123">'''
         cur.Text.insertTextContent(cur,txt_fd,False)    
         
         
-    def querverweise_umbenennen(self,doc,ordinal):
-        if self.mb.debug: log(inspect.stack)
+    def get_verweise(self,doc): 
         
         try:
-            bookmarks = doc.Bookmarks
-            
             enum = doc.TextFields.createEnumeration()
             
             verweise = {
@@ -1176,7 +1180,6 @@ xmlns:css3t="orgax_nsp123">'''
                         'organon_felder' : {},
                         'benutzer_feld' : {}
                         }
-            
             
             while enum.hasMoreElements():
                 
@@ -1198,6 +1201,9 @@ xmlns:css3t="orgax_nsp123">'''
                         verweise[key][source_name] = [tf]
                         
                 elif 'com.sun.star.text.TextField.User' in tf.SupportedServiceNames:
+                    
+                    source_name = 'zzOrganonBM_' + tf.TextFieldMaster.Name.split('_')[-1]
+                    
                     if 'zzOrganonField' in tf.TextFieldMaster.Name:
                         key = 'organon_felder'
                     else:
@@ -1207,107 +1213,224 @@ xmlns:css3t="orgax_nsp123">'''
                         verweise[key][source_name].append(tf)
                     else:
                         verweise[key][source_name] = [tf]
-                    
-            namen_verweisziele = self.mb.class_Querverweise.get_lesezeichen_in_content_xml(ordinal)
-            namen_verweisziele = [ b for b in namen_verweisziele if 'zzOrganonBM' in b]
-            neue_refs = { b : self.time_stamp()  for b in namen_verweisziele}
-            umbenannte = {}
-                                
-            verweisziele = [bookmarks.getByName(b) for b in namen_verweisziele]
-
-            for b in verweisziele:
-                b.setName('zzOrganonBM_' + neue_refs[b.Name])
             
-            for key,verw in verweise['organon_bm'].items():
-                for b in verw:
-                    b.SourceName = 'zzOrganonBM_' + neue_refs[key]
-            
-            for key,verw in verweise['organon_felder'].items():
-                for b in verw:
-                    splittext = b.TextFieldMaster.Name.split('_')
-                    name = '_'.join(splittext[:-1])
-                    stamp = splittext[-1]
-                    referenz = name + '_' + neue_refs['zzOrganonBM_' + stamp]
-                    
-                    text_range = b.Anchor
-                    inhalt = b.TextFieldMaster.Content
+            return verweise
         
-                    self.benutzerfeld_anlegen(doc, text_range, referenz, inhalt)
-                    b.dispose()  
+        except:
+            log(inspect.stack,tb())
+            return verweise   
+    
+    
+    def get_xml(self, ordinal, art='content.xml', split_text=True):
+        if self.mb.debug: log(inspect.stack)
+        try:
+            pfad = os.path.join(self.mb.pfade['odts'], ordinal + '.odt')
                 
-                
-            def get_referenzierte_listen_und_ueberschriften(ordinal, doc):
+            zipped = ZipFile(pfad)
+            text_xml = zipped.read(art)
+            zipped.close()
             
-                pfad = os.path.join(self.mb.pfade['odts'], ordinal + '.odt')
-                
-                zipped = ZipFile(pfad)
-                text_xml = zipped.read('content.xml')
-                text_part = text_xml.split(b'<office:text',1)[1]
-                
-                listen_bms = [t.split(b'"/>')[0].decode('utf-8') for t in text_part.split(b'<text:bookmark-start text:name="__RefNumPara__')][1:]
-                listen_namen = ['__RefNumPara__' + b for b in listen_bms]
-                refs_listen = {n : doc.Bookmarks.getByName(n) for n in listen_namen }
-                
-                ueber_bms = [t.split(b'"/>')[0].decode('utf-8') for t in text_part.split(b'<text:bookmark-start text:name="__RefHeading__')][1:]
-                ueber_namen = ['__RefHeading__' + b for b in ueber_bms]
-                refs_ueberschriften = { n : doc.Bookmarks.getByName(n) for n in ueber_namen }
-                
-                referenzierte = {
-                                 'listen' : refs_listen,
-                                 'ueberschriften' : refs_ueberschriften
-                                 }
-                
-                return referenzierte
+            if split_text:
+                return text_xml.split(b'<office:text',1)[1]
+            else:
+                return text_xml
+        except:
+            log(inpsect.stack,tb())
+            return b''
+    
+    def get_referenzierte_listen_und_ueberschriften(self, ordinal, doc ):
+        if self.mb.debug: log(inspect.stack)
+        try:                   
+            text_part = self.get_xml(ordinal)
             
-                        
+            listen_bms = [t.split(b'"/>')[0] for t in text_part.split(b'<text:bookmark-start text:name="__RefNumPara__')][1:]
+            listen_namen = ['__RefNumPara__' + b.decode('utf-8') for b in listen_bms]
+            refs_listen = {n : doc.Bookmarks.getByName(n) for n in listen_namen }
+            
+            ueber_bms = [t.split(b'"/>')[0] for t in text_part.split(b'<text:bookmark-start text:name="__RefHeading__')][1:]
+            ueber_namen = ['__RefHeading__' + b.decode('utf-8') for b in ueber_bms]
+            refs_ueberschriften = { n : doc.Bookmarks.getByName(n) for n in ueber_namen }
+            
+            ziele = {
+                     'listen' : refs_listen,
+                     'ueberschriften' : refs_ueberschriften
+                     }
+            namen = listen_namen + ueber_namen
+            
+            return ziele, namen
+        except:
+            log(inspect.stack,tb())
+            return {}
+                
+        
+    def querverweise_umbenennen(self, doc, ordinal, verlinken):
+        if self.mb.debug: log(inspect.stack)
+        
+        try:
+            bookmarks = doc.Bookmarks
+            verweise = self.get_verweise(doc)
+                    
+            ziele_namen = self.get_lesezeichen_in_content_xml(ordinal)
+            ziele_namen = [ b for b in ziele_namen if 'zzOrganonBM' in b ]
+            ziele_li_ue, ziele_li_ue_namen = self.get_referenzierte_listen_und_ueberschriften(ordinal, doc)
+            
+                    
+            def get_neue_verweisnamen():
+                
+                neue_refs = { b : self.time_stamp()  for b in ziele_namen }
+                
+                for alter_name in ziele_li_ue_namen:
+                    gesplittet = alter_name.split('_')
+                    art = gesplittet[2]
+                    nummern = gesplittet[-2:]
+                    neuer_name = '__{0}__{1}_{2}'.format( art, nummern[0], self.time_stamp() )
+                    neue_refs.update({alter_name : neuer_name})
+                    
+                return neue_refs
+            
+            
+            # VERWEISE LISTEN UND UEBERSCHRIFTEN umbenennen            
             def benenne_listen_und_ueberschriften_um():
                                 
-                def umbenennen(ref, art, key, tfs_verweise):
-                    stamp = self.mb.class_Querverweise.time_stamp()
+                def umbenennen(ziel, art, key, tfs_verweise):
                     
-                    alter_name = ref.Name
-                    nummern = alter_name.split('_')[-2:]
-                    neuer_name = '__{0}__{1}_{2}'.format( art, nummern[0], stamp )
+                    neuer_name = neue_refs[ziel.Name]
+                    ziel.setName(neuer_name)
                     
-                    ref.setName(neuer_name)
-                    
-                    for v in tfs_verweise['listen_und_ueberschriften'][key]:
-                        v.SourceName = neuer_name
-                    
-                    umbenannte[alter_name] = neuer_name
-                    
+                    if key in tfs_verweise['listen_und_ueberschriften']:
+                        for v in tfs_verweise['listen_und_ueberschriften'][key]:
+                            v.SourceName = neuer_name
+                                        
                     if art == 'RefHeading':
                         # Wegen eines Bugs in Writer, der bei einem Link zu einer 
                         # Region eines Bereiches  __RefHeading__ loescht, wird
                         # hier ein Paragraph eingefuegt, der in funktionen BatchImport
                         # neue_dateien_einfuegen() wieder geloescht wird.
-                        cur = ref.Anchor.Text.createTextCursorByRange(ref.Anchor)
+                        cur = ziel.Anchor.Text.createTextCursorByRange(ziel.Anchor)
                         cur.gotoStartOfParagraph(False)
-                        ref.Anchor.Text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
+                        ziel.Anchor.Text.insertControlCharacter( cur, PARAGRAPH_BREAK, 0 )
                         cur.goLeft(1,False)
                         cur.setString('***Inserted By Organon***')
                         
                 
-                for key in referenzierte['listen']:
-                    if key in verweise['listen_und_ueberschriften']:
-                        ref = referenzierte['listen'][key]
-                        umbenennen(ref, 'RefNumPara', key, verweise)
+                for key,ziel in ziele_li_ue['listen'].items():
+                    umbenennen(ziel, 'RefNumPara', key, verweise)
                             
-                for key in referenzierte['ueberschriften']:
-                    if key in verweise['listen_und_ueberschriften']:
-                        ref = referenzierte['ueberschriften'][key]
-                        umbenennen(ref, 'RefHeading', key, verweise)
+                for key,ziel in ziele_li_ue['ueberschriften'].items():
+                    umbenennen(ziel, 'RefHeading', key, verweise)
                 
             
-            referenzierte = get_referenzierte_listen_und_ueberschriften(ordinal, doc)    
+            neue_refs = get_neue_verweisnamen()   
+            
             benenne_listen_und_ueberschriften_um()    
-               
+
+            ziele = [ bookmarks.getByName(b) for b in ziele_namen ]
+            
+            # ZIELE umbenennen
+            for b in ziele:
+                b.setName( 'zzOrganonBM_' + neue_refs[b.Name] )
+                
+            # VERWEISE umbenennen
+            def verweise_umbenennen(verweise_dict,odoc,ziele_namen2=None):
+                # BOOKMARKS umbenennen
+                for key,verw in verweise_dict['organon_bm'].items():
+                    if ziele_namen2:
+                        if key not in ziele_namen2:
+                            continue
+                    for b in verw:
+                        b.SourceName = 'zzOrganonBM_' + neue_refs[key]
+                # FELDER umbenennen
+                for key,verw in verweise_dict['organon_felder'].items():
+                    if ziele_namen2:
+                        if key not in ziele_namen2:
+                            continue
+                    for b in verw:
+                        splittext = b.TextFieldMaster.Name.split('_')
+                        name = '_'.join(splittext[:-1])
+                        stamp = splittext[-1]
+                        referenz = name + '_' + neue_refs['zzOrganonBM_' + stamp]
+                        
+                        text_range = b.Anchor
+                        inhalt = b.TextFieldMaster.Content
+            
+                        self.benutzerfeld_anlegen(odoc, text_range, referenz, inhalt)
+                        b.dispose()  
+            
+            verweise_umbenennen(verweise,doc)
+            
+             
+            def verlinkungen_umbenennen():
+                # VERLINKTE VERWEISE umbenennen
+
+                # Verweise in anderen Dateien 
+                # auf die zu trennende Datei suchen
+                props = self.mb.props['ORGANON']                
+                ordinale = [ o for o in props.dict_bereiche['ordinal'] if o != ordinal ]
+                
+                try:
+                    for o in ordinale:
+                        
+                        text_part = self.get_xml(o)
+                                            
+                        for name in neue_refs:
+                            if bytes(name,'utf-8') in text_part:
+                                
+                                url = props.dict_bereiche['Bereichsname'][ props.dict_bereiche['ordinal'][o] ]
+                                url = uno.systemPathToFileUrl( url )
+                                doc2 = self.mb.doc.CurrentController.Frame.loadComponentFromURL(url,'_blank',0,(PROP_HIDDEN,))                            
+                                verlinkte = self.get_verweise(doc2)
+                                
+                                verweise_umbenennen( verlinkte, doc2, list(neue_refs) )
+                                
+                                for key,ver in verlinkte['listen_und_ueberschriften'].items():
+                                    for v in ver:
+                                        if v.SourceName in neue_refs:
+                                            v.SourceName = neue_refs[v.SourceName]
+                                
+                                doc2.store()
+                                doc2.close(False)
+                                break
+                            
+                except:
+                    log(inspect.stack,tb())
+            
+            if verlinken:
+                verlinkungen_umbenennen()    
+
         except:
             log(inspect.stack,tb())
             
+        
+
+
+
+
+
+
+
+
             
-        return neue_refs, umbenannte
             
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
             
             
             

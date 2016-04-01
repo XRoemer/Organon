@@ -1,0 +1,72 @@
+ 
+Table of Contents
+Organon Manual	1
+Description	2
+Start	5
+New project	5
+Create Project	5
+Formatting with Writer and Organon	7
+Load Project	8
+Load Manual	8
+General	8
+Navigation	8
+Saving	8
+Display of Files and Folders	9
+Renaming Files and Folders	9
+Scrolling / Mouse Wheel Scrolling	9
+Clear recycle bin	10
+Undo	10
+Menu: File	10
+New Document / New Folder	10
+Import	10
+Export	11
+Main Window and Selection Window	11
+Separator Window	12
+Preferences	12
+Separator	12
+Design	13
+Writer Design	14
+ Personas (only LO)	15
+Tags	15
+Templates	16
+Shortcuts	17
+Translations	17
+Mouse Wheel	18
+Html Export	18
+Logging	18
+Backup	18
+Menu: Edit	19
+Organizer	19
+New Tab	20
+Dialog	20
+Logic	21
+Sort By Time Tag	22
+Own Selection:	22
+Tags Sidebar:	22
+Tags Treeview:	22
+Inside a Tab	22
+Close active Tab:	22
+Import to Tab:	23
+Search	23
+Divide Text	24
+Divide Text (Batch)	24
+Combine Files	25
+Texttools	25
+Text Comparison: Find Quotes	25
+Create Words List	26
+Create Index	26
+Unfold Project Folder	27
+Clear Waste Bin	27
+Menu: Options	27
+Tags	27
+Show Text Sections	27
+Homepage and Feedback	27
+Sidebar	28
+Open / close	28
+Tags	28
+Miscellaneous	28
+Translations	28
+Cross-references	29
+Copy and Paste from the Internet	30
+Internal Version Control	30
+

@@ -66,8 +66,8 @@ class Log():
                     '\r\n'\
                     '################\r\n'
                     
-            with codecs_open( path, "a","utf-8") as file:
-                file.write(text)
+            with codecs_open( path, "a","utf-8") as f:
+                f.write(text)
                 
         except:
             print(tb())
@@ -80,6 +80,21 @@ class Log():
     def log(self,args,traceb = None,extras = None):
 
         try:
+            
+            if isinstance(args, list):
+                
+                info = "*** ERROR: *** \nCan't catch exact description. \nStack:"
+                text = [ '{0} {1} {2}'.format(s[1], s[2], s[3]) for s in args ]
+                
+                msg = '\n'.join([info] + text)
+                path2 = join(self.location_debug_file,'error_log.txt')
+                with codecs_open( path2, "a","utf-8") as f:
+                    f.write('### ERROR ### \r\n')
+                    f.write(msg + '\r\n')
+                print(msg)
+
+                return
+            
             
             info = args()
 
@@ -134,31 +149,31 @@ class Log():
             
             if self.write_debug_file:
                 path = join(self.location_debug_file,'organon_log.txt')
-                with codecs_open( path, "a","utf-8") as file:
-                    file.write(string+'\n')
+                with codecs_open( path, "a","utf-8") as f:
+                    f.write(string+'\n')
                 
                 if traceb != None:
                     print(traceb)
                     
-                    with codecs_open( path, "a","utf-8") as file:
-                        file.write('### ERROR ### \r\n')
+                    with codecs_open( path, "a","utf-8") as f:
+                        f.write('### ERROR ### \r\n')
                         try:
-                            file.write(traceb+'\r\n')
+                            f.write(traceb+'\r\n')
                         except:
                             print('ERROR ON WRITING ERROR TO FILE')
-                            file.write(str(traceb)+'\r\n')
+                            f.write(str(traceb)+'\r\n')
     
                 if extras != None:
                     print(extras)
-                    with codecs_open( path, "a","utf-8") as file:
-                        file.write(extras+'\r\n')
+                    with codecs_open( path, "a","utf-8") as f:
+                        f.write(extras+'\r\n')
             
 #             self.suche()        
 #             # HELFER          
 #             nachricht = self.suche()
 #             if nachricht != None:
-#                 with open(path , "a") as file:
-#                     file.write(nachricht+'\r\n')
+#                 with open(path , "a") as f:
+#                     f.write(nachricht+'\r\n')
             
 #             self.helfer()
             
@@ -166,9 +181,9 @@ class Log():
             if traceb != None:
                 
                 path2 = join(self.location_debug_file,'error_log.txt')
-                with codecs_open( path2, "a","utf-8") as file:
-                    file.write('### ERROR ###1 \r\n')
-                    file.write(traceb+'\r\n')
+                with codecs_open( path2, "a","utf-8") as f:
+                    f.write('### ERROR ###1 \r\n')
+                    f.write(traceb+'\r\n')
                 
                 try:
                     if not self.write_debug_file:
@@ -181,13 +196,13 @@ class Log():
                 print(str(e))
                 print(tb())
                 path = join(self.location_debug_file,'organon_log_error.txt')
-                with codecs_open( path, "a","utf-8") as file:
-                    file.write(str(e) +'\r\n')
-                    file.write(str(tb()) +'\r\n')
+                with codecs_open( path, "a","utf-8") as f:
+                    f.write(str(e) +'\r\n')
+                    f.write(str(tb()) +'\r\n')
             except:
                 print(tb())
-                with codecs_open( path, "a","utf-8") as file:
-                    file.write(str(tb()) +'\r\n')
+                with codecs_open( path, "a","utf-8") as f:
+                    f.write(str(tb()) +'\r\n')
                     
 
     def format_argues(self,argues):

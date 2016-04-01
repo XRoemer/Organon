@@ -1,5 +1,6 @@
 Formatierung mit Writer und Organon
 Wichtig: Änderungen in der Formatierung ( fett / kursiv / rechtsbündig etc.) werden nur gespeichert, wenn auch der Text geändert wurde. Deshalb muss wenigstens ein Zeichen in der bearbeiteten Datei geändert werden, sollen auch die Formatierungen gespeichert werden. (z.B Leerzeichen einfügen und wieder löschen.)
+
 Über Organons Arbeitsweise:
 Organon unterteilt Ihr Hauptdokument in Unterdokumente. Für jeden Ordner- bzw. Dokumenteneintrag in der Baumansicht wird ein neues Unterdokument angelegt. (Die Unterdokumente befinden sich in Ihrem Projektordner unter Files/odt) Diese Unterdokumente werden mittels Textbereichen in das Hauptdokument verlinkt. Das hat Konsequenzen für die Formatierung: 
 Dokumentweite Formatierungen können nur über Formatvorlagen geändert werden.

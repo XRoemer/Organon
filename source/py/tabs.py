@@ -367,42 +367,6 @@ class Tabs():
                         (),
                         {}
                         ),
-#         #################### SUCHE ########################
-#         30,
-#         ('but1_Suche',"Button",0, 
-#                         'tab2', 0, 16, 16,  
-#                         ('Label','HelpText'),
-#                         (u'V',LANG.TAB_HELP_TEXT),
-#                         {'setActionCommand':'V','addActionListener':(button_listener),'Enable':False}
-#                         ),
-#         0,
-#         ('CB_Suche',"CheckBox",1, 
-#                         'tab0', 0, width, 20,  
-#                         ('Label',),
-#                         (LANG.SUCHE,),
-#                         {'Enable':False} 
-#                         ),
-#         0,
-#         ('edit_Suche',"Edit",0, 
-#                         'tab1-tab1-E', 0, width2, 20, 
-#                         ('Label',),
-#                         (LANG.AUSWAHL,),
-#                         {'addTextListener':(button_listener),'Enable':False }
-#                         ),
-#         20,
-#         ('txt_Suche',"FixedText",1, 
-#                         'tab0x+{}'.format(abst1), 0, 200, 20,  
-#                         ('Label',),
-#                         ('',),
-#                         {'Enable':False} 
-#                         ),
-#         20,
-#         ('Line4',"FixedLine",0, 
-#                         'tab0x+{}-tab2'.format(abst1), 0, 50, 20, 
-#                         (), 
-#                         (),
-#                         {}
-#                         ),  
         ####################################################################
         50,
         ('Zeit',"CheckBox",1, 

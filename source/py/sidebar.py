@@ -17,6 +17,7 @@ class Sidebar():
         if mb.debug: log(inspect.stack)
         self.mb = mb     
         self.mb.dict_sb['erzeuge_sb_layout'] = self.erzeuge_sb_layout
+        self.mb.dict_sb['erzeuge_sb_search_layout'] = self.erzeuge_sb_search_layout
 
         self.hoehen = [] 
         self.offen = {}
@@ -36,7 +37,7 @@ class Sidebar():
             if self.mb.settings_orga['organon_farben']['design_office']:
                 dict_sb['setze_sidebar_design']()
                 
-                      
+
         # hoehen zuruecksetzen
         self.hoehen = []
 
@@ -399,6 +400,14 @@ class Sidebar():
             
         except:
             log(inspect.stack,tb())  
+            
+
+    def erzeuge_sb_search_layout(self):
+        if self.mb.debug: log(inspect.stack)
+        
+        self.mb.class_Suche.erzeuge_sb_search_layout()
+        return            
+        
 
         
     def berechne_bildgroesse(self,model,hoehe):
@@ -490,7 +499,7 @@ class Sidebar():
             log(inspect.stack,tb())            
 
     
-    def get_seitenleiste(self):
+    def get_seitenleiste(self,descr='Organon'):
         if self.mb.debug: log(inspect.stack)
                
         desk = self.mb.desktop
@@ -519,7 +528,7 @@ class Sidebar():
                     for w in c.Windows:
                         try:
                             for w2 in w.Windows:
-                                if w2.AccessibleContext.AccessibleDescription == 'Organon':
+                                if w2.AccessibleContext.AccessibleDescription == descr:
                                     orga_sb = w2
                                     ch = c
                         except:
@@ -754,10 +763,10 @@ class Tags_Collapse_Button_Listener(unohelper.Base, XMouseListener):
         source = ev.Source
         txt = source.Context.Controls[1].Text
         panel_nr = self.mb.tags['name_nr'][txt]
-        self.collaps_expand_panels(panel_nr,txt,source)
+        self.collapse_expand_panels(panel_nr,txt,source)
 
 
-    def collaps_expand_panels(self,panel_nr,name,source):   
+    def collapse_expand_panels(self,panel_nr,name,source):   
         if self.mb.debug: log(inspect.stack)
         try:
             
@@ -806,9 +815,9 @@ class Tags_Collapse_Button_Listener(unohelper.Base, XMouseListener):
         
 
 
+
         
-        
-        
+
         
         
         

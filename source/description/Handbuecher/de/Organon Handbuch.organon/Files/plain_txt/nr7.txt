@@ -1,1 +1,1 @@
-Menu: Optionen
+Menu: Ansicht

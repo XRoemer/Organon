@@ -1,10 +1,12 @@
+Create Project
+
 Project name:
 Name the project.
 Please note: The project can not be renamed . In order to provide the project with a new name , it needs to be exported as a project . ( File / Export / Export as / new project )
 
 Save to folder: 
 Choose a folder. Organon will create a folder with the name:
-„<project name>.organon“ 
+“<project name>.organon”
 
 ( Linux ) Make sure that you have write permissions for the folder .
 

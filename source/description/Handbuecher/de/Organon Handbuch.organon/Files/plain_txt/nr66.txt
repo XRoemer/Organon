@@ -21,7 +21,8 @@ Das Zeichen %s muss beibehalten werden und in der Übersetzung genauso häufig v
 Der Text muss folgende Form haben:   BEZEICHNUNG = u" Übersetzung " 
 oder u' Übersetzung ' oder u''' Übersetzung '''.Die Übersetzung wird von Anführungsstrichen umschlossen. Bei doppelten Anführungsstrichen dürfen in der Übersetzung nur einfache vorkommen und vice versa. (z.B. u" dies ist ein 'alter Hut' ")
 Das Zeichen "\" am Ende einer Zeile und nach Anführungsstrichen ist ein Zeilenumbruch.
+
 Wer möchte, kann mir seine Übersetzung zukommen lassen, und ich füge sie in Organon ein.
 Mail: organon_err(@)web(.)de 	(Klammern weglassen)
--
+
 

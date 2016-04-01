@@ -1,4 +1,4 @@
- Textvergleich: Zitate finden
+Textvergleich: Zitate finden
 Dieses Textwerkzeug findet gemeinsame Stellen in zwei miteinander verglichenen Texten, erstellt ein Browser Dokument mit Navigationsmöglichkeiten zwischen den Stellen und öffnet das Dokument im Browser. Je nach Absicht des Suchenden findet es Zitate oder Plagiate.
 Es findet nur wörtlich genau gleiche Stellen, erweiterte Interpunktion und Klein- und Großschreibung spielen aber keine Rolle.
 

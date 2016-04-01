@@ -35,30 +35,21 @@ ERZEUGE_INDEX = u'''Create Index'''
 
 SPEICHERORT = u'''Save to Folder'''
 FORMATIERUNG = u'''Format'''
-TEMPLATE_WRITER = u'''Writer Default Template'''
-TEMPLATE_USER = u'''User Template'''
 NO_TEMPLATES = u'''No Templates'''
-EIGENES_TEMPL_ERSTELLEN = u'''Create Template from Selection'''
 NAME = u'''Name'''
 ERSTELLEN = u'''Create'''
 TEMPLATE = u'''Template'''
-WARNUNG_NAME_TEMPLATE = u'''Enter a Name for the Template   '''
-WARNUNG_TEMPLATE_EXISTS = u'''The Template already exists   '''
-NEUES_TEMPLATE = u'''New Template created in:'''
 
 NEW_DOC = u'''New Document'''
 NEW_DIR = u'''New Folder'''
 TAB = u'''Tab'''
-TABNAMEN_EINGEBEN = u'''You need to enter a name for the new tab.'''
 NEUER_TAB = u'''New Tab'''
 SCHLIESSE_TAB = u'''Close active Tab'''
 TAB_SCHLIESSEN = u'''Do you really want to close the tab "%s" ?'''
 TAB_EXISTIERT_SCHON = u'''The tab name already exists.'''
 UNFOLD_PROJ_DIR = u'''Unfold Project Folder'''
 TRENNE_TEXT = u'''Divide Text'''
-TRENNE_TEXT_Help = u'''Divide Text at Cursor Position'''
 
-CREATE_NEW_PROJECT = u'''Create New Project'''
 CANCEL = u'''Cancel'''
 OK = u'''OK'''
 ENTER_PROJ_NAME = u'''Project Name:'''
@@ -78,7 +69,6 @@ TRENNER_FORMATIERUNG = u'''Format Separator'''
 LINIE = u'''Line'''
 FARBE = u'''Color'''
 FARBE_SCHRIFT = u'''Color Font'''
-FARBE_HINTERGRUND = u'''Color Background'''
 BENUTZER = u'''User'''
 KEIN_TRENNER = u'''No Separator'''
 TRENNER_ANMERKUNG = u'''The colors of the separator are part of the design 
@@ -216,7 +206,6 @@ BENUTZER1 = u'''User 1'''
 BENUTZER2 = u'''User 2'''
 BENUTZER3 = u'''User 3'''
 
-GROESSE_TEXT_BOX = u'''Size Text Box'''
 HOEHE = u'''Height'''
 BREITE = u'''Width'''
 
@@ -259,7 +248,6 @@ ORDNER_AUSSUCHEN = u'''select Folder'''
 TEXTVERGLEICH = u'''Text Comparison: find Quotations'''
 ANZ_SUCHWOERTER = u'''Amount Searchterms'''
 START = u'''Start'''
-KEINE_AUSGABE_GEWAEHLT = u'''You didn't select an output'''
 NOCH_NICHT_AUSGESUCHT = u'''You didn't select %s!'''
 VERGLEICH_VON_MIT = u'''Comparison of %s with %s'''
 KEINE_UEBEREINSTIMMUNGEN = u'''No matches found'''
@@ -280,6 +268,10 @@ CHRONOLOGISCH = u'''chronological'''
 # SEARCH
 SUCHE = u'''Search'''
 GROSS_KLEIN = u'''Case sensitiv'''
+KEINE_SUCHE_AUSGEWAEHLT = u'''No result is selected'''
+DATEI_NICHT_IM_TAB = u'''The file is not part of the current tab'''
+FUNDE_WURDEN_GETAGGT = u'''The results have been tagged'''
+ERGEBNISSE_ANZEIGEN = u'''Show results'''
 IN_NEUEM_TAB = u'''Open in new tab'''
 FUNDE_TAGGEN = u'''Tag results'''
 MARK_FUNDE = u'''color results'''
@@ -287,15 +279,9 @@ SUCHBEGRIFFE = u'''Searchwords'''
 IN_VORHANDENE_TAGS_EINTRAGEN = u'''Expand existing tags'''
 SUCHBEGRIFFE_HELP_TEXT = u'''You might search for several searchterms at once.
 Searchterms are separated by commas.
-If a searchterm contains a comma, it has to be escaped by a backslash: \,
-
-If the logic operator is \u039B or "Regular Expression" has been chosen and the results should
-be tagged, a tag-name has to be entered.'''
+If a searchterm contains a comma, it has to be escaped by a backslash: \,'''
 KEINE_DATEIEN_AUSGEWAEHLT = u'''No files to search in have been chosen.'''
-KEINE_AKTION_GEWAEHLT = u'''No action has been selected.'''
-REGEX_BRAUCHT_TAGNAMEN = u'''If you choose "Regular Expression" and "Tag results", you have to enter a tag-name.'''
-OPT_ALLE_BRAUCHT_TAGNAMEN = u'''If the logic operator is \u039B and "Tag results" has been chosen,
-you have to enter a tag-name.'''
+REGEX_BRAUCHT_TAGNAMEN = u'''When the search has been done with a regular expression, a tag-name has to be entered.'''
 TAG_VORHANDEN_WAEHLEN = u'''The tag "{0}" already exists. If you want to tag the results with it as well,
 select "Expand existing tags".'''
 KEINE_SUCHBEGRIFFE = u'''No searchterms have been entered'''
@@ -354,7 +340,6 @@ PERSONA = u'''Persona'''
 DESIGN_PERSONA = u'''Design: Personas'''
 DESIGN_ORGANON = u'''Design: Organon'''
 DESIGN_TRENNER = u'''Design: Separator'''
-DESIGN_OFFICE = u'''Design: Office'''
 THEMA_UNTERTITEL = u'''Font color of menubar'''
 NEUES_PERSONA_THEMA = u'''New Persona'''
 PERSONA_ANWENDEN = u'''Set Persona'''
@@ -363,7 +348,6 @@ PERSONANAMEN_EINGEBEN = u'''Enter a name for the new Persona'''
 HINTERGRUND_EINFARBIG = u'''Background: Color'''
 HINTERGRUND_GRADIENT = u'''Background: Gradient'''
 HINTERGRUND_NUTZER = u'''Background: User'''
-HINTERGRUND_2 = u'''Background 2'''
 FARBE2 = u'''Color 2'''
 URL = u'''URL'''
 ERZEUGE_GRADIENT = u'''create Gradient'''
@@ -378,7 +362,6 @@ and try it again.'''
 KEIN_PERSONA_SELEKTIERT = u'''No Persona selected'''
 LOESCHEN_BESTAETIGEN = u'''Do you really want to delete "{0}"?'''
 ORDNER_NICHT_ENTFERNT = u'''The directory '{0}' couldn't be deleted.'''
-AENDERUNG_NACH_NEUSTART = u'''Changes will be visible after a restart of Writer.'''
 KEIN_PERSONA = u'''No Persona'''
 
 # WRITER DESIGN
@@ -540,9 +523,9 @@ Organon creates new empty tags for all files.'''
 LEGE_TAGS_FUER_DATEI_AN = u'''Organon couldn't load some tags and creates 
 new and empty ones for these files:\n\n'''
 DATEIEN_NICHT_IM_PROJEKT_ABER_AUF_FP = u'''Following files are not part of the project anymore,
-but still existing in the project folder. Should they be deleted?
+but are still existing in the project folder. Should they be deleted?
 
-(Speicherort:{0})
+(path to folder:{0})
 
 '''
 
@@ -592,11 +575,16 @@ QUERVERWEISE_UMWANDELN = u'''Converting Organon Cross-References to Writer Cross
 ORGA_LESEZEICHEN = u'''Organon Bookmarks'''
 ORGA_FELDER = u'''Organon Fields'''
 WANDLE_QUERVERWEISE = u'''Converting Cross-References ... '''
+VERLINKE_IN_NEUE_DATEIEN = u'''Link Cross-References to new Files'''
+VERLINKE_IN_NEUE_DATEIEN_HELP = u'''Links cross-references referencing from other files to the file, which will be devided,
+to the newly created files.
+
+Choose this option only when you are shure that you will keep the results of the division.
+Once rereferenced cross-references will get lost, when the newly created files get deleted.'''
 
 # VARIOUS
 NICHT_VERSCHIEBBAR = u'''Project Folder and Waste Bin can't be moved'''
 WOERTERLISTE = u'''Create List of all Words'''
-UNGUELTIGE_FARBE = u'''This is not a valid color'''
 LISTE_GESPEICHERT = u'''The list has been successfully saved to {}'''
 
 # ERRORS

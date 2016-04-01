@@ -1,2 +1,2 @@
 Internal Version Control
-For projects created by an older version of Organon exists an internal version control to adapt the changes to the project. Probably can't the project be opened by an older version of Organon afterwards.
+For projects created by an older version of Organon exists an internal version control to adapt the changes to the project. Probably the project can't be opened by an older version of Organon afterwards.

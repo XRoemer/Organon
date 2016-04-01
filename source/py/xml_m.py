@@ -22,6 +22,27 @@ class XML_Methoden():
             #print('-    '*index,elem.tag,parent,elem.attrib['Name'],index-1,elem.attrib['Art'])
         for child in elem:
             self.get_tree_info(child,eintr,index+1,elem.tag)
+    
+    
+    def get_parents(self,ordinal):
+        #if self.mb.debug: log(inspect.stack)
+        props = self.mb.props[T.AB]
+        tree = props.xml_tree
+        root = tree.getroot()
+        
+        parents = []
+        try:     
+            while ordinal not in ('ORGANON','Tabs'):
+                el = root.find('.//{0}/..'.format(ordinal))
+                if el.tag not in ['nr0','ORGANON','Tabs']:
+                    ordinal = el.tag
+                    parents.append([ordinal,el])
+                else:
+                    break
+        except:
+            log(inspect.stack,tb())
+            
+        return parents
              
     
     def erzeuge_XML_Eintrag(self,eintrag):
@@ -143,7 +164,7 @@ class XML_Methoden():
         target = root.find('.//'+target)
         # Parent Source/Target
         par_source = root.find('.//'+source.tag+'/..')
-        par_target = root.find('.//'+target.tag+'/..')
+        #par_target = root.find('.//'+target.tag+'/..')
         # Source im Parent loeschen
         par_source.remove(source)
         #Source als Subelement einfuegen
@@ -175,7 +196,7 @@ class XML_Methoden():
             elem.attrib['Lvl'] = str(lvl)  
             lvl2 = int(lvl)
             
-            par = root.find('.//'+ordinal+'/..')
+            par = root.find( './/{0}/..'.format(ordinal) )
 
             if par.attrib['Name'] == 'root':
                 elem.attrib['Parent'] = 'root'

@@ -1,8 +1,18 @@
 Search
+The search has three panels:
+Search
+Edit
+Results
+
+Inside the panel “Search” a search can be started. It’s result will be listed in the panel “Results”.  The results might be used for navigation. Inside the panel “Edit” search results might be used for further editing.
+Searches get saved and will be available after a restart of the project also.
+
+Panel “Search”
 Selection of texts to be searched
 "All" selects all texts in the current tab.
 "Visible" selects visible texts.
 With selected "Selection" and the selection button on the right side, a free choice from the current tab can be made.
+
 Searchwords
 Multiple searchwords or sentences might be entered simultaneously.
 Words or sentences are separated by commas. A comma that is part of a sentence, is escaped by a backslash, so it won't be used as a separator. (\,)
@@ -10,8 +20,13 @@ The logical operators ∧ (And), ∨ (Or):
 ∧ selects only those files that contain all the searchwords.
 ∨ selects all files, which fit one of the words.
 Regular expressions are used as in Office. Explanation see Office Online Help. A special feature in Office is that the upper / lower case can be turned on by the corresponding field. The search for whole words can't.
+
+Panel “Edit”
+Selection
+Select the search to be edited in the listbox.
 Open in New Tab
 Opens the search results in a new tab. Its name can be determined in the box.
+
 Tag results
 In addition to the Organizer and the sidebar this is the third way to generate tags.
 In the left box you can assign a single tag to search results. If left blank, a separate tag is generated for each keyword.
@@ -20,13 +35,18 @@ The new tags are created in the tag-category selected in the list box.
 Is one of the tags already existing in the project, Organon will popup a message.
 Either you choose then "expand existing tags", which will tag existing tags in the tag-category where they already exist. The other keywords are still created in the selected tag-categorie.
 Or you enter a name in the left box and tag all files with the same tag.
-If "Regular Expression" or the logical AND (∧) has been selected in the search field, a name MUST be entered into the left box.
-Neither regular expressions nor word-collections will create sensefull tags. And Organon has problems, to filter for the right word. But with copy and paste the entry field is indeed filled quickly when needed.
+If  a "Regular Expression" has been searched, a name MUST be entered into the left box.
 On the right side a new category can be created by entering a name and clicking on the button. The new category is automatically selected in the list box.
 Edit or delete the new category in the settings.
+
 Color results
-Marks all occurances of the searchwords in the document. The color can be selected on click.
-While the search is very fast and searches 1000 pages in a few seconds (or less - depending on your own computer), marking is rather slow. If there are hundreds of files with thousands of pages and lots of searchresults you can watch the progress bar while crawling or get a piece of cake at the bakery. 
+Marks all occurrences of the search words in the document. The color can be selected on click.
+While the search is very fast and searches 1000 pages in a few seconds (or less - depending on your own computer), marking is rather slow. If there are hundreds of files with thousands of pages and lots of search results you can watch the progress bar while crawling or get a piece of cake at the bakery. 
 A targeted use is unproblematic.
-Search
-Search starts searching.
+The button “X” sets colored results back.
+
+Panel “Results”
+Search results are listed here.
+A click on a search word navigates to the corresponding file. Results will be temporarily marked blue.
+The button on the left of each result deletes the result.
+The button in the heading of a search deletes the search.

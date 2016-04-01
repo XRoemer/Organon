@@ -1,8 +1,18 @@
 Suche
+Die Suche besitzt drei Panels:
+Suchen
+Bearbeiten
+Ergebnisse
+
+In dem Panel „Suche“ kann eine Suche gestartet werden, deren Ergebnis im Panel „Ergebnisse“ aufgelistet wird. Wird ein dort gelistetes Suchwort angeklickt, springt Organon in der entsprechenden Datei an den Fundort. Im Panel „Bearbeiten“ können die Suchergebnisse weiterverwendet werden.
+Suchen werden mit dem Projekt gespeichert und stehen beim erneuten Öffnen wieder zur Verfügung.
+
+Panel „Suchen“
  Auswahl der zu durchsuchenden Texte
 “Alles” wählt alle Texte im aktuellen Tab aus.
 “Sichtbare” wählt die sichtbaren aus. 
-Mit der Auswahl und der Auswahlschaltfläche auf der rechten Seite kann eine freie Auswahl aus dem aktuellen Tab getroffen werden.
+Mit der Auswahl und der Auswahlschaltfläche darunter kann eine freie Auswahl aus dem aktuellen Tab getroffen werden.
+
 Suchbegriffe
 Es können mehrere Suchbegriffe oder -sätze gleichzeitig eingegeben werden. 
 Suchbegriffe oder -sätze werden durch Kommas getrennt. Ein Komma, das mitgesucht werden soll, wird durch einen Rückstrich als Trenner ignoriert. ( \, )
@@ -10,8 +20,14 @@ Die logischen Operatoren ∧  (Und) und ∨ (Oder):
 ∧  wählt nur die Dateien aus, in denen alle Suchbegriffe vorkommen.
 ∨ wählt alle Dateien aus, in denen einer der Suchbegriffe vorkommt.
 Reguläre Ausdrücke werden wie in Office verwendet. Erklärungen siehe Office Online Hilfe. Eine Besonderheit in Office ist, dass die Groß-/Kleinschreibung über das entsprechende Feld angeschaltet werden kann. Die Suche nach ganzen Wörtern hingegen nicht.
+
+Panel „Bearbeiten“
+Auswahl
+Im Listenfeld wird die Suche ausgewählt, die bearbeitet werden soll.
+
 In neuem Tab öffnen
 Öffnet die Suchergebnisse in einem neuen Tab, dessen Name im Eingabefeld bestimmt werden kann.
+
 Funde taggen
 Neben dem Organizer und der Seitenleiste ist dies die dritte Möglichkeit, Tags zu erzeugen.
 Mit dem linken Eingabefeld kann man den Suchergebnissen einen einheitlichen Tag zuweisen. Bleibt das Feld leer, wird für jedes Suchwort ein eigener Tag erzeugt.
@@ -19,14 +35,20 @@ Der Suchausdruck „Bad Salzuflen , Rheinstieg, Waterloo“ ergibt also drei Tag
 Die neuen Tags werden in der Tagkategorie erstellt, die in dem Listenfeld ausgewählt ist.
 Ist einer der Suchbegriffe schon als Tag im Projekt vorhanden, weist Organon darauf hin. 
 Entweder wählt man dann „Vorhandene Tags erweitern“, dann werden die Dateien, die den Suchbegriff als Tag enthalten, in der Kategorie getaggt, in der der Tag schon vorkommt. Die anderen Suchbegriffe werden trotzdem in der ausgewählten Tagkategorie erstellt.
-Oder man trägt einen Namen in das linke Eingabefeld ein und taggt alle Dateienmit dem gleichen Tag.
-Wenn im Suchfeld „Regulärer Ausdruck“ oder das logische Und (∧) gewählt wurde, MUSS ein Name für den neuen Tag vergeben werden. 
-Sowohl reguläre Ausdrücke als auch Wörterhaufen will wahrscheinlich niemand als Tag haben. Und Organon hätte Probleme, die richtigen Begriffe daraus zu filtern. Aber mit Copy und Paste ist ja bei Bedarf das Eingabefeld schnell gefüllt.
+Oder man trägt einen Namen in das linke Eingabefeld ein und taggt alle Dateien mit dem gleichen Tag.
+Wenn nach einem „Regulären Ausdruck“ gesucht wurde, MUSS ein Name für den neuen Tag vergeben werden. 
 Auf der rechten Seite kann durch Eingabe eines Namens und Klicken auf den Button eine neue Kategorie erzeugt werden. Diese wird automatisch in dem Listenfeld ausgewählt.
 Bearbeitet oder gelöscht wird die Kategorie in den Einstellungen.
+
 Markiere Fundstellen
 Markiert alle Fundstellen der Suche im Dokument. Die Farbe ist auf Klick wählbar. 
 Während die Suche sehr schnell ist und auch 1000 Seiten in wenigen Sekunden (oder weniger – je nach eigenem Rechner) durchsucht sind, ist das Markieren eher lahm. Bei mehreren 100 Dateien mit 1000den Seiten und aberhunderten Fundstellen kann man der Fortschrittsanzeige beim Kriechen zuschauen oder sich ein Teilchen beim Bäcker holen. Aber das macht ja auch keiner. 
 Ein gezielter Einsatz ist vollkommen unproblematisch.
-Suche
-Suche sucht.
+Der mit „X“  gekennzeichnete Knopf setzt Markierungen wieder zurück.
+
+Panel „Ergebnisse“
+Hier werden die Suchergebnisse aufgelistet.
+Bei einem Klick auf eines der umrandeten Suchwörter öffnet Organon die entsprechende Datei. Alle Fundstellen des Wortes werden blau hinterlegt.
+Mit dem kleinen Button vor jeder Fundstelle können einzelne Fundstellen gelöscht werden.
+Mit dem Button in der Kopfzeile des Suchergebnisses wird die gesamte Suche gelöscht.
+ 
