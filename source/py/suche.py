@@ -344,6 +344,19 @@ class Suche():
 #                 y1,dicke = 0, 1
 #             else:
 #                 y1,dicke = -4, 10
+
+            if name in (LANG.ERGEBNISSE, LANG.SUCHE, LANG.BEARBEITEN_M):
+                if name == LANG.ERGEBNISSE:
+                    titel = LANG.ERGEBNISSE
+                    name = 'Ergebnisse'
+                elif name == LANG.SUCHE:
+                    titel = LANG.SUCHE
+                    name = 'Suchen'
+                elif name == LANG.BEARBEITEN_M:
+                    titel = LANG.BEARBEITEN_M
+                    name = 'Bearbeiten'
+            else:
+                titel = name
             
             farben = self.mb.settings_orga['organon_farben']
             
@@ -376,10 +389,9 @@ class Suche():
             else:
                 pos = 30
             
-            
             cont_label, model = self.mb.createControl(self.mb.ctx, "FixedText", pos, 0 , self.breite_sidebar, self.titel_hoehe,
                                                       ('Label','VerticalAlign','FontWeight'), 
-                                                      (name, 1, 150 ) 
+                                                      (titel, 1, 150 ) 
                                                       )  
             cont_titelleiste.addControl('label',cont_label)
             
@@ -462,7 +474,7 @@ class Suche():
             ctrls_suche, max_breite = self.mb.class_Suche.dialog_elemente_suche()
             self.ctrls_suche,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(ctrls_suche) 
             
-            odic = self.erzeuge_panel('Suchen')
+            odic = self.erzeuge_panel(LANG.SUCHE)
             hoehe = self.setze_panel_pos(odic['Suchen'], 0, max_hoehe)
             self.dict_suche.update(odic)
 
@@ -475,7 +487,7 @@ class Suche():
             ctrls_bearbeiten, max_breite = self.mb.class_Suche.dialog_elemente_bearbeiten()
             self.ctrls_bearbeiten,max_hoehe = self.mb.class_Fenster.erzeuge_fensterinhalt(ctrls_bearbeiten) 
             
-            odic = self.erzeuge_panel('Bearbeiten')
+            odic = self.erzeuge_panel(LANG.BEARBEITEN_M)
             hoehe2 = self.setze_panel_pos(odic['Bearbeiten'], hoehe, max_hoehe)
             self.dict_suche.update(odic)
             
@@ -485,7 +497,7 @@ class Suche():
             container.addControl('Bearbeiten',self.dict_suche['Bearbeiten']['container'])
                 
             # ERGEBNISSE
-            odic = self.erzeuge_panel('Ergebnisse')
+            odic = self.erzeuge_panel(LANG.ERGEBNISSE)
             hoehe3 = self.setze_panel_pos(odic['Ergebnisse'], hoehe + hoehe2, 0)
             self.dict_suche.update(odic)
             self.dict_suche['Ergebnisse']['fundstellen'] = {}
@@ -532,6 +544,11 @@ class Suche():
             
             dict_suche['sb'].requestLayout()
             self.suchergebnisse_speichern()
+            
+            listbox = self.ctrls_bearbeiten['liste']
+            index = listbox.Items.index(suchbegriffe)
+            listbox.removeItems(index,1)
+            listbox.selectItemPos(0,True)
         except:
             log(inspect.stack,tb())
             
@@ -1409,6 +1426,13 @@ class Search_Collapse_Button_Listener(unohelper.Base, XMouseListener):
     def __init__(self,mb):
         self.mb = mb
         
+        self.titel = {
+                    'Ergebnisse' : LANG.ERGEBNISSE,
+                    'Suchen' : LANG.SUCHE,
+                    'Bearbeiten' : LANG.BEARBEITEN_M
+                      }
+        self.titel2 = { v:k for k,v in self.titel.items()}
+        
     def disposing(self,ev):
         return False
     def mouseReleased(self,ev):
@@ -1445,11 +1469,11 @@ class Search_Collapse_Button_Listener(unohelper.Base, XMouseListener):
                 source.Model.ImageURL = url_collapse
 
             
-            if name == 'Suchen':
+            if name == self.titel['Suchen']:
                 panels = (dict_suche['Bearbeiten'], dict_suche['Ergebnisse'])
-            elif name == 'Bearbeiten':
+            elif name == self.titel['Bearbeiten']:
                 panels = (dict_suche['Ergebnisse'],)
-            elif name not in ('Suchen', 'Ergebnisse', 'Bearbeiten'):
+            elif name not in (self.titel['Suchen'], self.titel['Ergebnisse'], self.titel['Bearbeiten']):
                 panels = [ dict_suche['Ergebnisse']['fundstellen'][n] for n in dict_suche['Ergebnisse']['fundstellen'] if n != name ]
             else:
                 panels = ()
@@ -1477,8 +1501,8 @@ class Search_Collapse_Button_Listener(unohelper.Base, XMouseListener):
                 setPosSize(dict_suche['container'], hoehe)
             
             
-            if name in ('Suchen', 'Bearbeiten', 'Ergebnisse'):
-                klappen(dict_suche[name])
+            if name in (self.titel['Suchen'], self.titel['Bearbeiten'], self.titel['Ergebnisse']):
+                klappen( dict_suche[ self.titel2[name] ] )
             else:
                 odic = dict_suche['Ergebnisse']['fundstellen'][name]
                 

@@ -33,28 +33,6 @@ class Funktionen():
                     ('weiss' , LANG.WEISS)
                       )) 
         
-        self.items = OrderedDict( ( v , k ) for k,v in items.items() )
-        
-        self.color_items = ('leer',
-                            'blau',
-                            'braun',
-                            'creme',
-                            'gelb',
-                            'grau',
-                            'gruen',
-                            'hellblau',
-                            'hellgrau',
-                            'lila',
-                            'ocker',
-                            'orange',
-                            'pink',
-                            'rostrot',
-                            'rot',
-                            'schwarz',
-                            'tuerkis',
-                            'weiss')
-        
-        
         self.color_items = ('leer',
                             'creme',
                             'gelb',
