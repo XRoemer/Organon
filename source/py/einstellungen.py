@@ -1507,10 +1507,10 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
         for nr,ctrls in self.rows.items():
             
             reihen.update( {nr: {
-            'name' : ctrls['name'].Text,
-            'breite' : ctrls['breite'].Text,
-            'typ' : ctrls['typ'].Text,
-            'original' : ctrls['original']
+                            'name' : ctrls['name'].Text,
+                            'breite' : ctrls['breite'].Text,
+                            'typ' : ctrls['typ'].Text,
+                            'original' : ctrls['original']
             
             }})
         
@@ -1556,21 +1556,19 @@ class Listener_Tags(unohelper.Base, XActionListener,XKeyListener,XFocusListener)
             
             if art == 'tag':
                 tags2['sammlung'][nr] = []
+            
+            for ordi in tags2['ordinale']:                       
+                if art == 'txt':
+                    tags2['ordinale'][ordi][nr] = ''
+                elif art == 'tag':
+                    tags2['ordinale'][ordi][nr] = []
+                elif art == 'date':
+                    tags2['ordinale'][ordi][nr] = None
+                elif art == 'time':
+                    tags2['ordinale'][ordi][nr] = None
+                elif art == 'img':
+                    tags2['ordinale'][ordi][nr] = ''
                         
-            if art == 'txt':
-                eintrag = ''
-            elif art == 'tag':
-                eintrag = []
-            elif art == 'date':
-                eintrag = None
-            elif art == 'time':
-                eintrag = None
-            elif art == 'img':
-                eintrag = ''
-                
-            for ordi in tags2['ordinale']:
-                tags2['ordinale'][ordi][nr] = eintrag
-        
         
         # auf gueltige Eintraege ueberpruefen
         for nr,b in tags2['nr_breite'].items():

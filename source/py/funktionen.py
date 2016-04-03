@@ -4,14 +4,80 @@ import unohelper
 from math import sqrt
 from shutil import copyfile
 import json
+from collections import OrderedDict
 
 class Funktionen():
     
     def __init__(self,mb):
         if mb.debug: log(inspect.stack)
-        self.mb = mb      
-
+        self.mb = mb   
         
+        items = OrderedDict((
+                    ('leer' , LANG.LEER),
+                    ('blau' , LANG.BLAU),
+                    ('braun' , LANG.BRAUN),
+                    ('creme' , LANG.CREME),
+                    ('gelb' , LANG.GELB),
+                    ('grau' , LANG.GRAU),
+                    ('gruen' , LANG.GRUEN),
+                    ('hellblau' , LANG.HELLBLAU),
+                    ('hellgrau' , LANG.HELLGRAU),
+                    ('lila' , LANG.LILA),
+                    ('ocker' , LANG.OCKER),
+                    ('orange' , LANG.ORANGE),
+                    ('pink' , LANG.PINK),
+                    ('rostrot' , LANG.ROSTROT),
+                    ('rot' , LANG.ROT),
+                    ('schwarz' , LANG.SCHWARZ),
+                    ('tuerkis' , LANG.TUERKIS),
+                    ('weiss' , LANG.WEISS)
+                      )) 
+        
+        self.items = OrderedDict( ( v , k ) for k,v in items.items() )
+        
+        self.color_items = ('leer',
+                            'blau',
+                            'braun',
+                            'creme',
+                            'gelb',
+                            'grau',
+                            'gruen',
+                            'hellblau',
+                            'hellgrau',
+                            'lila',
+                            'ocker',
+                            'orange',
+                            'pink',
+                            'rostrot',
+                            'rot',
+                            'schwarz',
+                            'tuerkis',
+                            'weiss')
+        
+        
+        self.color_items = ('leer',
+                            'creme',
+                            'gelb',
+                            'gruen',
+                            'tuerkis',
+                            'hellblau',
+                            'blau',                            
+                            'orange',
+                            'ocker',
+                            'rot',
+                            'pink',
+                            'lila',
+                            'rostrot',
+                            'braun',
+                            'weiss',
+                            'hellgrau',
+                            'grau',
+                            'schwarz',
+                            )
+        
+        self.items = OrderedDict( ( items[k] , k ) for k in self.color_items )
+        
+         
     def projektordner_ausklappen(self, ordinal=None, selektiere_zeile=True,ist_papierkorb=False):
         if self.mb.debug: log(inspect.stack)
         
@@ -131,39 +197,20 @@ class Funktionen():
         model.Border = 0
         model.BackgroundColor = KONST.FARBE_HF_HINTERGRUND
         
-        items = ('leer',
-                'blau',
-                'braun',
-                'creme',
-                'gelb',
-                'grau',
-                'gruen',
-                'hellblau',
-                'hellgrau',
-                'lila',
-                'ocker',
-                'orange',
-                'pink',
-                'rostrot',
-                'rot',
-                'schwarz',
-                'tuerkis',
-                'weiss')
-                
-        control.addItems(items, 0)           
-        
-        for item in items:
-            pos = items.index(item)
-            model.setItemImage(pos,KONST.URL_IMGS+'punkt_%s.png' %item)
-        
-        
-        tag_item_listener = Tag1_Item_Listener(self.mb,window,ord_source)
-        tag_item_listener.window_parent = window_parent
+        try:       
+            control.addItems(tuple(self.items.keys()), 0)           
             
-        control.addItemListener(tag_item_listener)
-        
-        cont.addControl('Eintraege_Tag1', control)
-        
+            for pos,item in enumerate(self.color_items):
+                model.setItemImage(pos, KONST.URL_IMGS + 'punkt_%s.png' %item)
+            
+            tag_item_listener = Tag1_Item_Listener(self.mb,window,ord_source)
+            tag_item_listener.window_parent = window_parent
+                
+            control.addItemListener(tag_item_listener)
+            
+            cont.addControl('Eintraege_Tag1', control)
+        except:
+            log(inspect.stack,tb())
         
             
     def erzeuge_Tag2_Container(self,ordinal,X,Y,window_parent=None):
@@ -2059,7 +2106,8 @@ class Tag1_Item_Listener(unohelper.Base, XItemListener):
         
         try:
             sel = ev.value.Source.Items[ev.value.Selected]
-    
+            sel = self.mb.class_Funktionen.items[sel]
+            
             # image tag1 aendern
             src = self.mb.props[T.AB].Hauptfeld.getControl(self.ord_source).getControl('tag1')
             if src != None:

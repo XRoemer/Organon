@@ -1077,23 +1077,25 @@ class Suche_Dialog_Listener(unohelper.Base, XActionListener, XMouseListener):
                     for z in zu_loeschende:
                         del ergebnisse[z]
                 
+                
+                
                 for panel_nr,[ordis,new_tag] in vorhandene.items():
                     for o in ordis:
                         if new_tag not in tags['ordinale'][o][panel_nr]:
                             tags['ordinale'][o][panel_nr].append(new_tag)
-                
                 
                 kategorie = ctrls['kat_auswahl'].SelectedItem
                 panel_nr = tags['name_nr'][kategorie]
                 
                 for new_tag, ordis in ergebnisse.items():
                     for o in ordis:
+                        print(o)
                         if new_tag not in tags['ordinale'][o][panel_nr]:
                             tags['ordinale'][o][panel_nr].append(new_tag)
                         if new_tag not in tags['sammlung'][panel_nr]:
                             tags['sammlung'][panel_nr].append(new_tag)
             
-            
+                
             Popup(self.mb, 'info').text = LANG.FUNDE_WURDEN_GETAGGT
             
         except:
@@ -1433,6 +1435,15 @@ class Search_Collapse_Button_Listener(unohelper.Base, XMouseListener):
         
         try:
             dict_suche = self.mb.class_Suche.dict_suche
+
+            url_collapse = self.mb.class_Suche.url_collapse
+            url_expand = self.mb.class_Suche.url_expand
+            
+            if source.Model.ImageURL == url_collapse:
+                source.Model.ImageURL = url_expand
+            else:
+                source.Model.ImageURL = url_collapse
+
             
             if name == 'Suchen':
                 panels = (dict_suche['Bearbeiten'], dict_suche['Ergebnisse'])

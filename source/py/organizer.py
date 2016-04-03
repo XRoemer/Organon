@@ -28,29 +28,8 @@ class Organizer():
         self.first_time_info = True
         self.rangex = None
         self.bilder_reihe = {}
-        
-        # Die Color items sollten mal uebersetzt werden!
-        self.color_items = (
-                'blau',
-                'braun',
-                'creme',
-                'gelb',
-                'grau',
-                'gruen',
-                'hellblau',
-                'hellgrau',
-                'lila',
-                'ocker',
-                'orange',
-                'pink',
-                'rostrot',
-                'rot',
-                'schwarz',
-                'tuerkis',
-                'weiss')
-        
-        
-        
+
+
     def run(self): 
         if self.mb.debug: log(inspect.stack)
         
@@ -526,7 +505,7 @@ class Organizer():
             
             oButton = self.mb.createUnoService("com.sun.star.form.component.ImageButton")
 
-            if url in self.color_items:
+            if url in self.mb.class_Funktionen.color_items:
                 pfad = self.mb.path_to_extension
                 url = uno.systemPathToFileUrl(os.path.join(pfad,'img','punkt_%s.png' %url))
             elif url == 'leer':

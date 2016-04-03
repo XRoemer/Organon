@@ -1175,7 +1175,7 @@ class Projekt():
                         
             suche = self.mb.class_Suche
             
-            
+            tags = self.mb.tags
             
             
             #attr = self.mb.class_Tools.ueberpruefe_LANG()

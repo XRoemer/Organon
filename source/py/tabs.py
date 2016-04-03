@@ -1527,17 +1527,11 @@ class TabsX():
         
     def erzeuge_Eintraege(self,tab_name,ordinale):
         if self.mb.debug: log(inspect.stack)
-        
-        # hier sollen die Ergebnisse von Suche oder Tags erzeugt werden
-        
-#         parent_eintrag = ('nr0','root',self.mb.projekt_name,0,'prj','auf','ja','leer','leer','leer')
-#         papierkorb = ('nr5','root',LANG.PAPIERKORB,0,'waste','zu','ja','leer','leer','leer')
-                
+                                
         xml_tree = self.mb.props['ORGANON'].xml_tree
         root = xml_tree.getroot()
 
         Eintraege = []
-        
         
         # Ordinal des Projekts muss enthalten sein und an erster Stelle stehen 
         if self.prj_ord not in ordinale:
@@ -1560,7 +1554,7 @@ class TabsX():
                 lvl     = 1 
                 parent  = self.prj_ord
             else:
-                lvl = 0 #elem.attrib['Lvl'] 
+                lvl = 0
                 parent  = 'root'
             zustand = elem.attrib['Zustand'] 
             sicht   = 'ja' 
@@ -1737,7 +1731,6 @@ class TabsX():
                 props.dict_posY_ctrl.update({ pos_Y : ctrl })
                 
             # Bereiche   
-            inhalt = name
             path = os.path.join(self.mb.pfade['odts'],ordinal+'.odt') 
             
             Bereichsname_dict.update({'OrganonSec'+str(index2):path})
